@@ -34,8 +34,6 @@ Example:
 
 ece	prog -df %R/etc/defs -xf %R/etc/xe /file/path/prog + -a '%a'
 
-
-
 The following cookies are substituted for:
 
 SYSNAME		OS system-name (SYSNAME)
@@ -53,7 +51,6 @@ s		remote service
 a		service arguments
 t		timeout in seconds
 
-
 The following environment variables are exported to the program:
 
 SYSNAME
@@ -70,7 +67,6 @@ DIALER_HOST	target system
 DIALER_SVC	service
 DIALER_SVCARGS	service arguments
 
-
 = TESTING
 
 To test, make the test program named 'testdialprog'.  It is mostly
@@ -78,8 +74,5 @@ contained within the file 'main.c' (otherwise unused by the dialer
 itself).
 
 Synopsis:
-
 $ testdialprog <host> <programpath> <arg0> <arg1> <arg2>
-
-
 

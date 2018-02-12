@@ -1,0 +1,9 @@
+BBPOST
+
+= 1998-06-02, David A. Morano 
+
+  I fixed the flags in the loop to get the newsgroup.
+  There was a problem where if a bad newsgroup was given,
+  we would still exit this loop and into the next
+  (which gets the subject).
+

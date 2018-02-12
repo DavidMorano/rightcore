@@ -3,12 +3,10 @@ PINGSTAT
 This program is used to maintaince PING status with network hosts.
 
 Synopsis:
-
 $ pingstat [-u] [<host(s)>] [-p <pingtab(s)>] [-t <to>] [-q]
 	[-dgram] [-i[=<minlen>]] [-m <minpoll>] [-v[=<v>]] [-V]
 
-where:
-
+Arguments:
 -u		update mode
 <host(s)>	network hosts to update
 -pd <dir>	specify directory for ping-tab files

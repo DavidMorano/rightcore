@@ -13,11 +13,9 @@ file named by the first positional argument of the program or by STDIN of this
 program.
 
 Synopsis:
-
 $ showfieldterms <termfile> [-V]
 
-where:
-
+Arguments:
 <termfile>	file containing the ASCII representation of field terminators
 -V		print program version to standard-error and then exit
 

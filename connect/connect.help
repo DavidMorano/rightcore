@@ -1,14 +1,12 @@
-CONNENT
+CONNECT
 
 This program makes a connection to the target of a dialer.
 
 Synopsis:
-
 $ connect [-d <dialer>] <addr> [<svc>] [-s <subsvc>] [-t <timeout>] 
 	[-f <af>] [-sa <srcaddr>] [-V]
 
-where:
-
+Arguments:
 [-d <dialer>]	alternative dialer (default is 'tcp')
 <addr>		address to connect to (dialer dependent)
 <svc>		optional service to connect to

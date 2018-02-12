@@ -165,7 +165,6 @@ struct proginfo_flags {
 	uint		optforward:1 ;
 	uint		optnospam:1 ;
 	uint		optnorepeat:1 ;
-	uint		optin:1 ;
 	uint		optmailhist:1 ;
 	uint		optdeliver:1 ;
 	uint		optcopy:1 ;

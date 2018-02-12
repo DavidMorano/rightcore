@@ -3,6 +3,9 @@
 .SH NAME
 ripper \- audio CDROM ripper program
 .SH SYNOPSIS
+.\"_
+.so tmac.att
+.\"_
 .B ripper
 .RB [ \-d
 .IR " device" ]
@@ -123,7 +126,5 @@ and any changes you make to the source code.
 UNIX manual page by R. P. C. Rodgers,
 U.S. National Library of Medicine (rodgers@nlm.nih.gov).
 .\" end of man page
-
-
-
-
+.\"_
+.\"_

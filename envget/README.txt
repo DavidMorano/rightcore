@@ -1,15 +1,13 @@
 ENVGET
 
-This little program prints out the current process environment in a way
-that can be read back in by a POSIX compatible shell program.  This
-program is almost exactly the same as the ENV program.
+This little program prints out the current process environment in a way that can
+be read back in by a POSIX compatible shell program. This program is almost
+exactly the same as the ENV program.
 
 Synopsis:
-
 $ envget [-export] [-e <envfile>] [-tee <teefile>]
 
 Notes:
-
 Note that:
 	envget -export
 

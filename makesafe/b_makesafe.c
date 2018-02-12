@@ -475,7 +475,7 @@ int p_makesafe(int argc,cchar *argv[],cchar *envv[],void *contextp)
 {
 	return mainsub(argc,argv,envv,contextp) ;
 }
-/* end subroutine (p_wn) */
+/* end subroutine (p_makesafe) */
 
 
 /* local subroutines */
@@ -2408,7 +2408,7 @@ static int procerrline(PROGINFO *pip,VECOBJ *errp,cchar *lbuf,int len)
 	                    }
 	                    if (rs < 0)
 	                        cpperr_finish(&e) ;
-	                } /* end if (cpperr) */
+	                } /* end if (cpperr_start) */
 	            } /* end if (cfdeci) */
 	        } /* end if (sfdequote) */
 	    } /* end if (sfsub) */
@@ -3095,7 +3095,7 @@ static int locinfo_jobdname(LOCINFO *lip)
 /* end subroutine (locinfo_jobdname) */
 
 
-/* this runs as an independent thread */
+/* this conditionally spawns an independent thread for maintenance */
 static int locinfo_tmpcheck(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;

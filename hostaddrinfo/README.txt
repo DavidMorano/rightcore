@@ -5,12 +5,10 @@ names (hostnames) and displays various elements of that information
 to standard-output.
 
 Synopsis:
-
 $ hostaddrinfo [<name(s)> ...] [-af <afile>] [-q] [-f <af>] [-ao] 
 	[-o <opt(s)>] [-V]
 
-where:
-
+Arguments:
 <name(s)>	hostname(s) to retrieve information for
 -af <afile>	file of hostname(s) to retrieve information for
 -q		do not print anything, rather just provide an exit code

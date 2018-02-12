@@ -19,7 +19,8 @@
 
 /*******************************************************************************
 
-	This little object manages the particulars about an article.
+	This little object manages some particulars about an bulletin-board
+	article.
 
 
 *******************************************************************************/
@@ -68,33 +69,6 @@ extern int	strlinelen(const char *,int,int) ;
 
 /* exported subroutines */
 
-
-#ifdef	COMMENT
-struct article_flags {
-	uint		path:1 ;
-	uint		envdate:1 ;
-	uint		msgdate:1 ;
-	uint		jobfile:1 ;
-	uint		nopath:1 ;
-	uint		ngs:1 ;
-} ;
-struct article_head {
-	RETPATH		path ;
-	DATER		envdate ;
-	DATER		msgdate ;
-	NG		ngs ;
-	EMA		addrfrom ;
-	EMA		addrsender ;
-	EMA		addrto ;
-	EMA		addrbcc ;
-	struct article_flags	f ;
-	const char	*envfrom ;
-	const char	*messageid ;
-	const char	*subject ;
-	const char	*articleid ;
-	const char	*ngdname ;
-} ;
-#endif /* COMMENT */
 
 int article_start(ARTICLE *op)
 {
@@ -148,6 +122,7 @@ int article_finish(ARTICLE *op)
 #if	CF_DEBUGS
 	debugprintf("article_finish: f_msgdate=%u\n",op->f.msgdate) ;
 #endif
+
 	if (op->f.msgdate) {
 	    op->f.msgdate = FALSE ;
 	    rs1 = dater_finish(&op->msgdate) ;
@@ -157,6 +132,7 @@ int article_finish(ARTICLE *op)
 #if	CF_DEBUGS
 	debugprintf("article_finish: f_envdates=%u\n",op->f.envdates) ;
 #endif
+
 	if (op->f.envdates) {
 	    DATER	*dp ;
 	    int		i ;
@@ -183,6 +159,7 @@ int article_finish(ARTICLE *op)
 #if	CF_DEBUGS
 	debugprintf("article_finish: f_ngs=%u\n",op->f.ngs) ;
 #endif
+
 	if (op->f.ngs) {
 	    op->f.ngs = FALSE ;
 	    rs1 = ng_finish(&op->ngs) ;
@@ -192,6 +169,7 @@ int article_finish(ARTICLE *op)
 #if	CF_DEBUGS
 	debugprintf("article_finish: addrs\n") ;
 #endif
+
 	for (i = 0 ; i < articleaddr_overlast ; i += 1) {
 	    if (op->af[i]) {
 	        op->af[i] = FALSE ;
@@ -199,6 +177,7 @@ int article_finish(ARTICLE *op)
 	        if (rs >= 0) rs = rs1 ;
 	    }
 	} /* end for */
+
 #if	CF_DEBUGS
 	debugprintf("article_finish: strs\n") ;
 #endif
@@ -214,6 +193,7 @@ int article_finish(ARTICLE *op)
 #if	CF_DEBUGS
 	debugprintf("article_finish: ret rs=%d\n",rs) ;
 #endif
+
 	return rs ;
 }
 /* end subroutine (article_finish) */
@@ -352,42 +332,6 @@ int article_addstr(ARTICLE *op,int type,const char *sp,int sl)
 	return rs ;
 }
 /* end subroutine (article_addstr) */
-
-
-#ifdef	COMMENT
-int article_add(ngp,ngbuf,nglen,ngdname)
-NG		*ngp ;
-const char	ngbuf[] ;
-int		nglen ;
-const char	ngdname[] ;
-{
-	NG_ENT		ne ;
-	int		rs = SR_OK ;
-
-#if	CF_SAFE
-	if (ngp == NULL)
-	    return SR_FAULT ;
-#endif
-
-	if (nglen >= 0) {
-	    ne.len = nglen ;
-	} else {
-	    ne.len = strlen(ngbuf) ;
-	}
-
-	ne.name = (const char *) mallocstrw(ngbuf,ne.len) ;
-
-	ne.dir = NULL ;
-	if (ngdname != NULL) {
-	    ne.dir = (const char *) mallocstr(ngdname) ;
-	}
-
-	rs = vecitem_add(ngp,&ne,sizeof(NG_ENT)) ;
-
-	return rs ;
-}
-/* end subroutine (article_add) */
-#endif /* COMMENT */
 
 
 /* extract newsgroup names from the "newsgroups" header string */

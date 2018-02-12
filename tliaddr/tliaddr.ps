@@ -1,0 +1,947 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+/build_rh {
+pop
+gsave
+size .0022 mul dup scale
+currentpoint translate
+
+15 66 moveto
+15 86 lineto
+16 131 lineto
+17 146 lineto
+18 158 lineto
+19 167 lineto
+21 181 lineto
+24 190 lineto
+34 193 lineto
+49 189 lineto
+58 182 lineto
+60 177 lineto
+60 166 lineto
+59 156 lineto
+58 143 lineto
+57 130 lineto
+56 117 lineto
+55 102 lineto
+54 42 lineto
+53 39 lineto
+49 35 lineto
+34 34 lineto
+19 39 lineto
+16 47 lineto
+15 66 lineto
+stroke
+
+65 60 moveto
+65 111 lineto
+66 127 lineto
+67 139 lineto
+69 153 lineto
+72 163 lineto
+83 171 lineto
+98 177 lineto
+113 182 lineto
+128 187 lineto
+143 190 lineto
+158 194 lineto
+173 196 lineto
+188 199 lineto
+203 201 lineto
+218 203 lineto
+233 205 lineto
+248 205 lineto
+263 206 lineto
+278 206 lineto
+293 206 lineto
+308 206 lineto
+323 206 lineto
+338 205 lineto
+353 203 lineto
+368 202 lineto
+383 200 lineto
+394 197 lineto
+389 190 lineto
+389 180 lineto
+391 176 lineto
+391 173 lineto
+380 173 lineto
+365 173 lineto
+350 174 lineto
+335 175 lineto
+320 176 lineto
+305 176 lineto
+290 176 lineto
+275 177 lineto
+260 177 lineto
+245 177 lineto
+240 173 lineto
+240 170 lineto
+245 165 lineto
+260 164 lineto
+275 164 lineto
+290 164 lineto
+305 163 lineto
+320 160 lineto
+327 155 lineto
+330 149 lineto
+330 134 lineto
+328 129 lineto
+323 124 lineto
+309 121 lineto
+294 121 lineto
+279 121 lineto
+264 121 lineto
+249 121 lineto
+234 121 lineto
+228 118 lineto
+228 112 lineto
+234 109 lineto
+249 109 lineto
+264 109 lineto
+279 108 lineto
+294 108 lineto
+306 104 lineto
+311 97 lineto
+312 91 lineto
+312 88 lineto
+311 82 lineto
+305 74 lineto
+290 72 lineto
+275 72 lineto
+260 72 lineto
+245 73 lineto
+230 73 lineto
+215 73 lineto
+205 70 lineto
+205 63 lineto
+217 60 lineto
+232 60 lineto
+247 60 lineto
+262 60 lineto
+277 57 lineto
+283 52 lineto
+285 44 lineto
+285 41 lineto
+284 35 lineto
+280 30 lineto
+268 26 lineto
+253 25 lineto
+238 26 lineto
+223 28 lineto
+208 31 lineto
+193 33 lineto
+178 34 lineto
+163 33 lineto
+148 31 lineto
+133 28 lineto
+118 27 lineto
+103 28 lineto
+88 34 lineto
+73 43 lineto
+67 52 lineto
+65 60 lineto
+stroke
+
+396 180 moveto
+396 188 lineto
+399 194 lineto
+410 196 lineto
+416 190 lineto
+416 180 lineto
+415 177 lineto
+411 173 lineto
+400 173 lineto
+396 180 lineto
+stroke
+
+grestore
+} def
+/C /Courier def
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1 \))3 126( TLIADDR)1 1788( 1992\25502\25513 \))2 464( \()1 68( LOCAL)1 1693(TLIADDR \( 1 \))3 541 6 540 480 t
+(NAME)540 960 w
+10 R f
+(tliaddr)900 1080 w
+10 S1 f
+(\261)1186 1080 w
+10 R f
+(print out the Transport Layer Interface address)6 1861 1 1276 1080 t
+9 B f
+(SYNOPSIS)540 1248 w
+10 B f
+(tliaddr)900 1368 w
+10 I f
+(host)1220 1368 w
+10 R f
+([)1412 1368 w
+10 I f
+(port)1503 1368 w
+10 R f
+(] [)1 91 1 1686 1368 t
+10 CB f
+(\255i)1777 1368 w
+10 I f
+(interface[:address)1955 1368 w
+10 S f
+(_)2693 1368 w
+10 I f
+(family])2743 1368 w
+10 R f
+(] [)1 91 1 3048 1368 t
+10 CB f
+(\255f)3139 1368 w
+10 I f
+(address)3317 1368 w
+10 S f
+(_)3628 1368 w
+10 I f
+(family)3678 1368 w
+10 R f
+(] [)1 91 1 3944 1368 t
+10 CB f
+(\255p)4035 1368 w
+10 I f
+(port)4213 1368 w
+10 R f
+(] [)1 91 1 4396 1368 t
+10 CB f
+(\255D)4487 1368 w
+10 R f
+(] [)1 91 1 4631 1368 t
+10 CB f
+(\255V)4722 1368 w
+10 R f
+(])4866 1368 w
+9 B f
+(DESCRIPTION)540 1536 w
+(Introduction)690 1656 w
+10 R f
+(The)900 1776 w
+10 I f
+(tliaddr)1092 1776 w
+10 R f
+( UNIX system to create the Transport Layer Interface)8 2241(program is most commonly used on a)6 1577 2 1402 1776 t
+( is needed to setup the Network Listener Ser\255)8 1802( This)1 228(\(TLI\) address in hexadecimal for a TCP/IP network host.)8 2290 3 900 1896 t
+( Sharing is)2 460( File)1 196( Remote)1 376(vice \(NLS\) to listen on the desired network address for incoming connections.)11 3288 4 900 2016 t
+( possible sources\).)2 737(often setup to accept incoming network connections from the NLS \(as well as from other)14 3583 2 900 2136 t
+( the TCP/IP)2 485(Note that the output of this program can be used any place that a hexadecimal TLI address for)17 3835 2 900 2256 t
+( common place that these types of addresses are needed is in)11 2480( Another)1 384(transport provider might be needed.)4 1456 3 900 2376 t
+(the administration of UUCP TLI addresses for calling out.)8 2328 1 900 2496 t
+( a little bit more general than the R&D UNIX program)10 2280(This program is)2 651 2 900 2664 t
+10 I f
+(hostrfs)3866 2664 w
+10 R f
+(that is specific to TCP/IP)4 1046 1 4174 2664 t
+( a hexadecimal TLI address for several interface address)8 2263( program can be used to create)6 1236( This)1 231(TLI addresses.)1 590 4 900 2784 t
+( and can also process more address families within the socket address)11 2841(types \(in addition to the socket API\))6 1479 2 900 2904 t
+(type than just TCP.)3 773 1 900 3024 t
+(By default, the socket address type interface is assumed and the address family of 'INET' is assumed.)16 4320 1 900 3192 t
+( program behaves very similarly to the)6 1632( This)1 243( default.)1 342(These are most commonly used and with these as)8 2103 4 900 3312 t
+10 I f
+(hostrfs)900 3432 w
+10 R f
+(program \(although that program can only accept numeric port specifications\).)9 3099 1 1198 3432 t
+9 B f
+(Arguments)690 3600 w
+10 R f
+( When the)2 424(An address argument \(usually the name of a remote host machine\) is always required.)13 3504 2 900 3720 t
+10 CW f
+(socket)4860 3720 w
+10 R f
+(interface address type is being used \(the default\), additional possible host names consisting of:)13 3773 1 900 3840 t
+10 CW f
+(anyhost)1150 4008 w
+10 R f
+( this case,)2 397( In)1 136(can also be used.)3 685 3 900 4176 t
+10 I f
+(anyhost)2146 4176 w
+10 R f
+( host name)2 441( A)1 126( the all\255host or any\255host address.)5 1318(is a built\255in name for)4 850 4 2485 4176 t
+( addresses)1 415( Any\255host)1 430( is also taken to be the any\255host address.)8 1670(of consisting of a single dash character \('\255'\))7 1805 4 900 4296 t
+( requests on all addresses that)5 1214(are commonly used for listeners since they often want to listen for incoming)12 3106 2 900 4416 t
+( that RFS, REXEC, UUCP usually do)6 1525( Note)1 246(the node has.)2 530 3 900 4536 t
+10 B f
+(not)3228 4536 w
+10 R f
+(want to listen on the local\255host address \(host\255)7 1826 1 3394 4536 t
+( accept incoming connections from the same machine)7 2192(name 'localhost'\) since they usually are not setup to)8 2128 2 900 4656 t
+( machines that)2 589( For)1 195( cases, use actual interface host names.)6 1587( these sorts of)3 573( In)1 140(that originated the connection.)3 1236 6 900 4776 t
+(have more than one interface host name, setup additional listeners for those other addresses.)13 3673 1 900 4896 t
+(An optional TCP port number argument can be specified as the second positional argument on invocation.)15 4320 1 900 5064 t
+( default port of 2766 \(corresponding to the)7 1749(If no TCP port number is specified, the)7 1621 2 900 5184 t
+10 CW f
+(listen)4302 5184 w
+10 R f
+(Internet TCP)1 526 1 4694 5184 t
+(service\) is used.)2 640 1 900 5304 t
+9 B f
+(Options)690 5472 w
+10 R f
+( than)1 204(The options provide a way to set a non\255default interface address type \(other)12 3087 2 900 5592 t
+10 CW f
+(socket)4223 5592 w
+10 R f
+(\) or an address)3 605 1 4615 5592 t
+(family \(with the)2 644 1 900 5712 t
+10 CW f
+(socket)1569 5712 w
+10 R f
+(interface address type\) other than 'INET'.)5 1672 1 1954 5712 t
+9 B f
+(Output)690 5880 w
+10 R f
+( Interface \(TLI\))2 652(The output of the program will be a character string that represents the Transport Layer)14 3668 2 900 6000 t
+( string is the hexadecimal representation of the address used by)10 2543( The)1 207( based facilities.)2 650(address needed by TLI)3 920 4 900 6120 t
+(the programs that interface to the TLI API.)7 1713 1 900 6240 t
+9 B f
+(ENVIRONMENT VARIABLES)1 1258 1 540 6408 t
+10 R f
+(There are no environment variables used by this program.)8 2309 1 900 6528 t
+9 B f
+(EXAMPLES)540 6696 w
+10 S1 f
+()900 6816 w
+10 S1 f
+900 6816 m
+100 build_rh
+1000 6816 m
+10 R f
+(get the TLI address for a TCP host named)8 1675 1 1150 6816 t
+10 CW f
+(bob)2850 6816 w
+10 R f
+(on the default port of 2766:)5 1096 1 3055 6816 t
+10 CW f
+(tliaddr bob)1 660 1 1400 6984 t
+10 R f
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 1 \))3 126( TLIADDR)1 1788( 1992\25502\25513 \))2 464( \()1 68( LOCAL)1 1693(TLIADDR \( 1 \))3 541 6 540 480 t
+10 S1 f
+()900 960 w
+900 960 m
+100 build_rh
+1000 960 m
+10 R f
+(print out the TLI address for a TCP host named)9 1895 1 1150 960 t
+10 CW f
+(fred)1150 1080 w
+10 R f
+(using a port of 1025:)4 833 1 1150 1200 t
+10 CW f
+(tliaddr fred 1025)2 1020 1 1400 1368 t
+9 B f
+(SEE ALSO)1 453 1 540 1584 t
+10 R f
+(hostrfs\(1m\), nlsadmin\(1m\), sacadm\(1m\), pmadm\(1m\), rfsaddr\(1\))4 2612 1 900 1704 t
+9 B f
+(PATH TO)1 418 1 540 1872 t
+10 R f
+(This program is currently located in)5 1449 1 900 1992 t
+10 C f
+(/usr/add\255on/local/bin)2377 1992 w
+10 R f
+( ever "LOCAL" pro\255)3 839(or possibly where)2 716 2 3665 1992 t
+( is often at)3 419( This)1 228(grams are stored on your system.)5 1320 3 900 2112 t
+10 CW f
+(${LOCAL}/bin)2892 2112 w
+10 R f
+(on some systems.)2 703 1 3637 2112 t
+9 B f
+(ACKNOWLEDGMENTS)540 2280 w
+10 R f
+(This program was inspired by the)5 1385 1 900 2400 t
+10 CW f
+(hostrfs)2319 2400 w
+10 R f
+( UNIX folks out in)4 795(program previously written by the R&D)5 1652 2 2773 2400 t
+(Illinois.)900 2520 w
+9 B f
+(AUTHOR)540 2688 w
+10 R f
+(David A.D. Morano)2 804 1 900 2808 t
+( 2)1 75( Page)1 1931( Commands)1 481( User)1 1508(February 8, 2018)2 685 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 2
+%%DocumentFonts: Courier-Bold Courier Times-Roman Times-Bold Courier Times-Italic Times-Roman Symbol

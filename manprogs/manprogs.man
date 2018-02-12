@@ -3,6 +3,9 @@
 .SH NAME
 execname \- run a program with a given name
 .SH SYNOPSIS
+.\"_
+.so tmac.att
+.\"_
 .B execname
 .OP -V ""
 .MW path arg0 \fB[\fParg(s) ...\fB]\fP
@@ -33,7 +36,7 @@ as arguments to the executed program.
 .IP \(rh 5
 To execute the program
 .MW sleep
-but with an argument number zero of 'john', use :
+but with an argument number zero of 'john', use:
 .EX
 execname sleep john 10
 .EE
@@ -51,5 +54,8 @@ key letter parameter.
 This program is currently located in 
 .MW /usr/add-on/local/bin
 on most systems.
+.\"_
+.SH AUTHOR
+David A.D. Morano
 .\"_
 .\"_

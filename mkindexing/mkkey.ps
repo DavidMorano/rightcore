@@ -1,0 +1,1110 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+/build_rh {
+pop
+gsave
+size .0022 mul dup scale
+currentpoint translate
+
+15 66 moveto
+15 86 lineto
+16 131 lineto
+17 146 lineto
+18 158 lineto
+19 167 lineto
+21 181 lineto
+24 190 lineto
+34 193 lineto
+49 189 lineto
+58 182 lineto
+60 177 lineto
+60 166 lineto
+59 156 lineto
+58 143 lineto
+57 130 lineto
+56 117 lineto
+55 102 lineto
+54 42 lineto
+53 39 lineto
+49 35 lineto
+34 34 lineto
+19 39 lineto
+16 47 lineto
+15 66 lineto
+stroke
+
+65 60 moveto
+65 111 lineto
+66 127 lineto
+67 139 lineto
+69 153 lineto
+72 163 lineto
+83 171 lineto
+98 177 lineto
+113 182 lineto
+128 187 lineto
+143 190 lineto
+158 194 lineto
+173 196 lineto
+188 199 lineto
+203 201 lineto
+218 203 lineto
+233 205 lineto
+248 205 lineto
+263 206 lineto
+278 206 lineto
+293 206 lineto
+308 206 lineto
+323 206 lineto
+338 205 lineto
+353 203 lineto
+368 202 lineto
+383 200 lineto
+394 197 lineto
+389 190 lineto
+389 180 lineto
+391 176 lineto
+391 173 lineto
+380 173 lineto
+365 173 lineto
+350 174 lineto
+335 175 lineto
+320 176 lineto
+305 176 lineto
+290 176 lineto
+275 177 lineto
+260 177 lineto
+245 177 lineto
+240 173 lineto
+240 170 lineto
+245 165 lineto
+260 164 lineto
+275 164 lineto
+290 164 lineto
+305 163 lineto
+320 160 lineto
+327 155 lineto
+330 149 lineto
+330 134 lineto
+328 129 lineto
+323 124 lineto
+309 121 lineto
+294 121 lineto
+279 121 lineto
+264 121 lineto
+249 121 lineto
+234 121 lineto
+228 118 lineto
+228 112 lineto
+234 109 lineto
+249 109 lineto
+264 109 lineto
+279 108 lineto
+294 108 lineto
+306 104 lineto
+311 97 lineto
+312 91 lineto
+312 88 lineto
+311 82 lineto
+305 74 lineto
+290 72 lineto
+275 72 lineto
+260 72 lineto
+245 73 lineto
+230 73 lineto
+215 73 lineto
+205 70 lineto
+205 63 lineto
+217 60 lineto
+232 60 lineto
+247 60 lineto
+262 60 lineto
+277 57 lineto
+283 52 lineto
+285 44 lineto
+285 41 lineto
+284 35 lineto
+280 30 lineto
+268 26 lineto
+253 25 lineto
+238 26 lineto
+223 28 lineto
+208 31 lineto
+193 33 lineto
+178 34 lineto
+163 33 lineto
+148 31 lineto
+133 28 lineto
+118 27 lineto
+103 28 lineto
+88 34 lineto
+73 43 lineto
+67 52 lineto
+65 60 lineto
+stroke
+
+396 180 moveto
+396 188 lineto
+399 194 lineto
+410 196 lineto
+416 190 lineto
+416 180 lineto
+415 177 lineto
+411 173 lineto
+400 173 lineto
+396 180 lineto
+stroke
+
+grestore
+} def
+/C /Courier def
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1 \))3 126( MKKEY)1 1788( 1995\25502\25513 \))2 464( \()1 68( LOCAL)1 1758(MKKEY \( 1 \))3 476 6 540 480 t
+(NAME)540 960 w
+10 R f
+(mkkey)900 1080 w
+10 S1 f
+(\261)1197 1080 w
+10 R f
+(create keys \(for indexing\) from text files)6 1618 1 1287 1080 t
+9 B f
+(SYNOPSIS)540 1248 w
+10 B f
+(mkkey)900 1368 w
+10 R f
+([)1263 1368 w
+10 CB f
+(\255C)1296 1368 w
+10 I f
+(configfile)1524 1368 w
+10 R f
+(] [)1 141 1 1918 1368 t
+10 CB f
+(\255d)2059 1368 w
+10 I f
+(delimiter)2287 1368 w
+10 R f
+(] [)1 141 1 2664 1368 t
+10 CB f
+(\255af)2805 1368 w
+10 I f
+(argfile)3093 1368 w
+10 R f
+(] [)1 141 1 3376 1368 t
+10 CB f
+(\255c)3517 1368 w
+10 I f
+(eigenfile)3745 1368 w
+10 R f
+(] [)1 141 1 4105 1368 t
+10 CB f
+(\255n)4246 1368 w
+10 I f
+(eigenwords)4474 1368 w
+10 R f
+(] [)1 141 1 4951 1368 t
+10 CB f
+(\255l)5092 1368 w
+10 I f
+(minwordlen)900 1488 w
+10 R f
+(] [)1 129 1 1394 1488 t
+10 CB f
+(\255m)1523 1488 w
+10 I f
+(maxwordlen)1739 1488 w
+10 R f
+(] [)1 129 1 2249 1488 t
+10 CB f
+(\255k)2378 1488 w
+10 I f
+(maxkeys)2594 1488 w
+10 R f
+(] [)1 129 1 2947 1488 t
+10 CB f
+(\255w)3076 1488 w
+10 R f
+(] [)1 128 1 3220 1488 t
+10 CB f
+(\255s)3348 1488 w
+10 R f
+(] [)1 128 1 3492 1488 t
+10 CB f
+(\255a)3620 1488 w
+10 R f
+(] [)1 128 1 3764 1488 t
+10 CB f
+(\255V)3892 1488 w
+10 R f
+(] [)1 128 1 4036 1488 t
+10 CB f
+(\255?)4164 1488 w
+10 R f
+(] [)1 128 1 4308 1488 t
+10 CB f
+(\255HELP)4436 1488 w
+10 R f
+(] [)1 128 1 4760 1488 t
+10 CB f
+(\255D)4888 1488 w
+10 R f
+(] [)1 128 1 5032 1488 t
+10 CB f
+(\255)5160 1488 w
+(v)900 1608 w
+10 I f
+( [)1 64([=level] ])1 397 2 960 1608 t
+10 CB f
+(\255i)1421 1608 w
+10 I f
+(ignorechars ])1 538 1 1599 1608 t
+10 CW f
+([)2162 1608 w
+10 I f
+(file\(s\) ...)1 333 1 2247 1608 t
+10 CW f
+(])2605 1608 w
+9 B f
+(DESCRIPTION)540 1776 w
+(Introduction)690 1896 w
+10 R f
+( from the)2 368(This program is similar to the MKEY program that is, or was, distributed with most UNIXes \(back)16 3952 2 900 2016 t
+(old V7 days\), but this program can optionally \(normally\) pass all useful words through as keys instead of)17 4320 1 900 2136 t
+( argu\255)1 236( program takes many of the same)6 1325( This)1 228(filtering out useful words like the original MKEY program did.)9 2531 4 900 2256 t
+(ment options as the original but some of these options can also be specified in a configuration file.)17 3929 1 900 2376 t
+9 B f
+(Output)690 2544 w
+10 R f
+( files and is normally written to the)7 1472(The output of this program are the keys extracted from the input text)12 2848 2 900 2664 t
+(standard output of the program, unless the)6 1744 1 900 2784 t
+10 CW f
+(\255of outfile)1 670 1 2679 2784 t
+10 R f
+( is)1 101(option was used, in which case the output)7 1735 2 3384 2784 t
+( the)1 150( output keys are by default written in key\255file format unless)10 2394( The)1 207(written to that file specified.)4 1137 4 900 2904 t
+10 CW f
+(\255s)4816 2904 w
+10 R f
+(option)4964 2904 w
+( that although)2 552( Note)1 245( keys are written without the file\255record tag prefix.)8 2028(was specified, in which case only the)6 1495 4 900 3024 t
+( ISO Latin\2551\) characters, the lines are generally too long to be viewed)12 2905(the output key file is in ASCII \(or)7 1415 2 900 3144 t
+( data is really only meant to be processed by other pro\255)11 2314( key file)2 351( The)1 217(with any normal viewing program.)4 1438 4 900 3264 t
+(grams expecting key\255file data.)3 1208 1 900 3384 t
+9 B f
+(OPTIONS)540 3552 w
+10 R f
+( expected and the nature of the keys)7 1509(Several options can be given to specified the type of text input files)12 2811 2 900 3672 t
+( default the output keys \(in key\255file format\) are written to stan\255)11 2597( By)1 175( of these are optional.)4 894(extracted. Most)1 654 4 900 3792 t
+(dard output.)1 483 1 900 3912 t
+10 B f
+(\255C)1150 4080 w
+10 I f
+(configfile)1305 4080 w
+10 R f
+(This is used to specify a configuration file containing some options.)10 2712 1 1900 4080 t
+10 B f
+(\255af)1150 4248 w
+10 I f
+(argfile)1316 4248 w
+10 R f
+( The)1 210( serves as a list of input files to process.)9 1632(This specifies the name of a file that)7 1478 3 1900 4248 t
+10 I f
+(argfile)1900 4368 w
+10 R f
+( the)1 152(value can also be the minus \('\255'\) character to specify standard input as)12 2870 2 2198 4368 t
+(input file to be processed.)4 1029 1 1900 4488 t
+10 B f
+(\255of)1150 4656 w
+10 I f
+(outfile)1316 4656 w
+10 R f
+( option)1 282( This)1 229( format\) is written to standard output.)6 1502(Normally, the output \(in key\255file)4 1307 4 1900 4656 t
+(redirects standard output to the file specified.)6 1805 1 1900 4776 t
+10 B f
+(\255d)1150 4944 w
+10 I f
+(delimiter)1289 4944 w
+10 R f
+( and must be specified for record\255delimited files)7 1963(This is the most important option)5 1357 2 1900 4944 t
+( value)1 243( The)1 207( a single input line \(the default assumed\).)7 1662(where records span more than)4 1208 4 1900 5064 t
+( to be a line that)5 671(of the option should consist of those characters that will be taken)11 2649 2 1900 5184 t
+( specified with a delimiter consisting of a)7 1651( blank line should be)4 837( A)1 123(separates records.)1 709 4 1900 5304 t
+( common)1 388( Other)1 290( to quote it from the shell if necessary\).)8 1671(single space \(remember)2 971 4 1900 5424 t
+( or one or)3 406(delimiters are the percent \('%'\) character that is used for "cookie" files)11 2914 2 1900 5544 t
+(more pound \('#'\) characters used for other common record\255oriented files.)9 2930 1 1900 5664 t
+10 B f
+(\255w)1150 5832 w
+10 R f
+( file should be considered a single)6 1485(This option specifies that each whole input)6 1835 2 1900 5832 t
+(record. The)1 484 1 1900 5952 t
+10 CW f
+(\255d delimiter)1 720 1 2409 5952 t
+10 R f
+(option is ignored if this option is present.)7 1645 1 3154 5952 t
+10 B f
+(\255c)1150 6120 w
+10 I f
+(eigenfile)1277 6120 w
+10 R f
+( EIGEN file \(a file)4 750(By default, the program searches some standard locations for an)9 2570 2 1900 6120 t
+( this option)2 453( If)1 117( commonly used English words\) and uses that by default.)9 2296(of the most)2 454 4 1900 6240 t
+(is used, the specified file is used as the EIGEN file instead.)11 2360 1 1900 6360 t
+10 B f
+(\255n)1150 6528 w
+10 I f
+(eigenwords)1289 6528 w
+10 R f
+( filter\255)1 260(By default, a maximum of ten thousand eigenwords are considered for key)11 3060 2 1900 6528 t
+( option can change the number of eigenwords considered.)8 2303(ing. This)1 381 2 1900 6648 t
+10 B f
+(\255l)1150 6816 w
+10 I f
+(minlen)1261 6816 w
+10 R f
+( The)1 221( minimum length of a word to be used as a key.)11 2074(This option specifies the)3 1025 3 1900 6816 t
+( that would have less characters than the minimum are)9 2378( Keys)1 278(default is three.)2 664 3 1900 6936 t
+(ignored.)1900 7056 w
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 1 \))3 126( MKKEY)1 1788( 1995\25502\25513 \))2 464( \()1 68( LOCAL)1 1758(MKKEY \( 1 \))3 476 6 540 480 t
+10 B f
+(\255m)1150 960 w
+10 I f
+(maxlen)1316 960 w
+10 R f
+( The)1 220( length of a word to be used as a key.)10 1633(This option specifies the maximum)4 1467 3 1900 960 t
+( that have more characters than the maximum in effect are)10 2481( Keys)1 271(default is six.)2 568 3 1900 1080 t
+( maximum has implications for what keys can be)8 1999( This)1 232(truncated to the maximum.)3 1089 3 1900 1200 t
+( keys should always be)4 921( Query)1 299( when a database is eventually prepapred.)6 1659(queried for)1 441 4 1900 1320 t
+( long as this maximum and are only allowed to be shorter than the actual)14 2930(at least as)2 390 2 1900 1440 t
+( the original input text if prefix matching is used during the query opera\255)13 3003(word in)1 317 2 1900 1560 t
+(tion.)1900 1680 w
+10 B f
+(\255k)1150 1848 w
+10 I f
+(maxkeys)1289 1848 w
+10 R f
+( the maximum number of keys to be created for each record)11 2473(This option specifies)2 847 2 1900 1848 t
+( other criteria for)3 699( default is all keys found that match the)8 1640( The)1 213(in the input file\(s\).)3 768 4 1900 1968 t
+( that if a maximum number of keys is specified for a record)12 2505( Note)1 255(key selection.)1 560 3 1900 2088 t
+( take longer time since more false hits will need to be eliminated)12 2628(then queries may)2 692 2 1900 2208 t
+( faster database joining of the)5 1273(with actual key traversals rather than though the)7 2047 2 1900 2328 t
+(other keys that were used for indexing.)6 1555 1 1900 2448 t
+10 B f
+(\255s)1150 2616 w
+10 R f
+( should be removed from the key\255file output.)7 1862(This option specifies that tag labels)5 1458 2 1900 2616 t
+( labels identifying which origi\255)4 1242(The result is that the keys produced do not have tag)10 2078 2 1900 2736 t
+( option is provied for flexibility but all stan\255)8 1817( This)1 235( they were from.)3 680(nal text record)2 588 4 1900 2856 t
+( labels to be present in the key)7 1261(dard database creation mechanisms require the tag)6 2059 2 1900 2976 t
+(file.)1900 3096 w
+10 B f
+(\255a)1150 3264 w
+10 R f
+( \(in key\255file format\) should be appended to an exist\255)9 2100(This specifies that output keys)4 1220 2 1900 3264 t
+( option only needs to be used \(if desired\) when the)10 2079( This)1 234(ing key file.)2 492 3 1900 3384 t
+10 CW f
+(\255of out\255)1 485 1 4735 3384 t
+(file)1900 3504 w
+10 R f
+(option is also specified.)3 944 1 2165 3504 t
+10 B f
+(\255V)1150 3672 w
+10 R f
+( error and then has the)5 939(This option writes the version of the program on standard)9 2381 2 1900 3672 t
+(program exit without any further processing.)5 1786 1 1900 3792 t
+10 B f
+(\255HELP)1150 3960 w
+10 R f
+(This option searches for a help file for the present program and prints it only stan\255)15 3320 1 1900 3960 t
+( program then exits without any additional processing.)7 2176( The)1 205(dard output.)1 483 3 1900 4080 t
+9 B f
+(OPERANDS)540 4248 w
+10 R f
+(All of the invocation operands constitute source text input files for which keys are to be extracted.)16 3918 1 900 4368 t
+10 B f
+(files\(s\))1150 4536 w
+10 R f
+( to be source text input files to be pro\255)9 1649(All other positional arguments are taken)5 1671 2 1900 4536 t
+( keys for all files are concatenated into the output \(in key\255file format\).)12 2827(cessed. The)1 493 2 1900 4656 t
+( a single minus character \('\255'\) is taken to mean standard)10 2292(An input file specified as)4 1028 2 1900 4776 t
+(input.)1900 4896 w
+9 B f
+(USAGE)540 5064 w
+(EXAMPLES)540 5184 w
+10 S1 f
+()900 5304 w
+10 S1 f
+900 5304 m
+100 build_rh
+1000 5304 m
+10 R f
+(extracts keys from the file)4 1042 1 1150 5304 t
+10 CW f
+(test.txt)2217 5304 w
+10 R f
+(and put they keys into file)5 1041 1 2722 5304 t
+10 CW f
+(test.key)3788 5304 w
+10 R f
+(:)4293 5304 w
+10 CW f
+(mkkey test.txt > test.key)3 1500 1 1400 5472 t
+9 B f
+(ENVIRONMENT)540 5808 w
+10 R f
+(MKKEY)1150 5928 w
+10 S f
+(_)1516 5928 w
+10 R f
+(PROGRAMROOT)1566 5928 w
+(this is used to find the program root)7 1430 1 1900 6048 t
+( is used to find the program root if all of above are not available)14 2551(LOCAL this)1 895 2 1150 6216 t
+(PROGRAMROOT)1150 6384 w
+(this is used to find the program root if all of above are not available)14 2696 1 1900 6504 t
+(MKKEY)1150 6672 w
+10 S f
+(_)1516 6672 w
+10 R f
+( program search\255name if none is specified as an invocation argu\255)10 2612( is used as the)4 563(NAME this)1 479 3 1566 6672 t
+(ment)1900 6792 w
+9 B f
+(FILES)540 6960 w
+(EXIT STATUS)1 608 1 540 7080 t
+10 R f
+( 2)1 75( Page)1 1931( Commands)1 481( User)1 1508(February 8, 2018)2 685 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Page: 3 3
+DpostDict begin
+/saveobj save def
+mark
+3 pagesetup
+9 B f
+( \( 1 \))3 126( MKKEY)1 1788( 1995\25502\25513 \))2 464( \()1 68( LOCAL)1 1758(MKKEY \( 1 \))3 476 6 540 480 t
+10 R f
+( completed successfully)2 954(0 program)1 1088 2 1150 960 t
+( encountered an error in processing)5 1404(!=0 program)1 1088 2 1150 1128 t
+9 B f
+(ATTRIBUTES)540 1296 w
+(SEE ALSO)1 453 1 540 1416 t
+10 R f
+(mkinv\(1\), mkquery\(1\), mkey\(1\), inv\(1\), hunt\(1\), lineindex\(1\))5 2457 1 900 1536 t
+9 B f
+(DIAGNOSTICS)540 1704 w
+(PATH TO)1 418 1 540 1824 t
+10 R f
+( currently located in)3 846(This program is)2 661 2 900 1944 t
+10 C f
+(/usr/add\255on/local/bin)2447 1944 w
+10 R f
+(or possibly where ever "local" pro\255)5 1473 1 3747 1944 t
+( is often at)3 419( This)1 228(grams are stored on your system.)5 1320 3 900 2064 t
+10 CW f
+(${LOCAL}/bin)2892 2064 w
+10 R f
+(on some systems.)2 703 1 3637 2064 t
+9 B f
+(NOTES)540 2232 w
+(CAVEATS)540 2352 w
+10 R f
+(Be careful to put at one space between all option key letters and the associated key letter parameter.)17 3979 1 900 2472 t
+9 B f
+(ACKNOWLEDGEMENTS)540 2640 w
+10 R f
+(The idea for this program was taken from the original UNIX)10 2417 1 900 2760 t
+10 CW f
+(mkey\(1\))3342 2760 w
+10 R f
+(program.)3787 2760 w
+9 B f
+(AUTHOR)540 2928 w
+10 R f
+(David A.D. Morano)2 804 1 900 3048 t
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 3)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 3 3
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 3
+%%DocumentFonts: Courier-Bold Courier Times-Roman Times-Bold Courier Times-Italic Times-Roman Symbol

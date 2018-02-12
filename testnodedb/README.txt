@@ -1,13 +1,7 @@
 TESTNODEDB
 
-
 This program tests the NODEDB object.
 
-Synopsis :
-
+Synopsis:
 $ testnodedb.x -ROOT ${HOME}
-
-
-
-
 

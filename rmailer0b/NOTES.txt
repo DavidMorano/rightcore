@@ -8,5 +8,7 @@ Domains of email addresses are looked up in a domain table.
 Email addresses without domains are sent to ... ?
 **NOT**
 
-
+Enjoy,
+Dave Morano
+1997-09-01
 

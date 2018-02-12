@@ -6,11 +6,9 @@ administrator at system boot-up time in order to load the database into machine
 memory for the first time (since a boot-up).
 
 Synopsis:
-
 $ tzad [-db <name>] [-r] [<dbfile>] [-g <zname>] [-l] [-o <opts>] [-V]
 
-where:
-
+Arguments:
 -db <name>	name given to the in-memory database
 -r		indicate that a reload is desired (even if already loaded)
 <dbfile>	filename to load into memory (else a default is used)

@@ -1,0 +1,1304 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1 \))3 126( rshe)1 1682( 1995\25508\25522 \))2 464( \()1 68( Starbase)1 358( BCS)1 1691(rshe \( 1 \))3 291 7 540 480 t
+(NAME)540 960 w
+10 R f
+(rshe)900 1080 w
+10 S1 f
+(\261)1091 1080 w
+10 R f
+(execute a command on a remote machine with local environment)9 2603 1 1181 1080 t
+9 B f
+(SYNOPSIS)540 1248 w
+10 B f
+(rshe)900 1368 w
+10 R f
+([)1133 1368 w
+10 CB f
+(\255l)1191 1368 w
+10 I f
+(rsuer)1369 1368 w
+10 R f
+(] [)1 116 1 1621 1368 t
+10 CB f
+(\255n)1762 1368 w
+10 R f
+(] [)1 116 1 1931 1368 t
+10 CB f
+(\255d)2072 1368 w
+10 R f
+(] [)1 116 1 2241 1368 t
+10 CB f
+(\255e)2382 1368 w
+10 I f
+(environ)2535 1368 w
+10 S f
+(_)2840 1368 w
+10 I f
+(file)2890 1368 w
+10 R f
+(] [)1 116 1 3059 1368 t
+10 CB f
+(\255x)3200 1368 w
+10 R f
+([=)3320 1368 w
+10 I f
+(var\255list)3409 1368 w
+10 R f
+(] ])1 115 1 3698 1368 t
+([)925 1488 w
+10 CB f
+(\255V)983 1488 w
+10 R f
+(] [)1 116 1 1152 1488 t
+10 CB f
+(\255?)1293 1488 w
+10 R f
+(])1462 1488 w
+10 I f
+(hostname command)1 796 1 1520 1488 t
+9 B f
+(AVAILABILITY)540 1656 w
+10 R f
+(BCS Starbase Project on Sun SPARC hardware only, SunOS 4.1.3 or higher, SunOS 5.4 or higher)15 3927 1 900 1776 t
+9 B f
+(DESCRIPTION)540 1944 w
+10 R f
+(The)900 2064 w
+10 B f
+(rshe)1085 2064 w
+10 R f
+(program connects to the specified)4 1367 1 1298 2064 t
+10 I f
+(hostname)2695 2064 w
+10 R f
+(and executes the specified)3 1059 1 3108 2064 t
+10 I f
+(command)4197 2064 w
+10 R f
+( program)1 369(. This)1 258 2 4593 2064 t
+(is very similar to the)4 850 1 900 2184 t
+10 B f
+(rsh)1782 2184 w
+10 R f
+( the)1 153(program and is inspired by it and)6 1363 2 1953 2184 t
+10 B f
+(RX)3500 2184 w
+10 R f
+(program which is part of the)5 1164 1 3675 2184 t
+10 B f
+(REXEC)4870 2184 w
+10 R f
+(remote execution package \(not related to the common Berkley)8 2521 1 900 2304 t
+10 B f
+(REXEC)3450 2304 w
+10 R f
+(daemon\) developed at AT&T Bell)4 1390 1 3830 2304 t
+(Laboratories. The)1 742 1 900 2424 t
+10 B f
+(rshe)1675 2424 w
+10 R f
+( machine as the)3 639(program uses the same daemon program on the remote)8 2254 2 1891 2424 t
+10 B f
+(RSH)4816 2424 w
+10 R f
+(pro\255)5054 2424 w
+( is a curse since the program's behavior is restricted)9 2196( It)1 125( curse.)1 274( is both a blessing and a)6 1033( This)1 241(gram does.)1 451 6 900 2544 t
+(somewhat by the fact that the same daemon is used as)10 2262 1 900 2664 t
+10 B f
+(RSH)3198 2664 w
+10 R f
+( is a blessing because many remote)6 1463(uses. It)1 318 2 3439 2664 t
+(machines now\255a\255days will not be running any other remote execution daemons and we still want to get the)17 4320 1 900 2784 t
+( the entire local environment is sent)6 1456( Normally,)1 463( an already bad machine execution environment.)6 1967(best out of)2 434 4 900 2904 t
+( machine)1 380(over to the remote machine \(because this is what is usually desired in a tightly coupled local)16 3940 2 900 3024 t
+(group\) but this behavior is changed if the)7 1645 1 900 3144 t
+10 B f
+(\255x)2570 3144 w
+10 R f
+(option is used.)2 581 1 2678 3144 t
+(The)900 3312 w
+10 B f
+(rshe)1081 3312 w
+10 R f
+( remote command, the standard output of the remote com\255)9 2342(program copies its standard input to the)6 1588 2 1290 3312 t
+( Interrupt,)1 428( to its standard error.)4 845(mand to its standard output, and the standard error of the remote command)12 3047 3 900 3432 t
+(quit and terminate signals are propagated to the remote command;)9 2805 1 900 3552 t
+10 B f
+(rshe)3748 3552 w
+10 R f
+( when the)2 426(normally terminates)1 820 2 3974 3552 t
+(remote command does.)2 929 1 900 3672 t
+(If you omit)2 456 1 900 3840 t
+10 I f
+(command)1384 3840 w
+10 R f
+(, the)1 175 1 1780 3840 t
+10 B f
+(rshe)1983 3840 w
+10 R f
+( execute whatever your SHELL environment variable is)7 2259(program will try to)3 767 2 2194 3840 t
+( '/bin/sh' on the remote machine.)5 1351( there is not SHELL environment variable, it will try to execute)11 2602( If)1 122(set to.)1 245 4 900 3960 t
+( the local machine, while quoted metacharac\255)6 1851(Shell metacharacters which are not quoted are interpreted on)8 2469 2 900 4080 t
+(ters are interpreted on the remote machine. See)7 1878 1 900 4200 t
+9 R f
+(EXAMPLES)2801 4200 w
+10 R f
+(.)3276 4200 w
+(Hostnames are given in the)4 1155 1 900 4368 t
+10 I f
+(hosts)2097 4368 w
+10 R f
+( the)1 165(database, which may be contained in)5 1554 2 2345 4368 t
+10 B f
+(/etc/hosts)4107 4368 w
+10 R f
+(file, the Internet)2 676 1 4544 4368 t
+( and)1 172( host has one official name \(the first name in the database entry\))12 2609( Each)1 253(domain name database, or both.)4 1286 4 900 4488 t
+( hostnames or nicknames may be given as)7 1678( Official)1 360(optionally one or more nicknames.)4 1390 3 900 4608 t
+10 I f
+(hostname)4353 4608 w
+10 R f
+(.)4744 4608 w
+( a file named)3 545(Each remote machine may have)4 1306 2 900 4776 t
+10 B f
+(/etc/hosts.equiv)2785 4776 w
+10 R f
+(containing a list of trusted hostnames with)6 1748 1 3472 4776 t
+( with the same username on both the local and remote machine may)12 2748( Users)1 280( usernames.)1 474(which it shares)2 607 4 900 4896 t
+10 B f
+(rshe)5037 4896 w
+10 R f
+(from the machines listed in the remote machine's)7 2070 1 900 5016 t
+10 B f
+(/etc/hosts)3009 5016 w
+10 R f
+( similar)1 318( users may set up a)5 827(file. Individual)1 633 3 3442 5016 t
+(private equivalence list with the file)5 1484 1 900 5136 t
+10 B f
+(.rhosts)2418 5136 w
+10 R f
+( line in this file contains two)6 1193( Each)1 258(in their home directories.)3 1031 3 2738 5136 t
+(names: a)1 354 1 900 5256 t
+10 I f
+(hostname)1281 5256 w
+10 R f
+(and a)1 215 1 1691 5256 t
+10 I f
+(username)1933 5256 w
+10 R f
+( entry permits the user named)5 1199( The)1 208( a space.)2 346(separated by)1 503 4 2348 5256 t
+10 I f
+(username)4632 5256 w
+10 R f
+(who)5048 5256 w
+(is logged into)2 563 1 900 5376 t
+10 I f
+(hostname)1497 5376 w
+10 R f
+(to use)1 245 1 1914 5376 t
+10 B f
+(rshe)2193 5376 w
+10 R f
+( the name of the)4 675( If)1 124( the remote user.)3 689(to access the remote machine as)5 1322 4 2410 5376 t
+(local host is not found in the)6 1151 1 900 5496 t
+10 B f
+(/etc/hosts.equiv)2078 5496 w
+10 R f
+(file on the remote machine, and the local username and host\255)10 2461 1 2759 5496 t
+( user's)1 266(name are not found in the remote)6 1349 2 900 5616 t
+10 B f
+(.rhosts)2543 5616 w
+10 R f
+( hostnames listed in the)4 951( The)1 208(file, then the access is denied.)5 1204 3 2857 5616 t
+10 B f
+(/etc/hosts.equiv)900 5736 w
+10 R f
+(and)1589 5736 w
+10 B f
+(.rhosts)1769 5736 w
+10 R f
+( official hostnames listed in the)5 1312(files must be the)3 691 2 2091 5736 t
+10 B f
+(hosts)4131 5736 w
+10 R f
+(database; nicknames)1 835 1 4385 5736 t
+(may not be used in either of these files.)8 1567 1 900 5856 t
+10 B f
+(rshe)900 6024 w
+10 R f
+(will not prompt for a password if access is denied on the remote machine.)13 2945 1 1108 6024 t
+9 B f
+(OPTIONS)540 6192 w
+10 R f
+( the remote)2 471(Options can appear anywhere on the command line, either before or after the specification of)14 3849 2 900 6312 t
+( letters can also be freely)5 994( key)1 170( Option)1 329(host, but must appear before the specification of the remote command.)10 2827 4 900 6432 t
+( a concatenated option key requires an associated value string, it is picked up as)14 3292( If)1 124(concatenated together.)1 904 3 900 6552 t
+(the next tokenized string on the command line.)7 1876 1 900 6672 t
+10 S1 f
+(\261)900 6840 w
+10 B f
+(l)965 6840 w
+10 I f
+(username)1018 6840 w
+10 R f
+(Use)1650 6840 w
+10 I f
+(username)1832 6840 w
+10 R f
+( the absence of)3 604( In)1 136( your local username.)3 868(as the remote username instead of)5 1365 4 2247 6840 t
+(this option, the remote username is the same as your local username.)11 2743 1 1650 6960 t
+10 S1 f
+(\261)900 7128 w
+10 B f
+(n)965 7128 w
+10 R f
+(Redirect the input of)3 833 1 1650 7128 t
+10 B f
+(rshe)2511 7128 w
+10 R f
+(to)2722 7128 w
+10 B f
+(/dev/null)2828 7128 w
+10 R f
+( need this option to avoid unfor\255)6 1312( sometimes)1 456(. You)1 250 3 3202 7128 t
+(tunate interactions between)2 1102 1 1650 7248 t
+10 B f
+(rshe)2782 7248 w
+10 R f
+(and the shell which invokes it. For example, if you are)10 2225 1 2995 7248 t
+( 12, 2018)2 375( February)1 1631( Commands)1 481( User)1 1924(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 1 \))3 126( rshe)1 1682( 1995\25508\25522 \))2 464( \()1 68( Starbase)1 358( BCS)1 1691(rshe \( 1 \))3 291 7 540 480 t
+10 R f
+(running)1650 960 w
+10 B f
+(rshe)2000 960 w
+10 R f
+(and invoke a)2 538 1 2222 960 t
+10 B f
+(rshe)2799 960 w
+10 R f
+( background without redirecting its input away)6 1960(in the)1 239 2 3021 960 t
+(from the terminal, it will block even if no reads are posted by the remote command. The)16 3570 1 1650 1080 t
+10 S1 f
+(\261)1650 1200 w
+10 B f
+(n)1715 1200 w
+10 R f
+(option will prevent this.)3 956 1 1796 1200 t
+10 S1 f
+(\261)900 1368 w
+10 B f
+(x[=[var)965 1368 w
+10 S f
+(_)1282 1368 w
+10 B f
+(list]])1332 1368 w
+10 R f
+(The)1650 1368 w
+10 B f
+(\255x)1837 1368 w
+10 R f
+(option is used to send some local environment variables over to the remote sys\255)13 3268 1 1952 1368 t
+( local environ\255)2 584( is useful where)3 635( This)1 230(tem instead of all of the local environment variables.)8 2121 4 1650 1488 t
+(ment variables, like)2 791 1 1650 1608 t
+10 B f
+(PATH)2469 1608 w
+10 R f
+(and)2776 1608 w
+10 B f
+(LD)2949 1608 w
+10 S f
+(_)3088 1608 w
+10 B f
+(LIBRARY)3138 1608 w
+10 S f
+(_)3599 1608 w
+10 B f
+(PATH)3649 1608 w
+10 R f
+(may not have the proper mean\255)5 1264 1 3956 1608 t
+( the)1 151( If)1 120( system.)1 332(ing on the remote)3 717 4 1650 1728 t
+10 B f
+(\255x)2999 1728 w
+10 R f
+(option is NOT specified, then the local environment)7 2109 1 3111 1728 t
+(variable)1650 1848 w
+10 B f
+(RXPORT)1999 1848 w
+10 R f
+( the AT&T)2 452(\(another inspiration of)2 899 2 2449 1848 t
+10 B f
+(REXEC)3829 1848 w
+10 R f
+(package\) is consulted for)3 1012 1 4208 1848 t
+( variable is)2 440( This)1 229( local environment variables to send over to the remote machine.)10 2597(a list of)2 304 4 1650 1968 t
+(ONLY used if no)3 741 1 1650 2088 t
+10 B f
+(\255x)2431 2088 w
+10 R f
+( used, this)2 433( When)1 303(option is specified on the program invocation.)6 1930 3 2554 2088 t
+( a comma separated list of environment variable names \(no inter\255)10 2630(variable should contain)2 940 2 1650 2208 t
+( these named environment variables are)5 1642( Only)1 262( between list names\).)3 879(vening white space)2 787 4 1650 2328 t
+( only if the environment variable)5 1412(sent over to the remote execution environment but)7 2158 2 1650 2448 t
+(exists on the client machine.)4 1135 1 1650 2568 t
+10 S1 f
+(\261)900 2736 w
+10 B f
+(e environment)1 613 1 965 2736 t
+10 S f
+(_)1578 2736 w
+10 B f
+(file)1628 2736 w
+10 R f
+(The)1650 2856 w
+10 B f
+(\255e)1830 2856 w
+10 R f
+(option is used to have an environment file executed on the remote machine before)13 3287 1 1933 2856 t
+( heterogeneous machine environments,)3 1627( For)1 212( is executed.)2 542(the user specified command)3 1189 4 1650 2976 t
+( could have a file in the user's home directory that could)11 2320(ideally, each different machine)3 1250 2 1650 3096 t
+( Nor\255)1 249( provide the proper environment for the user requested command.)9 2721(be executed to)2 600 3 1650 3216 t
+(mally, a user's)2 607 1 1650 3336 t
+10 B f
+(.profile)2293 3336 w
+10 R f
+(type file serves this function but is not always the best choice)11 2582 1 2638 3336 t
+( a file is created with a list of environ\255)9 1522( Usually,)1 386( many remote commands.)3 1032(when executing)1 630 4 1650 3456 t
+( of com\255)2 360(ment variables which are the essential set needed for proper remote execution)11 3210 2 1650 3576 t
+( by)1 149( file should be able to be executed)7 1536(mands. This)1 539 3 1650 3696 t
+10 B f
+(/bin/sh)3923 3696 w
+10 R f
+(and should export any)3 957 1 4263 3696 t
+( to be in the environment of the user requested)9 1990(environment variables that are desired)4 1580 2 1650 3816 t
+( file can be the user's)5 865( This)1 231(command to be executed.)3 1029 3 1650 3936 t
+10 B f
+(.profile)3803 3936 w
+10 R f
+( may have)2 414(type file but that)3 667 2 4139 3936 t
+( it may be\) is executed with its)7 1322( specified file \(what ever)4 1043( The)1 218(undesirable side effects.)2 987 4 1650 4056 t
+( redirected to the)3 697(standard input, output and error)4 1298 2 1650 4176 t
+10 B f
+(/dev/null)3678 4176 w
+10 R f
+( specified environ\255)2 764(file. The)1 371 2 4085 4176 t
+( this option is used, the)5 948( If)1 121( will not have a controlling terminal either.)7 1750(ment file specified)2 751 4 1650 4296 t
+( further environment is sent over either by default)8 2073(specified file is executed before any)5 1497 2 1650 4416 t
+( or those local environment variables specified)6 1971(\(the entire existing local environment\))4 1599 2 1650 4536 t
+(with the)1 325 1 1650 4656 t
+10 B f
+(\255x)2000 4656 w
+10 R f
+(option.)2108 4656 w
+10 S1 f
+(\261)900 4824 w
+10 B f
+(d)965 4824 w
+10 R f
+( command executed in the same directory as the)8 1990(This option is used to have the remote)7 1580 2 1650 4824 t
+( cannot find or)3 618( the remote machine)3 848( If)1 128(current working directory on the local machine.)6 1976 4 1650 4944 t
+( default directory where)3 979( The)1 213( it exits with an error return code.)7 1392(change to this directory,)3 986 4 1650 5064 t
+( user's home directory on the remote)6 1559(the user's specified command is executed is the)7 2011 2 1650 5184 t
+(machine.)1650 5304 w
+10 S1 f
+(\261)900 5472 w
+10 B f
+(V)965 5472 w
+10 R f
+( output and)2 470(This option will cause the program to print its version to the standard error)13 3100 2 1650 5472 t
+(then it will exit.)3 634 1 1650 5592 t
+10 S1 f
+(\261)900 5760 w
+10 B f
+(?)965 5760 w
+10 R f
+( cause a brief help message to be printed to standard error output and)13 2908(This option will)2 662 2 1650 5760 t
+(then the program will exit.)4 1063 1 1650 5880 t
+9 B f
+(ENVIRONMENT VARIABLES)1 1258 1 540 6048 t
+10 B f
+(RXPORT)900 6168 w
+10 R f
+( variable)1 357( This)1 239( invocation.)1 483(This variable is used if no "\255x" option was specified at program)11 2641 4 1500 6168 t
+( and the)2 318( names)1 282( These)1 290(should contain a comma separated list of environment variable names.)9 2830 4 1500 6288 t
+( remote)1 309(associated values of these variables from the client machine will be sent over to the)14 3411 2 1500 6408 t
+(machine environment if the corresponding local variable exists.)7 2540 1 1500 6528 t
+10 B f
+(LOGNAME)900 6696 w
+10 R f
+( be changed by the user under certain)7 1501( can)1 164( It)1 112(This variable contains the local user login name.)7 1943 4 1500 6696 t
+( this variable)2 518( that)1 177( Note)1 246(circumstances to specify alternate login names for certain operations.)8 2779 4 1500 6816 t
+( be used to circumvent security \(assuming no bugs anywhere\) since a check is)13 3321(can never)1 399 2 1500 6936 t
+( that the variable contents can be authentically associated with the)10 2634(always performed to verify)3 1086 2 1500 7056 t
+( is really only useful to play with this variable when a single UID has)14 2881( It)1 119( UID.)1 235(current read)1 485 4 1500 7176 t
+(two or more valid username names associated with it.)8 2144 1 1500 7296 t
+( 2)1 75( Page)1 1931( Commands)1 481( User)1 1458(February 12, 2018)2 735 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Page: 3 3
+DpostDict begin
+/saveobj save def
+mark
+3 pagesetup
+9 B f
+( \( 1 \))3 126( rshe)1 1682( 1995\25508\25522 \))2 464( \()1 68( Starbase)1 358( BCS)1 1691(rshe \( 1 \))3 291 7 540 480 t
+(EXIT CODES)1 568 1 540 960 t
+10 R f
+(Returns)900 1080 w
+10 BI f
+(0)1236 1080 w
+10 R f
+(upon successful completion,)2 1135 1 1311 1080 t
+10 BI f
+(1)2471 1080 w
+10 R f
+(otherwise.)2546 1080 w
+9 B f
+(EXAMPLES)540 1248 w
+10 R f
+(The following command:)2 1016 1 900 1368 t
+10 B f
+(example% rshe lizard cat lizard.file)4 1523 1 1260 1536 t
+10 S f
+(>>)2808 1536 w
+10 B f
+(example.file)2943 1536 w
+10 R f
+(appends the remote file)3 952 1 900 1704 t
+10 B f
+(lizard.file)1883 1704 w
+10 R f
+(from the machine called ``lizard'' to the file called)8 2070 1 2322 1704 t
+10 B f
+(example.file)4423 1704 w
+10 R f
+(on the)1 253 1 4967 1704 t
+(machine called ``example.'')2 1121 1 900 1824 t
+9 B f
+(FILES)540 1992 w
+10 B f
+(/etc/hosts)900 2112 w
+(/etc/hosts.equiv)900 2232 w
+(${HOME}/.rhosts)900 2352 w
+(/etc/passwd)900 2472 w
+9 B f
+(SEE ALSO)1 453 1 540 2640 t
+10 B f
+(rsh)900 2760 w
+10 R f
+(\(1\),)1039 2760 w
+10 B f
+(rex)1270 2760 w
+10 R f
+(\(1\),)1408 2760 w
+10 B f
+(rl)1639 2760 w
+10 R f
+(\(1\),)1711 2760 w
+10 B f
+(rx)1942 2760 w
+10 R f
+(\(1\),)2036 2760 w
+10 B f
+(rexec)2267 2760 w
+10 R f
+(\(1\),)2493 2760 w
+10 B f
+(rlogin)2724 2760 w
+10 R f
+(\(1\),)2980 2760 w
+10 B f
+(vi)3211 2760 w
+10 R f
+(\(1\),)3289 2760 w
+10 B f
+(in.named)3520 2760 w
+10 R f
+(\(1M\),)3918 2760 w
+10 B f
+(in.rshd)4238 2760 w
+10 R f
+(\(1M\),)4542 2760 w
+10 B f
+(hosts)4862 2760 w
+10 R f
+(\(4\),)5079 2760 w
+10 B f
+(hosts.equiv)900 2880 w
+10 R f
+(\(4\),)1376 2880 w
+10 B f
+(passwd\(4\))1542 2880 w
+9 B f
+(NOTES)540 3048 w
+10 R f
+(When a system is listed in)5 1057 1 900 3168 t
+10 B f
+(hosts.equiv)1984 3168 w
+10 R f
+( insecure system)2 666( One)1 219( be as good as local security.)6 1163(, its security must)3 712 4 2460 3168 t
+(listed in)1 320 1 900 3288 t
+10 B f
+(hosts.equiv)1245 3288 w
+10 R f
+(can compromise the security of the entire system.)7 1980 1 1746 3288 t
+(You cannot run an interactive command \(such as)7 1996 1 900 3456 t
+10 B f
+(vi)2927 3456 w
+10 R f
+(\(1\) \); use)2 372 1 3005 3456 t
+10 B f
+(rlogin)3408 3456 w
+10 R f
+( is a major)3 440( This)1 235( to do so.)3 388(if you wish)2 462 4 3695 3456 t
+( operating system platform. Even with STREAMS, I/O has)8 2400(short coming of I/O development on the UNIX)7 1920 2 900 3576 t
+( operating)1 403(not progressed significantly to even match some of the capabilities of other \(now almost obsolete\))14 3917 2 900 3696 t
+( will the UNIX operating system stack up to MS\255Windows, MS\255Windows NT, or Apple's)13 3724(systems. How)1 596 2 900 3816 t
+( will see in time.)4 664( we)1 166(MacOS ?)1 374 3 900 3936 t
+(Stop signals stop the local)4 1073 1 900 4104 t
+10 B f
+(rshe)2005 4104 w
+10 R f
+( reasons)1 332(process only; this is arguably wrong, but currently hard to fix for)11 2668 2 2220 4104 t
+(too complicated to explain here.)4 1284 1 900 4224 t
+(Sometimes the)1 592 1 900 4392 t
+10 S1 f
+(\261)1517 4392 w
+10 B f
+(n)1582 4392 w
+10 R f
+( example, the command:)3 982( For)1 189(option is needed for reasons that are less than obvious.)9 2180 3 1663 4392 t
+10 B f
+(example% rshe somehost dd if=/dev/nrmt0 bs=20b)5 2167 1 1260 4560 t
+10 S f
+(\357)3452 4560 w
+10 B f
+(tar xvpBf)1 408 1 3526 4560 t
+10 S1 f
+(\261)3959 4560 w
+10 R f
+( what happens is that the)5 1010( Evidently,)1 469(will put your shell into a strange state.)7 1562 3 900 4728 t
+10 B f
+(tar)3971 4728 w
+10 R f
+( the)1 153(terminates before)1 700 2 4128 4728 t
+10 B f
+(rshe)5012 4728 w
+10 R f
+(.)5195 4728 w
+(The)900 4848 w
+10 B f
+(rshe)1083 4848 w
+10 R f
+(then tries to write into the ``broken pipe'' and, instead of terminating neatly, proceeds to compete)15 3926 1 1294 4848 t
+( Invoking)1 419(with your shell for its standard input.)6 1528 2 900 4968 t
+10 B f
+(rshe)2880 4968 w
+10 R f
+(with the)1 333 1 3096 4968 t
+10 S1 f
+(\261)3462 4968 w
+10 B f
+(n)3527 4968 w
+10 R f
+( bug)1 183( This)1 236(option avoids such incidents.)3 1185 3 3616 4968 t
+(occurs only when)2 718 1 900 5088 t
+10 B f
+(rshe)1650 5088 w
+10 R f
+( not use the)3 476( Do)1 178(is at the beginning of a pipeline and is not reading standard input.)12 2701 3 1865 5088 t
+10 S1 f
+(\261)900 5208 w
+10 B f
+(n)965 5208 w
+10 R f
+(if)1046 5208 w
+10 B f
+(rshe)1132 5208 w
+10 R f
+( example,)1 388( For)1 189(actually needs to read standard input.)5 1486 3 1340 5208 t
+10 B f
+(example% tar cf)2 709 1 1260 5376 t
+10 S1 f
+(\261)1994 5376 w
+10 B f
+(.)2084 5376 w
+10 S f
+(\357)2134 5376 w
+10 B f
+(rshe sundial dd of=/dev/rmt0 obs=20b)4 1622 1 2208 5376 t
+10 R f
+( you were to use the)5 831( If)1 122(does not produce the bug.)4 1053 3 900 5544 t
+10 S1 f
+(\261)2937 5544 w
+10 B f
+(n)3002 5544 w
+10 R f
+(in a case like this,)4 741 1 3089 5544 t
+10 B f
+(rshe)3862 5544 w
+10 R f
+(would incorrectly read from)3 1143 1 4077 5544 t
+10 B f
+(/dev/null)900 5664 w
+10 R f
+(instead of from the pipe.)4 979 1 1299 5664 t
+9 B f
+(CAVEATS)540 5832 w
+10 R f
+(A significant difference from this program and the more popular)9 2584 1 900 5952 t
+10 B f
+(RSH)3510 5952 w
+10 R f
+(program is that this program will not)6 1478 1 3742 5952 t
+(execute multiple commands enclosed in quotes like the)7 2213 1 900 6072 t
+10 B f
+(RSH)3139 6072 w
+10 R f
+( program will only execute)4 1076( This)1 228(program will.)1 545 3 3371 6072 t
+(a single supplied program along with its arguments \(no funny business\).)10 2884 1 900 6192 t
+(The)900 6360 w
+10 B f
+(\255n)1092 6360 w
+10 R f
+( does exist because of some fundamental flaws in the way in)11 2558( It)1 124( not have to exist.)4 760(option should)1 560 4 1218 6360 t
+( I/O)1 169( These)1 299( is handled in both old \(non\255STREAMS\) and new \(STREAMS\) versions of UNIX.)12 3438(which I/O)1 414 4 900 6480 t
+( or DEC's VMS but, of course, these)7 1480(limitations do not exist in operating systems such as DEC's RSM\25511M)10 2840 2 900 6600 t
+( The)1 207( numerous\) also.)2 667(operating systems suffer from other problems \(possibly quite)7 2460 3 900 6720 t
+10 B f
+(\255n)4261 6720 w
+10 R f
+(option simple directs)2 843 1 4377 6720 t
+(the)900 6840 w
+10 B f
+(rshe)1050 6840 w
+10 R f
+(program to not read its standard input and to instead return an end\255of\255file indication to the remote)16 3958 1 1262 6840 t
+( the)1 150( Normally,)1 461(command's standard input.)2 1091 3 900 6960 t
+10 B f
+(rshe)2629 6960 w
+10 R f
+(program continuously, and naively, reads its standard input)7 2381 1 2839 6960 t
+( This)1 248( command issues a read to its standard input.)8 1950(because it is too stupid to know when the remote)9 2122 3 900 7080 t
+( flaw in the I/O subsystem of the UNIX operating)9 2154(behavior can be ultimately traced to a fundamental)7 2166 2 900 7200 t
+( 12, 2018)2 375( February)1 1631( Commands)1 481( User)1 1924(Page 3)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 3 3
+%%Page: 4 4
+DpostDict begin
+/saveobj save def
+mark
+4 pagesetup
+9 B f
+( \( 1 \))3 126( rshe)1 1682( 1995\25508\25522 \))2 464( \()1 68( Starbase)1 358( BCS)1 1691(rshe \( 1 \))3 291 7 540 480 t
+10 R f
+( system's I/O STREAM head \(STREAMS is assumed for this discussion\))10 3094( UNIX operating)2 704(system. The)1 522 3 900 960 t
+( any indication of how much data is requested by the program above the STREAM head.)15 3640(does not provide)2 680 2 900 1080 t
+( side of a)3 393(For this reason, any and all STREAMS modules and ultimately programs residing on the client)14 3927 2 900 1200 t
+( could)1 249( This)1 230( that the server side program continuously wants input data.)9 2404(network connection have to assume)4 1437 4 900 1320 t
+( powers that were thought that)5 1262( The)1 215( 1982 at least\) but no...ooo!)5 1149(have been long ago fixed in UNIX \(circa)7 1694 4 900 1440 t
+( make operating systems and did not understand the need for a formalized "attention" type)14 3604(they knew how to)3 716 2 900 1560 t
+(indication from programs issuing reads on the other end of a communications pipe \(network or otherwise\).)15 4260 1 900 1680 t
+( one \(RSHE\), are poor)4 959(There are too many "remote execution" programs and most all of then, like this)13 3361 2 900 1848 t
+( Sun)1 212( its children RL, RX, et cetera from AT&T.)8 1787(excuses for the original real thing ; namely, REXEC nad)9 2321 3 900 1968 t
+( RPC.REXD have the potential to come close to the AT&T ori\255)11 2559(Microsystem's ON program and its daemon)5 1761 2 900 2088 t
+( be warned, at the time of this writing, that Sun's ON)11 2134( Finally,)1 360( be.)1 145(ginal but it is not even as good as it could)10 1681 4 900 2208 t
+( of the client side, server side)6 1173(remote execution facility is extremely buggy, often leading to machine crashes)10 3147 2 900 2328 t
+( no wonder that it is usually, and shipped from Sun as so, turned OFF!)14 2810( It's)1 183(or both!)1 319 3 900 2448 t
+9 B f
+(AUTHOR)540 2616 w
+10 R f
+(David A.D. Morano)2 804 1 900 2736 t
+( 4)1 75( Page)1 1931( Commands)1 481( User)1 1458(February 12, 2018)2 735 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 4 4
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 4
+%%DocumentFonts: Times-BoldItalic Courier-Bold Times-Roman Times-Bold Times-Italic Times-Roman Symbol

@@ -1,16 +1,12 @@
 ASSTRIP
 
-This is the famous (infamous) 'asstrip' program.  This program 
-strips comment lines from a source file.  This function is performed
-as part of the assembly process.
+This is the famous (infamous) 'asstrip' program. This program strips comment
+lines from an assembly language source file. This function is performed as part
+of the assembly process.
 
+Synopsis:
+$ asstrip <file(s)>
 
-= version 0
-
-98/11/11
-
-This code is originally written from sratch.  The previous garbage
-just couldn't be maintained for much longer!
-
-
+Arguments:
+<file(s)>	fike(s) to process or standard-input otherwise
 

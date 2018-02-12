@@ -1,12 +1,10 @@
 FILERM
 
 Synopsis:
-
 $ filerm [<file(s)> ...] [-APPLEDOUBLE] [-LINKS] [-af <argfile>] [-a]
 	[-b[=n]] [-f] [-v[=n]] [-z] [-V]
 
-where:
-
+Arguments:
 <file(s)>	files or directories to be removed
 -af <argfile>	file with arguments in it
 -APPLEDOUBLE	remove stale AppleDouble files 

@@ -7,4 +7,3 @@ and then written one per line to the output file.
 For more comprehensive extraction of mail addresses from mail messages, see the
 'ema(1)' program.
 
-

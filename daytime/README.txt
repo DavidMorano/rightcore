@@ -8,12 +8,10 @@ contacted for the 'daytime' service and all such contacted hosts will have their
 daytimes printed out.
 
 Synopsis:
-
 $ daytime [<hostname(s)>] [-d <dialer>[:<port>]] [-s <service>] [-x]
 	[-f <af>] [-wl <n>] [-V]
 
 Arguments:
-
 <hostname(s)>		hostname to contact
 -d <dialer>[:<port>]	dialer and optional port to use:
 				udp, tcp, tcpmux, tcpnls, uss, ussmux

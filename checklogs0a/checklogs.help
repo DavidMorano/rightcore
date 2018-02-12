@@ -6,12 +6,10 @@ inside of a log table file that are not already rooted are taken to be relative
 to the current directory unless the '-r fileroot' option is supplied.
 
 Synopsis:
-
 $ checklogs [{<logtab(s)>|-} ...] [-af <argfile>] -<size> [-s <size>]
 	[-r <fileroot>] [-C <conf>] [-P <pidmutex>] [-V]
 
-where:
-
+Arguments:
 <logtab(s)>		one or more log-table (LOGTAB) files
 -af <argfile>		file of LOGTAB files
 -s <size>		default maximum size of any logfile

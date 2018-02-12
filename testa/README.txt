@@ -1,6 +1,4 @@
 TESTA
 
-
 Test array usage.
-
 

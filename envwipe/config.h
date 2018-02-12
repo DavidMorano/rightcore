@@ -3,6 +3,7 @@
 
 #define	VERSION		"0"
 #define	WHATINFO	"@(#)ENVWIPE "
+#define	SEARCHNAME	"envwipe"
 
 #define	PROGRAMROOTVAR1	"ENVWIPE_PROGRAMROOT"
 #define	PROGRAMROOTVAR2	"LOCAL"
@@ -12,12 +13,8 @@
 #define	PROGRAMROOT	"/usr/add-on/local"
 #endif
 
-#define	SEARCHNAME	"envwipe"
-
-#define	ENVFNAME	"env"
-
-
 #define	ERRORFDVAR	"ERROR_FD"
 
+#define	ENVFNAME	"env"
 
 

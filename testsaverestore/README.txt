@@ -1,9 +1,5 @@
 TESTSAVERESTORE
 
-
-Synopsis :
-
+Synopsis:
 $ testsaverestore.x
-
-
 

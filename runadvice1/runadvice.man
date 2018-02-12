@@ -3,7 +3,11 @@
 .SH NAME
 runadvice \- run SysCAD ADVICE program with varying parameters
 .SH SYNOPSIS
-\fBrunadvice\fP [ \fIrunfile\fP ]
+.\"_
+.so tmac.att
+.\"_
+,B runadvice
+.RI [ runfile ]
 .OP -o "  outfile" []
 .OP -p[aram] "  param=p1,p2,..." []
 [ \fB-V\fP ] [ \fB-D\fP | \fB-D=\fP\fIdebuglevel\fP ] [ \fB-?\fP ]
@@ -28,7 +32,7 @@ This program can actually allow for the varying of any user created
 parameter in an ADVICE run.  This program expects a number of pseudo
 standardized files to be in the current directory which describe the
 circuit to be simulated using ADVICE.  The files that are
-expected to be created by the user are :
+expected to be created by the user are:
 .RS
 .TP 10
 \f(CWrun.adv\fP
@@ -108,7 +112,7 @@ that specified in the \fIRUNADVICE_ADVICE\fP environment variable.
 In addition to the options already described, a small set of
 options are recognized by the program for the added convenience of
 the user.  The following argument option keywords are
-recognized :
+recognized:
 .RS 5
 .TP 20
 .B -proc \fIprocess_value_list\fP
@@ -164,12 +168,12 @@ This file is processed for \fIrunadvice\fP variable parameters.
 .PP
 This file contains ADVICE commands.
 An ADVICE parameter file (which is optional) usually contains ADVICE
-variables specified as an ADVICE line of the form :
+variables specified as an ADVICE line of the form:
 .EX
 { termvolt = 2.1 }
 .EE
 In order to have the \fIrunadvice\fP program vary ADVICE variables,
-an ADVICE line of the form :
+an ADVICE line of the form:
 .EX
 { termvolt = $(TERMVOLT) }
 .EE
@@ -210,7 +214,7 @@ run outputs appear numbered.
 Several of the standard files above, those indicated as such,
 are processed for parameter substitution.  Variable parameters
 can be introduced into the files by including variable references
-in the form :
+in the form:
 .EX
 $(\fIvariable\fP)
 .EE
@@ -220,7 +224,7 @@ of values such that all combinations of the variables given
 on the command line get a corresponding ADVICE simulation run.
 Some variable names have special meaning and cannot be used by
 the user for any other purpose.  The variables with special
-meanings are :
+meanings are:
 .RS 5
 .TP 20
 CONTROLCKT
@@ -244,7 +248,7 @@ file or to the default output file.
 .PP
 In addition to the special \fIrunadvice\fP variables described so far,
 the following variables are defaulted internally to the \fIrunadvice\fP
-program if the user does not supply them :
+program if the user does not supply them:
 .RS 5
 .TP 20
 PROC
@@ -275,7 +279,7 @@ processed by \fIrunadvice\fP.
 .PP
 .IP \(rh 5
 To run a circuit with variations on technology process (identified as
-\fBan\fP, \fBal\fP, and \fBah\fP) the following would be executed :
+\fBan\fP, \fBal\fP, and \fBah\fP) the following would be executed:
 .EX
 runadvice run.adv -param proc=al,an,ah
 .EE
@@ -284,7 +288,7 @@ specified.
 .\"_
 .IP \(rh 5
 To run a circuit with variations on technology process (identified as
-\fBan\fP, \fBal\fP, and \fBah\fP) and power supply voltage, execute :
+\fBan\fP, \fBal\fP, and \fBah\fP) and power supply voltage, execute:
 .EX
 runadvice run.adv -param proc=al,an,ah -param pow=3.0,3.3,3.6
 .EE
@@ -294,7 +298,7 @@ This will produce nine ADVICE runs.
 To run a simulation on a circuit with variations on 
 technology process (identified as
 \fBan\fP, \fBal\fP, and \fBah\fP), power supply voltage, and
-termpature, execute :
+temperature, execute:
 .EX
 runadvice run.adv -param proc=al,an,ah -param pow=3.0,3.3,3.6 -param temp=25,85
 .EE
@@ -370,19 +374,16 @@ these files may be specified on the command line.
 eas(1)
 .\"_
 .\"_
-.SH AUTHOR
-D.A. Morano
-.\"_
-.SH SAMPLES FILES
+.SH SAMPLE FILES
 .PP
-A sample RUNADVICE configuration file is shown below :
+A sample RUNADVICE configuration file is shown below:
 .EX
 \&# CONFIG.RA
 \&#
 \&# This is a configuration file for the RUNADVICE program.
 \&#
 \&#
-\&# Valid Entries :
+\&# Valid Entries:
 \&#
 \&#	keyword		parameters
 \&#--------------------------------------------------------------------------
@@ -406,7 +407,7 @@ A sample RUNADVICE configuration file is shown below :
 \&#
 \&#
 \&#
-\&# NOTE about how the ADVICE files relate to each other :
+\&# NOTE about how the ADVICE files relate to each other:
 \&#
 \&#	The "run" file possibly specified on the command line
 \&#	must read in a circuit file which will be in the "control"
@@ -444,11 +445,11 @@ A sample RUNADVICE configuration file is shown below :
 \&
 \&# machine entries
 \&#
-\&#	These entries have the form :
+\&#	These entries have the form:
 \&#
 \&#		keyword		name	load_capability
 \&#
-\&#	where :
+\&#	where:
 \&#
 \&#		<keyword>		is always 'machine'
 \&#
@@ -456,7 +457,7 @@ A sample RUNADVICE configuration file is shown below :
 \&#
 \&#		<load_capability>	is a number that rates the ability
 \&#					of the machine to run jobs as
-\&#					compared with the other mahcines
+\&#					compared with the other machines
 \&#
 \&
 \&# our System V machines
@@ -482,7 +483,7 @@ A sample run file is shown here.
 \&* ADVICE run file which is executed from the the X Windows menu
 \&*
 \&*
-\&*	The following character strings get substituted for :
+\&*	The following character strings get substituted for:
 \&*
 \&*		PROC		process
 \&*		TEMP		temperature
@@ -491,14 +492,14 @@ A sample run file is shown here.
 \&*		POW		power supply voltage
 \&*
 \&*
-\&* here are some test substitutions :
+\&* here are some test substitutions:
 \&*	PROC=$(PROC)
 \&*	TEMP=$(TEMP)
 \&*	TIMESTEP=$(TIMESTEP)
 \&*	TIMELEN=$(TIMELEN)
 \&*	POW=$(POW)
 \&*
-\&* and the circuit files :
+\&* and the circuit files:
 \&*	MAINCKT=$(MAINCKT)
 \&*	CONTROLCKT=$(CONTROLCKT)
 \&*
@@ -571,5 +572,9 @@ A sample ADVICE \fIparams\fP file is shown here.
 \&*
 \&*
 .EE
+.\"_
+.\"_
+.SH AUTHOR
+David A.D. Morano
 .\"_
 .\"_

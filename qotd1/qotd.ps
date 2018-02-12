@@ -1,0 +1,1097 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+/build_rh {
+pop
+gsave
+size .0022 mul dup scale
+currentpoint translate
+
+15 66 moveto
+15 86 lineto
+16 131 lineto
+17 146 lineto
+18 158 lineto
+19 167 lineto
+21 181 lineto
+24 190 lineto
+34 193 lineto
+49 189 lineto
+58 182 lineto
+60 177 lineto
+60 166 lineto
+59 156 lineto
+58 143 lineto
+57 130 lineto
+56 117 lineto
+55 102 lineto
+54 42 lineto
+53 39 lineto
+49 35 lineto
+34 34 lineto
+19 39 lineto
+16 47 lineto
+15 66 lineto
+stroke
+
+65 60 moveto
+65 111 lineto
+66 127 lineto
+67 139 lineto
+69 153 lineto
+72 163 lineto
+83 171 lineto
+98 177 lineto
+113 182 lineto
+128 187 lineto
+143 190 lineto
+158 194 lineto
+173 196 lineto
+188 199 lineto
+203 201 lineto
+218 203 lineto
+233 205 lineto
+248 205 lineto
+263 206 lineto
+278 206 lineto
+293 206 lineto
+308 206 lineto
+323 206 lineto
+338 205 lineto
+353 203 lineto
+368 202 lineto
+383 200 lineto
+394 197 lineto
+389 190 lineto
+389 180 lineto
+391 176 lineto
+391 173 lineto
+380 173 lineto
+365 173 lineto
+350 174 lineto
+335 175 lineto
+320 176 lineto
+305 176 lineto
+290 176 lineto
+275 177 lineto
+260 177 lineto
+245 177 lineto
+240 173 lineto
+240 170 lineto
+245 165 lineto
+260 164 lineto
+275 164 lineto
+290 164 lineto
+305 163 lineto
+320 160 lineto
+327 155 lineto
+330 149 lineto
+330 134 lineto
+328 129 lineto
+323 124 lineto
+309 121 lineto
+294 121 lineto
+279 121 lineto
+264 121 lineto
+249 121 lineto
+234 121 lineto
+228 118 lineto
+228 112 lineto
+234 109 lineto
+249 109 lineto
+264 109 lineto
+279 108 lineto
+294 108 lineto
+306 104 lineto
+311 97 lineto
+312 91 lineto
+312 88 lineto
+311 82 lineto
+305 74 lineto
+290 72 lineto
+275 72 lineto
+260 72 lineto
+245 73 lineto
+230 73 lineto
+215 73 lineto
+205 70 lineto
+205 63 lineto
+217 60 lineto
+232 60 lineto
+247 60 lineto
+262 60 lineto
+277 57 lineto
+283 52 lineto
+285 44 lineto
+285 41 lineto
+284 35 lineto
+280 30 lineto
+268 26 lineto
+253 25 lineto
+238 26 lineto
+223 28 lineto
+208 31 lineto
+193 33 lineto
+178 34 lineto
+163 33 lineto
+148 31 lineto
+133 28 lineto
+118 27 lineto
+103 28 lineto
+88 34 lineto
+73 43 lineto
+67 52 lineto
+65 60 lineto
+stroke
+
+396 180 moveto
+396 188 lineto
+399 194 lineto
+410 196 lineto
+416 190 lineto
+416 180 lineto
+415 177 lineto
+411 173 lineto
+400 173 lineto
+396 180 lineto
+stroke
+
+grestore
+} def
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1 \))3 126( QOTD)1 1953( v0 \))2 134( \()1 68( LOCAL)1 2008(QOTD \( 1 \))3 391 6 540 480 t
+(NAME)540 960 w
+10 R f
+(qotd)900 1080 w
+10 S1 f
+(\261)1103 1080 w
+10 R f
+(Quote\255of\255the\255Day)1193 1080 w
+9 B f
+(SYNOPSIS)540 1248 w
+10 B f
+(qotd)900 1368 w
+10 R f
+([)1127 1368 w
+10 I f
+(dayspec\(s\))1192 1368 w
+10 S f
+(\357)1618 1368 w
+10 I f
+(mjd\(s\) ...)1 362 1 1667 1368 t
+10 R f
+(] [)1 98 1 2086 1368 t
+10 CB f
+(\255af)2184 1368 w
+10 I f
+(argfile)2429 1368 w
+10 R f
+(] [)1 98 1 2712 1368 t
+10 CB f
+(\255m)2810 1368 w
+10 R f
+(] [)1 98 1 2954 1368 t
+10 CB f
+(\255r)3052 1368 w
+10 R f
+(] [)1 98 1 3196 1368 t
+10 CB f
+(\255e[=)3294 1368 w
+10 I f
+(ttl)3534 1368 w
+10 CB f
+(])3618 1368 w
+10 I f
+(] [)1 110 1 3702 1368 t
+10 CB f
+(\255l)3812 1368 w
+10 I f
+( [)1 71(qfile ])1 233 2 3940 1368 t
+10 CB f
+(\255z[=)4244 1368 w
+10 I f
+(b)4484 1368 w
+10 CB f
+(])4534 1368 w
+10 I f
+(] [)1 110 1 4618 1368 t
+10 CB f
+(\255y)4728 1368 w
+10 I f
+( [)1 72(year ])1 232 2 4856 1368 t
+10 CB f
+(\255)5160 1368 w
+(of)900 1488 w
+10 I f
+( [)1 64(outfile ])1 311 2 1028 1488 t
+10 CB f
+(\255ef)1403 1488 w
+10 I f
+( [)1 64(errfile ])1 305 2 1591 1488 t
+10 CB f
+(\255R)1960 1488 w
+10 I f
+( [)1 64(programroot ])1 572 2 2138 1488 t
+10 CB f
+(\255V)2774 1488 w
+10 I f
+(])2918 1488 w
+9 B f
+(DESCRIPTION)540 1656 w
+(Introduction)690 1776 w
+10 R f
+(The)900 1896 w
+10 I f
+(qotd)1089 1896 w
+10 R f
+( the quote\255of\255the\255day for the specified day and prints it to)10 2390(\(Quote\255of\255the\255Day\) program retrieves)2 1529 2 1301 1896 t
+( a day as a)4 439( default specfied day is the current day, but can be changed by specifying)13 3017(standard\255output. The)1 864 3 900 2016 t
+10 I f
+(dayspec)900 2136 w
+10 R f
+( alternative to specifying)3 1065(. An)1 222 2 1221 2136 t
+10 I f
+(dayspec\(s\))2558 2136 w
+10 R f
+(is to specify)2 535 1 3035 2136 t
+10 I f
+(mjd\(s\))3621 2136 w
+10 R f
+(\(Modified\255Julian\255Days\). Either)1 1293 1 3927 2136 t
+10 I f
+(dayspec\(s\))900 2256 w
+10 R f
+(or)1362 2256 w
+10 I f
+(mjd\(s\))1481 2256 w
+10 R f
+( in the same invocation.)4 992(may be specified in any single invocation, but nut not both)10 2456 2 1772 2256 t
+( be changed by used of the)6 1070(The exact time definition of a day can)7 1516 2 900 2376 t
+10 CW f
+(z)3512 2376 w
+10 R f
+( the)1 148(option. Specifying)1 765 2 3598 2376 t
+10 CW f
+(z)4537 2376 w
+10 R f
+(option will use)2 597 1 4623 2376 t
+( default, without this option, the current time)7 1868( By)1 178(Greenwich\255Mean\255Time to determine when a day starts.)6 2274 3 900 2496 t
+(zone is used to deterine the boundaries between days.)8 2137 1 900 2616 t
+9 B f
+(Options)690 2784 w
+10 R f
+( tailor the print job in certain ways. Most of the options)11 2287(There are a number of options that can be used to)10 2033 2 900 2904 t
+( key word or letter. The option value is always separated from the key)13 2950(take an additional value after the)5 1370 2 900 3024 t
+(letter with one or more spaces.)5 1225 1 900 3144 t
+10 B f
+(\255C)1150 3312 w
+10 I f
+(filepath)1305 3312 w
+10 R f
+( file for the program.)4 870(This option allows for the specification of the configuration)8 2450 2 1900 3312 t
+(This usually does not have to be specified by may be if an alternate configuration)14 3320 1 1900 3432 t
+( the configuration file is searched for)6 1564( Normally,)1 473( the default is desired.)4 939(file than)1 344 4 1900 3552 t
+( the time of the invocation of the pro\255)8 1570(within the program root that is in effect at)8 1750 2 1900 3672 t
+( a non\255)2 299( If)1 127( filepath is given as an argument, it is used directly.)10 2169( a rooted)2 369(gram. If)1 356 5 1900 3792 t
+( given, then a schedule is used to search for the file or non\255rooted)13 2637(rooted filepath is)2 683 2 1900 3912 t
+( root area or some\255)4 781(file path. The resulting file can be found in either the program)11 2539 2 1900 4032 t
+( option is usually used only for testing pur\255)8 1746( This)1 232(place under the current directory.)4 1342 3 1900 4152 t
+(poses.)1900 4272 w
+10 B f
+(\255R)1150 4440 w
+10 I f
+(programroot)1305 4440 w
+10 R f
+( The)1 208( program root that will be used.)6 1275(This option allows for the specification of the)7 1837 3 1900 4440 t
+( as a search are for various PCS related facilities.)9 2064(program root is basically used)4 1256 2 1900 4560 t
+( need to specified as a program root is often or usually)11 2193(Usually this option does not)4 1127 2 1900 4680 t
+( option is)2 389( This)1 236( determined by the PCS administrator at installation time.)8 2367(setup or)1 328 4 1900 4800 t
+(usually used only for testing purposes.)5 1538 1 1900 4920 t
+10 B f
+(\255d[)1150 5088 w
+10 I f
+(=time)1272 5088 w
+10 B f
+(])1512 5088 w
+10 R f
+( is)1 93( This)1 229( daemon mode as a standing server.)6 1428(This option tells the program to go into)7 1570 4 1900 5088 t
+( may be desir\255)3 586( This)1 234( main function of this facility.)5 1224(sort of a degenerate case of the)6 1276 4 1900 5208 t
+( that will end up invoking the program. Usu\255)8 1825(able to limit the number of machines)6 1495 2 1900 5328 t
+( an active PCS poller is allowed in any given PCS clus\255)11 2285(ally, only one instance of)4 1035 2 1900 5448 t
+( in daemon mode, it normally prevents)6 1558( one of these programs is running)6 1343(ter. When)1 419 3 1900 5568 t
+( exception of those invocations that explicitly)6 1875(any others from executing with the)5 1445 2 1900 5688 t
+( obviously,)1 465( mode operation also,)3 917( Daemon)1 407(specify a service at invocation time.)5 1531 4 1900 5808 t
+( the program that the)4 852(forces all PCS polling activity to be confined to)8 1953 2 1900 5928 t
+10 I f
+(pcspoll)4735 5928 w
+10 R f
+(pro\255)5054 5928 w
+( restriction can be used for these types of pur\255)9 1835(gram is executing on \(an access table)6 1485 2 1900 6048 t
+( daemon mode)2 624( Finally,)1 377(poses also\).)1 484 3 1900 6168 t
+10 I f
+(may)3428 6168 w
+10 R f
+( used)1 225(reduce over\255all system resources)3 1358 2 3637 6168 t
+(since all resources are cached locally on the executing system rather than being)12 3320 1 1900 6288 t
+( normally would be\) on all participating PCS machines in the)10 2539(spread out \(as they)3 781 2 1900 6408 t
+( the key to do into)5 790( the optional time is given along with)7 1576( If)1 128(current PCS cluster.)2 826 4 1900 6528 t
+( of time)2 331(daemon mode, the program will only execute in daemon for the amount)11 2989 2 1900 6648 t
+( executing in daemon)3 875(specified. When no time is given, the program will continue)9 2445 2 1900 6768 t
+( executing in daemon)3 860( is not clear what the benefit might be for)9 1668( It)1 113(mode indefinely.)1 679 4 1900 6888 t
+( time but certain systems might)5 1343(mode \(standing daemon program\) for a limited)6 1977 2 1900 7008 t
+( PCS related activity \(such as needs the ser\255)8 1811(benefit if it is known that a flurry of)8 1509 2 1900 7128 t
+( taken place at a certain time \(for)7 1406(vices providing by the polling programs\) is to)7 1914 2 1900 7248 t
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 1 \))3 126( QOTD)1 1953( v0 \))2 134( \()1 68( LOCAL)1 2008(QOTD \( 1 \))3 391 6 540 480 t
+10 R f
+( be executed just before that time with a timeout give)10 2175( program can)2 538(example\). The)1 607 3 1900 960 t
+(for when to leave daemon mode and return to normal operation.)10 2553 1 1900 1080 t
+10 B f
+(\255f)1150 1248 w
+10 R f
+(This option is used for force the)6 1294 1 1900 1248 t
+10 I f
+(pcspoll)3222 1248 w
+10 R f
+(program to execute even if other heuristis)6 1681 1 3539 1248 t
+( program indicate that an execution at the present time is not particu\255)12 2847(used by the)2 473 2 1900 1368 t
+( the)1 163( Normally)1 449(larly needed.)1 530 3 1900 1488 t
+10 I f
+(pcspoll)3083 1488 w
+10 R f
+(facility employs a number of hierarchically)5 1807 1 3413 1488 t
+( when the various configured polling)5 1608(tiered heuristics that serve to determine)5 1712 2 1900 1608 t
+( goal is to minimize system resources needed)7 1841( The)1 210( carried out.)2 489(activities should be)2 780 4 1900 1728 t
+( option is used to)4 740( This)1 242(to maintain a reasonably smooth PCS system operation.)7 2338 3 1900 1848 t
+( prevent a polling evaluation)4 1167(eliminate the first tier heuristics that might otherwise)7 2153 2 1900 1968 t
+( services may or may not be specified with this option.)10 2184( Explicit)1 367(to occur.)1 349 3 1900 2088 t
+10 B f
+(\255m)1150 2256 w
+10 I f
+(time)1316 2256 w
+10 R f
+( minimum time interval that should expire before any polling)9 2518(This option sets the)3 802 2 1900 2256 t
+( The)1 215(evaluations are carried out.)3 1110 2 1900 2376 t
+10 B f
+(\255f)3260 2376 w
+10 R f
+(is very similar to \(if not identical\) as if)8 1623 1 3361 2376 t
+10 B f
+(\255m 0)1 201 1 5019 2376 t
+10 R f
+(was given.)1 427 1 1900 2496 t
+10 B f
+(\255V)1150 2664 w
+10 R f
+(This option will print the program version to standard error output and then exit.)13 3214 1 1900 2664 t
+9 B f
+(CONFIGURATION)540 2832 w
+10 R f
+( In)1 148( main files that serve to provide configuration information to the PCSPOLL facility.)12 3542(There are three)2 630 3 900 2952 t
+(addition, there are also some options that can be set in the main PCS site configuration file.)16 3647 1 900 3072 t
+9 B f
+(General Configuration)1 878 1 690 3240 t
+10 R f
+( \(also specified through the)4 1111(General configuration is provide through the program's main configuration file)9 3209 2 900 3360 t
+(optional)900 3480 w
+10 CW f
+(\255C configfile)1 790 1 1323 3480 t
+10 R f
+( general)1 327( file contains information about various)5 1629( This)1 238(option at invocation\).)2 878 4 2148 3480 t
+( first is the service table file. The second is)9 1771( The)1 212( of these files are of most importance.)7 1557(program files. Two)2 780 4 900 3600 t
+( The access table file)4 840(the access table file. The service table file is required \(if a system needs polling at all\).)16 3480 2 900 3720 t
+( just look at)3 491( are urged to)3 519( Administrators)1 656( files are discussed more in their own sections.)8 1909( These)1 294(is optional.)1 451 6 900 3840 t
+(either some actual or sample files and model their needs after what are in the existing templates.)16 3840 1 900 3960 t
+9 B f
+(ENVIRONMENT VARIABLES)1 1258 1 540 4128 t
+10 R f
+(The following environment variables may change the default behavior of the program.)11 3454 1 900 4248 t
+10 B f
+(PCSPOLL)1150 4416 w
+10 S f
+(_)1612 4416 w
+10 B f
+(PROGRAMROOT)1662 4416 w
+10 R f
+( program root over any other such)6 1364(This environment variable is taken to contain the)7 1956 2 1900 4536 t
+( The)1 205(environment variable.)1 876 2 1900 4656 t
+10 B f
+(\255R)3006 4656 w
+10 R f
+(argument overides this environment variable.)4 1811 1 3136 4656 t
+10 B f
+(PCS)1150 4824 w
+10 R f
+( The)1 211( normally taken to contain the program root.)7 1812(This environment variable is)3 1161 3 1900 4824 t
+10 B f
+(\255R)5115 4824 w
+10 R f
+(argument overides this environment variable.)4 1811 1 1900 4944 t
+10 B f
+(PROGRAMROOT)1150 5112 w
+10 R f
+( taken to contain the program root if not other suitable)10 2174(This environment variable is)3 1146 2 1900 5232 t
+( The)1 214( this this purpose are in the environment.)7 1695(environment variable)1 861 3 1900 5352 t
+10 B f
+(\255R)4704 5352 w
+10 R f
+(argument)4843 5352 w
+(overides this environment variable.)3 1409 1 1900 5472 t
+9 B f
+(EXAMPLES)540 5640 w
+10 S1 f
+()900 5760 w
+10 S1 f
+900 5760 m
+100 build_rh
+1000 5760 m
+10 R f
+(poll certain services that are not configured to run automatically:)9 2587 1 1150 5760 t
+10 CW f
+(pcspoll serivce_name ...)2 1440 1 1460 5928 t
+10 S1 f
+()900 6144 w
+900 6144 m
+100 build_rh
+1000 6144 m
+10 R f
+(run in daemon mode for two hours:)6 1415 1 1150 6144 t
+10 CW f
+(pcspoll \255d=2h)1 780 1 1460 6312 t
+10 S1 f
+()900 6528 w
+900 6528 m
+100 build_rh
+1000 6528 m
+10 R f
+(poll everything configured to run automatically once for work:)8 2507 1 1150 6528 t
+10 CW f
+(pcspoll)1520 6696 w
+10 R f
+( of the)2 277(; this is almost the same as what is done with the PCSPOLL facility that is built into many)18 3793 2 1150 6864 t
+(PCS programs)1 581 1 1150 6984 t
+9 B f
+(SEE ALSO)1 453 1 540 7152 t
+10 R f
+(bb\(1\), vmail\(1\), msgs\(1\))2 982 1 900 7272 t
+( 2)1 75( Page)1 1931( Commands)1 481( User)1 1508(February 8, 2018)2 685 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Page: 3 3
+DpostDict begin
+/saveobj save def
+mark
+3 pagesetup
+9 B f
+( \( 1 \))3 126( QOTD)1 1953( v0 \))2 134( \()1 68( LOCAL)1 2008(QOTD \( 1 \))3 391 6 540 480 t
+(PATH TO)1 418 1 540 960 t
+10 R f
+(This program is currently located in)5 1484 1 900 1080 t
+10 CW f
+(/usr/add\255on/pcs/bin)2479 1080 w
+10 R f
+( where ever PCS programs)4 1114(or possibly)1 452 2 3654 1080 t
+( is often at)3 419( This)1 228(are stored on your system.)4 1051 3 900 1200 t
+10 CW f
+(${PCS}/bin)2683 1200 w
+10 R f
+(on some systems.)2 703 1 3308 1200 t
+9 B f
+(WARNINGS)540 1368 w
+10 R f
+(Be careful to put at one space between all option key letters and the associated key letter parameter.)17 3979 1 900 1488 t
+9 B f
+(ACKNOWLEDGEMENTS)540 1656 w
+10 R f
+(Actual quotes are contributed by numberous people and organizations.)8 2820 1 900 1776 t
+9 B f
+(AUTHOR)540 1944 w
+10 R f
+(David A.D. Morano)2 804 1 900 2064 t
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 3)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 3 3
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 3
+%%DocumentFonts: Courier-Bold Courier Times-Roman Times-Bold Times-Italic Times-Roman Symbol

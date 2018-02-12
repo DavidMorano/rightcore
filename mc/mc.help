@@ -5,4 +5,3 @@ if mail is detected.
 
 It is NOT finished and work needs to continue in the file 'process.c'.
 
-

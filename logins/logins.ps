@@ -1,0 +1,770 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1M \))3 211( logins)1 1675( \))1 37( Jul 1990)2 346( 5)1 52( \()1 68( 5.8)1 136( SunOS)1 1719(logins \( 1M \))3 436 9 540 480 t
+(NAME)540 960 w
+10 R f
+(logins)900 1080 w
+10 S1 f
+(\261)1170 1080 w
+10 R f
+(list user and system login information)5 1514 1 1260 1080 t
+9 B f
+(SYNOPSIS)540 1248 w
+10 B f
+(/usr/bin/logins)900 1368 w
+10 R f
+([ \255)1 91 1 1539 1368 t
+10 B f
+(admopstux)1630 1368 w
+10 R f
+(])2128 1368 w
+([ \255)1 91 1 925 1488 t
+10 B f
+(g)1016 1488 w
+10 I f
+(group...)1091 1488 w
+10 R f
+(])1430 1488 w
+([ \255)1 91 1 925 1608 t
+10 B f
+(l)1016 1608 w
+10 I f
+(login...)1069 1608 w
+10 R f
+(])1375 1608 w
+9 B f
+(DESCRIPTION)540 1776 w
+10 R f
+( to the system. Contents of the output)7 1509(This command displays information on user and system logins known)9 2811 2 900 1896 t
+( user id number,)3 658(is controlled by the command options and can include the following: user or system login,)14 3662 2 900 2016 t
+10 B f
+(passwd)900 2136 w
+10 R f
+( primary group id, multi\255)4 1001(account field value \(user name or other information\), primary group name,)10 2982 2 1237 2136 t
+( group ids, home directory, login shell, and four password aging parameters. The)12 3264(ple group names, multiple)3 1056 2 900 2256 t
+(default information is the following: login id, user id, primary group name, primary group id and the)16 4320 1 900 2376 t
+(account field value. Output is sorted by user id, system logins, followed by user logins.)14 3481 1 900 2496 t
+9 B f
+(OPTIONS)540 2664 w
+10 R f
+(The following options are supported:)4 1482 1 900 2784 t
+(Options may be used together. If so, any login that matches any criteria will be displayed.)15 3584 1 900 2952 t
+(\255)900 3120 w
+10 B f
+(a)933 3120 w
+10 R f
+( fields show how many days a password can)8 1801(Add two password expiration fields to the display. The)8 2219 2 1200 3120 t
+(remain unused before it automatically becomes inactive, and the date that the password will expire.)14 3965 1 1200 3240 t
+(\255)900 3408 w
+10 B f
+(d)933 3408 w
+10 R f
+(Selects logins with duplicate uids.)4 1364 1 1200 3408 t
+(\255)900 3576 w
+10 B f
+(m)933 3576 w
+10 R f
+(Displays multiple group membership information.)4 2008 1 1200 3576 t
+(\255)900 3744 w
+10 B f
+(o)933 3744 w
+10 R f
+(Formats output into one line of colon\255separated fields.)7 2170 1 1200 3744 t
+(\255)900 3912 w
+10 B f
+(p)933 3912 w
+10 R f
+(Selects logins with no passwords.)4 1347 1 1200 3912 t
+(\255)900 4080 w
+10 B f
+(s)933 4080 w
+10 R f
+(Selects all system logins.)3 1006 1 1200 4080 t
+(\255)900 4248 w
+10 B f
+(t)933 4248 w
+10 R f
+(Sorts output by login instead of by uid.)7 1562 1 1200 4248 t
+(\255)900 4416 w
+10 B f
+(u)933 4416 w
+10 R f
+(Selects all user logins.)3 894 1 1200 4416 t
+(\255)900 4584 w
+10 B f
+(x)933 4584 w
+10 R f
+( includes)1 367(Prints an extended set of information about each selected user. The extended information)12 3653 2 1200 4584 t
+( each displayed on a separate line. The)7 1568(home directory, login shell and password aging information,)7 2452 2 1200 4704 t
+( no password or LK for)5 954( \(PS for password, NP for)5 1047( status)1 281(password information consists of password)4 1738 4 1200 4824 t
+( last changed,)2 560( the password was)3 753( date)1 224(locked\). If the login is passworded, status is followed by the)10 2483 4 1200 4944 t
+( allowed before a change is)5 1128(the number of days required between changes, and the number of days)11 2892 2 1200 5064 t
+( aging information shows the time interval that the user will receive a pass\255)13 3069(required. The password)2 951 2 1200 5184 t
+(word expiration warning message \(when logging on\) before the password expires.)10 3279 1 1200 5304 t
+10 B f
+(\255g)900 5472 w
+10 I f
+(group)1008 5472 w
+10 R f
+(Selects all users belonging to)4 1174 1 1200 5592 t
+10 B f
+(group)2401 5592 w
+10 R f
+( as a comma\255)3 538(, sorted by login. Multiple groups can be specified)8 2025 2 2657 5592 t
+( \255)1 62( the)1 176(separated list. When)2 820 3 1200 5712 t
+10 B f
+(l)2258 5712 w
+10 R f
+(and \255)1 206 1 2315 5712 t
+10 B f
+(g)2521 5712 w
+10 R f
+( if the)2 239(options are combined, a user will only be listed once, even)10 2381 2 2600 5712 t
+(user belongs to more than one of the selected groups.)9 2124 1 1200 5832 t
+10 B f
+(\255l login)1 298 1 900 6000 t
+10 R f
+( Depending)1 470(Selects the requested login. Multiple logins can be specified as a comma\255separated list.)12 3550 2 1200 6120 t
+(on the nameservice lookup types set in)6 1668 1 1200 6240 t
+10 B f
+(/etc/nsswitch.conf)2913 6240 w
+10 R f
+( can come from the)4 846(, the information)2 709 2 3665 6240 t
+10 B f
+(/etc/passwd)1200 6360 w
+10 R f
+(and)1721 6360 w
+10 B f
+(/etc/shadow)1922 6360 w
+10 R f
+( \255)1 66( When the)2 476(files and other nameservices.)3 1182 3 2455 6360 t
+10 B f
+(l)4179 6360 w
+10 R f
+(and \255)1 210 1 4240 6360 t
+10 B f
+(g)4450 6360 w
+10 R f
+(options are com\255)2 687 1 4533 6360 t
+( user belongs to more than one of the selected)9 1944(bined, a user will only be listed once, even if the)10 2076 2 1200 6480 t
+(groups.)1200 6600 w
+9 B f
+(ATTRIBUTES)540 6768 w
+10 R f
+(See)900 6888 w
+10 B f
+(attributes)1069 6888 w
+10 R f
+(\(5\) for descriptions of the following attributes:)6 1859 1 1485 6888 t
+( 8, 2018)2 325( February)1 1517( Commands)1 481( Maintenance)1 2088(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 1M \))3 211( logins)1 1675( \))1 37( Jul 1990)2 346( 5)1 52( \()1 68( 5.8)1 136( SunOS)1 1719(logins \( 1M \))3 436 9 540 480 t
+10 S f
+(_ ____________________________________________________________________________________)1 4210 1 900 860 t
+10 R f
+( VALUE)1 363( ATTRIBUTE)1 1811(ATTRIBUTE TYPE)1 830 3 1525 980 t
+10 S f
+(_ ____________________________________________________________________________________)1 4210 1 900 1000 t
+10 R f
+(Availability SUNWcsu)1 2557 1 950 1120 t
+10 S f
+( \347)1 -4210(_ ____________________________________________________________________________________)1 4210 2 900 1140 t
+(\347)900 1060 w
+(\347)900 960 w
+(\347)3005 1140 w
+(\347)3005 1060 w
+(\347)3005 960 w
+(\347)5110 1140 w
+(\347)5110 1060 w
+(\347)5110 960 w
+9 B f
+(SEE ALSO)1 438 1 540 1428 t
+10 B f
+(attributes)900 1548 w
+10 R f
+(\(5\))1316 1548 w
+( 2)1 75( Page)1 1767( Commands)1 481( Maintenance)1 1672(February 8, 2018)2 685 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 2
+%%DocumentFonts: Times-Roman Times-Bold Times-Italic Times-Roman Symbol

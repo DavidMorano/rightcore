@@ -5,13 +5,11 @@ This command also prints out session messages for the KSH shell (when
 run as a built-in command).
 
 Synopsis:
-
 $ ${S} [-n|-y] [-m[=<n>]] [-b[={y|n}]] [-v[=<n>]] [-dev <termdev>] 
 		-<n> [-o <opt(s)>] [-w <width>] [<fromuser(s)>] 
 		[-T <termtype>] [-t <mtype(s)>] [-Q] [-V]
 
-where:
-
+Arguments:
 -y		turn terminal messaging ON
 -n		turn terminal messaging OFF
 -b[={y|n}]	turn BIFFing on or off (default ON)
@@ -28,7 +26,6 @@ where:
 -V		print command version to standard-error and then exit
 
 Exitcodes:
-
 0		messages are ON
 1		messages are OFF
 other		error

@@ -1,13 +1,8 @@
 TESTMKPATH
 
-To make:
-
+Making:
 $ makeit
 
-To execute:
-
+Synopsis:
 $ testmkpath <s1> <s2> ...
-
-
-
 

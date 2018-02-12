@@ -8,11 +8,9 @@ the email message framework stuff and only feed the actual BASE64 encoded part
 to this program.
 
 Synopsis:
-
 $ base64 {-e|-d} [<file>] [-t] [-<cols>] [-V]
 
-where:
-
+Arguments:
 <file>		file to process
 -e		encode mode
 -d		decode mode

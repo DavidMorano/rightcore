@@ -2,85 +2,9 @@
 .TH TLIADDR 1 "1992-02-13" LOCAL
 .SH NAME
 tliaddr \- print out the Transport Layer Interface address
-.\"_
-.\"_
 .SH SYNOPSIS
 .\"_
-.\"_ some AT&T standard strings
-.\"_
-.if t \{\
-.fp5 CW
-.ds mW \&\f5
-.ds mB \&\f(CB
-.ds Tm \v'-0.5m'\s-4TM\s+4\v'0.5m'
-.ds Sm \v'-0.5m'\s-4SM\s+4\v'0.5m'
-.ds Rg \v'-0.4m'\s-4\(rg\s+4\v'0.4m'
-.ds rq ''
-.ds lq ``
-.tr * \(**
-'br\}
-.if n \{\
-.ds mW \f3
-.ds mB \f3
-.ds Tm \uTM\d
-.ds Sm \uSM\d
-.ds Rg (Reg.)
-.ds lq \&"
-.ds rq \&"
-'br\}
-.\"_
-.\"_ some AT&T standard macros
-.\"_
-.de HY
-.hy14
-..
-.\"_
-.de MW
-.nh
-.it1 }N
-.ie\\n(.$ \{\
-.ie\\n(.$=1 \*(mW\&\\$1\fP
-.el.ie \\n(.$=2 \*(mW\&\\$1 \\$2\fP
-.el.ie \\n(.$=3 \*(mW\&\\$1 \\$2 \\$3\fP
-.el.ie \\n(.$=4 \*(mW\&\\$1 \\$2 \\$3 \\$4\fP
-.el.ie \\n(.$=5 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5\fP
-.el.ie \\n(.$=6 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6\fP
-.el.ie \\n(.$=7 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7\fP
-.el.ie \\n(.$=8 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8\fP
-.el\*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8 \\$9\fP \}
-.el\{\
-.ift .ft 5
-.ifn .ft 3 \}
-.HY
-..
-.\"_
-.de OP
-.ie'\\$3'[]' \ \f1[\ \*(mB\\$1\f2\^\\$2\|\f1\ ]
-.el\&\\$4\&\*(mB\\$1\fP\f2\^\\$2\|\fP\\$3
-..
-.\"_
-.de EX
-.sp\\n(PDu
-.in+5n
-.ifn .ft 3
-.ift \{\
-.ft5
-.if\\$1-1 \{\
-.ps-1
-.vs-1
-.nreX 1 \}\}
-.nf
-..
-.de EE
-.fi
-.if\\n(eX \{\
-.ps+1
-.vs+1
-.nreX 0 \}
-.ft1
-.in-5n
-.sp\\n(PDu
-..
+.so tmac.att
 .\"_
 .BR tliaddr 
 .I host
@@ -129,7 +53,7 @@ is always required.
 When the 
 .MW socket
 interface address type is being used (the default),
-additional possible host names consisting of :
+additional possible host names consisting of:
 .EX
 anyhost
 .EE
@@ -184,7 +108,7 @@ There are no environment variables used by this program.
 .IP \(rh 5
 get the TLI address for a TCP host named
 .MW bob
-on the default port of 2766 :
+on the default port of 2766:
 .EX
 \f(CWtliaddr bob\fP
 .in -4
@@ -192,7 +116,7 @@ on the default port of 2766 :
 .IP \(rh 5
 print out the TLI address for a TCP host named
 .MW fred
-using a port of 1025 :
+using a port of 1025:
 .EX
 \f(CWtliaddr fred 1025\fP
 .EE
@@ -208,12 +132,12 @@ This is often at
 .MW "${LOCAL}/bin"
 on some systems.
 .\"_
-.SH AUTHOR
-Dave Morano
-.\"_
 .SH ACKNOWLEDGMENTS
 This program was inspired by the
 .MW hostrfs
 program previously written by the R&D UNIX folks out in Illinois.
+.\"_
+.SH AUTHOR
+David A.D. Morano
 .\"_
 .\"_

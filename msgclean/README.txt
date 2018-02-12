@@ -4,12 +4,10 @@ This program will fix up (clean up) message files that have permissive
 address specification header keys.
 
 Synopsis:
-
 $ msgclean [<file(s)>] [<dir(s)>] [-af <afile>] [-t <ageint>] 
 	[-nice <val>] [-s <suffix(es)>] [-v[=n]] [-V]
 
-where:
-
+Arguments:
 <file(s)>	directories (or files) to include in calculation
 -af <afile>	file specifying list of files or directories
 -t <ageint>	age-interval in seconds
@@ -21,6 +19,5 @@ where:
 -V		print program version to standard-error and then exit 
 
 Example:
-
 $ msgclean *.msg -t 30
 

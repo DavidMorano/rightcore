@@ -5,9 +5,8 @@ using the SMTP protocol.  If there is any failure, the message is queued
 to the local POSTFIX facility.
 
 Synopsis:
-
 $ pcspa <recipient(s)> [-i <x>] [-o <whatever>]
 
-where:
-
+Arguments:
+recipient(s)	recipient(s) to send to
 

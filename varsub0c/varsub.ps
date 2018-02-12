@@ -1,0 +1,1083 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+/build_rh {
+pop
+gsave
+size .0022 mul dup scale
+currentpoint translate
+
+15 66 moveto
+15 86 lineto
+16 131 lineto
+17 146 lineto
+18 158 lineto
+19 167 lineto
+21 181 lineto
+24 190 lineto
+34 193 lineto
+49 189 lineto
+58 182 lineto
+60 177 lineto
+60 166 lineto
+59 156 lineto
+58 143 lineto
+57 130 lineto
+56 117 lineto
+55 102 lineto
+54 42 lineto
+53 39 lineto
+49 35 lineto
+34 34 lineto
+19 39 lineto
+16 47 lineto
+15 66 lineto
+stroke
+
+65 60 moveto
+65 111 lineto
+66 127 lineto
+67 139 lineto
+69 153 lineto
+72 163 lineto
+83 171 lineto
+98 177 lineto
+113 182 lineto
+128 187 lineto
+143 190 lineto
+158 194 lineto
+173 196 lineto
+188 199 lineto
+203 201 lineto
+218 203 lineto
+233 205 lineto
+248 205 lineto
+263 206 lineto
+278 206 lineto
+293 206 lineto
+308 206 lineto
+323 206 lineto
+338 205 lineto
+353 203 lineto
+368 202 lineto
+383 200 lineto
+394 197 lineto
+389 190 lineto
+389 180 lineto
+391 176 lineto
+391 173 lineto
+380 173 lineto
+365 173 lineto
+350 174 lineto
+335 175 lineto
+320 176 lineto
+305 176 lineto
+290 176 lineto
+275 177 lineto
+260 177 lineto
+245 177 lineto
+240 173 lineto
+240 170 lineto
+245 165 lineto
+260 164 lineto
+275 164 lineto
+290 164 lineto
+305 163 lineto
+320 160 lineto
+327 155 lineto
+330 149 lineto
+330 134 lineto
+328 129 lineto
+323 124 lineto
+309 121 lineto
+294 121 lineto
+279 121 lineto
+264 121 lineto
+249 121 lineto
+234 121 lineto
+228 118 lineto
+228 112 lineto
+234 109 lineto
+249 109 lineto
+264 109 lineto
+279 108 lineto
+294 108 lineto
+306 104 lineto
+311 97 lineto
+312 91 lineto
+312 88 lineto
+311 82 lineto
+305 74 lineto
+290 72 lineto
+275 72 lineto
+260 72 lineto
+245 73 lineto
+230 73 lineto
+215 73 lineto
+205 70 lineto
+205 63 lineto
+217 60 lineto
+232 60 lineto
+247 60 lineto
+262 60 lineto
+277 57 lineto
+283 52 lineto
+285 44 lineto
+285 41 lineto
+284 35 lineto
+280 30 lineto
+268 26 lineto
+253 25 lineto
+238 26 lineto
+223 28 lineto
+208 31 lineto
+193 33 lineto
+178 34 lineto
+163 33 lineto
+148 31 lineto
+133 28 lineto
+118 27 lineto
+103 28 lineto
+88 34 lineto
+73 43 lineto
+67 52 lineto
+65 60 lineto
+stroke
+
+396 180 moveto
+396 188 lineto
+399 194 lineto
+410 196 lineto
+416 190 lineto
+416 180 lineto
+415 177 lineto
+411 173 lineto
+400 173 lineto
+396 180 lineto
+stroke
+
+grestore
+} def
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1 \))3 126( VARSUB)1 1956( 0c \))2 129( \()1 68( LOCAL)1 1905(VARSUB \( 1 \))3 496 6 540 480 t
+(NAME)540 960 w
+10 R f
+(varsub)900 1080 w
+10 S1 f
+(\261)1191 1080 w
+10 R f
+(variable substitution filter)2 1033 1 1281 1080 t
+9 B f
+(SYNOPSIS)540 1248 w
+10 B f
+(varsub)900 1368 w
+10 R f
+([)1227 1368 w
+10 CB f
+(\255db)1260 1368 w
+10 I f
+(mapfile)1480 1368 w
+10 R f
+(] [)1 98 1 1796 1368 t
+10 CB f
+(\255s)1894 1368 w
+10 I f
+(var=value)2054 1368 w
+10 R f
+(] [)1 98 1 2487 1368 t
+10 CB f
+(\255k)2585 1368 w
+10 I f
+(keychars)2745 1368 w
+10 R f
+(] [)1 98 1 3115 1368 t
+10 CB f
+(\255b)3213 1368 w
+10 I f
+(blankspec)3373 1368 w
+10 R f
+(] [)1 99 1 3788 1368 t
+10 CB f
+(\255af)3887 1368 w
+10 I f
+(argfile)4108 1368 w
+10 R f
+(] [)1 99 1 4391 1368 t
+10 CB f
+(\255if)4490 1368 w
+10 I f
+(infile)4711 1368 w
+10 R f
+(] [)1 99 1 4933 1368 t
+10 CB f
+(\255of)5032 1368 w
+10 I f
+(outfile)900 1488 w
+10 R f
+(] [)1 91 1 1172 1488 t
+10 CB f
+(\255env)1263 1488 w
+10 R f
+(] [)1 91 1 1552 1488 t
+10 CB f
+(\255V)1643 1488 w
+10 R f
+(] [)1 91 1 1787 1488 t
+10 CB f
+(\255D)1878 1488 w
+10 R f
+(] [)1 91 1 2022 1488 t
+10 CB f
+(\255?)2113 1488 w
+10 R f
+(])2257 1488 w
+([file\(s\)])925 1608 w
+9 B f
+(DESCRIPTION)540 1776 w
+10 R f
+( and converts symbolic filter references found in them)8 2194(This program takes as input one or more source files)9 2126 2 900 1896 t
+( as defined in a)4 652(to their associated target values)4 1305 2 900 2016 t
+10 I f
+(filter\255map)2894 2016 w
+10 R f
+(file. Source \(input\) files can be specified in a)8 1889 1 3331 2016 t
+(variety of ways, but are most commonly just listed as invocation arguments.)11 3045 1 900 2136 t
+9 B f
+(Key Options)1 498 1 690 2304 t
+10 R f
+( program invocation command using the)5 1768(Variable substitutions can be specified directly with the)7 2425 2 900 2424 t
+10 B f
+(\255s)5148 2424 w
+10 I f
+(var=value)900 2544 w
+10 R f
+( The)1 220(argument sequence.)1 807 2 1357 2544 t
+10 I f
+(var)2423 2544 w
+10 R f
+(string specified the variable name to be substituted for and the)10 2625 1 2595 2544 t
+10 I f
+(value)900 2664 w
+10 R f
+( repeated as desired to build up a set of key\255value)10 2013( option can be)3 572( This)1 231(string is the value to substitute.)5 1260 4 1144 2664 t
+( specified in this way take precedence over substitution keys)9 2523( substitution keys)2 727( All)1 191(pairs for substitution.)2 879 4 900 2784 t
+(found in the database filter\255map file.)5 1458 1 900 2904 t
+(The)900 3144 w
+10 B f
+(\255db)1089 3144 w
+10 I f
+(mapfile)1293 3144 w
+10 R f
+( file to be used by the program. The file\255file is a file that)13 2376(option introduces a filter\255map)3 1217 2 1627 3144 t
+( column and the associated value is specified in the)9 2071( are specified in the first)5 987( Keys)1 259(contains key\255value pairs.)2 1003 4 900 3264 t
+( in it, it should be)5 736( the value has any whitespace)5 1213( If)1 122( cannot have whitespace in them.)5 1355( Keys)1 261(second column.)1 633 6 900 3384 t
+( variable)1 351( this option is not specified, then the environment)8 2028( If)1 122(quoted with double quotes.)3 1101 4 900 3504 t
+10 B f
+(VARSUB)4532 3504 w
+10 S f
+(_)4943 3504 w
+10 B f
+(MAP)4993 3504 w
+10 R f
+( that environment variable is not present in the)8 1931( If)1 125( filter configuration file.)3 992(is accessed for the name of the)6 1272 4 900 3624 t
+(environment, then the program will behave similar to the)8 2294 1 900 3744 t
+10 CW f
+(cat\(1\))3221 3744 w
+10 R f
+( in the)2 252(program except that variable keys)4 1360 2 3608 3744 t
+(source file may be substituted for blanks \(the default situation\).)9 2530 1 900 3864 t
+( are parenthesis and squiggle brackets.)5 1570( These)1 295( the source files.)3 675(Two types of characters can delimit keys in)7 1780 4 900 4104 t
+(The)900 4224 w
+10 B f
+(\255k)1086 4224 w
+10 I f
+(keychars)1231 4224 w
+10 R f
+( charac\255)1 322(argument can be given to turn ON or OFF the recognition on either one of these)15 3282 2 1616 4224 t
+( default, both characters are recognized as key delimiters in the source text.)12 3003(ters. By)1 336 2 900 4344 t
+( using the)2 419(Blank handling is specified)3 1133 2 900 4584 t
+10 B f
+(\255b)2492 4584 w
+10 R f
+( option alone will turn ON blank substitution \(the)8 2098(option. The)1 501 2 2621 4584 t
+( it is specified as:)4 706(default\). If)1 454 2 900 4704 t
+10 CW f
+(\255b=n)2088 4704 w
+10 R f
+(then blank substitution is turned off and an error will result when a key)13 2864 1 2356 4704 t
+( either the)2 417(is encountered in the source text and there is no associated map value for that key specified on)17 3903 2 900 4824 t
+(invocation command or a filter\255map file.)5 1625 1 900 4944 t
+(If the)1 215 1 900 5184 t
+10 B f
+(\255env)1142 5184 w
+10 R f
+( is used for value substitutions when an other\255)8 1861(option is specified, then the program environment)6 2007 2 1352 5184 t
+(wise unknown key \(one which was not given at program invocation or in a file\255map file\) is encountered.)17 4170 1 900 5304 t
+(The)900 5544 w
+10 B f
+(\255V)1086 5544 w
+10 R f
+( program)1 370( The)1 212( the program.)2 549(option causes the program to write out to standard error the version of)12 2867 4 1222 5544 t
+( the user just wants the)5 1028( If)1 139( specified.)1 433(will continue to execute according to the other files or options)10 2720 4 900 5664 t
+(program's version without actually performing any filter operation, the user should use the)12 3781 1 900 5784 t
+10 B f
+(\255?)4720 5784 w
+10 R f
+(option as)1 378 1 4842 5784 t
+(above in conjunction with this option.)5 1517 1 900 5904 t
+(The)900 6144 w
+10 B f
+(\255?)1088 6144 w
+10 R f
+( explaining the)2 612(option is causes the program to terminate with a message printed to standard error)13 3379 2 1229 6144 t
+( syntax of the program's arguments and)6 1586( is useful when the user forgets the exact)8 1632( This)1 229(usage of the program.)3 873 4 900 6264 t
+(does not want to consult the manual page.)7 1676 1 900 6384 t
+(The)900 6624 w
+10 B f
+(\255D)1084 6624 w
+10 R f
+( such)1 213( Information)1 532(option enables the printing of some debugging information to the standard error.)11 3257 3 1218 6624 t
+( severe errors of any kind are printed to standard)9 1990( All)1 184( was created is supplied.)4 997(as whether a new freeze file)5 1149 4 900 6744 t
+(error regardless of the setting of this option.)7 1753 1 900 6864 t
+9 B f
+(Filter Map File)2 616 1 690 7032 t
+10 R f
+( Com\255)1 293( to target string definitions.)4 1146(The filter configuration file contains the mapping of symbolic names)9 2881 3 900 7152 t
+( lines are ignored.)3 724( Blank)1 292( sign character.)2 612(ments are introduced into the filter configuration file by the pound)10 2692 4 900 7272 t
+( 12, 2018)2 375( February)1 1631( Commands)1 481( User)1 1924(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 1 \))3 126( VARSUB)1 1956( 0c \))2 129( \()1 68( LOCAL)1 1905(VARSUB \( 1 \))3 496 6 540 480 t
+10 R f
+( first field is the symbolic name field.)7 1506( The)1 206( line with white space separating them.)6 1562(Two fields are entered per)4 1046 4 900 960 t
+( target substitution string is that which is substituted in)9 2188( The)1 205(The second field is the target substitution string.)7 1927 3 900 1080 t
+( Quote characters are not)4 1044(place of a symbolic name when one is encountered in a source SATtool script.)13 3276 2 900 1200 t
+( example of a filter configuration file is given below.)9 2113( An)1 172(allowed within either field.)3 1082 3 900 1320 t
+9 B f
+(Input File)1 398 1 690 1488 t
+10 R f
+( an)1 135( Optionally,)1 519( are generally specified as arguments at program invocation.)8 2536(Input source files)2 723 4 900 1608 t
+10 B f
+(\255if)4854 1608 w
+10 I f
+(infile)5014 1608 w
+10 R f
+( additional input file to be used in the desired conversion.)10 2325(argument can be specified to give the name of an)9 1995 2 900 1728 t
+(Input shource files can also be specified with:)7 1904 1 900 1848 t
+10 B f
+(\255af)2840 1848 w
+10 I f
+(argfile)3017 1848 w
+10 R f
+(In this latter case, each line of the file)8 1595 1 3321 1848 t
+10 I f
+(argfile)4953 1848 w
+10 R f
+( no explicit input source files are specified then the stan\255)10 2257( If)1 116( filtered.)1 338(should contain one source\255text file to be)6 1609 4 900 1968 t
+(dard input is used.)3 733 1 900 2088 t
+9 B f
+(Output)690 2256 w
+10 R f
+( specified with the argument)4 1169( alternate output file can be)5 1124( An)1 179(The default filtered output goes to STDOUT.)6 1848 4 900 2376 t
+(invocation specification of:)2 1093 1 900 2496 t
+10 CW f
+(\255of outfile.)1 720 1 2018 2496 t
+9 B f
+(EXAMPLES)540 2664 w
+10 S1 f
+()900 2784 w
+10 S1 f
+900 2784 m
+100 build_rh
+1000 2784 m
+10 R f
+(To convert a source SATtool script file into the object script)10 2408 1 1150 2784 t
+10 CW f
+(varsub \255db /usr/auto/etc/f.v5d6 source.ap > object.ap)5 3180 1 1400 2952 t
+10 S1 f
+()900 3288 w
+900 3288 m
+100 build_rh
+1000 3288 m
+10 R f
+(To convert an object SATtool script file into a source SATtool script file:)12 2936 1 1150 3288 t
+10 CW f
+(varsub raw.ap \255db /usr/adm/etc/f.v5d9 > introduced.ap)5 3180 1 1400 3456 t
+10 S1 f
+()900 3792 w
+900 3792 m
+100 build_rh
+1000 3792 m
+10 R f
+(Get the program version only without performing any filtering function:)9 2883 1 1150 3792 t
+10 CW f
+(varsub \255V)1 540 1 1400 3960 t
+10 S1 f
+()900 4296 w
+900 4296 m
+100 build_rh
+1000 4296 m
+10 R f
+(Perform a macro expansion operation with debugging turned on:)8 2585 1 1150 4296 t
+10 CW f
+(varsub infile.ap \255D \255db /usr/adm/etc/f.v5d9 > outfile.ap)6 3360 1 1400 4464 t
+10 S1 f
+()900 4800 w
+900 4800 m
+100 build_rh
+1000 4800 m
+10 R f
+( specified output file but using standard input for)8 2026(Perform a macro expansion operation writing to a)7 2044 2 1150 4800 t
+(the program input file:)3 902 1 1150 4920 t
+10 CW f
+(varsub \255 \255db /usr/adm/etc/f.v5d9 > outfile.ap)5 2700 1 1400 5088 t
+10 S1 f
+()900 5424 w
+900 5424 m
+100 build_rh
+1000 5424 m
+10 R f
+( operation using the environment variable)5 1732(Perform a macro introduction)3 1220 2 1150 5424 t
+10 B f
+(CARSUBMAP)4140 5424 w
+10 R f
+(to specify)1 404 1 4816 5424 t
+(the filter configuration file instead of specifying one on the command line:)11 2982 1 1150 5544 t
+10 CW f
+(VARSUB_MAP=/usr/adm/etc/f.v5d9 ; export VARSUB_MAP)3 3000 1 1400 5712 t
+(varsub \255 > outfile.ap)3 1260 1 1400 5832 t
+9 B f
+(CAVEATS)540 6048 w
+10 R f
+( quote characters are not allowed)5 1335(Symbolic names with embedded quote characters cannot be handled since)9 2985 2 900 6168 t
+( space must always separate com\255)5 1359( White)1 297(within the field definitions as given in the filter configuration file.)10 2664 3 900 6288 t
+(mand line option key letters from their associated parameter.)8 2426 1 900 6408 t
+9 B f
+(ENVIRONMENT VARIABLES)1 1258 1 540 6576 t
+10 R f
+(The following environment variables affect the program operation.)7 2672 1 900 6696 t
+10 B f
+(VARSUB)900 6864 w
+10 S f
+(_)1311 6864 w
+10 B f
+(MAP)1361 6864 w
+10 R f
+( specifies the variable substitution mapping file used to map variable refer\255)11 3014(This environment variable)2 1056 2 1150 6984 t
+(ences to their values.)3 837 1 1150 7104 t
+( 2)1 75( Page)1 1931( Commands)1 481( User)1 1458(February 12, 2018)2 735 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Page: 3 3
+DpostDict begin
+/saveobj save def
+mark
+3 pagesetup
+9 B f
+( \( 1 \))3 126( VARSUB)1 1956( 0c \))2 129( \()1 68( LOCAL)1 1905(VARSUB \( 1 \))3 496 6 540 480 t
+10 B f
+(TMPDIR)900 960 w
+10 R f
+( may)1 200(This environment variable specifies a temporary directory to use to create temporary files which)13 3870 2 1150 1080 t
+( this is not specified, the directory)6 1357( When)1 288(be needed by the program.)4 1061 3 1150 1200 t
+10 CW f
+(/tmp)3881 1200 w
+10 R f
+(is used by default.)3 727 1 4146 1200 t
+9 B f
+(FILES)540 1368 w
+10 R f
+(There are no predefined variable mapping files.)6 1897 1 900 1488 t
+9 B f
+(MAINTAINER)540 1656 w
+10 R f
+(David A.D. Morano)2 804 1 900 1776 t
+9 B f
+(AUTHOR)540 1944 w
+10 R f
+(David A.D. Morano)2 804 1 900 2064 t
+( 12, 2018)2 375( February)1 1631( Commands)1 481( User)1 1924(Page 3)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 3 3
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 3
+%%DocumentFonts: Courier-Bold Courier Times-Roman Times-Bold Times-Italic Times-Roman Symbol

@@ -77,8 +77,7 @@
 extern int	strncasecmp(const char *,const char *,int) ;
 #endif
 
-extern int	bopenroot(bfile *,const char *,const char *,
-			char *,const char *,mode_t) ;
+extern int	bopenroot(bfile *,cchar *,cchar *,char *,cchar *,mode_t) ;
 extern int	vstrkeycmp(char **,char **) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
@@ -110,26 +109,20 @@ static const uchar	fterms[32] = {
 /* exported subroutines */
 
 
-int procenv(programroot,fname,lp)
-const char	programroot[] ;
-const char	fname[] ;
-VECSTR		*lp ;
+int procenv(cchar *programroot,cchar *fname,VECSTR *lp)
 {
-	bfile	efile, *efp = &efile ;
-
-	FIELD	fsb ;
-
-	int	rs, rs1 ;
-	int	len ;
-	int	bl, cl ;
-	int	fl ;
-	int	n = 0 ;
-
+	FIELD		fsb ;
+	bfile		efile, *efp = &efile ;
+	const int	llen = MAXPATHLEN ;
+	int		rs, rs1 ;
+	int		len ;
+	int		bl, cl ;
+	int		fl ;
+	int		n = 0 ;
 	const char	*fp ;
 	const char	*cp ;
-
-	char	linebuf[LINEBUFLEN + 1] ;
-	char	buf[BUFLEN + 1], *bp ;
+	char		lbuf[LINEBUFLEN + 1] ;
+	char		buf[BUFLEN + 1], *bp ;
 
 
 	if ((fname == NULL) || (fname[0] == '\0'))
@@ -137,13 +130,13 @@ VECSTR		*lp ;
 
 	if ((rs = bopenroot(efp,programroot,fname,NULL,"r",0666)) >= 0) {
 
-	while ((rs = breadline(efp,linebuf,LINEBUFLEN)) > 0) {
+	while ((rs = breadline(efp,lbuf,llen)) > 0) {
 	    len = rs ;
 
-	    if (linebuf[len - 1] == '\n') len -= 1 ;
-	    linebuf[len] = '\0' ;
+	    if (lbuf[len - 1] == '\n') len -= 1 ;
+	    lbuf[len] = '\0' ;
 
-	    cp = linebuf ;
+	    cp = lbuf ;
 	    cl = len ;
 	    while ((cl > 0) && CHAR_ISWHITE(*cp)) {
 	        cp += 1 ;

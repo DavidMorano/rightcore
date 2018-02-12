@@ -1,14 +1,12 @@
 LINEINDEX
 
-This program indexes a line-encoded file and creates another file that
-contains the index of the first file.
+This program indexes a line-encoded file and creates another file that contains
+the index of the first file.
 
 Synopsis:
-
 $ lineindex <file>=<indexfile> [-af <argfile>] [-v[=n]] [-V]
 
-where:
-
+Arguments:
 <file>		line-encoded file to be indexed
 <indexfile>	index file to be created
 -af <argfile>	a file containing file=indexfile pairs

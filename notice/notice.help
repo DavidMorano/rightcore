@@ -4,12 +4,10 @@ This program sends a notice to the session terminal of a user if that user is
 logged in and has terminal notices turned on.
 
 Synopsis:
-
 $ notice [<user>[=<n>] ...] [-af <argfile>] [-if <infile>]
 	[-n <number>] [-b] [-r] [-V]
 
-where:
-
+Arguments:
 <user>[=<n>]	username to notify and optional count of sessions
 -af <argfile>	file of username arguments
 -if <infile>	file to take notice-message from, otherwise standard-input

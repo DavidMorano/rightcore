@@ -8,4 +8,3 @@ the "handle" as the first argument.  The "Open" type calls work the
 same as the regular Standard I/O (and like SFIO) in that they return
 the handle as the return value from the call.
 
-

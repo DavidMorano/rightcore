@@ -12,7 +12,6 @@ or
 $ find * -type d -print | uniqdirs
 
 Arguments:
-
 <dir(s)>	directories to process
 -af <afile>	file to take file-arguments from
 -V		print program version and then exit

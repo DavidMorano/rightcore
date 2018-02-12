@@ -5,7 +5,7 @@ This command sets or queries configuration values from a terminal device.
 Synopsis:
 $ terminit [-s] <device> [<req(s)>[=<value>]] [-db <db>] [-V]
 
-where:
+Arguments:
 <device>	is the device to lookup 
 <req(s)>	request keys: term, label
 -s		set value for specified key

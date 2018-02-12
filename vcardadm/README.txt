@@ -3,12 +3,10 @@ VCARDADM
 This program is an administrative interface to the VCARD database.
 
 Synopsis:
-
 $ vcardadm [recipient(s) ...] [-s <sortkey>] [-db <database>] 
 		[-m] [-a] [-<n>] [-m] [-td <displaykey>] [-r]
 
-where:
-
+Arguments:
 <recipient>		restrict listing to messages with recipient
 -s <sortkey>		sort of timestamp: 'update' (d), 'msg', or 'create'
 -db <database>		use alternate database

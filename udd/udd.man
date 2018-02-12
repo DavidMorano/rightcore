@@ -3,6 +3,9 @@
 .SH NAME
 udd /- directory update daemon
 .SH SYNOPSIS
+.\"_
+.so tmac.att
+.\"_
 .B udd
 [newsgroup(s) ...] [-subject | -newsgroups | -count]
 .br
@@ -41,7 +44,7 @@ PCS
 in abbreviated form.  The PCS software tools are a set of
 cooperating and integrated programs that perform personal
 communication and management type functions for users.  Some services
-available with the PCS package include : mail, bulletin board, message
+available with the PCS package include: mail, bulletin board, message
 display, calendar, and event reminder type services.
 Only the bulletin board related programs are primarily discussed
 further here.
@@ -64,7 +67,7 @@ of the newsgroup is a composite type of name similar to a UNIX
 path name but with periods used to separate parent newsgroup names 
 from the subnewsgroups within them.
 Newsgroups can be nested to any level.
-Some example newsgroup names might look like :
+Some example newsgroup names might look like:
 .EX
 general
 general.newuser
@@ -128,7 +131,7 @@ one or more newsgroups on the command line, then these are used
 instead of the user's subscribed newsgroups.
 The program displays each unread article from the selected
 newsgroups and then
-pauses to prompt the user for one of the following commands :
+pauses to prompt the user for one of the following commands:
 .RS 12
 .TP 10
 .I Command
@@ -183,7 +186,7 @@ print mechanism that is invoked is the PCS print program
 This command can take additional options.
 Any options specified are passed down to the \fIprt-pcsmail\fP program.
 This is most commonly used to change the printer destination or
-the number of copies with a command like :
+the number of copies with a command like:
 .EX
 print -d di2 -c 2 -s 2
 .EE
@@ -262,7 +265,7 @@ Unless the "\f(CW-e\fP" option
 is specified, only the newsgroups
 to which the user has subscribed will be accessed.
 The execution mode of the program can be changed with 
-the following command line options :
+the following command line options:
 .RS 5
 .TP 15
 .B "-subject"
@@ -278,7 +281,7 @@ to be counted and the counts outputted.
 .TP
 .B "+old"
 Print the subjects of all articles regardless of currency.  This
-option is depreciated in favor of :
+option is depreciated in favor of:
 .EX
 bb -subject -a
 .EE
@@ -286,7 +289,7 @@ which provides the same function.
 .RE
 .sp
 The following options display information about the
-program :
+program:
 .RS 5
 .TP 15
 .B "-V"
@@ -302,7 +305,7 @@ be written to standard error as the program executes.
 .RE
 .sp
 The behavior of the \fIbb\fP program can be modified with the following
-options :
+options:
 .RS 5
 .TP 15
 .B "-L termlines"
@@ -416,7 +419,7 @@ board system.
 .PP
 After the article is entered by the user,
 .I bbpost
-prompts for one of the following commands :
+prompts for one of the following commands:
 .RS 12
 .TP 10
 .I Command
@@ -482,12 +485,12 @@ A typical example of using this program is to post an article
 from a user's mail reading program such as PCS \fIvmail\fP or
 PCS \fIreadmail\fP.  In these mail readers, the user would
 "pipe" the current message to the \fIrbbpost\fP program with
-a command sequence similar to :
+a command sequence similar to:
 .EX
 | rbbpost \fInewsgroup\fP
 .EE
 where \fInewsgroup\fP is the name of a valid newsgroup for the
-system such as :
+system such as:
 .EX
 misc
 general
@@ -514,12 +517,12 @@ Postings usually originate from a user's mail reading
 program such as PCS \fIvmail\fP or
 PCS \fIreadmail\fP.  In these mail readers, the user would
 "pipe" the current message to the \fIdatepost\fP program with
-a command sequence similar to :
+a command sequence similar to:
 .EX
 | datepost \fInewsgroup\fP
 .EE
 where \fInewsgroup\fP is the name of a valid newsgroup for the
-system such as :
+system such as:
 .EX
 events
 misc
@@ -531,72 +534,72 @@ and so forth.
 .IP \(rh 5
 Most people put the following command line in their login startup
 profiles to list out the articles posted in the newsgroups for
-which the user is subscribed :
+which the user is subscribed:
 .EX
 bb -subject
 .EE
 .IP \(rh 5
 To just read unread articles from the user's subscribed newsgroups,
-execute :
+execute:
 .EX
 bb
 .EE
 .IP \(rh 5
-To catch up on unread articles, without seeing them, execute :
+To catch up on unread articles, without seeing them, execute:
 .EX
 bb -int > /dev/null
 .EE
 .IP \(rh 5
 To read unread articles in the order from the latest one 
 posted to the earliest one
-posted :
+posted:
 .EX
 bb -r
 .EE
 .IP \(rh 5
-To get the names of all of the user's subscribed newsgroups :
+To get the names of all of the user's subscribed newsgroups:
 .EX
 bb -newsgroups
 .EE
 .IP \(rh 5
-To get the names of all of the newsgroups in the system :
+To get the names of all of the newsgroups in the system:
 .EX
 bb -newsgroups -e
 .EE
 .IP \(rh 5
 To search for a newsgroup (\f(CWSWAPEX_Classes\fP in this example)
 when you only remember a few characters from
-the name of the newsgroup, execute :
+the name of the newsgroup, execute:
 .EX
 bb -newsgroups -e | fgrep APEX
 .EE
 .IP \(rh 5
 To get the subject header values of unread articles on the user's 
-subscribed newsgroups :
+subscribed newsgroups:
 .EX
 bb -subject
 .EE
 .IP \(rh 5
 To get the subject header values of all (old and new) articles on the user's 
-subscribed newsgroups :
+subscribed newsgroups:
 .EX
 bb -subject -a
 .EE
 .IP \(rh 5
 To get the subject header values of all articles on all
-newsgroups in the system :
+newsgroups in the system:
 .EX
 bb -subject -a -e
 .EE
 .IP \(rh 5
 To get the count of unread articles on the user's 
-subscribed newsgroups :
+subscribed newsgroups:
 .EX
 bb -count
 .EE
 .IP \(rh 5
 To get the count of all old articles still in a newsgroup (the
-newsgroup \fIgeneral\fP in this case) :
+newsgroup \fIgeneral\fP in this case):
 .EX
 bb -count -o general
 .EE
@@ -613,7 +616,7 @@ Your PCS bulletin board administrator
 will have information
 on which newsgroups can be posted to via email.
 .PP
-The descriptions of the more popular newsgroups are :
+The descriptions of the more popular newsgroups are:
 .RS 5
 .TP 15
 .B general
@@ -692,7 +695,7 @@ Many projects usually have project specific newsgroups for
 various purposes.  Contact your project's process or methodology people
 for information on newsgroups specific to your project.
 A full list of all of the newsgroups on the system at any time can
-be made by executing :
+be made by executing:
 .EX
 bb -newsgroups -a
 .EE
@@ -773,7 +776,7 @@ points.  These sorts of techniques can be used to not expire
 articles that are in symbolically linked directories or in other
 file systems.  
 A simple example of expiring articles could be a \fIcron\fP
-program which executes :
+program which executes:
 .EX
 find $BBDIR -type f -mtime +22 -exec rm -f {} \;
 .EE
@@ -795,7 +798,7 @@ The \fIrbbpost\fP program is suitably capable of being
 executed by the UUCP system as a result of a remotely executed
 \fIuux\fP command.  This provides one means of posting
 articles to a system from outside of the system.
-A remote user would execute something like :
+A remote user would execute something like:
 .EX
 uux -p mtgbcs!rbbpost misc < mail_msg_formatted_file
 .EE
@@ -811,7 +814,7 @@ discussion in the next section), then users can also
 effectively post messages to the coicident newsgroup by emailing
 to the local email alias \fImsgs\fP.  This requires that the \fImsgs\fP
 email alias has been setup on the local mail system.  Users can still
-post messages using something like :
+post messages using something like:
 .EX
 msgs -s < mail_msg_formatted_file
 .EE
@@ -1031,4 +1034,8 @@ some of them alive and well in our computing environment.
 Thanks are also due to Mark Leeper who is the official administrator
 for routine maintenance of the bulletin board system and 
 the news spool area.
+.\"_
+.SH AUTHOR
+David A.D. Morano
+.\"_
 .\"_

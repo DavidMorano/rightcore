@@ -3,6 +3,9 @@
 .SH NAME
 usend, dosusend \- send files from one machine to another
 .SH SYNOPSIS
+.\"_
+.so tmac.att
+.\"_
 .B usend
 .OP -d "  nodename"
 .OP -u "  username"
@@ -85,7 +88,7 @@ to a destination machine cluster named
 .MW mainhub
 using
 .MW pcs
-as the destination user :
+as the destination user:
 .EX
 usend -d mainhub -u pcs myfile
 .EE
@@ -99,7 +102,7 @@ the destination machine
 .MW mainhub
 using
 .MW pcs
-as the destination user :
+as the destination user:
 .EX
 usend -d mainhub -u pcs *.c
 .EE
@@ -114,7 +117,7 @@ on the UNIX platform
 .MW mtgbcs,
 using the local UUCP machine 
 .MW mtsva
-as the gateway :
+as the gateway:
 .EX
 uux -p mtsva!dosusend -d mtgbcs -u gav -f newfile < file
 .EE
@@ -128,7 +131,7 @@ on the UNIX platform
 .MW drutx
 using the PC's UUCP partner machine 
 .MW mtsva
-as a gateway :
+as a gateway:
 .EX
 uux -p mtsva!usend -d drutx -u wen !myfile
 .EE
@@ -144,7 +147,7 @@ Do not attempt to send binary files using the \fBdosusend\fP command.
 Use the straight \fBusend\fP, \fBuucp\fP, or the \fBuuto\fP command
 instead for this.
 .SH PATH TO
-This program is currently located in :
+This program is currently located in:
 .br
 .MW ${LOCAL}/bin
 .br
@@ -153,11 +156,14 @@ or
 .MW /usr/add-on/local/bin
 .br
 on most systems.
-The program may also be in :
+The program may also be in:
 .br
 .MW ${PCS}/bin
 .br
 on those systems that only have UUCP connectivity through the PCS
 system.
+.\"_
+.SH AUTHOR
+David A.D. Morano
 .\"_
 .\"_

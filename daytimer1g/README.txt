@@ -4,12 +4,10 @@ This program displays the time on a terminal screen.  It can optionally
 use a status area of the screen.
 
 Synopsis:
-
 $ daytimer [<mailfname>|-] [<offint>] [-t <timeout>] [-o <opt(s)>] 
 		[-s] [-r <refresh>] [-V]
 
-where:
-
+Arguments:
 <mailfname>	mail file for new-mail check
 <offint>	time offset
 -t <timeout>	screen blanking timeout

@@ -12,13 +12,11 @@ file-descriptor (instead of a mailbox) for where all retrieved mail should be
 placed.
 
 Synopsis:
-
 $ pcsgetmail [<mailuser(s)>] [-u <mailuser(s)>] [-m <mailbox>] [-t <timeout>]
 	[-r <reportfile>] [-j <jobid>] [-fd <fd>] [-n] [-of <ofile>]
 	[-md <dir(s)>] [-o <opt(s)>] [-V]
 
-where:
-
+Arguments:
 <mailuser(s)>		mail-users
 -u <mailusers(s)>	alternate mail user(s)
 -m <mailbox>		target mailbox to receive new mail (default 'new')

@@ -1,239 +1,140 @@
 .\"_ 
-.TH DMAILBOX 1 "1988-11-28" PCS
+.TH DMAIL 1 "1988-11-28" PCS
 .SH NAME
 dmail, dmailbox \- program for processing local mail messages
 .SH SYNOPSIS
-.B dmailbox
-[
-.B \-ipq
-]
-[
-.B \-f 
-.I filename
-] 
-.I address
+.\"_
+.so tmac.att
+.\"_ 
+.BR dmail
+.RI [ recipient(s) ]
+.OP -f " from" ] [
+.OP -s " subject" ] [
+.in +2
 .br
-.B /usr/bin/mail
-.\"[
-.\".B \-d
-.\"]
-.\"[
-.\".B \-i
-.\"]
-.\"[
-.\".B \-r
-.\".I name
-.\"]
-.I recipient
-\&.\|.\|.
+.OP -d "" ] [
+.OP -o " option(s)" ] [
+.OP -s " protocol" ] [
+.OP -pm " program-mode" ] [
+.OP -sn " search-name" ] [
+.in -2
+.br
+.BR dmailbox
+.RI [ recipient(s) ]
+.OP -f " from" ] [
+.OP -s " subject" ] [
+.OP -m " mailbox" ] [
+.in +2
+.br
+.OP -o " option(s)" ] [
+.OP -s " protocol" ] [
+.OP -pm " program-mode" ] [
+.OP -sn " search-name" ] [
+.in -2
+.\"_
 .\"_
 .SH DESCRIPTION
-.IX  lmail ""  "\fLbinmail\fP \(em version 7 mail"
-.IX  "mail services"  "binmail command"  ""  "\fLbinmail\fP \(em version 7 mail"
+.\"_
 .LP
-Note: This is the old version 7
-.SM UNIX
-system mail program.  The default
-.B mail
-command,
-.B /usr/ucb/mail
-is described in
-.BR mail (1).
-.LP
-.B /usr/bin/mail
-with no
-.I address
-prints a user's mail, message-by-message
-in last-in, first-out order.
-.B /usr/bin/mail
-accepts commands from the standard input to direct
-disposition messages.
-.LP
-When
-.IR address es
-are named,
-.B /usr/bin/mail
-takes the standard input up to an
-.SM EOF
-(or a line with just
-.RB ` . ')
-and routes it through the mailer daemon to each
-.IR recipient .
-See
-.BR sendmail (8)
-for details.
-The message is preceded by
-the sender's name and a postmark.
-Lines that look like postmarks are prepended with 
-.RB ` > '.
-A
-.I recipient
-is a user name recognized by
-.BR login (1),
-a network address or local mail alias, or a filename
-(see
-.BR aliases (5)
-for details).
-.LP
-If there is any pending mail,
-.B login
-tells you there is mail when you log in.  It is also
-possible to have the C shell,
-or the daemon
-.B biff
-tell you about mail that arrives while you are logged in.
-.LP
-To forward mail automatically, add the addresses of additional 
-recipients to the 
-.B .forward
-file in your home directory.  Note: forwarding addresses
-must be valid, or the messages will bounce.  You cannot, for
-instance, reroute your mail to a new host by forwarding it to
-your new address if it is not yet listed in the 
-Network Information Service
-(\s-1NIS\s0) 
-aliases domain.
-.\".SH OPTIONS
-.\".LP
-.\".SS Printing Mail
-.\".TP "\w'm [ person ] . . . \ \ \ \ \ 'u"
-.\".B \-r
-.\"print in reverse order.
-.\".TP
-.\".BI \-h count\fR
-.\"print in reverse order.
+These programs perform the low-level mail-message delivery function.
+The
+.B dmail
+program performs delivery to the system mail-spool deliver area.
+The
+.B dmailbox
+program performs delivery to a specific mailbox of a specified user.
+One or more optional recipients can be specified for 
+{delivery (with either program).
+If no recipients are specified, a default recipient is used corresponding
+to the user inboking the program.
+Mail messages (optionally more than one in UNIX® MAILBOX format) are provided
+on standard-input.
+.\"_
+.\"_
 .SH OPTIONS
+.\"_
+.LP
 .TP 15
-.B \-i
-Ignore interrupts.
+.BI \-f " from"
+Specify an optional 
+.MW from 
+address.  
+By default the "from" address is automatically determined and is
+associated with the user invoking the program.
 .TP
-.B \-p
-Print messages without prompting for commands.  Exit 
-immediately upon receiving an interrupt.
+.BI \-s " subject"
+An optional subject string can be specified.
+The default is to use any subject which may already be present in the
+mail message.
 .TP
-.B \-q
-Quit immediately upon interrupt.
+.BI \-m " mailbox"
+For the
+.B dmailbox
+program, this option allows for an optional mailbox to be specified
+to receive the mail message.
+By default the target mailbox is 
+.MW copy
+\& .
 .TP
-.BI \-f " filename"
-Use
-.I filename
-as if it were the mail file.
-.\".TP
-.\".B \-d
-.\"deliver mail directly, don't route the message through
-.\".BR sendmail .
-.\"This option is often used by programs that send mail.
-.\".TP
-.\".B \-i
-.\"continue after interrupts \(em an interrupt normally terminates the
-.\".I /usr/bin/mail
-.\"command and leaves the mail file unchanged.
-.\".TP
-.\"\fB\-r \fIname\fR
-.\"specify a string to appear as the name of the sender.
-.SH USAGE
-.TP "\w'm [ person ] . . . \ \ \ \ \ 'u"
-.B ?
-Print a command summary.
+.B \-d
+This option is ignored for historical reasons.
 .TP
-.SM CTRL-D
-Put unexamined mail back in the mail file and quit.
+.BI \-o " option(s)"
+Options in the form of key-value pairs can be specified.
+The value part can be omitted.
 .TP
-.BI ! command
-Escape to the shell to do
-.IR command .
+.BI \-p " protocol"
+An optional "protocol" can be supplied specifying how this program was
+called, not what this program will do.
 .TP
-.B \-
-Go back to previous message.
+.BI \-pm " program-mode"
+Generally used for testing, the program-mode can be specified.
+Valid program modes are: 
+.MW dmail
+, and 
+.MW dmailbox
+\&.
+The program mode specifies what mode the program operates in.
 .TP
-.B +
-Go on to next message.
-.TP
-.SB RETURN
-Go on to next message.
-.TP
-.B d
-Delete message and go on to the next.
-.TP
-.B dq
-Delete message and quit.
-.TP
-.BI "m [" " recipient " ]
-\&.\|.\|.
-Mail the message to the named
-.IR recipient s
-(yourself is default).
-.TP
-.B n
-Go on to next message.
-.TP
-.B p
-Print message (again).
-.TP
-.B q
-Same as
-.SM EOT\s0 .
-.br
-.ne 8
-.TP
-.BI "s [" " filename" "] \fR\&.\|.\|."
-Save the message in the named
-.IR filename s
-.RB (` mbox '
-default).  If saved successfully, remove it from
-the list and go on to the next message.
-.TP
-.BI "w [" " filename " "] \fR.\|.\|.
-Save the message, without a header, in the named
-.IR filename s
-.RB (` mbox '
-default).  If saved successfully, remove it from
-the list and go on to the next message.
-.TP
-.B x
-Exit without changing the mail file.
+.BI \-sn " search-name"
+Generally used for testing, a program search-name can be specified.
+Valid program modes are: 
+.MW dmail
+, and 
+.MW dmailbox
+\&.
+The program search-name specifies under what name the program searches
+for optional files (like a configuration file).
+.\"_
+.\"_
 .SH FILES
-.PD 0
+.\"_
+.LP
 .TP 20
-.B /etc/passwd
-to identify sender and locate address
-.TP
-.B /var/spool/mail/*
-incoming mail for user *
-.TP
-.B /usr/ucb/mail
-routes input through daemon to 
-.IR recipient s
+.B /var/mail
+this is the default system mail-spool delivery directory
 .TP 
-.B mbox
-saved mail
-.TP
-.B /tmp/ma*
-temp file
-.TP
-.B /var/spool/mail/*.lock
-lock for mail directory
-.TP
-.B dead.letter
-unmailable text is saved here
-.TP
-.B $\s-1HOME\s0/.forward
-list of forwarding recipients
+.B /var/adm/mail
+this is the default mail-spool delivery directory for mail that
+cannot be delived normally (for whatever reason)
 .PD
+.\"_
+.\"_
 .SH "SEE ALSO"
 .LP
 .BR biff (1), 
-.BR des (1),
-.BR login (1),
 .BR mail (1),
 .BR uucp (1C),
 .BR uux (1C),
-.BR write (1),
+.\"_
+.\"_
 .SH NOTES
 .LP
-Race conditions sometimes result in a delay in removing a mail lock file.
-.LP
-The super-user can read your mail, unless it is encrypted by
-.BR des (1),
-Even if you encrypt it, the super-user can delete it.
+This is a SETGID program and will not (likely) be able to access the
+mail spool area for delivery if it is not installed SETGID.
+.\"_
+.\"_
+.SH AUTHOR
+David A.D. Morano
+.\"_
 .\"_

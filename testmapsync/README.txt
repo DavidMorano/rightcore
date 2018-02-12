@@ -1,11 +1,7 @@
 TESTMAPSYNC
 
-
 Synopsis:
-
 $ testmapsync.x
-
-
 
 This program test that:
 
@@ -14,8 +10,4 @@ This program test that:
 
 2) that access to the physical page is guarded by proper synchronization
    mechanisms in the microarchitecture
-
-
-
-
 

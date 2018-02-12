@@ -1,11 +1,13 @@
-.\" @(#)rex.1 = Dave Morano, 96/05/01
-'\"macro stdmacro
+.\" @(#)rex.1 = David A.D. Morano, 1996-05-01
+'\" macro stdmacro
 .\" Copyright 1989 AT&T
-.nr X
 .TH rex 1 "1996-05-28" PCS
 .SH NAME
 rex \- execute a command on a remote machine with local environment
 .SH SYNOPSIS
+.\"_
+.so tmac.att
+.\"_
 .B rex
 .OP -l "  rsuer" []
 .OP -n "" []
@@ -53,7 +55,8 @@ The
 .B rex
 program uses the same daemon program on the remote machine as the
 .B RSH
-program does.  This is both a blessing and a curse.
+program does.  
+This is both a blessing and a curse.
 It is a curse since
 the program's behavior is restricted somewhat by the fact
 that the same daemon is used as
@@ -272,7 +275,7 @@ and especially a password as other arguments at program invocation.
 .TP
 \f3\-A\f1
 This option takes a value which is an authentication restriction.
-Possible restriction consist of one of the following :
+Possible restriction consist of one of the following:
 .EX
 supplied
 password
@@ -500,7 +503,7 @@ any and all STREAMS modules and ultimately programs residing
 on the client side of a network connection have to assume
 that the server side program continuously wants input data.
 This could have been long ago fixed in UNIX (circa 1982 at least)
-but no...ooo !  The powers that were thought that they knew how to make 
+but no...ooo!  The powers that were thought that they knew how to make 
 operating systems and did not understand the need for
 a formalized "attention" type indication from programs issuing
 reads on the other end of a communications pipe (network or
@@ -514,6 +517,10 @@ have the potential to come close to the AT&T original but
 it is not even as good as it could be.  Finally, be warned,
 at the time of this writing, that Sun's ON remote execution facility
 is extremely buggy, often leading to machine crashes of the client
-side, server side or both !  It's no wonder that it is usually,
-and shipped from Sun as so, turned OFF !!!
+side, server side or both!  It's no wonder that it is usually,
+and shipped from Sun as so, turned OFF!!!
+.\"_
+.SH AUTHOR
+David A.D. Morano
+.\"_
 .\"_

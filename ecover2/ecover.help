@@ -4,11 +4,9 @@ This program creates a cover-sheet for files that are generally to be
 subsequently encrypted.
 
 Synopsis:
-
 $ ecover [{ -d | -e }] [<file>] [-m <message>] > [-of <ofile>] [-V]
 
-where:
-
+Arguments:
 <file>		optional source file, otherwise STDIN is used
 -e		perform encoding (default)
 -d		perform decoding

@@ -1,15 +1,12 @@
 RSYSLOG
 
-This little progam writes a message to a remote log on some remote
-machine.
+This little progam writes a message to a remote log on some remote machine.
 
 Synopsis:
-
 $ rsyslog [<loghost>] [<recipient(s)>] [-f <from>] [-if <infile>] 
 	[-p <priority>] [-t <tag>] [-af <afile>]
 
-where:
-
+Arguments:
 <loghost>	log host
 <recipient(s)>	one or more recipients in the form:
 			loghost[:username]

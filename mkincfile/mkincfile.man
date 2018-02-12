@@ -3,12 +3,10 @@
 .SH NAME
 mkincfile \- create an include file with the contents of another file
 .SH SYNOPSIS
-.BR mkincfile
 .\"_
-.de OP
-.ie'\\$3'[]' \ \f1[\ \*(mB\\$1\f2\^\\$2\|\f1\ ]
-.el\&\\$4\&\*(mB\\$1\fP\f2\^\\$2\|\fP\\$3
-..
+.so tmac.att
+.\"_
+.BR mkincfile
 .\"_
 .OP -v "" ] [
 .OP -V "" ] [
@@ -63,7 +61,7 @@ name 'incfile_' followed by the name of the original inputfile
 .SH EXAMPLES
 .IP \(rh 5
 put the contents of the file named 'testfile' into a C language
-include file :
+include file:
 .EX
 \f(CWmkincfile testfile\fP
 .EX
@@ -88,7 +86,6 @@ letters and the associated
 key letter parameter.
 .\"_
 .SH AUTHOR
-Dave Morano
-.\"_
+David A.D. Morano
 .\"_
 .\"_

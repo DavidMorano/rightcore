@@ -4,12 +4,10 @@ This program prints the current time (and other optional information) onto the
 system console.
 
 Synopsis:
-
 $ consoletime [-m[=<b>]] [-t[=<b>]] [-of <consdev>] [-o <option(s)>] 
 	[-s <string>] [-to <timeout>] [-d]=<runint>]] [-mnt <mnt>] [-V]
 
-where:
-
+Arguments:
 -m[={0|1}]	observe (or not) the "message" setting on the terminal device
 -t[={0|1}]	specify whether (or not) the device is a terminal
 -of <consdev>	console device

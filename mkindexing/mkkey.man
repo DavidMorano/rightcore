@@ -4,6 +4,8 @@
 mkkey \- create keys (for indexing) from text files
 .SH SYNOPSIS
 .\"_
+.so tmac.att
+.\"_
 .B mkkey
 .OP -C "  configfile" ] [
 .OP -d "  delimiter" ] [
@@ -260,14 +262,14 @@ Be careful to put at one space between all option key
 letters and the associated
 key letter parameter.
 .\"_
-.SH IMPLEMENTAION
-.\"_
-Dave Morano
 .\"_
 .SH ACKNOWLEDGEMENTS
 .\"_
 The idea for this program was taken from the original UNIX 
 .MW mkey(1)
 program.
+.\"_
+.SH AUTHOR
+David A.D. Morano
 .\"_
 .\"_

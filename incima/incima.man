@@ -3,8 +3,11 @@
 .SH NAME
 incima \- graphics filter program for AT&T DWB documents
 .SH SYNOPSIS
+.\"_
+.so tmac.att
+.\"_
 .BR incima
-.RB [ input_file ]
+.RI [ input-file ]
 .OP -v "" ] [
 .OP -V "" ] [
 .OP -D "" ] [
@@ -35,7 +38,7 @@ preparing AT&T DWB formatted documents.  Note that only the \fBprtfmt\fP
 program used by the Starbase project is smart enough to call \fBincima\fP
 when it is needed.  Other \fBprtfmt\fP programs like the UNISON version,
 do not automatically call \fBincima\fP at all.
-Typical execution of this filter program in a pipeline might be :
+Typical execution of this filter program in a pipeline might be:
 .EX
 cat source.mm | incima | troff -mm -Tpost | dpost > out.ps
 .EE
@@ -48,25 +51,25 @@ input.
 .SH EXAMPLES
 .PP
 .IP \(rh 5
-To filter out graphics include requests only :
+To filter out graphics include requests only:
 .EX
 incinc file > outfile
 .EE
 .IP \(rh 5
 To filter out graphics requests and send the output to a printer,
-one can use :
+one can use:
 .EX
 incima infile.mm | /usr/add-on/unison/bin/prtfmt -d di0
 .EE
 .IP \(rh 5
 To print a file containing graphics include requests using the
-Starbase print command :
+Starbase print command:
 .EX
 prtfmt inputfile
 .EE
 .IP \(rh 5
 To print a file containing grapgics inclusion requests to a specified
-Starbase printer :
+Starbase printer:
 .EX
 prtfmt file -d di0
 .EE
@@ -81,4 +84,8 @@ This program is currently located in
 .SH WARNINGS
 Be careful to put a space between all option key letters and the associated
 key letter parameter values.
+.\"_
+.SH AUTHOR
+David A.D. Morano
+.\"_
 .\"_

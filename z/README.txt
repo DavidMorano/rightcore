@@ -3,10 +3,8 @@ Z
 This program zeros out the given files.
 
 Synopsis:
-
 $ z <file(s)>
 
-where:
-
+Arguments:
 <file(s)>	file(s) to zero out
 

@@ -6,6 +6,5 @@ database.  That database can be augmented with a database item key 'id' to
 specify a domain for a user.
 
 Synopsis:
-
 $ pcsuserdomains [<database>] [-n]
 

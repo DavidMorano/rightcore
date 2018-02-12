@@ -3,9 +3,15 @@
 .SH NAME
 suexec \- run a program with superuser privileges
 .SH SYNOPSIS
+.\"_
+.so tmac.att
+.\"_
 .B suexec
 .OP -V "" ] [
-.MW path \fB[\fP arg0 arg(s) ...\fB]\fP
+.I path
+.MW [
+.I arg0 arg(s) ...
+.MW ]
 .\"_
 .SH DESCRIPTION
 .\"_
@@ -61,7 +67,7 @@ as arguments to the executed program.
 .IP \(rh 5
 To execute the program
 .MW sleep
-but with an argument number zero of 'john', use :
+but with an argument number zero of 'john', use:
 .EX
 suexec sleep john 10
 .EE
@@ -79,7 +85,7 @@ If you have an interpreter program named
 and it is set-GID to
 .MW uucp
 \&, this can be executed with set-GID superuser privilege
-with the command :
+with the command:
 .EX
 suexec prog.ksh program john 10
 .EE
@@ -104,5 +110,8 @@ key letter parameter.
 This program is currently located in 
 .MW /usr/add-on/local/bin
 on most systems.
+.\"_
+.SH AUTHOR
+David A.D. Morano
 .\"_
 .\"_

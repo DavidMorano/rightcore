@@ -1,0 +1,959 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1 \))3 126( DMAILBOX)1 1863( 1988\25511\25528 \))2 464( \()1 68( PCS)1 1528(DMAILBOX \( 1 \))3 631 6 540 480 t
+(NAME)540 960 w
+10 R f
+(dmail, dmailbox)1 656 1 900 1080 t
+10 S1 f
+(\261)1581 1080 w
+10 R f
+(program for processing local mail messages)5 1755 1 1671 1080 t
+9 B f
+(SYNOPSIS)540 1248 w
+10 B f
+(dmailbox)900 1368 w
+10 R f
+([)1326 1368 w
+10 S1 f
+(\261)1384 1368 w
+10 B f
+(ipq)1449 1368 w
+10 R f
+(] [)1 91 1 1614 1368 t
+10 S1 f
+(\261)1730 1368 w
+10 B f
+(f)1795 1368 w
+10 I f
+(filename)1853 1368 w
+10 R f
+(])2222 1368 w
+10 I f
+(address)2280 1368 w
+10 B f
+(/usr/bin/mail)900 1488 w
+10 I f
+(recipient)1477 1488 w
+10 R f
+(. . .)2 107 1 1857 1488 t
+9 B f
+(DESCRIPTION)540 1656 w
+10 R f
+(Note: This is the old version 7)6 1253 1 900 1776 t
+9 R f
+(UNIX)2183 1776 w
+10 R f
+( default)1 310( The)1 212(system mail program.)2 883 3 2440 1776 t
+10 B f
+(mail)3878 1776 w
+10 R f
+(command,)4100 1776 w
+10 B f
+(/usr/ucb/mail)4552 1776 w
+10 R f
+(is)5153 1776 w
+(described in)1 485 1 900 1896 t
+10 B f
+(mail)1410 1896 w
+10 R f
+(\(1\).)1599 1896 w
+10 B f
+(/usr/bin/mail)900 2064 w
+10 R f
+(with no)1 337 1 1511 2064 t
+10 I f
+(address)1907 2064 w
+10 R f
+( mail, message\255by\255message in last\255in, first\255out order.)6 2315(prints a user's)2 628 2 2277 2064 t
+10 B f
+(/usr/bin/mail)900 2184 w
+10 R f
+(accepts commands from the standard input to direct disposition messages.)9 2958 1 1477 2184 t
+(When)900 2352 w
+10 I f
+(address)1163 2352 w
+10 R f
+(es are named,)2 545 1 1482 2352 t
+10 B f
+(/usr/bin/mail)2052 2352 w
+10 R f
+(takes the standard input up to an)6 1293 1 2629 2352 t
+9 R f
+(EOF)3945 2352 w
+10 R f
+( with just `)3 434(\(or a line)2 360 2 4140 2352 t
+10 B f
+(.)4934 2352 w
+10 R f
+('\) and)1 261 1 4959 2352 t
+(routes it through the mailer daemon to each)7 1809 1 900 2472 t
+10 I f
+(recipient)2744 2472 w
+10 R f
+(. See)1 228 1 3107 2472 t
+10 B f
+(sendmail)3369 2472 w
+10 R f
+( message is pre\255)3 667( The)1 214(\(8\) for details.)2 586 3 3753 2472 t
+( that look like postmarks are prepended with `)8 1940( Lines)1 285( postmark.)1 435(ceded by the sender's name and a)6 1412 4 900 2592 t
+10 S f
+(>)4972 2592 w
+10 R f
+('. A)1 193 1 5027 2592 t
+10 I f
+(recipient)900 2712 w
+10 R f
+(is a user name recognized by)5 1200 1 1290 2712 t
+10 B f
+(login)2524 2712 w
+10 R f
+(\(1\), a network address or local mail alias, or a filename \(see)11 2484 1 2736 2712 t
+10 B f
+(aliases)900 2832 w
+10 R f
+(\(5\) for details\).)2 601 1 1178 2832 t
+(If there is any pending mail,)5 1141 1 900 3000 t
+10 B f
+(login)2069 3000 w
+10 R f
+( is also possible to have the C)7 1214( It)1 115(tells you there is mail when you log in.)8 1582 3 2309 3000 t
+(shell, or the daemon)3 810 1 900 3120 t
+10 B f
+(biff)1735 3120 w
+10 R f
+(tell you about mail that arrives while you are logged in.)10 2217 1 1910 3120 t
+( the)1 150(To forward mail automatically, add the addresses of additional recipients to)10 3040 2 900 3288 t
+10 B f
+(.forward)4118 3288 w
+10 R f
+(file in your home)3 700 1 4520 3288 t
+( cannot, for)2 505( You)1 246( messages will bounce.)3 993( forwarding addresses must be valid, or the)7 1894(directory. Note:)1 682 5 900 3408 t
+( to your new address if it is not yet listed in the)12 1961(instance, reroute your mail to a new host by forwarding it)10 2359 2 900 3528 t
+(Network Information Service \()3 1233 1 900 3648 t
+9 R f
+(NIS)2133 3648 w
+10 R f
+(\) aliases domain.)2 674 1 2278 3648 t
+9 B f
+(OPTIONS)540 3816 w
+10 S1 f
+(\261)900 3936 w
+10 B f
+(i)965 3936 w
+10 R f
+(Ignore interrupts.)1 693 1 1650 3936 t
+10 S1 f
+(\261)900 4104 w
+10 B f
+(p)965 4104 w
+10 R f
+( immediately upon receiving an)4 1305( Exit)1 226(Print messages without prompting for commands.)5 2039 3 1650 4104 t
+(interrupt.)1650 4224 w
+10 S1 f
+(\261)900 4392 w
+10 B f
+(q)965 4392 w
+10 R f
+(Quit immediately upon interrupt.)3 1322 1 1650 4392 t
+10 S1 f
+(\261)900 4560 w
+10 B f
+(f)965 4560 w
+10 I f
+(filename)1023 4560 w
+10 R f
+(Use)1650 4560 w
+10 I f
+(filename)1830 4560 w
+10 R f
+(as if it were the mail file.)6 1001 1 2199 4560 t
+9 B f
+(USAGE)540 4728 w
+10 B f
+(?)900 4848 w
+10 R f
+(Print a command summary.)3 1105 1 1685 4848 t
+9 R f
+(CTRL\255D)900 5016 w
+10 R f
+(Put unexamined mail back in the mail file and quit.)9 2049 1 1685 5016 t
+10 B f
+(!)900 5184 w
+10 I f
+(command)933 5184 w
+10 R f
+(Escape to the shell to do)5 974 1 1685 5184 t
+10 I f
+(command)2684 5184 w
+10 R f
+(.)3080 5184 w
+10 S1 f
+(\261)900 5352 w
+10 R f
+(Go back to previous message.)4 1195 1 1685 5352 t
+10 B f
+(+)900 5520 w
+10 R f
+(Go on to next message.)4 935 1 1685 5520 t
+9 B f
+(RETURN)900 5688 w
+10 R f
+(Go on to next message.)4 935 1 1685 5688 t
+10 B f
+(d)900 5856 w
+10 R f
+(Delete message and go on to the next.)7 1514 1 1685 5856 t
+10 B f
+(dq)900 6024 w
+10 R f
+(Delete message and quit.)3 998 1 1685 6024 t
+10 B f
+(m [)1 141 1 900 6192 t
+10 I f
+(recipient)1066 6192 w
+10 B f
+(])1454 6192 w
+10 R f
+( the message to the named)5 1051( Mail)1 239(. . .)2 107 3 1685 6192 t
+10 I f
+(recipient)3107 6192 w
+10 R f
+(s \(yourself is default\).)3 876 1 3470 6192 t
+10 B f
+(n)900 6360 w
+10 R f
+(Go on to next message.)4 935 1 1685 6360 t
+10 B f
+(p)900 6528 w
+10 R f
+(Print message \(again\).)2 890 1 1685 6528 t
+10 B f
+(q)900 6696 w
+10 R f
+(Same as)1 330 1 1685 6696 t
+9 R f
+(EOT)2038 6696 w
+10 R f
+(.)2238 6696 w
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 1 \))3 126( DMAILBOX)1 1863( 1988\25511\25528 \))2 464( \()1 68( PCS)1 1528(DMAILBOX \( 1 \))3 631 6 540 480 t
+10 B f
+(s [)1 97 1 900 960 t
+10 I f
+(filename)1022 960 w
+10 B f
+(])1374 960 w
+10 R f
+( the message in the named)5 1161( Save)1 340(. . .)2 107 3 1432 960 t
+10 I f
+(filename)3087 960 w
+10 R f
+(s \(`)1 152 1 3439 960 t
+10 B f
+(mbox)3591 960 w
+10 R f
+( saved successfully,)2 836( If)1 139(' default\).)1 415 3 3830 960 t
+(remove it from the list and go on to the next message.)11 2148 1 1685 1080 t
+10 B f
+(w [)1 130 1 900 1248 t
+10 I f
+(filename)1055 1248 w
+10 B f
+(])1432 1248 w
+10 R f
+( the message, without a header, in the named)8 1815( Save)1 282(. . .)2 107 3 1490 1248 t
+10 I f
+(filename)3722 1248 w
+10 R f
+(s \(`)1 134 1 4074 1248 t
+10 B f
+(mbox)4208 1248 w
+10 R f
+( saved)1 256( If)1 120(' default\).)1 397 3 4447 1248 t
+(successfully, remove it from the list and go on to the next message.)12 2686 1 1685 1368 t
+10 B f
+(x)900 1536 w
+10 R f
+(Exit without changing the mail file.)5 1422 1 1685 1536 t
+9 B f
+(FILES)540 1704 w
+10 B f
+(/etc/passwd)900 1824 w
+10 R f
+(to identify sender and locate address)5 1455 1 1900 1824 t
+10 B f
+(/var/spool/mail/)900 1944 w
+10 S f
+(*)1568 1944 w
+10 R f
+(incoming mail for user)3 913 1 1900 1944 t
+10 S f
+(*)2838 1944 w
+10 B f
+(/usr/ucb/mail)900 2064 w
+10 R f
+(routes input through daemon to)4 1255 1 1900 2064 t
+10 I f
+(recipient)3180 2064 w
+10 R f
+(s)3543 2064 w
+10 B f
+(mbox)900 2184 w
+10 R f
+(saved mail)1 430 1 1900 2184 t
+10 B f
+(/tmp/ma)900 2304 w
+10 S f
+(*)1261 2304 w
+10 R f
+(temp file)1 358 1 1900 2304 t
+10 B f
+(/var/spool/mail/)900 2424 w
+10 S f
+(*)1568 2424 w
+10 B f
+(.lock)1618 2424 w
+10 R f
+(lock for mail directory)3 901 1 1900 2424 t
+10 B f
+(dead.letter)900 2544 w
+10 R f
+(unmailable text is saved here)4 1159 1 1900 2544 t
+10 B f
+($)900 2664 w
+9 B f
+(HOME)950 2664 w
+10 B f
+(/.forward)1235 2664 w
+10 R f
+(list of forwarding recipients)3 1112 1 1900 2664 t
+9 B f
+(SEE ALSO)1 438 1 540 2832 t
+10 B f
+(biff)900 2952 w
+10 R f
+(\(1\),)1050 2952 w
+10 B f
+(des)1216 2952 w
+10 R f
+(\(1\),)1355 2952 w
+10 B f
+(login)1521 2952 w
+10 R f
+(\(1\),)1733 2952 w
+10 B f
+(mail)1899 2952 w
+10 R f
+(\(1\),)2088 2952 w
+10 B f
+(uucp)2254 2952 w
+10 R f
+(\(1C\),)2466 2952 w
+10 B f
+(uux)2699 2952 w
+10 R f
+(\(1C\),)2861 2952 w
+10 B f
+(write)3094 2952 w
+10 R f
+(\(1\),)3315 2952 w
+9 B f
+(NOTES)540 3120 w
+10 R f
+(Race conditions sometimes result in a delay in removing a mail lock file.)12 2917 1 900 3240 t
+(The super\255user can read your mail, unless it is encrypted by)10 2451 1 900 3408 t
+10 B f
+(des)3383 3408 w
+10 R f
+(\(1\), Even if you encrypt it, the super\255user)7 1698 1 3522 3408 t
+(can delete it.)2 507 1 900 3528 t
+9 B f
+(AUTHOR)540 3696 w
+10 R f
+(David A.D. Morano)2 804 1 900 3816 t
+( 2)1 75( Page)1 1931( Commands)1 481( User)1 1508(February 8, 2018)2 685 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 2
+%%DocumentFonts: Times-Roman Times-Bold Times-Italic Times-Roman Symbol

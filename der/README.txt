@@ -5,7 +5,5 @@ the backing terminal when multiple virtual terminals are overlaid on the backing
 terminal (see the SCREEN program for more information on virtual terminals).
 
 Synopsis:
-
 $ d
-
 

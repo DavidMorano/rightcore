@@ -1,20 +1,15 @@
 LIBTD
 
-This is a terminal display library.  This library contains routines
-(not unlike in the UNIX 'curses' library) to display information in
-"windows" on a terminal display.
-
-Dave Morano, 96/09/05
-
+This is a terminal display library. This library contains routines (not unlike
+in the UNIX 'curses' library) to display information in "windows" on a terminal
+display.
 
 Routines:
 
-
-/* local data */
+/* local variables */
 
 struct termdisplay	win, *wp = &win ;
 struct td_win		*wp ;
-
 
 
 int td_init(wp,tfd,termtype,lines)
@@ -60,8 +55,5 @@ EXAMPLES:
 
 	td_printf(wp,win,-1,-1,"continuation of hello to you\v\n") ;
 
-
 	td_printf(wp,win,-1,-1,"continuation %{ri} of hello to you\v\n") ;
-
-
 

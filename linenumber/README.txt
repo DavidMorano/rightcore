@@ -7,11 +7,8 @@ If you want more, you might try and check out the 'nl(1)' or the
 'pr(1)' programs.
 
 Synopsis:
-
 $ linenumber <file>
 
-where:
-
+Arguments:
 <file>		the file to process
-
 

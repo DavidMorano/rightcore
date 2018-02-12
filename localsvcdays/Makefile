@@ -180,7 +180,7 @@ SOBJ19= attachso.o
 SOBJ20= prmktmpdir.o getmjd.o
 SOBJ21= 
 SOBJ22=
-SOBJ23= uc_openshmto.o
+SOBJ23=
 
 SOBJAa= $(SOBJ00) $(SOBJ01) $(SOBJ02) $(SOBJ03)
 SOBJAb= $(SOBJ04) $(SOBJ05) $(SOBJ06) $(SOBJ07)

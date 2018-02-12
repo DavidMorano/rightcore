@@ -6,11 +6,9 @@ is specified, then the name of the primary cluster for the current node
 is printed.
 
 Synopsis:
-
 $ clustername [ { [<node(s)>] [-l] } | -a ] [-V]
 
-where:
-
+Arguments:
 <node(s)>	node to print primary cluster name for
 -l		print all clusters for given node (not just primary)
 -a		list all cluster names (specified nodes are ignored)

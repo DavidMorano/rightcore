@@ -5,4 +5,3 @@ directory ('${LOCAL}/spool/maintqotd').
 
 We use the FORTUNE program to find a (random) quote.
 
-

@@ -1,10 +1,11 @@
 .\"_
 .TH REM 1 "1981-02-23" PCS
-.ad b
-.PM BP
 .SH NAME
 rem \- request a reminder notification
 .SH SYNOPSIS
+.\"_
+.so tmac.att
+.\"_
 .B rem
 hour:minute 'message'
 .br
@@ -20,6 +21,10 @@ hour:minute 'message'
 .br
 .B remday
 day hour:minute 'message'
+.\"_
+.ad b
+.PM BP
+.\"_
 .SH DESCRIPTION
 .I Rem
 logs requests for reminder notifications.
@@ -88,9 +93,9 @@ has no effect.
 is designed to be placed in a user's .profile file to automatically
 request reminders for specific days of the week.
 For example:
-
+.EX
 remday fri 8:45 fill out time card
-
+.EE
 The day may be specified in as few letters as necessary to distinguish
 it from another day. (i.e. fr, tue, etc.)
 

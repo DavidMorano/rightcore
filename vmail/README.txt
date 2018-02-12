@@ -4,12 +4,10 @@ This is the famous PCS mail program.  This is a screen oriented program
 that is enhanced to use the additional features of the PCS system.
 
 Synopsis:
-
 $ vmail [=tmpdir <dir>] [-maildir <dir>] [-folderdir <dir>] [<mailbox>] 
 	[-u <mailuser(s)>] [-o <option(s)>] [-L <lines>] [-M <mailer-program>]
 
-where:
-
+Arguments:
 -sl <scanspec>		specify scan configuration: <sv>:<sj>
 				sv	- scan view lines
 				sj	- scan jump lines
@@ -22,8 +20,7 @@ where:
 -L <lines>		the number of lines to use on the current terminal
 -M <program>		a mailer program to use for sending mail
 
-options:
-
+Options:
 getmail[={0|1}]		turn retrieving spool-mail ON or OFF (the default
 			is determined by the PCS administrator)
 

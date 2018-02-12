@@ -14,6 +14,9 @@
 .SH NAME
 prt \- print file
 .SH SYNOPSIS
+.\"_
+.so tmac.att
+.\"_
 .tr ~
 .B prt \c
 [\c
@@ -310,7 +313,7 @@ To print a file with line numbers:
 .fi
 .sp
 To expand input tabs to character positions 10, 19, 28, 37 ...
-and print the file :
+and print the file:
 .nf
 	\fBpr -e9 \fIfilename \fB| prt\fR  
 .fi
@@ -342,3 +345,5 @@ $UNISON/*
 .SH SEE ALSO
 prtfmt(1), prtinfo(1), prtstat(1), prtc(1), .prt(4), .prtsys(4), devi300(5), 
 devpost(5), devprism(5), devstare(5), devx9700(5), dev3203(5), devhp(5).
+.\"_
+.\"_

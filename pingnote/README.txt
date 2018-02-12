@@ -3,12 +3,10 @@ PINGNOTE
 This program sends a little "update" to a (possibly remote) PINGSTAT program.
 
 Synopsis:
-
 $ pingnote <hostname> [-d <dialer>] [-s <svc>] [-t <datespec>] [-c <count>]
 	[-lf <logfile>] [-Q] [-D] [-V]
 
-where:
-
+Arguments:
 <hostname>	host to signal
 -d <dialer>	dialer
 -s <svc>	service

@@ -1,8 +1,6 @@
 LIBNS
 
 
-
-
 #define	NS		struct ns_head
 
 
@@ -11,8 +9,6 @@ struct ns_head {
 
 
 typedef struct ns_head	ns ;
-
-
 
 
 int ns_open(nsp,nsroot)
@@ -43,7 +39,5 @@ VECELEM		*vep ;
 
 
 }
-
-
 
 

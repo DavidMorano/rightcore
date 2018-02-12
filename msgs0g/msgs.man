@@ -9,7 +9,10 @@
 .SH NAME
 msgs \- system messages and junk mail program
 .SH SYNOPSIS
-msgs
+.\"_
+.so tmac.att
+.\"_
+.B msgs
 [
 .B \-fhlpq
 ]
@@ -218,7 +221,7 @@ set.
 .\"_
 .SH ENVIRONMENT VARIABLES
 .PP
-The following environment variables are used by the program :
+The following environment variables are used by the program:
 .TP 30
 .B
 MSGSRC

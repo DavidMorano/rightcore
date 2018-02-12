@@ -7,6 +7,5 @@ on the parameters in the file and by calling the '_stats()' method of the
 associated predictor object.
 
 Synopsis:
-
-$ bpsort dbfile ...
+$ bpsort <dbfile> ...
 

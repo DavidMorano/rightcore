@@ -1,0 +1,1044 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+/C /Courier def
+/build_rh {
+pop
+gsave
+size .0022 mul dup scale
+currentpoint translate
+
+15 66 moveto
+15 86 lineto
+16 131 lineto
+17 146 lineto
+18 158 lineto
+19 167 lineto
+21 181 lineto
+24 190 lineto
+34 193 lineto
+49 189 lineto
+58 182 lineto
+60 177 lineto
+60 166 lineto
+59 156 lineto
+58 143 lineto
+57 130 lineto
+56 117 lineto
+55 102 lineto
+54 42 lineto
+53 39 lineto
+49 35 lineto
+34 34 lineto
+19 39 lineto
+16 47 lineto
+15 66 lineto
+stroke
+
+65 60 moveto
+65 111 lineto
+66 127 lineto
+67 139 lineto
+69 153 lineto
+72 163 lineto
+83 171 lineto
+98 177 lineto
+113 182 lineto
+128 187 lineto
+143 190 lineto
+158 194 lineto
+173 196 lineto
+188 199 lineto
+203 201 lineto
+218 203 lineto
+233 205 lineto
+248 205 lineto
+263 206 lineto
+278 206 lineto
+293 206 lineto
+308 206 lineto
+323 206 lineto
+338 205 lineto
+353 203 lineto
+368 202 lineto
+383 200 lineto
+394 197 lineto
+389 190 lineto
+389 180 lineto
+391 176 lineto
+391 173 lineto
+380 173 lineto
+365 173 lineto
+350 174 lineto
+335 175 lineto
+320 176 lineto
+305 176 lineto
+290 176 lineto
+275 177 lineto
+260 177 lineto
+245 177 lineto
+240 173 lineto
+240 170 lineto
+245 165 lineto
+260 164 lineto
+275 164 lineto
+290 164 lineto
+305 163 lineto
+320 160 lineto
+327 155 lineto
+330 149 lineto
+330 134 lineto
+328 129 lineto
+323 124 lineto
+309 121 lineto
+294 121 lineto
+279 121 lineto
+264 121 lineto
+249 121 lineto
+234 121 lineto
+228 118 lineto
+228 112 lineto
+234 109 lineto
+249 109 lineto
+264 109 lineto
+279 108 lineto
+294 108 lineto
+306 104 lineto
+311 97 lineto
+312 91 lineto
+312 88 lineto
+311 82 lineto
+305 74 lineto
+290 72 lineto
+275 72 lineto
+260 72 lineto
+245 73 lineto
+230 73 lineto
+215 73 lineto
+205 70 lineto
+205 63 lineto
+217 60 lineto
+232 60 lineto
+247 60 lineto
+262 60 lineto
+277 57 lineto
+283 52 lineto
+285 44 lineto
+285 41 lineto
+284 35 lineto
+280 30 lineto
+268 26 lineto
+253 25 lineto
+238 26 lineto
+223 28 lineto
+208 31 lineto
+193 33 lineto
+178 34 lineto
+163 33 lineto
+148 31 lineto
+133 28 lineto
+118 27 lineto
+103 28 lineto
+88 34 lineto
+73 43 lineto
+67 52 lineto
+65 60 lineto
+stroke
+
+396 180 moveto
+396 188 lineto
+399 194 lineto
+410 196 lineto
+416 190 lineto
+416 180 lineto
+415 177 lineto
+411 173 lineto
+400 173 lineto
+396 180 lineto
+stroke
+
+grestore
+} def
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1 \))3 126( PRT\255PCSMAIL)1 1863( 1995\25502\25513 \))2 464( \()1 68( PCS)1 1408(PRT\255PCSMAIL \( 1 \))3 751 6 540 480 t
+(NAME)540 960 w
+10 R f
+(prt\255pcsmail)900 1080 w
+10 S1 f
+(\261)1380 1080 w
+10 R f
+(print out mail messages to a printer)6 1410 1 1470 1080 t
+9 B f
+(SYNOPSIS)540 1248 w
+10 B f
+(prt\255pcsmail)900 1368 w
+10 R f
+([)1419 1368 w
+10 CB f
+(\255d)1452 1368 w
+10 I f
+(dst)1630 1368 w
+10 R f
+(] [)1 91 1 1763 1368 t
+10 CB f
+(\255c)1854 1368 w
+10 I f
+(copies)2032 1368 w
+10 R f
+(] [)1 91 1 2303 1368 t
+10 CB f
+(\255s)2394 1368 w
+10 I f
+(sides)2572 1368 w
+10 R f
+(] [)1 91 1 2788 1368 t
+10 CB f
+(\255p)2879 1368 w
+10 I f
+(mode)3057 1368 w
+10 R f
+(] [)1 91 1 3289 1368 t
+10 CB f
+(\255f)3380 1368 w
+10 I f
+(form)3558 1368 w
+10 R f
+(])3763 1368 w
+10 CW f
+([)3821 1368 w
+10 I f
+(file\(s\))3906 1368 w
+10 R f
+(...)4147 1368 w
+10 CW f
+(])4272 1368 w
+9 B f
+(DESCRIPTION)540 1536 w
+(Introduction)690 1656 w
+10 R f
+(The)900 1776 w
+10 C f
+(prt\255pcsmail)1091 1776 w
+10 R f
+( one or more mail messages)5 1172(program is used on a UNIX system to arrange to have)10 2261 2 1787 1776 t
+( UNISON command)2 831( program takes command line arguments similarly to the)8 2307( This)1 234(printed out to a printer.)4 948 4 900 1896 t
+10 I f
+(prt)900 2016 w
+10 R f
+( option specified other than)4 1101( Any)1 224( are accepted.)2 548(except that only the options specified in this manual page)9 2304 4 1043 2016 t
+(that indicated above will cause the command to fail with an error message.)12 2986 1 900 2136 t
+9 B f
+(Options)690 2304 w
+10 R f
+(Normally a)1 468 1 900 2424 t
+10 B f
+(\255d)1409 2424 w
+10 R f
+( option is not specified, a)5 1090( this)1 186( If)1 132(option will be specified to select a printer destination.)8 2273 4 1539 2424 t
+( printers are configured on the)5 1245( Default)1 357( default configured.)2 800(default printer may be chosen if the user has a)9 1918 4 900 2544 t
+(Amdahls and the Suns by use of the PRINTER environment variable and possibly the UNISON)14 4320 1 900 2664 t
+10 CW f
+(${HOME}/.prt)900 2784 w
+10 R f
+( UNISON)1 413(file. The)1 374 2 1656 2784 t
+10 CW f
+(${HOME}/.prt)2479 2784 w
+10 R f
+( the)1 157(file is only used for option processing when)7 1828 2 3235 2784 t
+( search path \(environment variable PATH\), to use the)8 2281(user has configured, via her command execution)6 2039 2 900 2904 t
+(UNISON version of the)3 984 1 900 3024 t
+10 I f
+(prt)1920 3024 w
+10 R f
+( versions of the)3 646( Other)1 288(command as the underlying print command.)5 1820 3 2073 3024 t
+10 I f
+(prt)4863 3024 w
+10 R f
+(com\255)5015 3024 w
+( a)1 70( If)1 117( the standard UNISON command options.)5 1681(mand can be used in the user's PATH as long as they support)12 2452 4 900 3144 t
+( not explicitly defined by the user, a default printer may still be assigned by either the sys\255)17 3652(default printer is)2 668 2 900 3264 t
+( printer spooler is running, or by some)7 1574(tem from which the command is executed, the system on which the)11 2746 2 900 3384 t
+( it is usually best for the user to have the)10 1815( these reasons,)2 621( For)1 210(other not easily understood mechanism.)4 1674 4 900 3504 t
+( the)1 152(PRINTER environment variable defined or to specify the printer destination on the command line with)14 4168 2 900 3624 t
+10 B f
+(\255d)900 3744 w
+10 R f
+(option.)1014 3744 w
+(The)900 3912 w
+10 B f
+(\255c)1080 3912 w
+10 R f
+(option allows for the specification of the number of copies of the mail message to print out.)16 3654 1 1182 3912 t
+(The)900 4080 w
+10 B f
+(\255s)1089 4080 w
+10 R f
+( the number of sides of paper to use for the printed out mail)13 2507(option allows for the specification of)5 1518 2 1195 4080 t
+( option key are ')4 682( values associated with this)4 1120(message. Valid)1 643 3 900 4200 t
+10 B f
+(1)3345 4200 w
+10 R f
+(' and ')2 274 1 3395 4200 t
+10 B f
+(2)3669 4200 w
+10 R f
+( this option is not specified then)6 1320('. If)1 181 2 3719 4200 t
+( one\255sided printers, this value will)5 1395( For)1 196( configured for the printer will be used.)7 1618(the default number of sides)4 1111 4 900 4320 t
+(be set to ')3 391 1 900 4440 t
+10 B f
+(1)1291 4440 w
+10 R f
+(' regardless of the user supplied value.)6 1538 1 1341 4440 t
+(Briefly:)900 4608 w
+(\255p)900 4776 w
+10 I f
+(mode)1033 4776 w
+10 R f
+( values are:)2 454( Possible)1 384(This specifies the print mode of the print job.)8 1807 3 1400 4776 t
+10 CW f
+(land)1650 4944 w
+(port)1650 5064 w
+10 R f
+(\255f)900 5280 w
+10 I f
+(form)1016 5280 w
+10 R f
+( values are:)2 454( Common)1 423(This specifies the print form to use for the job's output.)10 2212 3 1400 5280 t
+10 CW f
+(11x17)1650 5448 w
+(hole)1650 5568 w
+( default\))1 540(nohole \(the)1 1320 2 1650 5688 t
+(ledger)1650 5808 w
+(legal)1650 5928 w
+(11x14)1650 6048 w
+10 R f
+( these form requests except for)5 1282(Note that most printers now\255a\255days tend to completely ignore)8 2538 2 1400 6216 t
+(maybe the)1 420 1 1400 6336 t
+10 CW f
+(11x17)1852 6336 w
+10 R f
+( 11x17 output and which)4 1018(value on some printers which are both capable of)8 2018 2 2184 6336 t
+( form)1 226(have been properly configured to adjust to using its 11x17 paper tray in response to this)15 3594 2 1400 6456 t
+( has shown that this conditions are usually quite rare.)9 2120(request. Experience)1 811 2 1400 6576 t
+( files are given,)3 627( If)1 120( standard input is assumed.)4 1096(If no files are given on the command line then input from the)12 2477 4 900 6744 t
+(then no input is read.)4 841 1 900 6864 t
+9 B f
+(Execution)690 7032 w
+10 R f
+( her mail reader program \(such as the various PCS)9 2118(Typically, a user executes this command from within)7 2202 2 900 7152 t
+( usually sent to this program's standard input using the mail reader)11 2887( mail message is)3 721( A)1 143(mail readers\).)1 569 4 900 7272 t
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 1 \))3 126( PRT\255PCSMAIL)1 1863( 1995\25502\25513 \))2 464( \()1 68( PCS)1 1408(PRT\255PCSMAIL \( 1 \))3 751 6 540 480 t
+10 R f
+( mailer's "pipe")2 661( PCS mail readers, a user would use the)8 1696( For)1 203(program's "pipe message" type of facility.)5 1760 4 900 960 t
+(command \(a ')2 568 1 900 1080 t
+10 S f
+(\357)1468 1080 w
+10 R f
+( PCS VMAIL\) to send the current mail message to the standard input of this)14 3126(' character for)2 577 2 1517 1080 t
+(command.)900 1200 w
+( this case a file con\255)5 805( In)1 135( also print out mail messages that are written out into UNIX files.)12 2641(The command can)2 739 4 900 1368 t
+( either directed to this program's standard input)7 1984(taining a mail message previously written out should be)8 2336 2 900 1488 t
+( UNIX system command\255line redirection convention\) or explicitly specified on the com\255)11 3558(\(using the standard)2 762 2 900 1608 t
+( Each)1 250( this latter case, as many files containing mail messages as you want can be printed out.)16 3511( In)1 135(mand line.)1 424 4 900 1728 t
+( messages from)2 639( Mail)1 248( file will be printed out separately as an individual mail message.)11 2696(mail message in a)3 737 4 900 1848 t
+(multiple file are never concatenated before printing.)6 2075 1 900 1968 t
+9 B f
+(Output)690 2136 w
+10 R f
+( "prettied" up version of the mail message with the)9 2063(The printed output of this program provides for a)8 1988 2 900 2256 t
+10 CW f
+(FROM)4980 2256 w
+10 R f
+( top of the printout along)5 1052(address \(the person who sent you the mail message\) distinctly displayed at the)12 3268 2 900 2376 t
+(with the original)2 669 1 900 2496 t
+10 CW f
+(SUBJECT)1598 2496 w
+10 R f
+( is in a landscape orientation suitable)6 1506( output)1 285( The)1 209(of the original mail message.)4 1173 4 2047 2496 t
+(for printing as much information on a single piece of paper as possible.)12 2843 1 900 2616 t
+9 B f
+(EXAMPLES)540 2784 w
+10 S1 f
+()900 2904 w
+10 S1 f
+900 2904 m
+100 build_rh
+1000 2904 m
+10 R f
+(print a mail message from within PCS)6 1528 1 1150 2904 t
+10 B f
+(readmail)2703 2904 w
+10 R f
+(to user's default printer:)3 962 1 3111 2904 t
+10 CW f
+(?)1400 3072 w
+10 S f
+(\357)1520 3072 w
+10 B f
+(prt\255pcsmail)1594 3072 w
+10 S1 f
+()900 3288 w
+900 3288 m
+100 build_rh
+1000 3288 m
+10 R f
+(print a mail message from within PCS)6 1528 1 1150 3288 t
+10 B f
+(vmail)2703 3288 w
+10 R f
+(to user's default printer:)3 962 1 2967 3288 t
+10 CW f
+(?)1400 3456 w
+10 S f
+(\357)1520 3456 w
+10 CW f
+(enter command to pipe message to:)5 1980 1 1400 3576 t
+10 B f
+(prt\255pcsmail)3465 3576 w
+10 S1 f
+()900 3792 w
+900 3792 m
+100 build_rh
+1000 3792 m
+10 R f
+(have a mail message in a file named)7 1444 1 1150 3792 t
+10 I f
+(seeya)2619 3792 w
+10 R f
+(printed out to printer)3 830 1 2865 3792 t
+10 I f
+(gz3c4)3720 3792 w
+10 R f
+(:)3953 3792 w
+10 CW f
+($)1400 3960 w
+10 B f
+(prt\255pcsmail seeya \255d gz3c4)3 1123 1 1520 3960 t
+9 B f
+(ENVIRONMENT VARIABLES)1 1258 1 540 4176 t
+10 R f
+( variable, if defined and exported, will be used for a default printer if one is)15 3142(PRINTER This)1 1178 2 900 4296 t
+(not specified on the command line.)5 1404 1 1900 4416 t
+9 B f
+(SEE ALSO)1 453 1 540 4584 t
+10 R f
+(readmail\(1p\), vmail\(1p\), prt\(1\), prtq\(1\), prtc\(1\), .prt\(4\))5 2186 1 900 4704 t
+9 B f
+(CAVEATS)540 4872 w
+10 R f
+( to continued user control over the disposition of the)9 2180(Not all platforms are supported equally with respect)7 2140 2 900 4992 t
+(print job with respect to being either monitored \()8 1948 1 900 5112 t
+10 I f
+(prtq)2848 5112 w
+10 R f
+(\) or canceled \()3 572 1 3015 5112 t
+10 I f
+(prtc)3587 5112 w
+10 R f
+(\).)3748 5112 w
+9 B f
+(PATH TO)1 418 1 540 5280 t
+10 R f
+( in)1 180(This program is currently located)4 1635 2 900 5400 t
+10 CW f
+(/usr/add\255on/pcs/bin)2817 5400 w
+10 R f
+(or possibly)1 519 1 4059 5400 t
+10 CW f
+(/usr/add\255)4680 5400 w
+(on/local/bin)900 5520 w
+10 R f
+(on some systems.)2 703 1 1645 5520 t
+9 B f
+(WARNINGS)540 5688 w
+10 R f
+(Be careful to put a space between all option key letters and the associated key letter parameter.)16 3782 1 900 5808 t
+9 B f
+(AUTHOR)540 5976 w
+10 R f
+(David A.D. Morano)2 804 1 900 6096 t
+( 2)1 75( Page)1 1931( Commands)1 481( User)1 1508(February 8, 2018)2 685 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 2
+%%DocumentFonts: Courier-Bold Courier Times-Roman Times-Bold Courier Times-Italic Times-Roman Symbol

@@ -1,11 +1,8 @@
 MBO
 
-This just reads a mailbox under file-record-lock and copies it to
-standard output.  It truncates the mailbox after a successful copy-out
-operation.
+This just reads a mailbox under file-record-lock and copies it to standard
+output. It truncates the mailbox after a successful copy-out operation.
 
 Synopsis:
-
-$ mbo [mailbox] > outfile
-
+$ mbo [<mailbox>] > <outfile>
 

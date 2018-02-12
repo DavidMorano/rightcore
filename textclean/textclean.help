@@ -5,11 +5,9 @@ Apparently, many M$ program leave wierdo and other weirdo DOS-like character
 all over plain text files!  What is with that?
 
 Synopsis:
-
 $ textclean [<file(s)> ...] [-af <afile>] [-o <opt(s)>] [-mf <mfile>] [-V]
 
-where:
-
+Arguments:
 <file(s)>	one or more files to clean up (they are concatenated
 		by default)
 -af <afile>	argument list-file

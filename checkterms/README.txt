@@ -1,5 +1,4 @@
 CHECKTERMS
 
-I don't know what this is ! :-)
-
+I don't know what this is! :-)
 

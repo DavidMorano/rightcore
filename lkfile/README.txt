@@ -1,11 +1,10 @@
 LKFILE
 
-This program is used for creating lock files in the filesystem.  Only one
-program can successfully create a lock file so these files can serve as
-mutual exclusion semaphores.
+This program is used for creating lock files in the filesystem. Only one program
+can successfully create a lock file so these files can serve as mutual exclusion
+semaphores.
 
 Synopsis:
-
 $ lkfile [file(s) ...] [options]
 
 options			description

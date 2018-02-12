@@ -3,9 +3,12 @@
 .SH NAME
 execname \- run a program with a given name
 .SH SYNOPSIS
+.\"_
+.so tmac.att
+.\"_
 .B execname
-.OP -V ""
-.MW path arg0 \fB[\fParg(s) ...\fB]\fP
+.OP -V "" ] [
+.I path arg0 [\fIarg(s) ...\fP]
 .\"_
 .SH DESCRIPTION
 .\"_
@@ -51,5 +54,8 @@ key letter parameter.
 This program is currently located in 
 .MW ${LOCAL}/bin
 on most systems.
+.\"_
+.SH AUTHOR
+David A.D. Morano
 .\"_
 .\"_

@@ -7,6 +7,5 @@ language. Integer conversion rules were different in the original K&R dialect of
 the language than they are in the newer ANSCI compliant dialect of the language.
 
 Synopsis:
-
 $ testanscic.x
 

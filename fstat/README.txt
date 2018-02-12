@@ -4,11 +4,9 @@ This program prints out the modification date of files in different
 possible formats.
 
 Synopsis:
-
 $ fstat [<files(s)> ...] [-af <argfile>] [-f <format>] [-V]
 
-where:
-
+Arguments:
 <file(s)>	files to process
 -af <argfile>	file of files to process
 -f <format>	output format of modification date:

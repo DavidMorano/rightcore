@@ -3,6 +3,9 @@
 .SH NAME
 prt-pcsmail \- print out mail messages to a printer
 .SH SYNOPSIS
+.\"_
+.so tmac.att
+.\"_
 .BR prt-pcsmail
 .OP -d "  dst" ] [
 .OP -c "  copies" ] [
@@ -59,17 +62,17 @@ configured for the printer will be used.  For one-sided printers,
 this value will be set to '\fB1\fP' regardless of the user
 supplied value.
 .PP
-Briefly :
+Briefly:
 .IP "-p  \fImode\fP" 10
 This specifies the print mode of the print job.  Possible values
-are :
+are:
 .EX
 land
 port
 .EE
 .IP "-f  \fIform\fP" 10
 This specifies the print form to use for the job's output.
-Common values are :
+Common values are:
 .EX
 11x17
 hole
@@ -118,21 +121,21 @@ paper as possible.
 .SH EXAMPLES
 .IP \(rh 5
 print a mail message from within PCS \fBreadmail\fP to user's default
-printer :
+printer:
 .EX
 \f(CW? \fP\fB| prt-pcsmail\fP
 .EE
 .IP \(rh 5
 print a mail message from within PCS \fBvmail\fP to user's default
-printer :
+printer:
 .EX
 \f(CW? \fP\fB|\fP
 .br
-\f(CWenter command to pipe message to : \fP\fB prt-pcsmail\fP
+\f(CWenter command to pipe message to: \fP\fB prt-pcsmail\fP
 .EE
 .IP \(rh 5
 have a mail message in a file named \fIseeya\fP printed out
-to printer \fIgz3c4\fP :
+to printer \fIgz3c4\fP:
 .EX
 \f(CW$ \fP\fBprt-pcsmail seeya -d gz3c4 \fP
 .EE
@@ -153,4 +156,8 @@ or possibly \f(CW/usr/add-on/local/bin\fP on some systems.
 .SH WARNINGS
 Be careful to put a space between all option key letters and the associated
 key letter parameter.
+.\"_
+.SH AUTHOR
+David A.D. Morano
+.\"_
 .\"_

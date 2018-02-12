@@ -11,7 +11,6 @@ Synopsis:
 $ syncer [-b] [-o <opt(s)>] [-V]
 
 Arguments:
-Arguments:
 -b		perform the synchronization in the background
 -o <opt(s)>	option(s):
 			parallel[=<b>] ­ perform in parallel

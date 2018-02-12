@@ -1,6 +1,6 @@
 REFERM
 
-
+Interpolate a reference citation based on word-associasm
 Synopsis:
 
 $ referm [-f argfile] [-p database1[,database2]] [file(s) [...]]

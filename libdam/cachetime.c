@@ -23,6 +23,8 @@
 	+ ensuring unique entries by name
 	+ ensuring unique entries by dev-inode pair
 
+	This object is multithread-safe.
+
 
 *******************************************************************************/
 

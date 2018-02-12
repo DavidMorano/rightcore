@@ -7,12 +7,10 @@ are: month-day, current date, and key-name.  The key-name must match
 the first word of the associated description for a holiday.
 
 Synopsis:
-
 $ holiday [<spec(s)> ...] [+<n>] [-af <afile>] [-<n>] [-n <name(s)>] 
 	[-db <dbfile>] [-z[=<b>]] [-y <year>] [-V]
 
-where:
-
+Arguments:
 <spec(s)>	query specification: 
 			<mon><day>	specific day of given month
 					ex: 01/01 jan/01 jan1 jan-1 1-1

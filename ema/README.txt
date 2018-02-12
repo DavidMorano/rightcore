@@ -3,12 +3,10 @@ EMA
 This program extracts EMAs from message headers.
 
 Synopsis:
-
 $ ema [<file(s)>] [-af <afile>] [-h <header(s)>] [-s <subpart(s)>] [-n] [-r]
 	[-o <opt(s)>] [-V]
 
 Arguments:
-
 <file(s)>	files to read email addresses from
 -af <afile>	argument-list file
 -h <header(s)>	which headers to extract from
@@ -23,7 +21,6 @@ Arguments:
 -V		print program version to standard-error and then exit
 
 Examples:
-
 $ ema -h to < file.msg
 would extrat all of the EMAs associated with "to" headers (the default).
 $ ema -h to,cc < file.msg

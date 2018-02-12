@@ -3,6 +3,9 @@
 .SH NAME
 prtmin \- print out mail messages to a printer
 .SH SYNOPSIS
+.\"_
+.so tmac.att
+.\"_
 .BR prtmin 
 .OP -d "  dst" ] [
 .OP -c "  copies" ] [
@@ -65,7 +68,7 @@ supplied value.
 .PP
 The \fB-f\fP option allows for the specification of the form type
 used as the paper in the printer.  Forms vary from printer to printer
-but some of the possible form values for this argument are :
+but some of the possible form values for this argument are:
 .EX
 hole
 nohole
@@ -75,7 +78,7 @@ legal
 .EE
 .PP
 The \fB-p\fP option specifies the print mode to be used.
-Supported print modes are :
+Supported print modes are:
 .EX
 portrait
 landscape
@@ -88,18 +91,18 @@ in a point size of about 8.
 .SH EXAMPLES
 .IP \(rh 5
 print a file to the user's defauilt printer as specified in the
-\f(CWPRINTER\fP environment variable :
+\f(CWPRINTER\fP environment variable:
 .EX
 \f(CWprtmin file\fP
 .in -4
 .sp
 .IP \(rh 5
-print a file to the printer specified on the command line :
+print a file to the printer specified on the command line:
 .EX
 \f(CWprtmin file -d \fIprinter\fP\fP
 .EE
 .IP \(rh 5
-print the data from standard input :
+print the data from standard input:
 .EX
 \f(CWcat < file | prtmin -d gz3c4\fP
 .EE
@@ -120,4 +123,8 @@ or possibly \fC/usr/add-on/local/bin\fP on some systems.
 .SH WARNINGS
 Be careful to put a space between all option key letters and the associated
 key letter parameter.
+.\"_
+.SH AUTHOR
+David A.D. Morano
+.\"_
 .\"_

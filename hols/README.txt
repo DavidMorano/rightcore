@@ -2,8 +2,7 @@ HOLS
 
 This program prints the holidays for today and possibly future days.
 
-What exactly this program adds to HOLIDAY (command) is not really
-clear!
+What exactly this program adds to HOLIDAY (command) is not really clear!
 
 	$ hols
 appears to essentially be:

@@ -8,4 +8,3 @@ needed for some of Sun's manual pages.
 As compensation to handle DWB-style manual pages, the extra DWB manual macros
 have been added to the Sun standard manual macros.
 
-

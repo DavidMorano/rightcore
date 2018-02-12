@@ -1,14 +1,12 @@
 NOTIFIER
 
 This little program sends a terminal notice out according to the specified
-arguments.
+arguments. It is used mainly from CGI web-server programs.
 
 Synopsis:
-
 $ notifier <type> <user> [-f <from-agent>] [-m <msg>] [-V]
 
-where:
-
+Arguments:
 <type>		type of notification
 <user>		some argument for notification
 -f <from-agent>	indiction where notification is from and originating

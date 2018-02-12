@@ -12,4 +12,3 @@ loginblurb	Login-Blurb
 org		Organization
 motd		Message-of-the-Day service
 
-

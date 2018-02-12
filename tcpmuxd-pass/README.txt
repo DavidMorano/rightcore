@@ -15,10 +15,8 @@ This program is only needed when a PASS file is not configured by the TCPMUXD
 server.
 
 Synopsis:
-
 $ tcpmuxd-pass <file>
 
-where:
-
+Arguments:
 <file>		is the pass-file
 

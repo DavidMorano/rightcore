@@ -1,19 +1,12 @@
 CCI
 
-This is a postprocessing program for the program CB that is distributed
-on old UNIX systems.  Yes, it is hokey.  But the world is also a very
-rough place!
+This is a postprocessing program for the program CB that is distributed on old
+UNIX systems. Yes, it is hokey. But the world is also a very rough place!
 
 Synopsis:
-
 $ cci <file(s)> > <newfile>
 
-where:
-
+Arguments:
 <file(s)>	<file(s)> to process and concatenate to output
 <newfile>	new output file created
-
-Author:
-
-Dave Morano, 1985-03-15
 

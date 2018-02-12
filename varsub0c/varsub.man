@@ -3,7 +3,10 @@
 .SH NAME
 varsub \- variable substitution filter
 .SH SYNOPSIS
-varsub
+.\"_
+.so tmac.att
+.\"_
+.B varsub
 .OP -db " mapfile" ] [
 .OP -s " var=value" ] [
 .OP -k " keychars" ] [
@@ -225,10 +228,10 @@ is used by default.
 
 There are no predefined variable mapping files.
 .\"_
-.SH AUTHOR
-D.A. Morano
-.\"_
 .SH MAINTAINER
-D.A. Morano
+David A.D. Morano
+.\"_
+.SH AUTHOR
+David A.D. Morano
 .\"_
 .\"_

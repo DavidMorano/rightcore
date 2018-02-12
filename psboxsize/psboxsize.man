@@ -1,8 +1,11 @@
 .\"_
-.TH PSBOXSIZE 1 1998-10-21 "Starbase Research"
+.TH PSBOXSIZE 1 1998-10-21 "David A. Morano"
 .SH NAME
 psboxsize \- filter to calculate missing parameters for DWB picture inclusion
 .SH SYNOPSIS
+.\"_
+.so tmac.att
+.\"_
 .BR psboxsize
 .\"_
 .SH DESCRIPTION
@@ -18,7 +21,7 @@ given (given as '-1' by the user).
 .\"_
 .SS Options
 There are no options to this program.
-Please the input file on standard input and
+Place the input file on standard input and
 you will get the output on standard output.
 .\"_
 .SS Output
@@ -56,11 +59,11 @@ Be careful to put at one space between all option key
 letters and the associated
 key letter parameter.
 .\"_
-.SH AUTHOR
-Dave Morano
-.\"_
 .SH ACKNOWLEDGEMENTS
 The idea for this program was taken from the DWB reference manuals
 printed up by some organization within AT&T.
+.\"_
+.SH AUTHOR
+David A.D. Morano
 .\"_
 .\"_

@@ -10,21 +10,16 @@
 
 /* revision history :
 
-	= 90/11/01, David A­D­ Morano
-
+	= 1990-11-01, David A­D­ Morano
 	This subroutine was originally written.
 
-
-	= 01/04/11, David A­D­ Morano
-
+	= 2001-04-11, David A­D­ Morano
 	This old dog program has been enhanced to serve as the
 	environment wiper for executing MIPS programs.
 
-
 */
 
-
-
+/* Copyright © 1990,2001 David A­D­ Morano.  All rights reserved. */
 
 /**************************************************************************
 
@@ -36,6 +31,7 @@
 **************************************************************************/
 
 
+#include	<envstandards.h>
 
 #include	<sys/types.h>
 #include	<sys/param.h>
@@ -44,7 +40,6 @@
 #include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
 #include	<stdio.h>
 
 #include	<vsystem.h>
@@ -76,7 +71,7 @@ extern char	*strbasename(char *) ;
 
 /* forward references */
 
-static int	usage(struct proginfo *) ;
+static int	usage(PROGINFO *) ;
 
 
 /* local variables */
@@ -104,7 +99,7 @@ char	*envv[] ;
 
 	FILE		*efp = NULL ;
 
-	struct proginfo	pi, *pip = &pi ;
+	PROGINFO	pi, *pip = &pi ;
 
 	int	argr, argl, aol, akl, avl ;
 	int	kwi, npa, ai = 0, i ;
@@ -142,7 +137,7 @@ char	*envv[] ;
 		efp = fdopen(fd_stderr,"a") ;
 	} /* end if */
 
-	(void) memset(pip,0,sizeof(struct proginfo)) ;
+	(void) memset(pip,0,sizeof(PROGINFO)) ;
 
 	pip->efp = efp ;
 	pip->progname = strbasename(argv[0]) ;
@@ -214,28 +209,16 @@ char	*envv[] ;
 /* handle all keyword defaults */
 	                    default:
 				ex = EX_USAGE ;
-	                        if (efp != NULL)
-	                            fprintf(efp,
-	                                "%s: unknown argument keyword \"%s\"\n",
-	                                pip->progname,akp) ;
-
 	                        f_exitargs = TRUE ;
 	                        f_usage = TRUE ;
+				brea ;
 
 	                    } /* end switch */
 
 	                } else {
 
-#if	F_DEBUGS
-	                    eprintf("main: got an option key letter\n") ;
-#endif
-
 	                    while (akl--) {
-
-#if	F_DEBUGS
-	                        eprintf("main: option key letters >%c<\n",
-	                            *akp) ;
-#endif
+				const int	kc = MKCHAR((*akp) ;
 
 	                        switch (*akp) {
 
@@ -283,17 +266,9 @@ char	*envv[] ;
 	                        default:
 	                            ex = EX_USAGE ;
 	                            f_usage = TRUE ;
-	                            if (efp != NULL)
-	                                fprintf(efp,"%s: unknown option - %c\n",
-	                                    pip->progname,*akp) ;
-
 	                            break ;
 
 	                        } /* end switch */
-
-#if	F_DEBUGS
-	                        eprintf("main: beyond key letters switch\n") ;
-#endif
 
 	                        akp += 1 ;
 
@@ -348,14 +323,12 @@ char	*envv[] ;
 #endif
 
 
-	if (f_version && (efp != NULL))
-	    fprintf(efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	if (f_version && (efp != NULL)) {
+	    fprintf(efp,"%s: version %s\n",pip->progname,VERSION) ;
+	}
 
 	if (f_usage) {
-
 	    rs = usage(pip) ;
-
 	    goto done ;
 	}
 
@@ -431,15 +404,10 @@ char	*envv[] ;
 
 #if	F_DEBUG
 	if (pip->debuglevel > 1) {
-
 	eprintf("main: procenv() rs=%d\n",rs) ;
-
 		for (i = 0 ; rs = vecstr_get(&exports,i,&cp) >= 0 ; i += 1) {
-
 			if (cp == NULL) continue ;
-
 			eprintf("main: e> %s\n",cp) ;
-
 		}
 	}
 #endif /* F_DEBUG */
@@ -448,7 +416,6 @@ char	*envv[] ;
 
 	if (efp != NULL)
 	    fclose(efp) ;
-
 
 /* find the file path if we need to */
 
@@ -574,30 +541,23 @@ done:
 /* end subroutine (main) */
 
 
-
-/* LOCAL SUBROUTINES */
-
+/* local subroutines */
 
 
 /* print out (standard error) some short usage */
-static int usage(pip)
-struct proginfo	*pip ;
+static int usage(PROGINFO *pip)
 {
-	int	rs = SR_NOTOPEN ;
-
+	int		rs = SR_NOTOPEN ;
 
 	if (pip->efp != NULL) {
-
 	    rs = SR_OK ;
 	    fprintf(pip->efp,
 	        "%s: USAGE> %s [-e envfile] program [arg0 [args ...]]\n",
 	        pip->progname,pip->progname) ;
-
 	}
 
 	return rs ;
 }
 /* end subroutine (usage) */
-
 
 

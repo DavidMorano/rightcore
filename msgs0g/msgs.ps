@@ -1,0 +1,1039 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1 \))3 126( MSGS)1 2031( 0e \))2 129( \()1 68( PCS)1 1945(MSGS \( 1 \))3 381 6 540 480 t
+(NAME)540 960 w
+10 R f
+(msgs)900 1080 w
+10 S1 f
+(\261)1131 1080 w
+10 R f
+(system messages and junk mail program)5 1618 1 1221 1080 t
+9 B f
+(SYNOPSIS)540 1248 w
+10 R f
+(msgs [)1 264 1 900 1368 t
+10 S1 f
+(\261)1189 1368 w
+10 B f
+(fhlpq)1254 1368 w
+10 R f
+(] [)1 91 1 1508 1368 t
+10 CB f
+(number | \255number)2 960 1 1599 1368 t
+10 R f
+(])2583 1368 w
+10 B f
+(msgs)900 1536 w
+10 S1 f
+(\261)1136 1536 w
+10 B f
+(s)1201 1536 w
+(msgs)900 1704 w
+10 S1 f
+(\261)1136 1704 w
+10 B f
+(c)1201 1704 w
+10 R f
+([)1270 1704 w
+10 S1 f
+(\261)1328 1704 w
+10 R f
+(days ] [)2 299 1 1393 1704 t
+10 CB f
+(\255V)1692 1704 w
+10 R f
+(])1836 1704 w
+9 B f
+(DESCRIPTION)540 1872 w
+10 R f
+(The)900 1992 w
+10 B f
+(msgs)1080 1992 w
+10 R f
+( messages are sent by mailing to the login)8 1679( These)1 289( read system messages.)3 929(program is used to)3 741 4 1316 1992 t
+10 CW f
+(msgs)4980 1992 w
+10 R f
+(and should be short pieces of information which are suitable to be read once by most users of the system.)19 4199 1 900 2112 t
+10 I f
+(Msgs)900 2280 w
+10 R f
+( in the file)3 411(is normally invoked each time you login, by placing it)9 2166 2 1136 2280 t
+10 I f
+(.login \(.profile)1 582 1 3739 2280 t
+10 R f
+(if you use)2 396 1 4347 2280 t
+10 I f
+(/bin/sh)4769 2280 w
+10 R f
+(\). It)1 170 1 5050 2280 t
+( is no subject line, the first)6 1076( there)1 228( If)1 120(will then prompt you with the source and subject of each new message.)12 2896 4 900 2400 t
+( be told how)3 503( there is more to the message, you will)8 1548( If)1 117(few non\255blank lines of the message will be displayed.)8 2152 4 900 2520 t
+( possible responses are:)3 940( The)1 205(long it is and asked whether you wish to see the rest of the message.)14 2721 3 900 2640 t
+10 B f
+(h)900 2808 w
+10 R f
+(print out the help \(if any\))5 1007 1 1250 2808 t
+10 B f
+(y)900 2976 w
+10 R f
+(print out the rest of the message.)6 1301 1 1250 2976 t
+(RETURN)900 3144 w
+(synonym for y.)2 608 1 1250 3264 t
+10 B f
+(n)900 3432 w
+10 R f
+(skip this message and go on to the next message.)9 1954 1 1250 3432 t
+10 S1 f
+(\261)900 3600 w
+10 R f
+(redisplay the last message.)3 1065 1 1250 3600 t
+10 B f
+(q)900 3768 w
+10 R f
+(drops you out of)3 658 1 1250 3768 t
+10 I f
+(msgs;)1933 3768 w
+10 R f
+(the next time you run the program it will pick up where you left off.)14 2716 1 2191 3768 t
+10 B f
+(s)900 3936 w
+10 R f
+(append the current message to the file ``Messages'' in the current directory; `s)12 3149 1 1250 3936 t
+10 S1 f
+(\261)4399 3936 w
+10 R f
+(' will save the pre\255)4 756 1 4464 3936 t
+(viously displayed message. A `s' or `s)6 1529 1 1250 4056 t
+10 S1 f
+(\261)2779 4056 w
+10 R f
+( file name to receive the)5 961(' may be followed by a space and a)8 1415 2 2844 4056 t
+(message replacing the default ``Messages''.)4 1753 1 1250 4176 t
+10 B f
+(m)900 4344 w
+10 R f
+(or `m)1 223 1 1250 4344 t
+10 S1 f
+(\261)1473 4344 w
+10 R f
+( and)1 174(' causes a copy of the specified message to be placed in a temporary mailbox)14 3132 2 1538 4344 t
+10 I f
+(mailx)4874 4344 w
+10 R f
+(\(1\))5104 4344 w
+( `m' and `s' accept a numeric argument in place of the `)12 2221( Both)1 245(to be invoked on that mailbox.)5 1222 3 1250 4464 t
+10 S1 f
+(\261)4938 4464 w
+10 R f
+('.)5003 4464 w
+10 B f
+(?)900 4632 w
+10 R f
+(print out the help \(if any\))5 1007 1 1250 4632 t
+10 I f
+(Msgs)900 4800 w
+10 R f
+( the next message you will see by a number in the file)12 2195(keeps track of)2 565 2 1139 4800 t
+10 I f
+(.msgsrc)3928 4800 w
+10 R f
+(in your home directory.)3 955 1 4265 4800 t
+(In the directory)2 623 1 900 4920 t
+10 I f
+(/var/spool/msgs)1552 4920 w
+10 R f
+( of files whose names are the \(sequential\) numbers)8 2047(the program keeps a set)4 958 2 2215 4920 t
+( file)1 162( The)1 209( messages they represent.)3 1026(of the)1 233 4 900 5040 t
+10 I f
+(/var/spool/msgs/.msgs)2559 5040 w
+10 S f
+(_)3446 5040 w
+10 I f
+(bounds)3496 5040 w
+10 R f
+(shows the low and high number of)6 1406 1 3814 5040 t
+(the messages in the directory so that)6 1460 1 900 5160 t
+10 I f
+(msgs)2386 5160 w
+10 R f
+( file)1 159( This)1 229(can quickly determine if there are no messages for you.)9 2220 3 2612 5160 t
+(is commonly called the)3 933 1 900 5280 t
+10 I f
+(bounds)1859 5280 w
+10 R f
+( name for this file is)5 812( standard)1 364(file. The)1 364 3 2174 5280 t
+10 I f
+(bounds)3741 5280 w
+10 R f
+(but the program dynamically)3 1163 1 4057 5280 t
+(determines which file name to use giving preference to a file named)11 2746 1 900 5400 t
+10 I f
+(.msgs)3674 5400 w
+10 S f
+(_)3899 5400 w
+10 I f
+(bounds)3949 5400 w
+10 R f
+( files are present.)3 687(if both)1 267 2 4266 5400 t
+(If the contents of the)4 842 1 900 5520 t
+10 I f
+(bounds)1771 5520 w
+10 R f
+( be fixed by removing it;)5 1016(file is incorrect it can)4 864 2 2089 5520 t
+10 I f
+(msgs)3999 5520 w
+10 R f
+(will make a new)3 672 1 4229 5520 t
+10 I f
+(bounds)4931 5520 w
+10 R f
+(file the next time it is run.)6 1036 1 900 5640 t
+(The)900 5808 w
+10 S1 f
+(\261)1080 5808 w
+10 B f
+(s)1145 5808 w
+10 R f
+( line)1 175( The)1 205(option is used for setting up the posting of messages.)9 2116 3 1209 5808 t
+(msgs: ")1 300 1 1260 5976 t
+10 S f
+(\357)1560 5976 w
+10 R f
+(/usr/add\255on/pcs/bin/msgs)1634 5976 w
+10 S1 f
+(\261)2665 5976 w
+10 R f
+(s")2730 5976 w
+(should be included in the)4 1057 1 900 6144 t
+10 I f
+(/etc/aliases)1995 6144 w
+10 R f
+(mail database \(of)2 715 1 2484 6144 t
+10 I f
+(sendmail)3238 6144 w
+10 R f
+(\) to enable the posting of messages by)7 1621 1 3599 6144 t
+(email.)900 6264 w
+(The)900 6432 w
+10 S1 f
+(\261)1088 6432 w
+10 B f
+(c)1153 6432 w
+10 R f
+(option is used for performing cleanup on)6 1679 1 1230 6432 t
+10 I f
+(/var/spool/msgs.)2942 6432 w
+10 R f
+(An entry with the)3 726 1 3634 6432 t
+10 S1 f
+(\261)4393 6432 w
+10 B f
+(c)4458 6432 w
+10 R f
+(option should be)2 685 1 4535 6432 t
+(placed in root's)2 637 1 900 6552 t
+10 I f
+(crontab)1570 6552 w
+10 R f
+( different)1 375( A)1 129( messages over 90 days old.)5 1150( will remove all)3 654( This)1 236(to run every night.)3 762 6 1914 6552 t
+(expiration may be specified on the command line to override the default.)11 2906 1 900 6672 t
+(Options when reading messages include:)4 1631 1 900 6840 t
+10 S1 f
+(\261)900 7008 w
+10 B f
+(f)965 7008 w
+10 R f
+( is useful in your)4 720( This)1 240(which causes it not to say ``No new messages.''.)8 2042 3 1250 7008 t
+10 I f
+(.login)4289 7008 w
+10 R f
+( this is)2 288(file since)1 375 2 4557 7008 t
+(often the case here.)3 769 1 1250 7128 t
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 1 \))3 126( MSGS)1 1625( 0e \))2 129( \()1 68( Berkeley Distribution)2 856( 4th)1 1495(MSGS \( 1 \))3 381 7 540 480 t
+10 S1 f
+(\261)900 960 w
+10 B f
+(q)965 960 w
+10 R f
+( com\255)1 238( The)1 213( are new messages.'' if there are.)6 1359(Queries whether there are messages, printing ``There)6 2160 4 1250 960 t
+(mand ``msgs)1 519 1 1250 1080 t
+10 S1 f
+(\261)1794 1080 w
+10 R f
+(q'' is often used in login scripts.)6 1291 1 1859 1080 t
+10 S1 f
+(\261)900 1248 w
+10 B f
+(h)965 1248 w
+10 R f
+(causes)1250 1248 w
+10 I f
+(msgs)1535 1248 w
+10 R f
+(to print the first part of messages only.)7 1543 1 1760 1248 t
+10 S1 f
+(\261)900 1416 w
+10 B f
+(l)965 1416 w
+10 R f
+(option causes only locally originated messages to be reported.)8 2477 1 1250 1416 t
+10 I f
+(num)900 1584 w
+10 R f
+( be given on the command line, causing)7 1622(A message number can)3 940 2 1250 1584 t
+10 I f
+(msgs)3842 1584 w
+10 R f
+(to start at the specified mes\255)5 1148 1 4072 1584 t
+(sage rather than at the next message indicated by your)9 2159 1 1250 1704 t
+10 I f
+(.msgsrc)3434 1704 w
+10 R f
+(file. Thus)1 408 1 3767 1704 t
+(msgs)1350 1872 w
+10 S1 f
+(\261)1581 1872 w
+10 R f
+(h 1)1 125 1 1646 1872 t
+(prints the first part of all messages.)6 1401 1 1250 2040 t
+10 S1 f
+(\261)900 2208 w
+10 I f
+(number)965 2208 w
+10 R f
+(will cause)1 405 1 1250 2328 t
+10 I f
+(msgs)1683 2328 w
+10 R f
+(to start)1 278 1 1911 2328 t
+10 I f
+(number)2217 2328 w
+10 R f
+( indicated by your)3 736(messages back from the one)4 1137 2 2550 2328 t
+10 I f
+(.msgsrc)4452 2328 w
+10 R f
+(file, useful)1 431 1 4789 2328 t
+(for reviews of recent messages.)4 1254 1 1250 2448 t
+10 S1 f
+(\261)900 2616 w
+10 B f
+(p)965 2616 w
+10 R f
+(prevents long messages from being piped through)6 1992 1 1250 2616 t
+10 I f
+(more)3267 2616 w
+10 R f
+(\(1\).)3480 2616 w
+(Within)900 2784 w
+10 I f
+(msgs)1207 2784 w
+10 R f
+( when)1 246(you can also go to any specific message by typing its number)11 2494 2 1436 2784 t
+10 I f
+(msgs)4206 2784 w
+10 R f
+(requests input as to)3 784 1 4436 2784 t
+(what to do.)2 447 1 900 2904 t
+9 B f
+(FILES)540 3072 w
+10 B f
+(/var/spool/msgs)900 3192 w
+10 R f
+( the)1 150(This directory contains the message files and)6 1809 2 1900 3192 t
+10 I f
+(bounds)3887 3192 w
+10 R f
+(type file used by the pro\255)5 1016 1 4204 3192 t
+(gram for operational purposes.)3 1225 1 1900 3312 t
+10 B f
+(/var/spool/msgs/.msgs)900 3480 w
+10 S f
+(_)1826 3480 w
+10 B f
+(bounds)1876 3480 w
+10 R f
+(This file is the prefered)4 931 1 1900 3600 t
+10 I f
+(bounds)2856 3600 w
+10 R f
+(type file.)1 355 1 3170 3600 t
+10 B f
+(/var/spool/msgs/bounds)900 3768 w
+10 R f
+(This file is used as the)5 946 1 1900 3888 t
+10 I f
+(bounds)2882 3888 w
+10 R f
+(type file when a file named)5 1144 1 3207 3888 t
+10 I f
+(.msgs)4387 3888 w
+10 S f
+(_)4612 3888 w
+10 I f
+(bounds)4662 3888 w
+10 R f
+(is not)1 232 1 4988 3888 t
+(present.)1900 4008 w
+10 B f
+(\224/.msgsrc)900 4176 w
+10 R f
+( next)1 212(This file \(in the user's HOME login directory\) contains the number of the)12 3108 2 1900 4176 t
+( when the MSGSRC environment vari\255)5 1593( file is used)3 479( This)1 235(message to be presented.)3 1013 4 1900 4296 t
+(able \(described below\) is not set.)5 1314 1 1900 4416 t
+9 B f
+(ENVIRONMENT VARIABLES)1 1258 1 540 4584 t
+10 R f
+(The following environment variables are used by the program:)8 2501 1 900 4704 t
+10 B f
+(MSGSRC)900 4872 w
+10 R f
+( the name of the user's MSGSRC)6 1464(This environment variable holds)3 1356 2 2400 4872 t
+( file holds the record of which messages)7 1619( MSGSRC type)2 635( The)1 208(type file.)1 358 4 2400 4992 t
+( variable is not set, the)5 974( this environment)2 728( If)1 130(a user has already read.)4 988 4 2400 5112 t
+(default MSGSRC file is)3 1040 1 2400 5232 t
+10 B f
+(\224/.msgsrc)3492 5232 w
+10 R f
+(which is located in the user's)5 1292 1 3928 5232 t
+( not)1 168( this environment vaiable does)4 1277( If)1 130(HOME directory as indicated.)3 1245 4 2400 5352 t
+( the user's HOME directory is)5 1461(contain an absolute file path,)4 1359 2 2400 5472 t
+(prepended.)2400 5592 w
+10 B f
+(MSGSDIR)900 5760 w
+10 R f
+( used to change the location of the)7 1444(This environment variable can be)4 1376 2 2400 5760 t
+(spool directory used to hold the message files.)7 1848 1 2400 5880 t
+10 B f
+(MSGS)900 6048 w
+10 S f
+(_)1184 6048 w
+10 B f
+(SPOOLDIR)1234 6048 w
+10 R f
+( used to change the location of the)7 1444(This environment variable can be)4 1376 2 2400 6048 t
+( environment vari\255)2 743( This)1 228( used to hold the message files.)6 1246(spool directory)1 603 4 2400 6168 t
+( used if the MSGSDIR environment variable above is not)9 2349(able is only)2 471 2 2400 6288 t
+(set.)2400 6408 w
+10 B f
+(LINES)900 6576 w
+10 R f
+( set to hold the number of lines that)8 1464(This environment variable can be)4 1356 2 2400 6576 t
+(will be used by the program on the terminal screen.)9 2052 1 2400 6696 t
+9 B f
+(SEE ALSO)1 453 1 540 6864 t
+10 R f
+(crontab\(1\), mail\(1\), more\(1\), sendmail\(1m\), aliases\(4\))4 2167 1 900 6984 t
+9 B f
+(AUTHORS)540 7152 w
+10 R f
+( 2)1 75( Page)1 1931( Commands)1 481( User)1 1508(February 8, 2018)2 685 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Page: 3 3
+DpostDict begin
+/saveobj save def
+mark
+3 pagesetup
+9 B f
+( \( 1 \))3 126( MSGS)1 1625( 0e \))2 129( \()1 68( Berkeley Distribution)2 856( 4th)1 1495(MSGS \( 1 \))3 381 7 540 480 t
+10 R f
+(William Joy)1 492 1 900 960 t
+(David Wasley)1 568 1 900 1080 t
+( \(for PCS and POP3 bulletin compatibility\) and otherwise modified sub\255)10 2994(The program has been enhanced)4 1326 2 900 1200 t
+(stantially by David Morano.)3 1127 1 900 1320 t
+9 B f
+(BUGS)540 1488 w
+10 R f
+(No bugs are known to exist at this time.)8 1591 1 900 1608 t
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 3)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 3 3
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 3
+%%DocumentFonts: Courier-Bold Courier Times-Roman Times-Bold Times-Italic Times-Roman Symbol

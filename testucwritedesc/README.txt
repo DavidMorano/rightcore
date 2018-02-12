@@ -3,6 +3,5 @@ TESTUCWRITEDESC
 This program tests the 'uc_copy(3)' subroutine.
 
 Synopsis:
-$ testuccopy.x [input [output]]
-
+$ testuccopy.x [<input> [<output>]]
 

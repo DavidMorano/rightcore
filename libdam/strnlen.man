@@ -3,8 +3,10 @@
 .TH strnlen 3c "1998-01-10" LOCAL
 .SH NAME
 strnlen \- calculate the length of a string up to a maximum value
-.\"_
 .SH "SYNOPSIS"
+.\"_
+.so tmac.att
+.\"_
 .LP
 .BI "int strnlen(const char *" "str" ,
 .BI "int " "maxlen" );
@@ -37,4 +39,5 @@ any possible terminating NUL character) up to a specified maximum value.
 .SH "SEE ALSO"
 .BR strlen (3c),
 .BR strlcpy (3c)
+.\"_
 .\"_

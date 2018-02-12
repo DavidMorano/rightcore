@@ -12,6 +12,5 @@ The program root for the program is retrieved from the "other" side!
 This program also assumes little or no environment.
 
 Synopsis:
-
 $ /usr/add-on/local/lib/cexec/cexecer
 

@@ -3,6 +3,9 @@
 .SH NAME
 prt \- print out files to a printer
 .SH SYNOPSIS
+.\"_
+.so tmac.att
+.\"_
 .BR prt
 .OP -d "  dst" ] [
 .OP -c "  copies" ] [
@@ -67,7 +70,7 @@ supplied value.
 \fB-f\fP  \fIform\fP
 The \fB-f\fP option allows for the specification of the form type
 used as the paper in the printer.  Forms vary from printer to printer
-but some of the possible form values for this argument are :
+but some of the possible form values for this argument are:
 .EX
 hole
 nohole
@@ -78,7 +81,7 @@ legal
 .TP 15
 \fB-p\fP  \fIprint_mode\fP
 The \fB-p\fP option specifies the print mode to be used.
-Supported print modes are :
+Supported print modes are:
 .EX
 portrait
 landscape
@@ -86,7 +89,7 @@ landscape
 .TP 15
 \fB-l\fP  \fIlanguage\fP
 The \fB-l\fP specifies the language of the file to be printed.
-Supported languages are :
+Supported languages are:
 .EX
 text
 postscript
@@ -138,27 +141,27 @@ the \fB-d\fP argument key.
 .PP
 .IP \(rh 5
 print a file to the user's defauilt printer as specified in the
-\f(CWPRINTER\fP environment variable :
+\f(CWPRINTER\fP environment variable:
 .EX
 \f(CWprt file\fP
 .EE
 .IP \(rh 5
-print a file to the printer specified on the command line :
+print a file to the printer specified on the command line:
 .EX
 \f(CWprt file -d \fIprinter\fP\fP
 .EE
 .IP \(rh 5
-print the data from standard input :
+print the data from standard input:
 .EX
 \f(CWcat < file | prt -d gz3c4\fP
 .EE
 .IP \(rh 5
-print out a GIF (Graphics Interchange Format) graphics file :
+print out a GIF (Graphics Interchange Format) graphics file:
 .EX
 \f(CWprt -d gz3c4 -l gif file.gif\fP
 .EE
 .IP \(rh 5
-print out an Adobe PostScript file :
+print out an Adobe PostScript file:
 .EX
 \f(CWprt -l post file.gif\fP
 .EE
@@ -190,13 +193,13 @@ Be careful to put at one space between all option key
 letters and the associated
 key letter parameter.
 .\"_
-.SH AUTHOR
-.PP
-Dave Morano
 .\"_
 .SH ACKNOWLEDGEMENTS
 .PP
 The idea for this program was taken from the UNISON \f(CWprt(1)\fP
 program.
+.\"_
+.SH AUTHOR
+David A.D. Morano
 .\"_
 .\"_

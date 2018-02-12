@@ -1,12 +1,8 @@
 TESTISPROC
 
 Synopsis:
-
 $ testisproc [<pid>]
 
-where:
-
+Arguments:
 <pid>		is the PID to test for
-
-
 

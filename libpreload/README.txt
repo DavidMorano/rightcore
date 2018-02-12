@@ -23,4 +23,3 @@ in this directory as:
 + confstr.def
 + sysinfo.def
 
-

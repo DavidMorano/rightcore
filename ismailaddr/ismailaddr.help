@@ -1,15 +1,13 @@
 ISMAILADDR
 
-This little program makes a determination (based on invocation arguments)
-about specified mail addresses.
+This little program makes a determination (based on invocation arguments) about
+specified mail addresses.
 
 Synopsis:
-
 $ ismailaddr [<mailaddr(s)> ...] [-o logging] [-lfn <lnfile>]
 	[-Q] [-D] [-?] [-v[=n]] [-V]
 
-where:
-
+Arguments:
 <mailaddr(s)>	mail addresse(s) to check
 -o logging	turn ON logging
 -lfn <lnfile>	local-name file

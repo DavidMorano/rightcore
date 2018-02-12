@@ -1,13 +1,7 @@
 TESTMSGID
 
-
 This little program tests the MSGID object.
 
-Synopsis :
-
+Synopsis:
 $ testmsgid.x
-
-
-
-
 

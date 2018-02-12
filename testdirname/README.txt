@@ -1,7 +1,4 @@
 TESTDIRNAME
 
-
-This program tests the 'sfdirname()' subroutine.
-
-
+This program tests the 'sfdirname(3dam)' subroutine.
 

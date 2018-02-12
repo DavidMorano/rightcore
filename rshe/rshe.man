@@ -5,91 +5,14 @@
 rshe \- execute a command on a remote machine with local environment
 .SH SYNOPSIS
 .\"_
-.\"_
-.\"_ some AT&T standard strings
-.\"_
-.if t \{\
-.fp5 CW
-.ds mW \&\f5
-.ds mB \&\f(CB
-.ds Tm \v'-0.5m'\s-4TM\s+4\v'0.5m'
-.ds Sm \v'-0.5m'\s-4SM\s+4\v'0.5m'
-.ds Rg \v'-0.4m'\s-4\(rg\s+4\v'0.4m'
-.ds rq ''
-.ds lq ``
-.tr * \(**
-'br\}
-.if n \{\
-.ds mW \f3
-.ds mB \f3
-.ds Tm \uTM\d
-.ds Sm \uSM\d
-.ds Rg (Reg.)
-.ds lq \&"
-.ds rq \&"
-'br\}
-.\"_
-.\"_ some AT&T standard macros
-.\"_
-.de HY
-.hy14
-..
-.\"_
-.de MW
-.nh
-.it1 }N
-.ie\\n(.$ \{\
-.ie\\n(.$=1 \*(mW\&\\$1\fP
-.el.ie \\n(.$=2 \*(mW\&\\$1 \\$2\fP
-.el.ie \\n(.$=3 \*(mW\&\\$1 \\$2 \\$3\fP
-.el.ie \\n(.$=4 \*(mW\&\\$1 \\$2 \\$3 \\$4\fP
-.el.ie \\n(.$=5 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5\fP
-.el.ie \\n(.$=6 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6\fP
-.el.ie \\n(.$=7 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7\fP
-.el.ie \\n(.$=8 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8\fP
-.el\*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8 \\$9\fP \}
-.el\{\
-.ift .ft 5
-.ifn .ft 3 \}
-.HY
-..
-.\"_
-.de OP
-.ie'\\$3'[]' \ \f1[\ \*(mB\\$1\f2\^\\$2\|\f1\ ]
-.el\&\\$4\&\*(mB\\$1\fP\f2\^\\$2\|\fP\\$3
-..
-.\"_
-.de EX
-.sp\\n(PDu
-.in+5n
-.ifn .ft 3
-.ift \{\
-.ft5
-.if\\$1-1 \{\
-.ps-1
-.vs-1
-.nreX 1 \}\}
-.nf
-..
-.de EE
-.fi
-.if\\n(eX \{\
-.ps+1
-.vs+1
-.nreX 0 \}
-.ft1
-.in-5n
-.sp\\n(PDu
-..
-.\"_
-.\"_ end AT&T stuff
+.so tmac.att
 .\"_
 .B rshe
 .OP -l "  rsuer" []
 .OP -n "" []
 .OP -d "" []
 .OP -e " environ_file" []
-.OP -x[=[var_list]] "" []
+.OP -x\fR[=\fIvar-list\fP]\fP "" []
 .br
 .OP -V "" []
 .OP -? "" []
@@ -513,7 +436,7 @@ any and all STREAMS modules and ultimately programs residing
 on the client side of a network connection have to assume
 that the server side program continuously wants input data.
 This could have been long ago fixed in UNIX (circa 1982 at least)
-but no...ooo !  The powers that were thought that they knew how to make 
+but no...ooo!  The powers that were thought that they knew how to make 
 operating systems and did not understand the need for
 a formalized "attention" type indication from programs issuing
 reads on the other end of a communications pipe (network or
@@ -527,6 +450,10 @@ have the potential to come close to the AT&T original but
 it is not even as good as it could be.  Finally, be warned,
 at the time of this writing, that Sun's ON remote execution facility
 is extremely buggy, often leading to machine crashes of the client
-side, server side or both !  It's no wonder that it is usually,
-and shipped from Sun as so, turned OFF !!!
+side, server side or both!  It's no wonder that it is usually,
+and shipped from Sun as so, turned OFF!
+.\"_
+.SH AUTHOR
+David A.D. Morano
+.\"_
 .\"_

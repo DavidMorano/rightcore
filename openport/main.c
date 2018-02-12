@@ -27,6 +27,14 @@
 
 /*******************************************************************************
 
+        This is the SETUID program called from |openport(3dam)| to acquire
+        access to a privileged network (either TCP or UDP in the present case)
+        port. We pass the acquired file-sdesciptor back to the client (we are
+        the server) using our STDIN pipe between us. We use the USERPORTS
+        database to determine who has access rights to any particular privileged
+        ports. The messaging protocold between the client and the server is done
+        using the OPENPORTMSG messages.
+
 	Synopsis:
 
 	$ openport 

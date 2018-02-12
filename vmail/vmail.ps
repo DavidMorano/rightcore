@@ -1,0 +1,1226 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1 \))3 126( VMAIL)1 1863( 2002\25501\25528 \))2 464( \()1 68( PCS)1 1723(VMAIL \( 1 \))3 436 6 540 480 t
+(NAME)540 960 w
+10 R f
+(vmail)900 1080 w
+10 S1 f
+(\261)1153 1080 w
+10 R f
+(read and manage mail)3 878 1 1243 1080 t
+9 B f
+(SYNOPSIS)540 1248 w
+10 R f
+(vmail [)1 286 1 900 1368 t
+10 S f
+(<)1186 1368 w
+10 R f
+(mailbox)1241 1368 w
+10 S f
+(>)1569 1368 w
+10 R f
+(] [\255V])1 229 1 1624 1368 t
+9 B f
+(DESCRIPTION)540 1536 w
+10 I f
+(vmail)900 1656 w
+10 R f
+( screen\255oriented version of)3 1078(is a)1 139 2 1150 1656 t
+10 I f
+(readmail)2396 1656 w
+10 R f
+(\(PCS\). This program is part of the Personal Communication)8 2434 1 2786 1656 t
+( can be used to)4 597( It)1 112( is used for reading and managing collections of mail messages.)10 2559( It)1 112(Services \(PCS\) system.)2 940 5 900 1776 t
+( user may create as many named mail files, called)9 2092( The)1 217(read, classify, delete, reply to, and forward mail.)7 2011 3 900 1896 t
+10 I f
+(mailboxes)900 2016 w
+10 R f
+( When)1 291(, as desired.)2 477 2 1305 2016 t
+10 I f
+(vmail)2101 2016 w
+10 R f
+(is invoked, the user is normally in the)7 1519 1 2350 2016 t
+10 B f
+(new)3896 2016 w
+10 R f
+( Mes\255)1 257(or incoming mailbox.)2 868 2 4095 2016 t
+( appropriate mail\255)2 727(sages can be moved into other mailboxes and can be retrieved later by changing into the)15 3593 2 900 2136 t
+(box. Invoking)1 586 1 900 2256 t
+10 I f
+(vmail)1511 2256 w
+10 R f
+(with an argument will start it up in the specified mailbox.)10 2296 1 1758 2256 t
+10 I f
+(vmail)900 2424 w
+10 R f
+( message)1 372(divides the screen into two windows: a)6 1602 2 1155 2424 t
+10 B f
+(summary)3163 2424 w
+10 R f
+(area, and a message)3 818 1 3602 2424 t
+10 B f
+(viewing)4454 2424 w
+10 R f
+(area. The)1 404 1 4816 2424 t
+( in the current mailbox, and the second screen area)9 2058(first area displays one\255line summaries of mail messages)7 2262 2 900 2544 t
+( can contain on or more mail messages.)7 1708( Mailboxes)1 491(displays mail messages, help, and mailbox names.)6 2121 3 900 2664 t
+( current message)2 676( The)1 208( stored in any given mailbox.)5 1181(There is no limit to the number of messages that can be)11 2255 4 900 2784 t
+( arrow will point to the sum\255)6 1150( The)1 206(is indicated by an arrow at the left most end of the summary window area.)14 2964 3 900 2904 t
+(mary line of the currently selected message.)6 1754 1 900 3024 t
+( single character commands to change the current message or mailbox, or to perform opera\255)14 3730(The user types)2 590 2 900 3192 t
+( immediately, and do not have to be followed)8 1844( commands are acted upon)4 1084( The)1 210(tions on the current message.)4 1182 4 900 3312 t
+( command)1 421( These)1 290( require an argument, such as a new mailbox name.)9 2066( commands)1 459( Some)1 279(by a carriage return.)3 805 6 900 3432 t
+(arguments are terminated by a carriage return.)6 1841 1 900 3552 t
+9 B f
+(Command Line Options)2 961 1 690 3720 t
+10 R f
+(An optional mailbox name can be given as a positional argument to)11 2722 1 900 3840 t
+10 CW f
+(vmail)3684 3840 w
+10 R f
+( no mailbox name is given,)5 1093(. If)1 143 2 3984 3840 t
+(a default mailbox name \()4 1050 1 900 3960 t
+10 CW f
+(${HOME}/mail/new)1950 3960 w
+10 R f
+( it does not exist, the)5 888( If)1 128( exists.)1 290(\) is used if it)4 552 4 2910 3960 t
+10 I f
+(vmail)4805 3960 w
+10 R f
+(will)5064 3960 w
+( the default incoming mailbox file cannot be created, then the mailbox derived from)13 3415( If)1 121( it.)1 111(attempt to create)2 673 4 900 4080 t
+( a mailbox name is given on the command)8 1741( If)1 122(processing the MBOX environment variable is used instead.)7 2457 3 900 4200 t
+( a mail\255)2 309( If)1 118( \('/'\), then it is taken as the name of a mailbox file instead.)13 2364(line and it starts with a slash character)7 1529 4 900 4320 t
+( is taken as the name of a mailbox within the)10 1847(box is given but does not start with a slash character, then it)12 2473 2 900 4440 t
+(default mail folder directory.)3 1153 1 900 4560 t
+(The)900 4800 w
+10 B f
+(V)1090 4800 w
+10 R f
+(command line option cause)3 1126 1 1197 4800 t
+10 I f
+(vmail)2358 4800 w
+10 R f
+( Other)1 288( current version number and then finally exit.)7 1885(to print its)2 432 3 2615 4800 t
+(command line options may be processed for errors before existing.)9 2667 1 900 4920 t
+9 B f
+(Commands)690 5088 w
+10 R f
+( commands)1 475( Some)1 295( is significant.)2 598( Case)1 261( the user by typing single characters.)6 1563(Commands are initiated by)3 1128 6 900 5208 t
+( input and some commands will prompt for an argument when)10 2642(operate immediately without any further)4 1678 2 900 5328 t
+( are entered by entering)4 993( Counts)1 347( of the commands can be preceded by an optional count.)10 2378(needed. Many)1 602 4 900 5448 t
+( accept preceding optional counts are)5 1522( which)1 278( Commands)1 515(decimal digits followed in the desired command.)6 2005 4 900 5568 t
+( brief description of some of the available commands follows.)9 2474( A)1 122(identified below.)1 677 3 900 5688 t
+10 S f
+(<)900 5856 w
+10 B f
+(CR)955 5856 w
+10 S f
+(>)1099 5856 w
+10 R f
+( possible actions depending on whether it)6 1696(This command \(a single carriage return character\) has two)8 2374 2 1150 5976 t
+( page)1 218( this command simply displays the next)6 1620( Normally)1 439(is used alone or if it is preceded by a count.)10 1793 4 1150 6096 t
+( is preceded by a count, then a)7 1243( this command)2 597( If)1 120(of the current message or the next page of help text.)10 2110 4 1150 6216 t
+( mailer will move to the message indicated by the count from the begin\255)13 2890( The)1 206( is taken.)2 360(different action)1 614 4 1150 6336 t
+( in mailboxes are numbered)4 1129( Messages)1 443( count of 1 refers to the first message.)8 1545( A)1 127(ning of the mailbox.)3 826 5 1150 6456 t
+( bigger than the)3 678( count which is)3 665( A)1 141(according to the position of the message within the mailbox.)9 2586 4 1150 6576 t
+(number of messages in the current mailbox is interpreted to refer to the last message in the mailbox.)17 3994 1 1150 6696 t
+10 B f
+(+)900 6864 w
+10 R f
+( same)1 238(When entered without a preceding count, this command \(a plus sign character\) defaults to the)14 3832 2 1150 6864 t
+(action as the)2 529 1 1150 6984 t
+10 I f
+(carriage return)1 634 1 1719 6984 t
+10 R f
+( this command is preceded by a count, then the)9 2001( If)1 130(command above.)1 696 3 2393 6984 t
+(mailer will jump ahead to the)5 1189 1 1150 7104 t
+10 I f
+(count)2367 7104 w
+10 R f
+( is on)2 225( the user)2 344( If)1 119(numbered page forward in the current message.)6 1915 4 2617 7104 t
+( page of a message, then this command will cause the first page of a message to be displayed)18 3779(the last)1 291 2 1150 7224 t
+( 12, 2018)2 375( February)1 1631( Commands)1 481( User)1 1924(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 1 \))3 126( VMAIL)1 1863( 2002\25501\25528 \))2 464( \()1 68( PCS)1 1723(VMAIL \( 1 \))3 436 6 540 480 t
+10 R f
+(again.)1150 960 w
+10 B f
+(\255)900 1128 w
+10 R f
+( to go back to a previous page in the current message.)11 2173(This command \(a minus sign character\) is used)7 1897 2 1150 1128 t
+(If the command is preceded by a count, then the mailer program will go back)14 3122 1 1150 1248 t
+10 I f
+(count)4300 1248 w
+10 R f
+( pages)1 254(number of)1 416 2 4550 1248 t
+( the mailer will go in the latest page)8 1464( the user is at the first page of a message, then)11 1868( If)1 119(in the message.)2 619 4 1150 1368 t
+( already been)2 539(in the message that has)4 941 2 1150 1488 t
+10 B f
+(previously)2659 1488 w
+10 R f
+( the user has not read all of the pages in the)11 1771(read. If)1 316 2 3133 1488 t
+( and is currently reading the first page, then this command will cause the mailer to go)16 3425(current message)1 645 2 1150 1608 t
+(to the highest numbered page in the message that has already been read.)12 2874 1 1150 1728 t
+10 B f
+(b)900 1896 w
+10 R f
+(The)1150 1896 w
+10 I f
+(back)1335 1896 w
+10 R f
+( this command is)3 699( If)1 122(command displays the previous \(or first\) page of the current message.)10 2846 3 1553 1896 t
+( count, then the mailer will go back)7 1485(preceded by a)2 575 2 1150 2016 t
+10 I f
+(count)3245 2016 w
+10 R f
+( large)1 234( A)1 132(messages in the current mailbox.)4 1352 3 3502 2016 t
+(count value will cause the mailer to go back to the first message in the mailbix.)15 3163 1 1150 2136 t
+10 B f
+(n)900 2304 w
+10 R f
+(The)1150 2304 w
+10 I f
+(next)1340 2304 w
+10 R f
+( An)1 183( next message in the current mailbox to be the current message.)11 2655(command makes the)2 841 3 1541 2304 t
+( the mailer to go ahead)5 977(optional count can precede this command and will cause)8 2369 2 1150 2424 t
+10 I f
+(count)4534 2424 w
+10 R f
+(number of)1 426 1 4794 2424 t
+(messages forward in the mailbox.)4 1345 1 1150 2544 t
+10 B f
+(N)900 2712 w
+10 R f
+(The)1150 2712 w
+10 I f
+(Next)1336 2712 w
+10 R f
+( optional count value)3 862( An)1 179( the tenth next message be the current message.)8 1949(command makes)1 680 4 1550 2712 t
+(will cause the mailer to go ahead)6 1314 1 1150 2832 t
+10 I f
+(count)2489 2832 w
+10 R f
+(multiples of 10 messages at a time.)6 1402 1 2736 2832 t
+10 B f
+(p)900 3000 w
+10 R f
+(The)1150 3000 w
+10 I f
+(previous)1335 3000 w
+10 R f
+( count can)2 422( optional)1 358( An)1 177(command makes the previous message be the current message.)8 2554 4 1709 3000 t
+(precede this command.)2 923 1 1150 3120 t
+10 B f
+(P)900 3288 w
+10 R f
+(The)1150 3288 w
+10 I f
+(Previous)1331 3288 w
+10 R f
+( count)1 249( optional)1 354( An)1 173(command makes the tenth previous message in the current message.)9 2732 4 1712 3288 t
+( will cause the mailer to go back)7 1379(can precede this command and)4 1282 2 1150 3408 t
+10 I f
+(count)3848 3408 w
+10 R f
+(number of messages in the)4 1113 1 4107 3408 t
+(mailbox.)1150 3528 w
+10 B f
+(F)900 3696 w
+10 R f
+(The)1150 3696 w
+10 I f
+(First)1330 3696 w
+10 R f
+(command makes the first message be the current message.)8 2331 1 1550 3696 t
+10 B f
+(L)900 3864 w
+10 R f
+(The)1150 3864 w
+10 I f
+(Last)1330 3864 w
+10 R f
+(command makes the last message be the current message.)8 2309 1 1528 3864 t
+10 B f
+(c)900 4032 w
+10 R f
+(The)1150 4032 w
+10 I f
+(change)1330 4032 w
+10 R f
+(command is used to change to a new mail file.)9 1853 1 1643 4032 t
+10 B f
+(l)900 4200 w
+10 R f
+(The)1150 4200 w
+10 I f
+(list)1330 4200 w
+10 R f
+(command is used to list the names of all existing mail files.)11 2372 1 1478 4200 t
+10 B f
+(d)900 4368 w
+10 R f
+(The)1150 4368 w
+10 I f
+(delete)1342 4368 w
+10 R f
+( the)1 160( will actually be deleted when)5 1255( It)1 123(command marks the current message for deletion.)6 2065 4 1617 4368 t
+( option controls)2 640( An)1 178( the mail reader program.)4 1035(user changes to another mailbox or when the user exit)9 2217 4 1150 4488 t
+(whether the user is prompted for confirmation before messages are deleted.)10 3006 1 1150 4608 t
+10 B f
+(u)900 4776 w
+10 R f
+(The)1150 4776 w
+10 I f
+(undelete)1330 4776 w
+10 R f
+(command removes the deletion mark from a message.)7 2157 1 1693 4776 t
+10 B f
+(m)900 4944 w
+10 R f
+(The)1150 4944 w
+10 I f
+(move)1338 4944 w
+10 R f
+( prompts the user for the name of the)8 1539( It)1 119(command moves a message to another mail file.)7 1981 3 1581 4944 t
+( no mail file is given,)5 860( the file is a new one, the user must confirm the command. If)13 2471( If)1 119(file to move to.)3 620 4 1150 5064 t
+(the message is moved to the mailbox)6 1507 1 1150 5184 t
+10 B f
+(old)2688 5184 w
+10 R f
+( the message is successfully moved, the message in the)9 2251(. If)1 147 2 2822 5184 t
+( can still be undeleted by the user if desired before leaving)11 2364( It)1 114( is marked for deletion.)4 941(current mail file)2 651 4 1150 5304 t
+(the current mailbox and before leaving the mailer program.)8 2364 1 1150 5424 t
+10 B f
+(r)900 5592 w
+10 R f
+(The)1150 5592 w
+10 I f
+(reply)1337 5592 w
+10 R f
+( the sender of)3 564( message to)2 480( A)1 129(command is used to generate a reply to the current message.)10 2473 4 1574 5592 t
+(the current message is generated, and)5 1490 1 1150 5712 t
+10 I f
+(smail)2665 5712 w
+10 R f
+(\(PCS\) is invoked to send the mail.)6 1370 1 2907 5712 t
+10 B f
+(R)900 5880 w
+10 R f
+(The)1150 5880 w
+10 I f
+(Reply)1335 5880 w
+10 R f
+( message to the sender of)5 1036( A)1 128(command is used to generate a reply to the current message.)10 2463 3 1593 5880 t
+(the current message, and to every one of its recipients is generated, and)12 2879 1 1150 6000 t
+10 I f
+(smail)4056 6000 w
+10 R f
+( The)1 207(\(PCS\) is invoked.)2 713 2 4300 6000 t
+(command is refered to as a)5 1072 1 1150 6120 t
+10 I f
+(conference)2247 6120 w
+10 R f
+(reply.)2709 6120 w
+10 B f
+(f)900 6288 w
+10 R f
+(The)1150 6288 w
+10 I f
+(forward)1331 6288 w
+10 R f
+( to someone else. The)4 876(command is used to forward the current message)7 1961 2 1680 6288 t
+10 I f
+(smail)4544 6288 w
+10 R f
+(program is)1 432 1 4788 6288 t
+(invoked, and then the current message is appended before the mail is actually sent.)13 3302 1 1150 6408 t
+10 B f
+(e)900 6576 w
+10 R f
+(The)1150 6576 w
+10 I f
+(editforward)1346 6576 w
+10 R f
+( command except that the forwarded message can be)8 2241(is the same as the forward)5 1119 2 1860 6576 t
+(edited to add the forwarder's own comments.)6 1810 1 1150 6696 t
+10 B f
+(s)900 6864 w
+10 R f
+(The)1150 6864 w
+10 I f
+(send)1330 6864 w
+10 R f
+(command is used to invoke)4 1094 1 1538 6864 t
+10 B f
+(smail)2657 6864 w
+10 R f
+(to send a message.)3 743 1 2910 6864 t
+10 B f
+(a)900 7032 w
+10 R f
+(The)1150 7032 w
+10 I f
+(append)1330 7032 w
+10 R f
+(command is used to append the current message to a file.)10 2282 1 1649 7032 t
+( 2)1 75( Page)1 1931( Commands)1 481( User)1 1458(February 12, 2018)2 735 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Page: 3 3
+DpostDict begin
+/saveobj save def
+mark
+3 pagesetup
+9 B f
+( \( 1 \))3 126( VMAIL)1 1863( 2002\25501\25528 \))2 464( \()1 68( PCS)1 1723(VMAIL \( 1 \))3 436 6 540 480 t
+10 B f
+(w)900 960 w
+10 R f
+(The)1150 960 w
+10 I f
+(write)1331 960 w
+10 R f
+( message replaces the previous)4 1238( The)1 207( to a file.)3 361(command is used to write the current message)7 1851 4 1563 960 t
+(contents of the file, whereas in the)6 1438 1 1150 1080 t
+10 I f
+(append)2624 1080 w
+10 R f
+( is added after the previous con\255)6 1340(command the message)2 926 2 2954 1080 t
+(tents.)1150 1200 w
+10 S f
+(>)900 1368 w
+10 R f
+(This is the same as the)5 902 1 1150 1368 t
+10 I f
+(write)2077 1368 w
+10 R f
+(commands described above.)2 1128 1 2308 1368 t
+10 S f
+(\357)900 1536 w
+10 R f
+(The)1150 1536 w
+10 S f
+(\357)1334 1536 w
+10 I f
+(\(pipe\))1412 1536 w
+10 R f
+( given command will)3 862( The)1 210( a command.)2 523(command is used to pipe the current message to)8 1946 4 1679 1536 t
+( nice program to print)4 887( A)1 126( the current message piped in as the standard input.)9 2077(be given to a shell, with)5 980 4 1150 1656 t
+(mail messages is either)3 930 1 1150 1776 t
+10 CW f
+(mailPR)2107 1776 w
+10 R f
+( of these programs produces a different "nice")7 1856( Each)1 252( .)1 53(or prt\255pcsmail)1 565 4 2494 1776 t
+( the)1 154( See)1 201(printout of the current message.)4 1295 3 1150 1896 t
+10 CW f
+(man)2832 1896 w
+10 R f
+( for further information \(or)4 1099(pages for these commands)3 1077 2 3044 1896 t
+( popular programs for printing are)5 1381( Other)1 281(just try them out\).)3 726 3 1150 2016 t
+10 CB f
+(prt)3567 2016 w
+10 R f
+(,)3747 2016 w
+10 CB f
+(lp)3801 2016 w
+10 R f
+(, or)1 137 1 3921 2016 t
+10 CB f
+(lpr)4087 2016 w
+10 R f
+(, but these will not pro\255)5 953 1 4267 2016 t
+(duce a fancy formatted printout like the above programs.)8 2270 1 1150 2136 t
+10 B f
+(?)900 2304 w
+10 R f
+(The)1150 2304 w
+10 I f
+(? \(help\))1 318 1 1335 2304 t
+10 R f
+( user may page through)4 961( The)1 211( request a summary of the commands.)6 1553(command is used to)3 812 4 1683 2304 t
+(the help summary by typing successive carriage returns.)7 2240 1 1150 2424 t
+10 B f
+(h)900 2592 w
+10 R f
+(The)1150 2592 w
+10 I f
+(help)1332 2592 w
+10 R f
+( for the command char\255)4 948(command is used to request help on a specific command. It prompts)11 2741 2 1531 2592 t
+(acter, and displays a short help message.)6 1619 1 1150 2712 t
+9 B f
+(Managing Mailboxes)1 808 1 690 2880 t
+10 R f
+( the)1 156( However,)1 449(Messages in mailboxes are usually ordered in FIFO \(first\255in first\255out\) order.)10 3121 3 900 3000 t
+10 B f
+(new)4685 3000 w
+10 R f
+(mailbox)4892 3000 w
+( expressions \(one per line\) in the file)7 1475(may be ordered by giving a sequence of logical)8 1914 2 900 3120 t
+10 CW f
+(.priority)4316 3120 w
+10 R f
+(in direc\255)1 337 1 4883 3120 t
+(tory)900 3240 w
+10 CW f
+(${HOME}/mail)1102 3240 w
+10 R f
+( by non\255matching)2 739( matching are then sorted in priority order followed)8 2180(. Messages)1 479 3 1822 3240 t
+( order. Alternatively, new messages may be sorted in LIFO \(last in first out; reverse chro\255)15 3594(messages in FIFO)2 726 2 900 3360 t
+( \(see below\); this may not be combined with priority sort\255)10 2329(nological\) order by specifying the option "nofifo")6 1991 2 900 3480 t
+( option "sort)2 497(ing. The)1 358 2 900 3600 t
+10 S f
+(_)1755 3600 w
+10 R f
+(all" causes mailboxes other than the new one to also be priority sorted.)12 2823 1 1805 3600 t
+( of header:value pairs such as)5 1257(Logical expressions are composed)3 1417 2 900 3768 t
+10 CW f
+(FROM:schatz)3650 3768 w
+10 R f
+(or)4351 3768 w
+10 CW f
+(SUBJECT:mail)4475 3768 w
+10 R f
+(.)5195 3768 w
+( message, namely:)2 767(The valid headers are those from a normal sendmail)8 2209 2 900 3888 t
+10 CW f
+(FROM)3942 3888 w
+10 R f
+(,)4182 3888 w
+10 CW f
+(TO)4248 3888 w
+10 R f
+(,)4368 3888 w
+10 CW f
+(SUBJECT)4434 3888 w
+10 R f
+(,)4854 3888 w
+10 CW f
+(DATE)4955 3888 w
+10 R f
+(,)5195 3888 w
+10 CW f
+(KEYWORDS)900 4008 w
+10 R f
+( pairs may be composed with the operators and \(&\) and or \()12 2384(. The)1 230 2 1380 4008 t
+10 S f
+(\357)3994 4008 w
+10 R f
+(\).)4043 4008 w
+9 B f
+(Program Options)1 673 1 690 4176 t
+10 R f
+(Profile options may be set or updated by the PCS profiler, because)11 2658 1 900 4296 t
+10 I f
+(vmail)3583 4296 w
+10 R f
+( as)1 109(uses the same options)3 869 2 3830 4296 t
+10 I f
+(readmail)4834 4296 w
+10 R f
+(.)5195 4296 w
+(The options that are effective are:)5 1343 1 900 4416 t
+(scan)900 4656 w
+10 S f
+(_)1077 4656 w
+10 R f
+( long \(80 columns\) scanline rather than short \(50 columns\))9 2344(long use)1 656 2 1127 4656 t
+( messages in first\255in first\255out sequence)5 1539(fifo order)1 960 2 900 4776 t
+(sort)900 4896 w
+10 S f
+(_)1050 4896 w
+10 R f
+( sort messages in every mailbox)5 1279(all priority)1 850 2 1100 4896 t
+( confirmation before deleting messages at exit)6 1841(confirm require)1 1032 2 900 5016 t
+(The defaults set by the PCS)5 1108 1 900 5184 t
+10 I f
+(profiler)2033 5184 w
+10 R f
+(are:)2364 5184 w
+10 CW f
+(scan_long)2563 5184 w
+10 R f
+(,)3103 5184 w
+10 CW f
+(fifo)3153 5184 w
+10 R f
+(,)3393 5184 w
+10 CW f
+(confirm)3443 5184 w
+10 R f
+(.)3863 5184 w
+9 B f
+(ENVIRONMENT VARIABLES)1 1258 1 540 5472 t
+10 B f
+(PCS)900 5592 w
+10 R f
+( it is left unset \(not untypical\) an)7 1316( If)1 118( root of the system PCS directory tree.)7 1546(This should be set to the)5 980 4 1260 5592 t
+(internal default, which is usually correct, is used instead.)8 2266 1 1260 5712 t
+10 B f
+(MAIL)900 5880 w
+10 R f
+( the)1 151(This environment variable is set to the user's spool area mailbox where new mail arriving into)15 3809 2 1260 5880 t
+( a default is used which is nor\255)7 1251( this variable is not set, then)6 1149( If)1 121(computer system is initially placed.)4 1439 4 1260 6000 t
+(mally either)1 496 1 1260 6120 t
+10 CW f
+(/usr/mail/userid)1797 6120 w
+10 R f
+(or)2799 6120 w
+10 CW f
+(/var/spool/mail/userid)2924 6120 w
+10 R f
+( are the default)3 646(. These)1 330 2 4244 6120 t
+( BSD based UNIX systems respec\255)5 1440(locations for new mail on AT&T System V based UNIX and)10 2520 2 1260 6240 t
+(tively.)1260 6360 w
+10 B f
+(folder)900 6528 w
+10 R f
+( name of where the user's mailbox)6 1422(This environment variable, when set, contains a directory path)8 2538 2 1260 6528 t
+( the path)2 350( If)1 119( the path begins with a slash character then the path is used directly.)13 2751( If)1 120(files are stored.)2 620 5 1260 6648 t
+( to the given)3 533(does not begin with a slash character then he user's HOME directory is prepended)13 3427 2 1260 6768 t
+( variable is not set \(typical\), then it defaults to)9 1846( this)1 172(path. If)1 315 3 1260 6888 t
+10 CW f
+(mail)3619 6888 w
+10 R f
+(, which would be the folder direc\255)6 1361 1 3859 6888 t
+(tory in the user's HOME directory tree.)6 1577 1 1260 7008 t
+9 B f
+(FILES)540 7176 w
+10 R f
+( 12, 2018)2 375( February)1 1631( Commands)1 481( User)1 1924(Page 3)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 3 3
+%%Page: 4 4
+DpostDict begin
+/saveobj save def
+mark
+4 pagesetup
+9 B f
+( \( 1 \))3 126( VMAIL)1 1863( 2002\25501\25528 \))2 464( \()1 68( PCS)1 1723(VMAIL \( 1 \))3 436 6 540 480 t
+10 CW f
+(${PCS}/bin/vmail)900 960 w
+10 R f
+(executable program)1 789 1 2400 960 t
+10 CW f
+(${PCS}/lib/vmail/rhelp)900 1080 w
+10 R f
+(the help messages)2 721 1 2400 1080 t
+10 CW f
+(${HOME}/mail)900 1200 w
+10 R f
+(default directory containing mailbox files)4 1659 1 2400 1200 t
+10 CW f
+(${HOME}/mail/.priority)900 1320 w
+10 R f
+(optional new box presorting)3 1124 1 2400 1320 t
+10 CW f
+(/usr/mail/${USERNAME})900 1440 w
+10 R f
+( \(on UNIX System V\) where incom\255)6 1506(a typical system mail spool area)5 1314 2 2400 1440 t
+(ing mail is delivered)3 819 1 2400 1560 t
+10 CW f
+(/var/spool/mail/${USERNAME})900 1680 w
+10 R f
+( mail spool area \(on a BSD UNIX variant like SunOS)10 2172(a typical system)2 648 2 2400 1800 t
+(4.x\) where incoming mail is delivered)5 1520 1 2400 1920 t
+9 B f
+(SEE ALSO)1 438 1 540 2088 t
+10 R f
+(profiler\(PCS\), readmail\(PCS\), smail\(PCS\), prt\255pcsmail\(PCS\), pcsv\(PCS\))4 2928 1 900 2208 t
+9 B f
+(AUTHOR)540 2376 w
+10 R f
+(David A.D. Morano)2 804 1 900 2496 t
+( 4)1 75( Page)1 1931( Commands)1 481( User)1 1458(February 12, 2018)2 735 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 4 4
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 4
+%%DocumentFonts: Courier-Bold Courier Times-Roman Times-Bold Times-Italic Times-Roman Symbol

@@ -1,14 +1,12 @@
 OPENPORT
 
-This is a helper program that is used to open network ports for other
+This is a helper program that is used to open privileged network ports for other
 requesting programs.
 
 Synopsis:
-
 $ openport [{ -b | -query [<query(s)>] | -a | <user(s)> }] [-af <afile>] [-V}
 
-where:
-
+Arguments:
 -b		bind mode (input to the program is on STDIN)
 -query		query mode
 <query(s)>	query(s) in the form: [[<uid>:]<proto>:]<port>

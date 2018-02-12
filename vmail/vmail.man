@@ -1,8 +1,11 @@
 .\"_
-.TH VMAIL 1 2002-28-94 PCS
+.TH VMAIL 1 2002-01-28 PCS
 .SH NAME
 vmail \- read and manage mail
 .SH SYNOPSIS
+.\"_
+.so tmac.att
+.\"_
 vmail [<mailbox>] [-V]
 .SH DESCRIPTION
 .I vmail
@@ -24,7 +27,7 @@ with an argument will start it up in the
 specified mailbox.
 .P
 .I vmail
-divides the screen into two windows : a message \fBsummary\fP area,
+divides the screen into two windows: a message \fBsummary\fP area,
 and a message \fBviewing\fP area.  The first area displays one-line
 summaries of mail messages in the current mailbox,
 and the second screen area displays mail messages, help, and mailbox names.
@@ -277,8 +280,8 @@ It prompts for the command character, and displays a short help message.
 .\"_
 .SS "Managing Mailboxes"
 Messages in mailboxes are usually ordered in FIFO (first-in first-out) order.
-However, the \fBnew\fP mailbox may be ordered by giving a sequence of logical
-expressions (one per line) in the file \f(CW.priority\fP in 
+However, the  \fBnew\fP mailbox may be ordered by giving a sequence of 
+logical expressions (one per line) in the file \f(CW.priority\fP in 
 directory \f(CW${HOME}/mail\fP.
 Messages matching are then sorted in priority order followed by non-matching
 messages in FIFO order.  
@@ -384,4 +387,8 @@ area (on a BSD UNIX variant like SunOS 4.x) where incoming mail is delivered
 .\"_
 .SH "SEE ALSO"
 profiler(PCS), readmail(PCS), smail(PCS), prt-pcsmail(PCS), pcsv(PCS)
+.\"_
+.SH AUTHOR
+David A.D. Morano
+.\"_
 .\"_

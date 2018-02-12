@@ -20,4 +20,3 @@ should be made from this to 'udp.so'.
 Non-shared objects can be used as the final module also, except that they do
 not get shared on being loaded as shared objects do.
 
-

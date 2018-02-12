@@ -3,6 +3,9 @@
 .SH NAME
 prcat \- filter files formatted for a page into text with form-feeds
 .SH SYNOPSIS
+.\"_
+.so tmac.att
+.\"_
 .B prcat
 .OP -D "" ] [
 .OP -V "" ] [
@@ -53,7 +56,7 @@ additional lines are to be added to the top of the page.
 .\"_
 .SS Execution
 .P
-A common example of how to use this program is :
+A common example of how to use this program is:
 .EX
 toolman cmd | prcat | textset | troff -Tpost > cmd.troff
 dpost -n2 < cmd.troff | prt -l post -d pr1
@@ -63,7 +66,7 @@ of error diagnostic may be given.
 .PP
 To sucessfully process files other than those that are output from the
 EXPTOOLS \fBtoolman\fP program, the user should perform the following
-steps :
+steps:
 .RS 5
 .IP \(rh 5
 Examine the source file to be processed (using 'vi' editor -- whatever)
@@ -106,7 +109,7 @@ output.
 .PP
 .IP \(rh 5
 To print out an \fBEXPTOOLS\fP manual page to a Postscript printer
-with one logical pages printed to single side of paper, execute :
+with one logical pages printed to single side of paper, execute:
 .EX
 toolman cmd | prcat | prt
 .EE
@@ -114,7 +117,7 @@ toolman cmd | prcat | prt
 .PP
 .IP \(rh 5
 To print out an \fBEXPTOOLS\fP manual page to a Postscript printer
-with two logical pages printed onto a single page, execute :
+with two logical pages printed onto a single page, execute:
 .EX
 toolman cmd | prcat | textset | troff -Tpost > cmd.troff
 dpost -n2 < cmd.troff | prt -l post -d pr1
@@ -125,4 +128,8 @@ dpost -n2 < cmd.troff | prt -l post -d pr1
 .SH SEE ALSO
 .PP
 toolman(1), prt(1)
+.\"_
+.SH AUTHOR
+David A.D. Morano
+.\"_
 .\"_

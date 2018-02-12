@@ -1,0 +1,1908 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+/build_rh {
+pop
+gsave
+size .0022 mul dup scale
+currentpoint translate
+
+15 66 moveto
+15 86 lineto
+16 131 lineto
+17 146 lineto
+18 158 lineto
+19 167 lineto
+21 181 lineto
+24 190 lineto
+34 193 lineto
+49 189 lineto
+58 182 lineto
+60 177 lineto
+60 166 lineto
+59 156 lineto
+58 143 lineto
+57 130 lineto
+56 117 lineto
+55 102 lineto
+54 42 lineto
+53 39 lineto
+49 35 lineto
+34 34 lineto
+19 39 lineto
+16 47 lineto
+15 66 lineto
+stroke
+
+65 60 moveto
+65 111 lineto
+66 127 lineto
+67 139 lineto
+69 153 lineto
+72 163 lineto
+83 171 lineto
+98 177 lineto
+113 182 lineto
+128 187 lineto
+143 190 lineto
+158 194 lineto
+173 196 lineto
+188 199 lineto
+203 201 lineto
+218 203 lineto
+233 205 lineto
+248 205 lineto
+263 206 lineto
+278 206 lineto
+293 206 lineto
+308 206 lineto
+323 206 lineto
+338 205 lineto
+353 203 lineto
+368 202 lineto
+383 200 lineto
+394 197 lineto
+389 190 lineto
+389 180 lineto
+391 176 lineto
+391 173 lineto
+380 173 lineto
+365 173 lineto
+350 174 lineto
+335 175 lineto
+320 176 lineto
+305 176 lineto
+290 176 lineto
+275 177 lineto
+260 177 lineto
+245 177 lineto
+240 173 lineto
+240 170 lineto
+245 165 lineto
+260 164 lineto
+275 164 lineto
+290 164 lineto
+305 163 lineto
+320 160 lineto
+327 155 lineto
+330 149 lineto
+330 134 lineto
+328 129 lineto
+323 124 lineto
+309 121 lineto
+294 121 lineto
+279 121 lineto
+264 121 lineto
+249 121 lineto
+234 121 lineto
+228 118 lineto
+228 112 lineto
+234 109 lineto
+249 109 lineto
+264 109 lineto
+279 108 lineto
+294 108 lineto
+306 104 lineto
+311 97 lineto
+312 91 lineto
+312 88 lineto
+311 82 lineto
+305 74 lineto
+290 72 lineto
+275 72 lineto
+260 72 lineto
+245 73 lineto
+230 73 lineto
+215 73 lineto
+205 70 lineto
+205 63 lineto
+217 60 lineto
+232 60 lineto
+247 60 lineto
+262 60 lineto
+277 57 lineto
+283 52 lineto
+285 44 lineto
+285 41 lineto
+284 35 lineto
+280 30 lineto
+268 26 lineto
+253 25 lineto
+238 26 lineto
+223 28 lineto
+208 31 lineto
+193 33 lineto
+178 34 lineto
+163 33 lineto
+148 31 lineto
+133 28 lineto
+118 27 lineto
+103 28 lineto
+88 34 lineto
+73 43 lineto
+67 52 lineto
+65 60 lineto
+stroke
+
+396 180 moveto
+396 188 lineto
+399 194 lineto
+410 196 lineto
+416 190 lineto
+416 180 lineto
+415 177 lineto
+411 173 lineto
+400 173 lineto
+396 180 lineto
+stroke
+
+grestore
+} def
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1 \))3 126( RUNADVICE)1 1946( v0 \))2 134( \()1 68( Starbase)1 1730(RUNADVICE \( 1 \))3 676 6 540 480 t
+(NAME)540 960 w
+10 R f
+(runadvice)900 1080 w
+10 S1 f
+(\261)1318 1080 w
+10 R f
+(run SysCAD ADVICE program with varying parameters)6 2274 1 1408 1080 t
+9 B f
+(SYNOPSIS)540 1248 w
+10 B f
+(runadvice)900 1368 w
+10 R f
+([)1353 1368 w
+10 I f
+(runfile)1411 1368 w
+10 R f
+(] [)1 116 1 1703 1368 t
+10 CB f
+(\255o)1844 1368 w
+10 I f
+(outfile)2022 1368 w
+10 R f
+(] [)1 116 1 2319 1368 t
+10 CB f
+(\255p[aram])2460 1368 w
+10 I f
+(param=p1,p2,...)2998 1368 w
+10 R f
+(] [)1 91 1 3693 1368 t
+10 B f
+(\255V)3809 1368 w
+10 R f
+(] [)1 91 1 3939 1368 t
+10 B f
+(\255D)4055 1368 w
+10 S f
+(\357)4185 1368 w
+10 B f
+(\255D=)4259 1368 w
+10 I f
+(debuglevel)4421 1368 w
+10 R f
+(] [)1 91 1 4878 1368 t
+10 B f
+(\255?)4994 1368 w
+10 R f
+(])5102 1368 w
+([)925 1488 w
+10 CB f
+(\255CONFIG)983 1488 w
+10 I f
+(configuration)1461 1488 w
+10 S f
+(_)2006 1488 w
+10 I f
+(file)2056 1488 w
+10 R f
+(] [)1 116 1 2225 1488 t
+10 CB f
+(\255TMPDIR)2366 1488 w
+10 I f
+(temporary)2844 1488 w
+10 S f
+(_)3260 1488 w
+10 I f
+(directory)3310 1488 w
+10 R f
+(] [)1 116 1 3717 1488 t
+10 CB f
+(\255ADVICE)3858 1488 w
+10 I f
+(advice)4336 1488 w
+10 S f
+(_)4596 1488 w
+10 I f
+(program)4646 1488 w
+10 R f
+(])5037 1488 w
+([)925 1608 w
+10 CB f
+(\255proc)983 1608 w
+10 I f
+(process,...)1367 1608 w
+10 R f
+(] [)1 142 1 1813 1608 t
+10 CB f
+(\255timestep)1980 1608 w
+10 I f
+(step,...)2604 1608 w
+10 R f
+(] [)1 143 1 2906 1608 t
+10 CB f
+(\255timelen)3074 1608 w
+10 I f
+(length,...)3614 1608 w
+10 R f
+(] [)1 143 1 4005 1608 t
+10 CB f
+(\255temp)4173 1608 w
+10 I f
+(temperature,...)4558 1608 w
+10 R f
+(])5187 1608 w
+([)925 1728 w
+10 CB f
+(\255pow)983 1728 w
+10 I f
+(voltage,...)1281 1728 w
+10 R f
+(])1716 1728 w
+9 B f
+(DESCRIPTION)540 1896 w
+10 R f
+( most)1 226( The)1 211( circuit with varying parameters of the run.)7 1755(This program is used to perform ADVICE runs on a)9 2128 4 900 2016 t
+(common aspects of an ADVICE run that are varied are usually the technology)12 3337 1 900 2136 t
+10 B f
+(process)4280 2136 w
+10 R f
+(,)4596 2136 w
+10 B f
+(temperature)4664 2136 w
+10 R f
+(,)5195 2136 w
+10 B f
+(timestep)900 2256 w
+10 R f
+(,)1260 2256 w
+10 B f
+(timelength)1314 2256 w
+10 R f
+(, and)1 198 1 1769 2256 t
+10 B f
+(power supply voltage)2 914 1 1996 2256 t
+10 R f
+( can actually allow for the varying of any)8 1686( program)1 367(. This)1 257 3 2910 2256 t
+( program expects a number of pseudo standardized files to)9 2358( This)1 231( run.)1 186(user created parameter in an ADVICE)5 1545 4 900 2376 t
+( files that are)3 554( The)1 217( the current directory which describe the circuit to be simulated using ADVICE.)12 3341(be in)1 208 4 900 2496 t
+(expected to be created by the user are:)7 1525 1 900 2616 t
+10 CW f
+(run.adv)1260 2784 w
+(params.adv)1260 2952 w
+10 R f
+(\(optional\))1885 2952 w
+10 CW f
+(control.adv)1260 3120 w
+(main.adv)1260 3288 w
+10 R f
+( simulated along with any necessary subcir\255)6 1807(These files contain information that describe the circuit to be)9 2513 2 900 3468 t
+( described)1 414( files, along with others, are)5 1152( These)1 296(cuits that ADVICE will need to simulate the "main" circuit.)9 2458 4 900 3588 t
+(further in a section below.)4 1045 1 900 3708 t
+9 B f
+(Argument Key Options)2 931 1 690 3876 t
+10 R f
+(The following keyed options are available for specifying execution behavior of the program.)12 3695 1 900 3996 t
+10 B f
+(\255?)1150 4164 w
+10 R f
+(The)1900 4164 w
+10 B f
+(\255?)2083 4164 w
+10 R f
+( program to terminate with a message)6 1527(is a standard option which causes the)6 1499 2 2194 4164 t
+( is useful)2 371( This)1 233( error giving a brief explanation of the program.)8 1955(printed to standard)2 761 4 1900 4284 t
+( program's arguments and does not)5 1461(when the user forgets the exact syntax of the)8 1859 2 1900 4404 t
+(want to consult the manual page.)5 1315 1 1900 4524 t
+10 B f
+(\255V)1150 4692 w
+10 R f
+(The)1900 4692 w
+10 B f
+(\255V)2084 4692 w
+10 R f
+( out to standard error the version of the)8 1598(option causes the program to write)5 1404 2 2218 4692 t
+( program will then terminate.)4 1168(program. The)1 568 2 1900 4812 t
+10 B f
+(\255D)1150 4980 w
+10 R f
+(The)1900 4980 w
+10 B f
+(\255D)2083 4980 w
+10 R f
+( information to the standard)4 1126(option enables the printing of some debugging)6 1878 2 2216 4980 t
+( A)1 143( optional option can \(optionally\) be followed by a debug level.)10 2710(error. This)1 467 3 1900 5100 t
+( the debuglevel is given on the command in the form)10 2649(specification of)1 671 2 1900 5220 t
+10 CB f
+(\255D=)1900 5340 w
+10 I f
+(debuglevel)2080 5340 w
+10 R f
+( is equivalent to)3 678( this option without the debug level)6 1507(. Specifying)1 523 3 2512 5340 t
+( essentially use\255)2 642( option is)2 375( This)1 229(specifying debugging with a debug level of one \(1\).)8 2074 4 1900 5460 t
+(less except for the program developer.)5 1529 1 1900 5580 t
+10 B f
+(\255o)1150 5748 w
+10 I f
+(output)1258 5748 w
+10 S f
+(_)1514 5748 w
+10 I f
+(file)1564 5748 w
+10 R f
+(The)1900 5748 w
+10 B f
+(\255o)2089 5748 w
+10 R f
+( file to receive the)4 760(key letter option is used to specify an ADVICE output)9 2254 2 2206 5748 t
+( output file only is tracked correctly)6 1443( The)1 208(results of all ADVICE execution outputs.)5 1669 3 1900 5868 t
+(when the user uses the)4 898 1 1900 5988 t
+10 CB f
+(OUTFILE)2823 5988 w
+10 R f
+(variable in the ADVICE run file.)5 1314 1 3268 5988 t
+10 B f
+(\255param)1150 6156 w
+10 I f
+(parameter)1491 6156 w
+10 B f
+(=)1907 6156 w
+10 I f
+(value)1964 6156 w
+10 S f
+(_)2180 6156 w
+10 I f
+(list)2230 6156 w
+10 R f
+( \(introduce\) a variable, denoted by)5 1379(This option allows the user to specify)6 1499 2 1900 6276 t
+10 I f
+(parameter)4804 6276 w
+10 R f
+( along)1 261( values will be used,)4 873( These)1 303(above, along with a list of associated values.)7 1883 4 1900 6396 t
+( ADVICE runs to cover all combi\255)6 1393(with all other parameter values to create enough)7 1927 2 1900 6516 t
+( The)1 207(nations of the values.)3 855 2 1900 6636 t
+10 I f
+(value)2988 6636 w
+10 S f
+(_)3204 6636 w
+10 I f
+(list)3254 6636 w
+10 R f
+(above takes the form of comma separated list)7 1817 1 3403 6636 t
+(of value items.)2 591 1 1900 6756 t
+10 B f
+(\255CONFIG)1150 6924 w
+10 I f
+(configuration)1608 6924 w
+10 S f
+(_)2153 6924 w
+10 I f
+(file)2203 6924 w
+10 R f
+( file can contain)3 673( This)1 239( specify a configuration file.)4 1172(This option allows the user to)5 1236 4 1900 7044 t
+( a)1 87( See)1 212( information.)1 540(defaults for substitutable parameters as well as some other)8 2481 4 1900 7164 t
+(sample configuration file for more information about what can be specified in it.)12 3214 1 1900 7284 t
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 1 \))3 126( RUNADVICE)1 1946( v0 \))2 134( \()1 68( Starbase)1 1730(RUNADVICE \( 1 \))3 676 6 540 480 t
+10 B f
+(\255TMPDIR)1150 960 w
+10 I f
+(temporary)1613 960 w
+10 S f
+(_)2029 960 w
+10 I f
+(directory)2079 960 w
+10 R f
+( allows the user to specify an alternate temporary directory for use by)12 2855(This option)1 465 2 1900 1080 t
+10 I f
+(runadvice)1900 1200 w
+10 R f
+(when creating temporary files.)3 1219 1 2324 1200 t
+10 B f
+(\255ADVICE)1150 1368 w
+10 I f
+(ADVICE)1602 1368 w
+10 S f
+(_)1957 1368 w
+10 I f
+(program)2007 1368 w
+10 R f
+(This option allows the user to specify an alternate ADVICE program to run instead)13 3320 1 1900 1488 t
+( default \(')2 581(of the)1 325 2 1900 1608 t
+10 CB f
+(runadvice_advice)2806 1608 w
+10 R f
+('\) or that specified in the)5 1454 1 3766 1608 t
+10 I f
+(RUNADVICE)1900 1728 w
+10 S f
+(_)2455 1728 w
+10 I f
+(ADVICE)2505 1728 w
+10 R f
+(environment variable.)1 876 1 2885 1728 t
+( already described, a small set of options are recognized by the program for the)14 3282(In addition to the options)4 1038 2 900 1896 t
+( following argument option keywords are recognized:)6 2146( The)1 205(added convenience of the user.)4 1232 3 900 2016 t
+10 B f
+(\255proc)1150 2184 w
+10 I f
+(process)1402 2184 w
+10 S f
+(_)1707 2184 w
+10 I f
+(value)1757 2184 w
+10 S f
+(_)1973 2184 w
+10 I f
+(list)2023 2184 w
+10 R f
+(This is the same as)4 783 1 2150 2304 t
+10 CW f
+(\255param proc=)1 727 1 2965 2304 t
+10 I f
+(process)3692 2304 w
+10 S f
+(_)3997 2304 w
+10 I f
+(value)4047 2304 w
+10 S f
+(_)4263 2304 w
+10 I f
+(list)4313 2304 w
+10 R f
+( given on)2 388(had been)1 364 2 4468 2304 t
+(the command line.)2 741 1 2150 2424 t
+10 B f
+(\255timestep)1150 2592 w
+10 I f
+(timestep)1568 2592 w
+10 S f
+(_)1901 2592 w
+10 I f
+(value)1951 2592 w
+10 S f
+(_)2167 2592 w
+10 I f
+(list)2217 2592 w
+10 R f
+(This is the same as)4 843 1 2150 2712 t
+10 CW f
+(\255param timestep=)1 982 1 3040 2712 t
+10 I f
+(timestep)4022 2712 w
+10 S f
+(_)4355 2712 w
+10 I f
+(value)4405 2712 w
+10 S f
+(_)4621 2712 w
+10 I f
+(list)4671 2712 w
+10 R f
+(had been)1 379 1 4841 2712 t
+(given on the command line.)4 1113 1 2150 2832 t
+10 B f
+(\255timelen)1150 3000 w
+10 I f
+(timelen)1524 3000 w
+10 S f
+(_)1818 3000 w
+10 I f
+(value)1868 3000 w
+10 S f
+(_)2084 3000 w
+10 I f
+(list)2134 3000 w
+10 R f
+(This is the same as)4 767 1 2150 3120 t
+10 CW f
+(\255param timelen=)1 903 1 2945 3120 t
+10 I f
+(timelen)3848 3120 w
+10 S f
+(_)4142 3120 w
+10 I f
+(value)4192 3120 w
+10 S f
+(_)4408 3120 w
+10 I f
+(list)4458 3120 w
+10 R f
+( given)1 251(had been)1 360 2 4609 3120 t
+(on the command line.)3 866 1 2150 3240 t
+10 B f
+(\255temp)1150 3408 w
+10 I f
+(temperature)1424 3408 w
+10 S f
+(_)1912 3408 w
+10 I f
+(value)1962 3408 w
+10 S f
+(_)2178 3408 w
+10 I f
+(list)2228 3408 w
+10 R f
+(This is the same as if)5 936 1 2150 3528 t
+10 CW f
+(\255param temp=)1 740 1 3131 3528 t
+10 I f
+(temperature)3871 3528 w
+10 S f
+(_)4359 3528 w
+10 I f
+(value)4409 3528 w
+10 S f
+(_)4625 3528 w
+10 I f
+(list)4675 3528 w
+10 R f
+(had been)1 377 1 4843 3528 t
+(given on the command line.)4 1113 1 2150 3648 t
+10 B f
+(\255pow)1150 3816 w
+10 I f
+(power)1386 3816 w
+10 S f
+(_)1636 3816 w
+10 I f
+(supply)1686 3816 w
+10 S f
+(_)1947 3816 w
+10 I f
+(voltage)1997 3816 w
+10 S f
+(_)2291 3816 w
+10 I f
+(value)2341 3816 w
+10 S f
+(_)2557 3816 w
+10 I f
+(list)2607 3816 w
+10 R f
+( the same as if)4 587(This is)1 273 2 2150 3936 t
+10 CW f
+(\255param pow=)1 664 1 3039 3936 t
+10 I f
+(power)3703 3936 w
+10 S f
+(_)3953 3936 w
+10 I f
+(supply)4003 3936 w
+10 S f
+(_)4264 3936 w
+10 I f
+(voltage)4314 3936 w
+10 S f
+(_)4608 3936 w
+10 I f
+(value)4658 3936 w
+10 S f
+(_)4874 3936 w
+10 I f
+(list)4924 3936 w
+10 R f
+(had)5076 3936 w
+(been given on the command line.)5 1326 1 2150 4056 t
+9 B f
+(ADVICE Circuit Files)2 856 1 540 4224 t
+10 R f
+( files are)2 347( These)1 290(There are a number of files expected by this program to describe the circuit to be simulated.)16 3683 3 900 4344 t
+( by)1 128( of the files \(ADVICE Circuit Files\) discussed below are processed)10 2724( All)1 182(listed below.)1 515 4 900 4464 t
+10 I f
+(runadvice)4477 4464 w
+10 R f
+(for sub\255)1 316 1 4904 4464 t
+(stitutable parameter variables.)2 1200 1 900 4584 t
+9 B f
+(ADVICE Run File)2 741 1 690 4752 t
+10 R f
+(This file, usually named)3 1008 1 900 4872 t
+10 CW f
+(run.adv)1947 4872 w
+10 R f
+( commands to set libraries, read in a circuit file,)9 2040(, contains ADVICE)2 813 2 2367 4872 t
+( is not strictly a circuit file in that no ADVICE circuits)11 2201( file)1 161( This)1 231(specify ADVICE output files, and the like.)6 1727 4 900 4992 t
+( file is what is read by ADVICE on its invocation and)11 2222( This)1 235( file.)1 190(\(as far as I am aware\) are allowed in this)9 1673 4 900 5112 t
+(must contain the proper ADVICE commands appropriate to the user's simulation objective.)11 3662 1 900 5232 t
+(This file is specified as)4 941 1 900 5400 t
+10 I f
+(runfile)1871 5400 w
+10 R f
+( this is omitted from the command line, then stan\255)9 2048( If)1 122( line.)1 206(on the command)2 676 4 2168 5400 t
+( this file is given as a dash \('\255'\) character, standard input is read)13 2577( If)1 119(dard input is read as the run file instead.)8 1624 3 900 5520 t
+( example of this file would have substitutable parameters for anything that the user wants to)15 3775( good)1 231(also. A)1 314 3 900 5640 t
+(be varied by the)3 643 1 900 5760 t
+10 I f
+(runadvice)1569 5760 w
+10 R f
+( list of the standard and popular parameter variables are described in)11 2740(program. A)1 486 2 1994 5760 t
+( file is processed for)4 809( This)1 228(a later section.)2 579 3 900 5880 t
+10 I f
+(runadvice)2541 5880 w
+10 R f
+(variable parameters.)1 808 1 2965 5880 t
+9 B f
+(ADVICE Parameter \()2 871 1 690 6048 t
+9 CW f
+(params.adv)1561 6048 w
+9 B f
+(\) File)1 213 1 2101 6048 t
+10 R f
+( is optional\) usually contains)4 1194( ADVICE parameter file \(which)4 1325( An)1 182(This file contains ADVICE commands.)4 1619 4 900 6168 t
+(ADVICE variables specified as an ADVICE line of the form:)9 2453 1 900 6288 t
+10 CW f
+({ termvolt = 2.1 })4 1080 1 1150 6456 t
+10 R f
+(In order to have the)4 781 1 900 6624 t
+10 I f
+(runadvice)1706 6624 w
+10 R f
+(program vary ADVICE variables, an ADVICE line of the form:)9 2550 1 2130 6624 t
+10 CW f
+({ termvolt = $\(TERMVOLT\) })4 1560 1 1150 6792 t
+10 R f
+( on the use of the)5 720( More)1 273(would be used.)2 616 3 900 6960 t
+10 I f
+(runadvice)2542 6960 w
+10 R f
+( already alluded to, this)4 967( As)1 169(variables is described later.)3 1110 3 2974 6960 t
+(file is processed for)3 784 1 900 7080 t
+10 I f
+(runadvice)1709 7080 w
+10 R f
+(variable parameters.)1 808 1 2133 7080 t
+( 2)1 75( Page)1 1931( Commands)1 481( User)1 1508(February 8, 2018)2 685 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Page: 3 3
+DpostDict begin
+/saveobj save def
+mark
+3 pagesetup
+9 B f
+( \( 1 \))3 126( RUNADVICE)1 1946( v0 \))2 134( \()1 68( Starbase)1 1730(RUNADVICE \( 1 \))3 676 6 540 480 t
+(ADVICE Control File)2 876 1 690 960 t
+10 R f
+( commands, usually contains an include \(realized with the ADVICE)9 2781(This file, made up of ADVICE)5 1267 2 900 1080 t
+10 CB f
+(.use)4980 1080 w
+10 R f
+( includes are usually located in this file also like for)10 2134( Other)1 284(command\) of the "main" ADVICE circuit file.)6 1902 3 900 1200 t
+( which are not included into the ADVICE run in any)10 2187(example the inclusion of other necessary subcircuits)6 2133 2 900 1320 t
+( file is processed for)4 809( This)1 228(other way.)1 421 3 900 1440 t
+10 I f
+(runadvice)2383 1440 w
+10 R f
+(variable parameters.)1 808 1 2807 1440 t
+9 B f
+(ADVICE Main Circuit File)3 1094 1 690 1608 t
+10 R f
+( at least the "main" circuit of an)7 1385( Usually,)1 403( contains the circuit to be simulated proper.)7 1850(This file usually)2 682 4 900 1728 t
+( file but other ADVICE subcircuits can be included with the main circuit.)12 3052(ADVICE run is located in this)5 1268 2 900 1848 t
+( normally included when this file is created with a connectivity generator such as)13 3327(ADVICE subcircuits are)2 993 2 900 1968 t
+( file is processed for)4 809( This)1 228(the one in SysCAD SCHEMA.)4 1242 3 900 2088 t
+10 I f
+(runadvice)3204 2088 w
+10 R f
+(variable parameters.)1 808 1 3628 2088 t
+9 B f
+(ADVICE Output File)2 856 1 540 2256 t
+10 R f
+(An)900 2376 w
+10 I f
+(outfile)1049 2376 w
+10 R f
+(argument following the)2 942 1 1332 2376 t
+10 B f
+(\255o)2301 2376 w
+10 R f
+( letter specifies the file which is to receive the output of all)12 2382(option key)1 427 2 2411 2376 t
+( run outputs are placed into this file so that when read into a reader program like)16 3269( All)1 182(of the ADVICE runs.)3 869 3 900 2496 t
+(ADVPLOT, the individual run outputs appear numbered.)6 2286 1 900 2616 t
+9 B f
+(RUNADVICE Variable Parameters)2 1376 1 540 2784 t
+10 R f
+( Vari\255)1 263( the standard files above, those indicated as such, are processed for parameter substitution.)13 3648(Several of)1 409 3 900 2904 t
+(able parameters can be introduced into the files by including variable references in the form:)14 3691 1 900 3024 t
+10 CW f
+($\()1150 3192 w
+10 I f
+(variable)1270 3192 w
+10 CW f
+(\))1603 3192 w
+10 R f
+(Where)900 3360 w
+10 I f
+(variable)1190 3360 w
+10 R f
+( for and replaced by a combi\255)6 1180( variables are searched)3 904( These)1 288(can be any user created variable.)5 1300 4 1548 3360 t
+( the command line get a corresponding)6 1565(nation of values such that all combinations of the variables given on)11 2755 2 900 3480 t
+( used by the user for)5 857( variable names have special meaning and cannot be)8 2153( Some)1 286(ADVICE simulation run.)2 1024 4 900 3600 t
+( variables with special meanings are:)5 1472( The)1 205(any other purpose.)2 740 3 900 3720 t
+( modified)1 429( variable parameter gets replaced with the name of a)9 2463(CONTROLCKT This)1 1178 3 1150 3888 t
+10 CW f
+(control.adv)2150 4008 w
+10 R f
+(file.)2835 4008 w
+( modified)1 429( variable parameter gets replaced with the name of a)9 2463(MAINCKT This)1 1178 3 1150 4176 t
+10 CW f
+(main.adv)2150 4296 w
+10 R f
+(file.)2655 4296 w
+( modified)1 429( variable parameter gets replaced with the name of a)9 2463(PARAMS This)1 1178 3 1150 4464 t
+10 CW f
+(params.adv)2150 4584 w
+10 R f
+(file.)2775 4584 w
+( a temporary output)3 812( variable parameter gets replaced with the name of)8 2080(OUTFILE This)1 1178 3 1150 4752 t
+( added to the user specified output file or)8 1684(file whose contents are eventually)4 1386 2 2150 4872 t
+(to the default output file.)4 991 1 2150 4992 t
+(In addition to the special)4 1016 1 900 5220 t
+10 I f
+(runadvice)1948 5220 w
+10 R f
+( so far, the following variables are defaulted inter\255)8 2067(variables described)1 774 2 2379 5220 t
+(nally to the)2 450 1 900 5340 t
+10 I f
+(runadvice)1375 5340 w
+10 R f
+(program if the user does not supply them:)7 1668 1 1799 5340 t
+( will hold a string specifying a certain technology processing to)10 2546( variable)1 346(PROC This)1 1178 3 1150 5508 t
+( variable would be used as part of a library)9 1776( This)1 236( in the simulation.)3 747(be used)1 311 4 2150 5628 t
+(specification.)2150 5748 w
+( variable will hold the simulation temperature.)6 1851(TEMP This)1 1178 2 1150 5916 t
+( variable will hold a time step value like as for a transient analysis.)13 2663(TIMESTEP This)1 1178 2 1150 6084 t
+( variable will hold a time duration like as for a transient analysis.)12 2594(TIMELEN This)1 1178 2 1150 6252 t
+( variable will hold a power supply voltage value.)8 1950(POW This)1 1178 2 1150 6420 t
+( In)1 139(Currently, all parameter names given by the user are converted to uppercase before being used further.)15 4181 2 900 6600 t
+( of the ADVICE files processed)5 1307(addition, the user should only put uppercase environment variables inside)9 3013 2 900 6720 t
+(by)900 6840 w
+10 I f
+(runadvice)1025 6840 w
+10 R f
+(.)1424 6840 w
+9 B f
+(EXAMPLES)540 7008 w
+10 S1 f
+()900 7128 w
+10 S1 f
+900 7128 m
+100 build_rh
+1000 7128 m
+10 R f
+( process \(identified as)3 909(To run a circuit with variations on technology)7 1911 2 1150 7128 t
+10 B f
+(an)4007 7128 w
+10 R f
+(,)4113 7128 w
+10 B f
+(al)4175 7128 w
+10 R f
+(, and)1 206 1 4253 7128 t
+10 B f
+(ah)4496 7128 w
+10 R f
+(\) the following)2 618 1 4602 7128 t
+(would be executed:)2 776 1 1150 7248 t
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 3)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 3 3
+%%Page: 4 4
+DpostDict begin
+/saveobj save def
+mark
+4 pagesetup
+9 B f
+( \( 1 \))3 126( RUNADVICE)1 1946( v0 \))2 134( \()1 68( Starbase)1 1730(RUNADVICE \( 1 \))3 676 6 540 480 t
+10 CW f
+(runadvice run.adv \255param proc=al,an,ah)3 2280 1 1400 960 t
+10 R f
+(This will produce three ADVICE runs, one for each technology process specified.)11 3273 1 1150 1128 t
+10 S1 f
+()900 1296 w
+900 1296 m
+100 build_rh
+1000 1296 m
+10 R f
+( technology process \(identified as)4 1346(To run a circuit with variations on)6 1365 2 1150 1296 t
+10 B f
+(an)3887 1296 w
+10 R f
+(,)3993 1296 w
+10 B f
+(al)4044 1296 w
+10 R f
+(, and)1 195 1 4122 1296 t
+10 B f
+(ah)4343 1296 w
+10 R f
+(\) and power supply)3 771 1 4449 1296 t
+(voltage, execute:)1 676 1 1150 1416 t
+10 CW f
+(runadvice run.adv \255param proc=al,an,ah \255param pow=3.0,3.3,3.6)5 3660 1 1400 1584 t
+10 R f
+(This will produce nine ADVICE runs.)5 1526 1 1150 1752 t
+10 S1 f
+()900 1920 w
+900 1920 m
+100 build_rh
+1000 1920 m
+10 R f
+( with variations on technology process \(identified as)7 2124(To run a simulation on a circuit)6 1284 2 1150 1920 t
+10 B f
+(an)4588 1920 w
+10 R f
+(,)4694 1920 w
+10 B f
+(al)4749 1920 w
+10 R f
+(, and)1 199 1 4827 1920 t
+10 B f
+(ah)5056 1920 w
+10 R f
+(\),)5162 1920 w
+(power supply voltage, and temperature, execute:)5 1937 1 1150 2040 t
+10 CW f
+(runadvice run.adv \255param proc=al,an,ah \255param pow=3.0,3.3,3.6 \255param temp=25,85)7 4740 1 1400 2208 t
+10 R f
+(This will produce eighteen ADVICE runs.)5 1692 1 1150 2376 t
+9 B f
+(ENVIRONMENT VARIABLES)1 1243 1 540 2544 t
+10 R f
+(The following environment variables tailor some aspect of the program to the user's preferences.)13 3869 1 900 2664 t
+10 B f
+(TMPDIR)900 2832 w
+10 R f
+(This environment variable will direct the program to create temporary files in the directory)13 3720 1 1500 2832 t
+( that is given on the command line will)8 1569( specification of a temporary directory)5 1542(specified. Any)1 609 3 1500 2952 t
+( given on the command)4 966( this variable is not set, and no directory is)9 1747( If)1 122(override this variable.)2 885 4 1500 3072 t
+(line, the directory)2 707 1 1500 3192 t
+10 CW f
+(/tmp)2232 3192 w
+10 R f
+(will be used for temporary files.)5 1281 1 2497 3192 t
+10 B f
+(RUNADVICE)900 3360 w
+10 S f
+(_)1510 3360 w
+10 B f
+(CONFIG)1560 3360 w
+10 R f
+( a configuration file to be used by the pro\255)9 1764(This environment variable contains the name of)6 1956 2 1500 3480 t
+( configuration file is)3 837(gram for default substitution parameters and some other things. If any)10 2883 2 1500 3600 t
+( in this)2 323(specified on the invocation command, then that file is used instead of the one)13 3397 2 1500 3720 t
+(environment variable.)1 876 1 1500 3840 t
+10 B f
+(RUNADVICE)900 4008 w
+10 S f
+(_)1510 4008 w
+10 B f
+(ADVICE)1560 4008 w
+10 R f
+( the ADVICE \(or ADVICE like\) program to)7 1794(This environment variable contains the name of)6 1926 2 1500 4128 t
+( the ADVICE program is specified on the command line, this variable is ignored.)13 3243(execute. If)1 445 2 1500 4248 t
+9 B f
+(FILES)540 4416 w
+10 R f
+( ADVICE "run" file)3 800(run.adv default)1 1277 2 900 4536 t
+( usually contains ADVICE parameter)4 1621( circuit parameter file ; this file)6 1422(params.adv default)1 1277 3 900 4704 t
+(assignments)1900 4824 w
+( control file ; this file usually contains a series of ADVICE ")12 2416(control.adv circuit)1 1255 2 900 4992 t
+10 CW f
+(.use)4571 4992 w
+10 I f
+(file)4836 4992 w
+10 R f
+(" lines)1 256 1 4964 4992 t
+(to include subcircuits not otherwise included in the run)8 2198 1 1900 5112 t
+( ; this file should usually contain an ADVICE circuit)9 2314( main circuit file)3 729(main.adv default)1 1277 3 900 5280 t
+(beginning with ")2 669 1 1900 5400 t
+10 CW f
+(.main)2569 5400 w
+10 I f
+(circuit)2919 5400 w
+10 S f
+(_)3180 5400 w
+10 I f
+(name)3230 5400 w
+10 R f
+(" and ending with a ")5 845 1 3446 5400 t
+10 CW f
+(.end)4291 5400 w
+10 R f
+(".)4531 5400 w
+( output file ; can be changed with the)8 1481(main.out default)1 1277 2 900 5568 t
+10 B f
+(\255o)3683 5568 w
+10 R f
+(option on the command line)4 1122 1 3791 5568 t
+(runadvice)900 5736 w
+10 S f
+(_)1293 5736 w
+10 R f
+( user's current execution)3 1001( ADVICE program executed by this program ; the)8 2042(advice default)1 834 3 1343 5736 t
+( this program ; this program can be changed either through)10 2426(PATH is searched for)3 894 2 1900 5856 t
+(the environment variable RUNADVICE)3 1611 1 1900 5976 t
+10 S f
+(_)3511 5976 w
+10 R f
+(ADVICE or on the command line)5 1351 1 3561 5976 t
+9 B f
+(CAVEATS)540 6144 w
+10 R f
+( circuit files \()3 562(Currently, the names of the ADVICE)5 1532 2 900 6264 t
+10 CW f
+(params.adv)2994 6264 w
+10 R f
+(,)3594 6264 w
+10 CW f
+(control.adv)3653 6264 w
+10 R f
+(,)4313 6264 w
+10 CW f
+(main.adv)4407 6264 w
+10 R f
+(\) cannot)1 333 1 4887 6264 t
+( be changed if the user puts the appropriate control lines)10 2270( names can)2 451( The)1 209(be specified on the command line.)5 1390 4 900 6384 t
+( the future, alternate names for these files may be specified on the command line.)14 3243( In)1 133(in a configuration file.)3 893 3 900 6504 t
+9 B f
+(SEE ALSO)1 438 1 540 6672 t
+10 R f
+(eas\(1\))900 6792 w
+9 B f
+(SAMPLE FILES)1 673 1 540 6960 t
+10 R f
+(A sample RUNADVICE configuration file is shown below:)7 2389 1 900 7080 t
+10 CW f
+(# CONFIG.RA)1 660 1 1150 7248 t
+10 R f
+( 4)1 75( Page)1 1931( Commands)1 481( User)1 1508(February 8, 2018)2 685 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 4 4
+%%Page: 5 5
+DpostDict begin
+/saveobj save def
+mark
+5 pagesetup
+9 B f
+( \( 1 \))3 126( RUNADVICE)1 1946( v0 \))2 134( \()1 68( Starbase)1 1730(RUNADVICE \( 1 \))3 676 6 540 480 t
+10 CW f
+(#)1150 960 w
+(# This is a configuration file for the RUNADVICE program.)9 3420 1 1150 1080 t
+(#)1150 1200 w
+(#)1150 1320 w
+(# Valid Entries:)2 960 1 1150 1440 t
+(#)1150 1560 w
+( parameters)1 1260(# keyword)1 780 2 1150 1680 t
+(#\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255)1150 1800 w
+(#)1150 1920 w
+( program)1 480( ADVICE)1 1080(# advice)1 720 3 1150 2040 t
+(#)1150 2160 w
+( environment variable name followed by a value)7 2760( an)1 840(# export)1 720 3 1150 2280 t
+(#)1150 2400 w
+( parameter name followed by one or more values)8 2760( a)1 720(# default)1 780 3 1150 2520 t
+( a list separated by commas)5 1620(# in)1 1200 2 1150 2640 t
+(#)1150 2760 w
+( name of the ADVICE 'control.adv' like file)7 2580( the)1 840(# control)1 780 3 1150 2880 t
+(#)1150 3000 w
+( name of the ADVICE 'params.adv' like file)7 2520( the)1 900(# params)1 720 3 1150 3120 t
+(#)1150 3240 w
+( name of the ADVICE 'main.adv' like file)7 2400( the)1 660(# main)1 600 3 1150 3360 t
+( the "main" circuit to be simulated)6 2100(# containing)1 1680 2 1150 3480 t
+(#)1150 3600 w
+( allows for the specification of available)6 2520( this)1 900(# machine)1 780 3 1150 3720 t
+( ; only those machines listed are used)7 2280(# machines)1 1560 2 1150 3840 t
+(#)1150 3960 w
+(#)1150 4080 w
+(#)1150 4200 w
+(# NOTE about how the ADVICE files relate to each other:)10 3300 1 1150 4320 t
+(#)1150 4440 w
+( "run" file possibly specified on the command line)8 3000(# The)1 540 2 1150 4560 t
+( read in a circuit file which will be in the "control")11 3240(# must)1 600 2 1150 4680 t
+( "control" file can optionally contain a "params")7 2940( The)1 300(# file.)1 660 3 1150 4800 t
+( "control")1 600( The)1 300( included with an ADVICE '.use' command.)6 2400(# file)1 600 4 1150 4920 t
+( must include the "main" file with an ADVICE '.use')9 3060(# file)1 600 2 1150 5040 t
+( four files, "run", "control", "params", and "main")7 3060( The)1 300(# command.)1 840 3 1150 5160 t
+( processed for parameters substitutions.)4 2400(# are)1 540 2 1150 5280 t
+(#)1150 5400 w
+(#)1150 5520 w
+(#)1150 5640 w
+(# ADVICE program)2 960 1 1150 6000 t
+(#advice runadvice_advice)1 2040 1 1150 6120 t
+(export TMPDIR=/proj/starbase/tmp)1 2580 1 1150 6360 t
+(export SEEMEHERE=/proj/starbase/tmp)1 2760 1 1150 6480 t
+(default proc=an)1 1500 1 1150 6720 t
+(default temp=85)1 1500 1 1150 6840 t
+(default timestep=0.1n)1 1860 1 1150 6960 t
+(default timelen=5n)1 1680 1 1150 7080 t
+(default pow=3.3)1 1500 1 1150 7200 t
+10 R f
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 5)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 5 5
+%%Page: 6 6
+DpostDict begin
+/saveobj save def
+mark
+6 pagesetup
+9 B f
+( \( 1 \))3 126( RUNADVICE)1 1946( v0 \))2 134( \()1 68( Starbase)1 1730(RUNADVICE \( 1 \))3 676 6 540 480 t
+10 CW f
+(default vterm=1.2)1 1620 1 1150 960 t
+(default subnch=0.0)1 1680 1 1150 1080 t
+(# ADVICE files processed \(in addition to "run"\) for parameter substitutions)10 4500 1 1150 1560 t
+(control control.adv)1 1740 1 1150 1680 t
+(params params.adv)1 1680 1 1150 1800 t
+(main main.adv)1 1200 1 1150 1920 t
+(# machine entries)2 1020 1 1150 2280 t
+(#)1150 2400 w
+( entries have the form:)4 1380(# These)1 660 2 1150 2520 t
+(#)1150 2640 w
+( load_capability)1 1020(# keyword name)2 2040 2 1150 2760 t
+(#)1150 2880 w
+(# where:)1 720 1 1150 3000 t
+(#)1150 3120 w
+( always 'machine')2 1020( is)1 660(# <keyword>)1 1260 3 1150 3240 t
+(#)1150 3360 w
+( the name of the machine)5 1440( is)1 1200(# <name>)1 1080 3 1150 3480 t
+(#)1150 3600 w
+( is a number that rates the ability)7 2100(# <load_capability>)1 1740 2 1150 3720 t
+( the machine to run jobs as)6 1620(# of)1 1920 2 1150 3840 t
+( with the other machines)4 1440(# compared)1 2280 2 1150 3960 t
+(#)1150 4080 w
+(# our System V machines)4 1380 1 1150 4320 t
+(machine hodia=2.0)1 1620 1 1150 4560 t
+(machine hodid=2.0)1 1620 1 1150 4680 t
+(machine hodif=0.8)1 1620 1 1150 4800 t
+(# our BSD machines)3 1080 1 1150 5040 t
+(#machine hodig=0.8)1 1620 1 1150 5280 t
+(#machine octet=2.0)1 1620 1 1150 5400 t
+10 R f
+(A sample run file is shown here.)6 1295 1 900 5856 t
+10 S f
+(*)1150 6024 w
+10 CW f
+(ADVICE run file)2 900 1 1260 6024 t
+10 S f
+(*)1150 6144 w
+(*)1150 6264 w
+10 CW f
+(ADVICE run file which is executed from the the X Windows menu)11 3660 1 1260 6264 t
+10 S f
+(*)1150 6384 w
+(*)1150 6504 w
+(*)1150 6624 w
+10 CW f
+(The following character strings get substituted for:)6 3120 1 1510 6624 t
+10 S f
+(*)1150 6744 w
+(*)1150 6864 w
+10 CW f
+(PROC process)1 1140 1 1870 6864 t
+10 S f
+(*)1150 6984 w
+10 CW f
+(TEMP temperature)1 1380 1 1870 6984 t
+10 S f
+(*)1150 7104 w
+10 CW f
+( step intervale)2 900(TIMESTEP time)1 960 2 1870 7104 t
+10 S f
+(*)1150 7224 w
+10 CW f
+( length)1 420(TIMELEN time)1 1320 2 1870 7224 t
+10 R f
+( 6)1 75( Page)1 1931( Commands)1 481( User)1 1508(February 8, 2018)2 685 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 6 6
+%%Page: 7 7
+DpostDict begin
+/saveobj save def
+mark
+7 pagesetup
+9 B f
+( \( 1 \))3 126( RUNADVICE)1 1946( v0 \))2 134( \()1 68( Starbase)1 1730(RUNADVICE \( 1 \))3 676 6 540 480 t
+10 S f
+(*)1150 960 w
+10 CW f
+( supply voltage)2 900(POW power)1 1020 2 1870 960 t
+10 S f
+(*)1150 1080 w
+(*)1150 1200 w
+(*)1150 1320 w
+10 CW f
+(here are some test substitutions:)4 1980 1 1260 1320 t
+10 S f
+(*)1150 1440 w
+10 CW f
+(PROC=$\(PROC\))1510 1440 w
+10 S f
+(*)1150 1560 w
+10 CW f
+(TEMP=$\(TEMP\))1510 1560 w
+10 S f
+(*)1150 1680 w
+10 CW f
+(TIMESTEP=$\(TIMESTEP\))1510 1680 w
+10 S f
+(*)1150 1800 w
+10 CW f
+(TIMELEN=$\(TIMELEN\))1510 1800 w
+10 S f
+(*)1150 1920 w
+10 CW f
+(POW=$\(POW\))1510 1920 w
+10 S f
+(*)1150 2040 w
+(*)1150 2160 w
+10 CW f
+(and the circuit files:)3 1320 1 1260 2160 t
+10 S f
+(*)1150 2280 w
+10 CW f
+(MAINCKT=$\(MAINCKT\))1510 2280 w
+10 S f
+(*)1150 2400 w
+10 CW f
+(CONTROLCKT=$\(CONTROLCKT\))1510 2400 w
+10 S f
+(*)1150 2520 w
+(*)1150 2640 w
+(*)1150 2760 w
+(*)1150 2880 w
+10 CW f
+(general library)1 900 1 1260 2880 t
+10 S f
+(*)1150 3000 w
+10 CW f
+(.lib lib4=genlib.adv)1 1200 1 1150 3120 t
+10 S f
+(*)1150 3240 w
+(*)1150 3360 w
+(*)1150 3480 w
+10 CW f
+(straight CMOS, 0.5um, 3.3 Volt)4 1800 1 1260 3480 t
+10 S f
+(*)1150 3600 w
+10 CW f
+(.lib lib1=cmos5_33$\(PROC\).adv)1 1740 1 1150 3720 t
+10 S f
+(*)1150 3840 w
+(*)1150 3960 w
+10 CW f
+(.use options.adv)1 960 1 1150 4080 t
+10 S f
+(*)1150 4200 w
+(*)1150 4320 w
+10 CW f
+(.rd ${CONTROLCKT} ;n)2 1200 1 1150 4440 t
+10 S f
+(*)1150 4560 w
+10 CW f
+(.temp $\(TEMP\))1 780 1 1150 4680 t
+10 S f
+(*)1150 4800 w
+(*)1150 4920 w
+10 CW f
+(.opti rfile=init.adv)1 1200 1 1150 5040 t
+10 S f
+(*)1150 5160 w
+10 CW f
+(.opti pivot=1)1 780 1 1150 5280 t
+(.opti lvlprt=3)1 840 1 1150 5400 t
+10 S f
+(*)1150 5520 w
+10 CW f
+(.opti itl1=500)1 840 1 1150 5640 t
+(.opti ipta=0)1 720 1 1150 5760 t
+(.dc op)1 360 1 1150 5880 t
+(.file rfile=winit.adv)1 1260 1 1150 6000 t
+10 S f
+(*)1150 6120 w
+(*)1150 6240 w
+10 CW f
+(.op)1150 6360 w
+10 S f
+(*)1390 6360 w
+10 CW f
+(> op.results)1 720 1 1500 6360 t
+10 S f
+(*)1150 6480 w
+10 CW f
+(.tran $\(TIMESTEP\) $\(TIMELEN\))2 1680 1 1150 6600 t
+10 S f
+(*)1150 6720 w
+10 CW f
+(.file ofile=$\(OUTFILE\))1 1320 1 1150 6840 t
+10 S f
+(*)1150 6960 w
+(*)1150 7080 w
+10 CW f
+(.end)1150 7200 w
+10 R f
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 7)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 7 7
+%%Page: 8 8
+DpostDict begin
+/saveobj save def
+mark
+8 pagesetup
+9 B f
+( \( 1 \))3 126( RUNADVICE)1 1946( v0 \))2 134( \()1 68( Starbase)1 1730(RUNADVICE \( 1 \))3 676 6 540 480 t
+10 R f
+(A sample control file is shown here.)6 1445 1 900 960 t
+10 S f
+(*)1150 1128 w
+10 CW f
+(ADVICE circuit "control" file)3 1740 1 1260 1128 t
+10 S f
+(*)1150 1368 w
+10 CW f
+(.use skew2.adv)1 840 1 1260 1368 t
+10 S f
+(*)1150 1488 w
+10 CW f
+(.use ddlo_p.adv)1 900 1 1260 1488 t
+(.use constants.adv)1 1080 1 1150 1608 t
+(.use $\(PARAMS\))1 840 1 1150 1728 t
+(.use ${MAINCKT})1 900 1 1150 1848 t
+10 R f
+(A sample ADVICE)2 782 1 900 2304 t
+10 I f
+(params)1707 2304 w
+10 R f
+(file is shown here.)3 732 1 2032 2304 t
+10 S f
+(*)1150 2472 w
+10 CW f
+(circuit parameters for ADVICE)3 1740 1 1260 2472 t
+10 S f
+(*)1150 2592 w
+(*)1150 2712 w
+10 CW f
+(.set { vterm=$\(VTERM\) })3 1380 1 1150 2832 t
+(.set { pow=$\(POW\) })3 1140 1 1150 2952 t
+(.set { subnch=$\(SUBNCH\) })3 1500 1 1150 3072 t
+10 S f
+(*)1150 3192 w
+(*)1150 3312 w
+(*)1150 3432 w
+9 B f
+(AUTHOR)540 3648 w
+10 R f
+(David A.D. Morano)2 804 1 900 3768 t
+( 8)1 75( Page)1 1931( Commands)1 481( User)1 1508(February 8, 2018)2 685 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 8 8
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 8
+%%DocumentFonts: Courier-Bold Courier Times-Roman Times-Bold Times-Italic Times-Roman Symbol

@@ -3,10 +3,14 @@
 .SH "NAME"
 logins \- list user and system login information
 .SH "SYNOPSIS"
+.\"_
+.so tmac.att
+.\"_
 .PP
 \fB/usr/bin/logins\fR [ -\fBadmopstux\fR ] 
  [ -\fBg\fR\ \fIgroup\&.\&.\&.\fR ] 
  [ -\fBl\fR\ \fIlogin\&.\&.\&.\fR ] 
+.\"_
 .SH "DESCRIPTION"
 .PP
 This command displays information on user and system logins known to the

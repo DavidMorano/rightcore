@@ -4,89 +4,13 @@
 pcsname \- get or set the PCS real name
 .SH SYNOPSIS
 .\"_
-.\"_
-.\"_ some AT&T standard strings
-.\"_
-.if t \{\
-.fp5 CW
-.ds mW \&\f5
-.ds mB \&\f(CB
-.ds Tm \v'-0.5m'\s-4TM\s+4\v'0.5m'
-.ds Sm \v'-0.5m'\s-4SM\s+4\v'0.5m'
-.ds Rg \v'-0.4m'\s-4\(rg\s+4\v'0.4m'
-.ds rq ''
-.ds lq ``
-.tr * \(**
-'br\}
-.if n \{\
-.ds mW \f3
-.ds mB \f3
-.ds Tm \uTM\d
-.ds Sm \uSM\d
-.ds Rg (Reg.)
-.ds lq \&"
-.ds rq \&"
-'br\}
-.\"_
-.\"_ some AT&T standard macros
-.\"_
-.de HY
-.hy14
-..
-.\"_
-.de MW
-.nh
-.it1 }N
-.ie\\n(.$ \{\
-.ie\\n(.$=1 \*(mW\&\\$1\fP
-.el.ie \\n(.$=2 \*(mW\&\\$1 \\$2\fP
-.el.ie \\n(.$=3 \*(mW\&\\$1 \\$2 \\$3\fP
-.el.ie \\n(.$=4 \*(mW\&\\$1 \\$2 \\$3 \\$4\fP
-.el.ie \\n(.$=5 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5\fP
-.el.ie \\n(.$=6 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6\fP
-.el.ie \\n(.$=7 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7\fP
-.el.ie \\n(.$=8 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8\fP
-.el\*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8 \\$9\fP \}
-.el\{\
-.ift .ft 5
-.ifn .ft 3 \}
-.HY
-..
-.\"_
-.de OP
-.ie'\\$3'[]' \ \f1[\ \*(mB\\$1\f2\^\\$2\|\f1\ ]
-.el\&\\$4\&\*(mB\\$1\fP\f2\^\\$2\|\fP\\$3
-..
-.\"_
-.de EX
-.sp\\n(PDu
-.in+5n
-.ifn .ft 3
-.ift \{\
-.ft5
-.if\\$1-1 \{\
-.ps-1
-.vs-1
-.nreX 1 \}\}
-.nf
-..
-.de EE
-.fi
-.if\\n(eX \{\
-.ps+1
-.vs+1
-.nreX 0 \}
-.ft1
-.in-5n
-.sp\\n(PDu
-..
-.\"_
+.so tmac.att
 .\"_
 .BR pcsname
 .OP -u " user" ] [
 .OP -s " name" ] [
 .OP -R " program-root" ] [
-.OP -D[=<n>] "" ] [
+.OP -D\fR[=<\fIn\fP>]\fP "" ] [
 .OP -V "" ] [
 .SH DESCRIPTION
 .sp
@@ -100,11 +24,11 @@ regular real name, and the (so-called) "full" real name.
 The regular real name is generally the real name of the user
 with an abbreviated middle initial only and no postnominal letters.
 This type of real name is usually already established by the
-system administator when the user account was set up.
+system administrator when the user account was set up.
 The full real name is an optional additional name that can
 have non-abbreviated parts or postnominal letters appended.
 By default the regular real name of a user is set by the
-system administrtor, but that real name can be changed by
+system administrator, but that real name can be changed by
 the use of this program.
 By default (without any program options specified)
 the regular real name of the user is printed to standard-output.
@@ -136,6 +60,7 @@ functions are performed).
 .RE
 .\"_
 .SH ENVIRONMENT VARIABLES
+.\"_
 The following environment variables may change the default behavior of the
 program.
 .RS 5
@@ -160,6 +85,7 @@ The \fB-R\fP argument overides this environment variable.
 .RE
 .\"_
 .SH EXAMPLES
+.\"_
 .IP \(rh 5
 simply get the current PCS regular real name of the user:
 .EX
@@ -202,10 +128,10 @@ Be careful to put at one space between all option key
 letters and the associated
 key letter parameter.
 .\"_
-.SH AUTHOR
-David Morano
-.\"_
 .SH ACKNOWLEDGEMENTS
 All previous PCS contributors and administrators.
+.\"_
+.SH AUTHOR
+David A.D. Morano
 .\"_
 .\"_

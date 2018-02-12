@@ -5,7 +5,6 @@ tracks where users are located for possible notification of them by the
 PCS system on certain events.
 
 Synopsis:
-
 $ pcsulm -d[=<runtime>]
 
 This runs the program as a daemon.  Only one daemon program can run on
@@ -15,7 +14,6 @@ either since all database operations are synchronized among all
 possible daemons.
 
 It can also be run as a poll in the form:
-
 $ pcsulm
 
 This form also creates a user login-record for the calling user (if she
@@ -27,9 +25,7 @@ is generated and processed and then the program exits.
 
 The program is often run by programs that log the fact that their users
 have logged in.  In this mode it is run as:
-
 $ pcsulm -i 
 
 with login-update record(s) on its standard input.
-
 

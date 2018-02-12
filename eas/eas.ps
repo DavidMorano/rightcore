@@ -1,0 +1,1036 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+/build_rh {
+pop
+gsave
+size .0022 mul dup scale
+currentpoint translate
+
+15 66 moveto
+15 86 lineto
+16 131 lineto
+17 146 lineto
+18 158 lineto
+19 167 lineto
+21 181 lineto
+24 190 lineto
+34 193 lineto
+49 189 lineto
+58 182 lineto
+60 177 lineto
+60 166 lineto
+59 156 lineto
+58 143 lineto
+57 130 lineto
+56 117 lineto
+55 102 lineto
+54 42 lineto
+53 39 lineto
+49 35 lineto
+34 34 lineto
+19 39 lineto
+16 47 lineto
+15 66 lineto
+stroke
+
+65 60 moveto
+65 111 lineto
+66 127 lineto
+67 139 lineto
+69 153 lineto
+72 163 lineto
+83 171 lineto
+98 177 lineto
+113 182 lineto
+128 187 lineto
+143 190 lineto
+158 194 lineto
+173 196 lineto
+188 199 lineto
+203 201 lineto
+218 203 lineto
+233 205 lineto
+248 205 lineto
+263 206 lineto
+278 206 lineto
+293 206 lineto
+308 206 lineto
+323 206 lineto
+338 205 lineto
+353 203 lineto
+368 202 lineto
+383 200 lineto
+394 197 lineto
+389 190 lineto
+389 180 lineto
+391 176 lineto
+391 173 lineto
+380 173 lineto
+365 173 lineto
+350 174 lineto
+335 175 lineto
+320 176 lineto
+305 176 lineto
+290 176 lineto
+275 177 lineto
+260 177 lineto
+245 177 lineto
+240 173 lineto
+240 170 lineto
+245 165 lineto
+260 164 lineto
+275 164 lineto
+290 164 lineto
+305 163 lineto
+320 160 lineto
+327 155 lineto
+330 149 lineto
+330 134 lineto
+328 129 lineto
+323 124 lineto
+309 121 lineto
+294 121 lineto
+279 121 lineto
+264 121 lineto
+249 121 lineto
+234 121 lineto
+228 118 lineto
+228 112 lineto
+234 109 lineto
+249 109 lineto
+264 109 lineto
+279 108 lineto
+294 108 lineto
+306 104 lineto
+311 97 lineto
+312 91 lineto
+312 88 lineto
+311 82 lineto
+305 74 lineto
+290 72 lineto
+275 72 lineto
+260 72 lineto
+245 73 lineto
+230 73 lineto
+215 73 lineto
+205 70 lineto
+205 63 lineto
+217 60 lineto
+232 60 lineto
+247 60 lineto
+262 60 lineto
+277 57 lineto
+283 52 lineto
+285 44 lineto
+285 41 lineto
+284 35 lineto
+280 30 lineto
+268 26 lineto
+253 25 lineto
+238 26 lineto
+223 28 lineto
+208 31 lineto
+193 33 lineto
+178 34 lineto
+163 33 lineto
+148 31 lineto
+133 28 lineto
+118 27 lineto
+103 28 lineto
+88 34 lineto
+73 43 lineto
+67 52 lineto
+65 60 lineto
+stroke
+
+396 180 moveto
+396 188 lineto
+399 194 lineto
+410 196 lineto
+416 190 lineto
+416 180 lineto
+415 177 lineto
+411 173 lineto
+400 173 lineto
+396 180 lineto
+stroke
+
+grestore
+} def
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1 \))3 126( EAS)1 1776( 1995\25509\25511 \))2 464( \()1 68( StarBase)1 1945(EAS \( 1 \))3 301 6 540 480 t
+(NAME)540 960 w
+10 R f
+(eas)900 1080 w
+10 S1 f
+(\261)1052 1080 w
+10 R f
+(extract an Advice subcircuit from an Advice circuit or library file)10 2610 1 1142 1080 t
+9 B f
+(SYNOPSIS)540 1248 w
+10 B f
+(eas)900 1368 w
+10 R f
+([)1058 1368 w
+10 CB f
+(\255DV)1091 1368 w
+10 R f
+(] [)1 91 1 1295 1368 t
+10 B f
+(\255s)1386 1368 w
+10 S f
+(\357)1483 1368 w
+10 B f
+(\255s=)1557 1368 w
+10 I f
+(suffix)1686 1368 w
+10 R f
+(] [)1 91 1 1903 1368 t
+10 CB f
+(\255t)1994 1368 w
+10 I f
+(type)2122 1368 w
+10 R f
+(] [)1 91 1 2304 1368 t
+10 CB f
+(\255i)2395 1368 w
+10 I f
+(input)2523 1368 w
+10 R f
+(] [)1 91 1 2745 1368 t
+10 CB f
+(\255o)2836 1368 w
+10 I f
+(output)2964 1368 w
+10 R f
+(])3236 1368 w
+10 I f
+([name ...])1 394 1 3294 1368 t
+9 B f
+(DESCRIPTION)540 1536 w
+(Introduction)690 1656 w
+10 R f
+(This program \()2 599 1 900 1776 t
+10 I f
+(eas)1499 1776 w
+10 R f
+( standard input and scans it to find the various subcircuits that may be contained in)15 3320(\) reads)1 268 2 1632 1776 t
+( input file is assumed to contain Advice circuit connectivity information usually organized as cir\255)14 4024(it. The)1 296 2 900 1896 t
+(cuits or subcircuits.)2 780 1 900 2016 t
+9 B f
+(Options)690 2184 w
+10 R f
+( is normally only used during the)6 1430( This)1 246( program debugging more on.)4 1262( option turns the)3 704(\255D This)1 678 5 900 2304 t
+(development of the prgram and is not generally useful otherwise.)9 2601 1 1400 2424 t
+( option directs the program to output its version and then exit.)11 2471(\255V This)1 678 2 900 2592 t
+( option, or this option in the form)7 1369(\255s This)1 678 2 900 2760 t
+10 CW f
+(\255s=)2977 2760 w
+10 I f
+(suffix)3157 2760 w
+10 R f
+( all circuits that are extracted)5 1185(, is used to have)4 661 2 3374 2760 t
+( be in lower case characters)5 1103( will always)2 487( Files)1 247(written out into files with the name of the circuit.)9 1983 4 1400 2880 t
+( the form of this option is given with the suffix)10 1962( If)1 124(even if the circuit names are in uppercase.)7 1734 3 1400 3000 t
+( default file name)3 722( The)1 212(value, the given suffix will be postpended to the generated file names.)11 2886 3 1400 3120 t
+(suffix, if not otherwise specified, is)5 1412 1 1400 3240 t
+10 I f
+(adv)2837 3240 w
+10 R f
+(.)2981 3240 w
+(\255s=)900 3408 w
+10 I f
+(suffix)1028 3408 w
+10 R f
+( option alone.)2 547( \255s)1 130(See the description for the)4 1048 3 1400 3408 t
+(\255t)900 3576 w
+10 I f
+(type)986 3576 w
+10 R f
+(This option restricts the types of subcircuits that are extracted to those that match the specified)15 3820 1 1400 3576 t
+(circuit)1400 3696 w
+10 I f
+(type)1680 3696 w
+10 R f
+( circuit types are:)3 690(. Allowable)1 491 2 1846 3696 t
+10 CW f
+(envelope)1650 3864 w
+(main)1650 3984 w
+(subckt)1650 4104 w
+10 R f
+( does not have a circuit prototype, either)7 1622(The envelope circuit is the one that)6 1409 2 1400 4272 t
+10 CW f
+(MAIN)4458 4272 w
+10 R f
+(or)4725 4272 w
+10 CW f
+(SUBCKT)4835 4272 w
+10 R f
+(.)5195 4272 w
+(The)1400 4392 w
+10 I f
+(main)1581 4392 w
+10 R f
+(and)1807 4392 w
+10 I f
+(subckt)1977 4392 w
+10 R f
+( in the input file that have the prototypes)8 1621(types correspond to those circuits)4 1341 2 2258 4392 t
+( Advice libraries generally only have circuits of the type)9 2248( Obviously,)1 492(of the given type.)3 699 3 1400 4512 t
+10 I f
+(subckt)4864 4512 w
+10 R f
+(.)5119 4512 w
+9 B f
+(Execution)690 4680 w
+10 R f
+(To extract subcircuits)2 881 1 900 4800 t
+10 I f
+(flip2)1814 4800 w
+10 R f
+(and)2031 4800 w
+10 I f
+(flip3)2208 4800 w
+10 R f
+( file)1 167(from the library)2 648 2 2425 4800 t
+10 I f
+(library.adv)3274 4800 w
+10 R f
+(and put them into files by the same)7 1465 1 3755 4800 t
+(names, execute:)1 637 1 900 4920 t
+10 CW f
+(eas < library.adv flip2 flip3 \255s)5 1920 1 1150 5088 t
+10 R f
+( a nested way, like in the)6 1032(This program will also correctly extract circuits or subcircuits that are defined in)12 3288 2 900 5256 t
+(Pascal language.)1 665 1 900 5376 t
+9 B f
+(EXAMPLES)540 5544 w
+10 S1 f
+()900 5664 w
+10 S1 f
+900 5664 m
+100 build_rh
+1000 5664 m
+10 R f
+(To extract subcircuits)2 879 1 1150 5664 t
+10 I f
+(flip2)2062 5664 w
+10 R f
+(and)2279 5664 w
+10 I f
+(flip3)2456 5664 w
+10 R f
+(from the library file)3 814 1 2673 5664 t
+10 I f
+(library.adv)3520 5664 w
+10 R f
+(and put them into files by the)6 1220 1 4000 5664 t
+(same names, execute:)2 867 1 1150 5784 t
+10 CW f
+(eas < library.adv flip2 flip3 \255s)5 1920 1 1400 5952 t
+10 S1 f
+()900 6168 w
+900 6168 m
+100 build_rh
+1000 6168 m
+10 R f
+(To extract all of the subcircuits from the library file)9 2114 1 1150 6168 t
+10 I f
+(library.adv)3295 6168 w
+10 R f
+( by the same)3 523(and put them into files)4 924 2 3773 6168 t
+(names, execute:)1 637 1 1150 6288 t
+10 CW f
+(eas < library.adv \255s)3 1200 1 1400 6456 t
+10 S1 f
+()900 6672 w
+900 6672 m
+100 build_rh
+1000 6672 m
+10 R f
+(To extract subcircuits)2 875 1 1150 6672 t
+10 I f
+(flip2)2055 6672 w
+10 R f
+(and)2269 6672 w
+10 I f
+(flip3)2443 6672 w
+10 R f
+(from the input file)3 745 1 2657 6672 t
+10 I f
+(file.adv)3432 6672 w
+10 R f
+( a common output)3 743(and put them into)3 718 2 3759 6672 t
+(file named)1 424 1 1150 6792 t
+10 I f
+(output.adv)1599 6792 w
+10 R f
+(, execute:)1 382 1 2024 6792 t
+10 CW f
+(eas < file.adv flip2 flip3 > output.adv)6 2340 1 1400 6960 t
+10 S1 f
+()900 7176 w
+900 7176 m
+100 build_rh
+1000 7176 m
+10 R f
+(To extract subcircuits)2 871 1 1150 7176 t
+10 I f
+(flip2)2049 7176 w
+10 R f
+(and)2261 7176 w
+10 I f
+(flip3)2433 7176 w
+10 R f
+(from the library file)3 799 1 2645 7176 t
+10 I f
+(library.adv)3472 7176 w
+10 R f
+(that are only of type)4 816 1 3947 7176 t
+10 I f
+(subckt)4792 7176 w
+10 R f
+(and)5076 7176 w
+(put them into files by the same names, execute:)8 1895 1 1150 7296 t
+( 12, 2018)2 375( February)1 1631( Commands)1 481( User)1 1924(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 1 \))3 126( EAS)1 1776( 1995\25509\25511 \))2 464( \()1 68( StarBase)1 1945(EAS \( 1 \))3 301 6 540 480 t
+10 CW f
+(eas < library.adv flip2 flip3 \255s \255t subckt)7 2520 1 1400 960 t
+10 S1 f
+()900 1176 w
+900 1176 m
+100 build_rh
+1000 1176 m
+10 R f
+( envelope circuit from file)4 1086(To extract just the outer)4 994 2 1150 1176 t
+10 I f
+(input.adv)3266 1176 w
+10 R f
+(and place it in output file)5 1057 1 3677 1176 t
+10 I f
+(output.adv)4770 1176 w
+10 R f
+(,)5195 1176 w
+(execute:)1150 1296 w
+10 CW f
+(eas < input.adv \255t envelope > output.adv)6 2400 1 1400 1464 t
+10 S1 f
+()900 1680 w
+900 1680 m
+100 build_rh
+1000 1680 m
+10 R f
+(To extract just the main circuit from file)7 1606 1 1150 1680 t
+10 I f
+(input.adv)2781 1680 w
+10 R f
+(and place it in output file)5 1002 1 3181 1680 t
+10 I f
+(output.adv)4208 1680 w
+10 R f
+(, execute:)1 382 1 4633 1680 t
+10 CW f
+(eas < input.adv \255t main > output.adv)6 2160 1 1400 1848 t
+9 B f
+(ENVIRONMENT VARIABLES)1 1258 1 540 2064 t
+10 R f
+(The following environment variables tailor some aspect of the program to the user's preferences.)13 3869 1 900 2184 t
+10 B f
+(TMPDIR)900 2352 w
+10 R f
+(This environment variable will direct the program to create temporary files in the directory)13 3720 1 1500 2352 t
+( that is given on the command line will)8 1569( specification of a temporary directory)5 1542(specified. Any)1 609 3 1500 2472 t
+(take precedence over this environment variable.)5 1911 1 1500 2592 t
+9 B f
+(SEE ALSO)1 453 1 540 2760 t
+10 R f
+(advice\(1\), runadvice\(1\), ar\(1\))2 1178 1 900 2880 t
+9 B f
+(AUTHOR)540 3048 w
+10 R f
+(David A.D. Morano)2 804 1 900 3168 t
+( 2)1 75( Page)1 1931( Commands)1 481( User)1 1458(February 12, 2018)2 735 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 2
+%%DocumentFonts: Courier-Bold Courier Times-Roman Times-Bold Times-Italic Times-Roman Symbol

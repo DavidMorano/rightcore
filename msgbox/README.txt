@@ -1,16 +1,15 @@
 MSGBOX
 
-This is the cheapy little program, called as a daemon from DWD, to post
-a message to active user terminal emulation sessions and to deliver it
-as email to the user's 'msgbox' mailbox.
+This is the cheapy little program, called as a daemon from DWD, to post a
+message to active user terminal emulation sessions and to deliver it as email to
+the user's 'msgbox' mailbox.
 
-Don't look for a lot of perfection in this program or the messy little
-cheapy programs that this one calls !  This program gets the job done
-for now with reasonable quality so it lives for the time being.
+Don't look for a lot of perfection in this program or the messy little cheapy
+programs that this one calls ! This program gets the job done for now with
+reasonable quality so it lives for the time being.
 
-This program basically just calls two other programs that do the real
-work.  One is 'rmsg' and the other is 'deliver'.
-
+This program basically just calls two other programs that do the real work. One
+is 'rmsg' and the other is 'deliver'.
 
 Possible Improvements:
 
@@ -29,9 +28,6 @@ I also added the following:
    allow for a general comment (usually the filename of the message
    from DWD)
 
-
-Future enhancements are to accept some sort of date to be used as the
-date of the message when sending the email.
-
-
+Future enhancements are to accept some sort of date to be used as the date of
+the message when sending the email.
 

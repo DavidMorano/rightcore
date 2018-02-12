@@ -3,10 +3,13 @@
 .SH NAME
 pcsv \- print out the current version of the PCS mailer subsystem
 .SH SYNOPSIS
-pcsv
+.\"_
+.so tmac.att
+.\"_
+.B pcsv
 .SH DESCRIPTION
 The
-\f(CWPCSV\fP
+,B PCSV
 program prints to standard output the current version of the
 mailer subsystem of PCS.
 The results is a string value.
@@ -34,4 +37,8 @@ This program is actually the invocation of:
 .EX
 pcsconv version
 .EE
+.\"_
+.SH AUTHOR
+David A.D. Morano
+.\"_
 .\"_

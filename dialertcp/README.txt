@@ -14,4 +14,3 @@ thing. This is generally built as a dynamically loadable shared object but it
 can also be built as a relocatable object, which will also be dynamically
 loaded.
 
-

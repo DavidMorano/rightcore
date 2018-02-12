@@ -14,17 +14,15 @@ Arguments:
 -M <maildir>	mail spool directory
 -lf <logfile>	alternative log file
 
-Actually, many often want to invoke it with a UDP socket on its standard
-input.  It will time out automatically when there is about two minutes of
-not receiving any mesages.
+Actually, the server is often with a UDP socket on its standard input.
+The server will time out automatically when there is about two minutes
+(configurable with the '-i' option above) of not receiving any mesages.
 
-This can be run stand-alone using the '-d' option.  If you run stand-alone
-you should also set a long maximum idle time-out.  If run stand-alone,
-you also optionally get to provide a hostname and a port to listen on.
+This can be run stand-alone using the '-d' option. If you run
+stand-alone, you may want to set a longer maximum idle time-out. If run
+stand-alone, you also optionally get to provide a hostname and a port to
+listen on.
 
-This program is a hack, ... but it WORKS! where the native version
-that comes with Sun Microsystems Slowlaris doesn't!  Does anything work
-correctly on Solaris?  Just wondering!
-
-This program is a proud member of the (aging) PCS family of programs! :-)
+This program is an enhanced version of many of the hacks out there that
+are shipped with the standard fare UNIX distributions.
 

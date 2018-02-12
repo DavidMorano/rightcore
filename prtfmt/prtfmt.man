@@ -4,6 +4,9 @@
 prtfmt \- format and print output
 .SH SYNOPSIS
 .\"_
+.\"_
+.so tmac.att
+.\"_
 .\"	Module:   prtfmt.1, Level 3.13
 .\"	File:     /az07/kls/UNISON.SCCS.3/man/u_man/man1/s.prtfmt.1
 .\"_
@@ -169,3 +172,8 @@ when formatting is done on a remote system.
 $HOME/.prt
 .in
 $UNISONLIB/.prtsys
+.\"_
+.SH AUTHOR
+David A.D. Morano
+.\"_
+.\"_

@@ -1,7 +1,7 @@
 APPEND
 
-This is a KSH command which appends either specified files or the
-standarf input to a specified file.
+This is a KSH command which appends either specified files or the standard input
+to a specified file.
 
 Synopsis:
 $ append { <appfile> | -of <appfile> } [<file(s)> ...] [-af <afile>] 

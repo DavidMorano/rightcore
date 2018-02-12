@@ -1,16 +1,14 @@
 CALYEAR
 
-This program reads zero or more standard calendar files in the format
-of those in '${NCMP}/share/calendar/' and prints out entries according
-to what is specified at program invocation.
+This program reads zero or more standard calendar files in the format of those
+in '${NCMP}/share/calendar/' and prints out entries according to what is
+specified at program invocation.
 
 Synopsis:
-
 $ calyear [<datespec(s)>] [-<n>] [-c <cal(s)>] [-o <opt(s)>] [-w <cols>] 
 	[-z[=<b>]] [-y <year>] [-a] [-V]
 
-where:
-
+Arguments:
 <datespec(s)>	date specification to find entries, including:
 			<month><day>	specified month-day
 					ex: 01/01 jan/01 jan1 jan-1 1-1
@@ -41,5 +39,4 @@ CALYEAR_CALNAMES=<calname1>[:<calname2>[:<...>]]
 Configuration files:
 
 There is a per-user configuration file and a system configuration file.
-
 

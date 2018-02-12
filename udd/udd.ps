@@ -1,0 +1,2405 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+/build_rh {
+pop
+gsave
+size .0022 mul dup scale
+currentpoint translate
+
+15 66 moveto
+15 86 lineto
+16 131 lineto
+17 146 lineto
+18 158 lineto
+19 167 lineto
+21 181 lineto
+24 190 lineto
+34 193 lineto
+49 189 lineto
+58 182 lineto
+60 177 lineto
+60 166 lineto
+59 156 lineto
+58 143 lineto
+57 130 lineto
+56 117 lineto
+55 102 lineto
+54 42 lineto
+53 39 lineto
+49 35 lineto
+34 34 lineto
+19 39 lineto
+16 47 lineto
+15 66 lineto
+stroke
+
+65 60 moveto
+65 111 lineto
+66 127 lineto
+67 139 lineto
+69 153 lineto
+72 163 lineto
+83 171 lineto
+98 177 lineto
+113 182 lineto
+128 187 lineto
+143 190 lineto
+158 194 lineto
+173 196 lineto
+188 199 lineto
+203 201 lineto
+218 203 lineto
+233 205 lineto
+248 205 lineto
+263 206 lineto
+278 206 lineto
+293 206 lineto
+308 206 lineto
+323 206 lineto
+338 205 lineto
+353 203 lineto
+368 202 lineto
+383 200 lineto
+394 197 lineto
+389 190 lineto
+389 180 lineto
+391 176 lineto
+391 173 lineto
+380 173 lineto
+365 173 lineto
+350 174 lineto
+335 175 lineto
+320 176 lineto
+305 176 lineto
+290 176 lineto
+275 177 lineto
+260 177 lineto
+245 177 lineto
+240 173 lineto
+240 170 lineto
+245 165 lineto
+260 164 lineto
+275 164 lineto
+290 164 lineto
+305 163 lineto
+320 160 lineto
+327 155 lineto
+330 149 lineto
+330 134 lineto
+328 129 lineto
+323 124 lineto
+309 121 lineto
+294 121 lineto
+279 121 lineto
+264 121 lineto
+249 121 lineto
+234 121 lineto
+228 118 lineto
+228 112 lineto
+234 109 lineto
+249 109 lineto
+264 109 lineto
+279 108 lineto
+294 108 lineto
+306 104 lineto
+311 97 lineto
+312 91 lineto
+312 88 lineto
+311 82 lineto
+305 74 lineto
+290 72 lineto
+275 72 lineto
+260 72 lineto
+245 73 lineto
+230 73 lineto
+215 73 lineto
+205 70 lineto
+205 63 lineto
+217 60 lineto
+232 60 lineto
+247 60 lineto
+262 60 lineto
+277 57 lineto
+283 52 lineto
+285 44 lineto
+285 41 lineto
+284 35 lineto
+280 30 lineto
+268 26 lineto
+253 25 lineto
+238 26 lineto
+223 28 lineto
+208 31 lineto
+193 33 lineto
+178 34 lineto
+163 33 lineto
+148 31 lineto
+133 28 lineto
+118 27 lineto
+103 28 lineto
+88 34 lineto
+73 43 lineto
+67 52 lineto
+65 60 lineto
+stroke
+
+396 180 moveto
+396 188 lineto
+399 194 lineto
+410 196 lineto
+416 190 lineto
+416 180 lineto
+415 177 lineto
+411 173 lineto
+400 173 lineto
+396 180 lineto
+stroke
+
+grestore
+} def
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1 \))3 126( UDD)1 2017( \))1 37( 0)1 68( v)1 52( \()1 68( PCS)1 1991(UDD \( 1 \))3 321 8 540 480 t
+(NAME)540 960 w
+10 R f
+(udd /\255 directory update daemon)4 1253 1 900 1080 t
+9 B f
+(SYNOPSIS)540 1248 w
+10 B f
+(udd)900 1368 w
+10 R f
+([newsgroup\(s\) ...] [\255subject)2 1083 1 1093 1368 t
+10 S f
+(\357)2201 1368 w
+10 R f
+(\255newsgroups)2275 1368 w
+10 S f
+(\357)2810 1368 w
+10 R f
+(\255count])2884 1368 w
+([\255a)1260 1488 w
+10 S f
+(\357)1395 1488 w
+10 R f
+(\255o] [\255e] [\255r] [\255mailbox] [\255u usernewsrc])5 1540 1 1469 1488 t
+([\255C] [\255interactive] [\255V?] [\255L termlines])4 1533 1 1260 1608 t
+10 B f
+(bbr)900 1728 w
+10 R f
+([newsgroup\(s\) ...] [\255a] [\255e])3 1045 1 1081 1728 t
+10 B f
+(bbpost)900 1848 w
+10 R f
+([newsgroup] [\255edit] [\255s subject] [\255a attachment])5 1880 1 1215 1848 t
+10 B f
+(rbbpost)900 1968 w
+10 R f
+(newsgroup)1259 1968 w
+10 B f
+(datepost)900 2088 w
+10 R f
+(newsgroup)1286 2088 w
+9 B f
+(DESCRIPTION)540 2256 w
+10 R f
+(These programs provide enhancements over the standard UNIX)7 2630 1 900 2376 t
+10 I f
+(news)3567 2376 w
+10 R f
+(mechanism that include simplified)3 1416 1 3804 2376 t
+( and the concurrent posting of bulletins on mul\255)8 1928(preparation, the categorization of articles by interest group,)7 2392 2 900 2496 t
+( system also provides advantages over the old UNIX)8 2182( This)1 238(tiple machines.)1 615 3 900 2616 t
+10 I f
+(msgs)3970 2616 w
+10 R f
+( programs)1 413(system. These)1 602 2 4205 2616 t
+( a software tool package called)5 1262(are part of)2 423 2 900 2736 t
+10 I f
+(Personal Communication Services)2 1394 1 2616 2736 t
+10 R f
+( in abbreviated form.)3 855(or PCS)1 324 2 4041 2736 t
+(The PCS software tools are a set of cooperating and integrated programs that perform personal communica\255)15 4320 1 900 2856 t
+( include:)1 361( services available with the PCS package)6 1726( Some)1 293(tion and management type functions for users.)6 1940 4 900 2976 t
+( the bulletin board)3 748( Only)1 256( reminder type services.)3 971(mail, bulletin board, message display, calendar, and event)7 2345 4 900 3096 t
+(related programs are primarily discussed further here.)6 2141 1 900 3216 t
+( consists of a newsgroup spool area \(someplace in the UNIX file sys\255)12 2857(Basically, the bulletin board facility)4 1463 2 900 3384 t
+(tems\) which contains)2 867 1 900 3504 t
+10 I f
+(articles)1801 3504 w
+10 R f
+( been posted to various)4 953(which have)1 466 2 2135 3504 t
+10 I f
+(newsgroups)3587 3504 w
+10 R f
+(within the news spool area.)4 1122 1 4098 3504 t
+( news\255)1 266( A)1 125( boards".)1 360(Articles are similar to email messages and are placed on various newsgroups or "bulletin)13 3569 4 900 3624 t
+( contains articles which are usually related by simi\255)8 2060(group is a subarea within the entire news spool area that)10 2260 2 900 3744 t
+( and the sys\255)3 511( notion of what articles belong to which newsgroup is purely a user one)13 2880( The)1 207(lar subject matter.)2 722 4 900 3864 t
+( newsgroups are)2 654( Hierarchical)1 545( policy of where user articles should be posted.)8 1901(tem doesn't try to enforce any)5 1220 4 900 3984 t
+( other, the name of the newsgroup is a composite type)10 2185( newsgroups are nested within each)5 1426(supported. When)1 709 3 900 4104 t
+( the)1 151(of name similar to a UNIX path name but with periods used to separate parent newsgroup names from)17 4169 2 900 4224 t
+( example newsgroup names)3 1145( Some)1 291( any level.)2 439( can be nested to)4 713( Newsgroups)1 561(subnewsgroups within them.)2 1171 6 900 4344 t
+(might look like:)2 640 1 900 4464 t
+10 CW f
+(general)1150 4632 w
+(general.newuser)1150 4752 w
+(tools)1150 4872 w
+(tools.i286)1150 4992 w
+(tools.mc68)1150 5112 w
+(tools.latk)1150 5232 w
+(tools.ogs)1150 5352 w
+(news.ho)1150 5472 w
+(news.lz)1150 5592 w
+(news.dr)1150 5712 w
+(msgs.ho)1150 5832 w
+(msgs.lz)1150 5952 w
+(misc)1150 6072 w
+10 R f
+( a user)2 264( refers to the last time)5 873( Currency)1 422(Associated with each newsgroup and user is the concept of currency.)10 2761 4 900 6240 t
+( articles which have been created or modified since)8 2100( All)1 186(has read the articles on any particular newsgroup.)7 2034 3 900 6360 t
+(the last time the newsgroup was read are considered current.)9 2410 1 900 6480 t
+( default list of newsgroups to be)6 1324( The)1 212( can individually subscribe to the newsgroups of their choice.)9 2515(A user)1 269 4 900 6648 t
+(selected for reading is specified by the environment variable)8 2419 1 900 6768 t
+10 CW f
+(BBBDS)3345 6768 w
+10 R f
+( can be set by either manual edit\255)7 1322(. This)1 253 2 3645 6768 t
+( related information \(usually in the user's file)7 1839(ing of the user's profile)4 949 2 900 6888 t
+10 CW f
+(.pcsprofile)3717 6888 w
+10 R f
+(\) or by means of one)5 843 1 4377 6888 t
+( newsgroup selection and subscription.)4 1627(or more utility type programs designed to aid in bulletin board)10 2693 2 900 7008 t
+( subscribed to by manual editing of the user's newsgroup list file \(usually)12 3272(Newsgroups can also be)3 1048 2 900 7128 t
+10 CW f
+(.bbnewsrc)900 7248 w
+10 R f
+( user newsgroup list file, those newsgroups)6 1873(in the user's HOME directory\). Within the)6 1856 2 1491 7248 t
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 1 \))3 126( UDD)1 2017( \))1 37( 0)1 68( v)1 52( \()1 68( PCS)1 1991(UDD \( 1 \))3 321 8 540 480 t
+10 R f
+( consider unsubscribed while those followed by a colon character)9 2653(followed by an exclamation character are)5 1667 2 900 960 t
+( union of the list of newsgroups in the environment variable)10 2462( A)1 129(are considered subscribed.)2 1069 3 900 1080 t
+10 CW f
+(BBBDS)4592 1080 w
+10 R f
+(and the)1 297 1 4923 1080 t
+( file is used as the default set of newsgroups to scan)11 2088(subscription information from the user's newsgroup list)6 2232 2 900 1200 t
+( newsgroup is given on the command)6 1493( newsgroups can be scanned for articles when a)8 1902( Other)1 278(for new articles.)2 647 4 900 1320 t
+(line at invocation of the)4 949 1 900 1440 t
+10 I f
+(bb)1874 1440 w
+10 R f
+(program.)1999 1440 w
+9 B f
+(The)690 1608 w
+9 I f
+(bb)863 1608 w
+9 B f
+(Program)976 1608 w
+10 R f
+( arguments, the)2 653(When invoked without)2 954 2 900 1728 t
+10 I f
+(bb)2552 1728 w
+10 R f
+(program prints all unread articles on the set of newsgroups)9 2523 1 2697 1728 t
+( invoked)1 349( When)1 291(selected for reading and updates the user's currency time with respect to these newsgroups.)13 3680 3 900 1848 t
+( the currency time on that news\255)6 1304(with a newsgroup name, the program prints the unread articles and updates)11 3016 2 900 1968 t
+(group.)900 2088 w
+( any of the options)4 788(The default behavior of the program \(in the absence of)9 2270 2 900 2256 t
+10 CW f
+(\255subject)3994 2256 w
+10 R f
+(,)4474 2256 w
+10 CW f
+(\255newsgroups)4535 2256 w
+10 R f
+(,)5195 2256 w
+10 CW f
+(\255count)900 2376 w
+10 R f
+( By)1 183(\) is to read unread articles from the newsgroups that are selected for reading by the user.)16 3777 2 1260 2376 t
+( the user has listed one or more)7 1343( If)1 130(default, selected newsgroups are those that the user is subscribed to.)10 2847 3 900 2496 t
+( The)1 215( user's subscribed newsgroups.)3 1272(newsgroups on the command line, then these are used instead of the)11 2833 3 900 2616 t
+( to prompt the user for)5 926(program displays each unread article from the selected newsgroups and then pauses)11 3394 2 900 2736 t
+(one of the following commands:)4 1299 1 900 2856 t
+10 I f
+(Command Action)1 761 1 1500 3024 t
+10 B f
+(next)1500 3192 w
+10 R f
+( can)1 175(This command displays the next unread article. This is default action and)11 3045 2 2000 3192 t
+(also be entered with a plain carriage return.)7 1728 1 2000 3312 t
+10 B f
+(previous)1500 3480 w
+10 R f
+( be used to possibly display the previous \(already read\) arti\255)10 2450(This command can)2 770 2 2000 3480 t
+( to this command.)3 738(cle in the current newsgroup. Currently, there are limitations)8 2482 2 2000 3600 t
+( the UNIX)2 437(Since newsgroups can actually be realized by multiple directories in)9 2783 2 2000 3720 t
+( all previous articles are currently available for retrieval due to)10 2553(file systems, not)2 667 2 2000 3840 t
+( the same)2 403( previous articles that are stored in)6 1447( Only)1 262(limitations in the software.)3 1108 4 2000 3960 t
+( read in)2 321( previous articles that the user)5 1255( Also,)1 276(UNIX directory can be retrieved.)4 1368 4 2000 4080 t
+( One)1 222( not available either.)3 833(previous bulletin board reading sessions are currently)6 2165 3 2000 4200 t
+(or both of these restrictions may be removed in the future.)10 2321 1 2000 4320 t
+10 B f
+(review)1500 4488 w
+10 R f
+(Display this article again.)3 1021 1 2000 4488 t
+10 B f
+(follow)1500 4656 w
+10 R f
+( follow\255up on the current article by posting a new arti\255)10 2208(This command is used to)4 1012 2 2000 4656 t
+( The)1 209(cle to the same newsgroup.)4 1100 2 2000 4776 t
+10 I f
+(bbpost)3337 4776 w
+10 R f
+(program is invoked so that the user can)7 1588 1 3632 4776 t
+(enter a follow\255up article.)3 986 1 2000 4896 t
+10 B f
+(reply)1500 5064 w
+10 R f
+(invoke)2000 5064 w
+10 I f
+(pcsmail)2307 5064 w
+10 R f
+(\(or)2653 5064 w
+10 I f
+(sendmail)2804 5064 w
+10 R f
+( is)1 102( This)1 238(\) with the recipient and subject defaulted.)6 1715 3 3165 5064 t
+( in)1 110(analogous to the reply)3 909 2 2000 5184 t
+10 I f
+(readmail)3051 5184 w
+10 R f
+(and facilitates responses to the author of an)7 1776 1 3444 5184 t
+(article.)2000 5304 w
+10 B f
+(save)1500 5472 w
+10 R f
+(Save the previously read article in the user's "new" mailbox.)9 2422 1 2000 5472 t
+10 B f
+(print)1500 5640 w
+10 R f
+( user's default printer as specified with)6 1558(Print out the previously read article to the)7 1662 2 2000 5640 t
+(the)2000 5760 w
+10 CW f
+(PRINTER)2180 5760 w
+10 R f
+( article is printed in a specially)6 1418( The)1 237(environment variable.)1 908 3 2657 5760 t
+( worth of article)3 661(prepared format for news articles. Essentially, about two pages)8 2559 2 2000 5880 t
+( in landscape orientation. The underlying print)6 2048(are printed per paper page)4 1172 2 2000 6000 t
+(mechanism that is invoked is the PCS print program)8 2225 1 2000 6120 t
+10 I f
+(prt\255pcsmail)4267 6120 w
+10 R f
+(. This com\255)2 492 1 4728 6120 t
+( options specified are passed down to the)7 1646( Any)1 223( take additional options.)3 964(mand can)1 387 4 2000 6240 t
+10 I f
+(prt\255pcsmail)2000 6360 w
+10 R f
+( is most commonly used to change the printer desti\255)9 2131(program. This)1 597 2 2492 6360 t
+(nation or the number of copies with a command like:)9 2117 1 2000 6480 t
+10 CW f
+(print \255d di2 \255c 2 \255s 2)6 1320 1 2250 6648 t
+10 B f
+(Next)1500 6864 w
+10 R f
+( used to skip reading the rest of articles in the newsgroups that)12 2527(This command is)2 693 2 2000 6864 t
+( read and start displaying unread articles from the newsgroup)9 2505(is currently being)2 715 2 2000 6984 t
+( that are skipped are)4 899( Articles)1 389(that has any unread articles \(if there is one\).)8 1932 3 2000 7104 t
+(marked as being read.)3 875 1 2000 7224 t
+( 2)1 75( Page)1 1931( Commands)1 481( User)1 1508(February 8, 2018)2 685 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Page: 3 3
+DpostDict begin
+/saveobj save def
+mark
+3 pagesetup
+9 B f
+( \( 1 \))3 126( UDD)1 2017( \))1 37( 0)1 68( v)1 52( \()1 68( PCS)1 1991(UDD \( 1 \))3 321 8 540 480 t
+10 B f
+(This command is not implemented yet)5 1625 1 2000 960 t
+10 R f
+(.)3625 960 w
+10 B f
+(Previous)1500 1128 w
+10 R f
+( is used to go back to a previous newsgroup and start reading the)13 2621(This command)1 599 2 2000 1128 t
+(last article in the newsgroups.)4 1190 1 2000 1248 t
+10 B f
+(This command is not implemented yet and may not be for quite a while)13 3031 1 2000 1368 t
+10 R f
+(.)5031 1368 w
+10 B f
+(Skip)1500 1536 w
+10 R f
+( used to skip reading the rest of articles in the newsgroups that)12 2527(This command is)2 693 2 2000 1536 t
+( read and start displaying unread articles from the newsgroup)9 2505(is currently being)2 715 2 2000 1656 t
+( that are skipped are not)5 1011( Articles)1 377( \(if there is one\).)4 706(that has any unread articles)4 1126 4 2000 1776 t
+(marked as being read.)3 875 1 2000 1896 t
+10 B f
+(Catchup)1500 2064 w
+10 R f
+( used to skip reading the rest of articles in the newsgroups that)12 2527(This command is)2 693 2 2000 2064 t
+( read and start displaying unread articles from the newsgroup)9 2505(is currently being)2 715 2 2000 2184 t
+( that are skipped are)4 899( Articles)1 389(that has any unread articles \(if there is one\).)8 1932 3 2000 2304 t
+(marked as being read.)3 875 1 2000 2424 t
+10 B f
+(This command is not implemented yet)5 1625 1 2000 2544 t
+10 R f
+(.)3625 2544 w
+10 B f
+(quit)1500 2712 w
+10 R f
+(Terminate bulletin board reading \(and update currency\).)6 2241 1 2000 2712 t
+10 B f
+(?)1500 2880 w
+10 R f
+( consisting of some of the commands and their)8 1945(This prints out some brief help)5 1275 2 2000 2880 t
+(function.)2000 3000 w
+10 B f
+(Save)1500 3168 w
+10 R f
+(This is a sneaky \(previously undocumented\) command which appears to)9 3220 1 2000 3168 t
+( the exact consequences of)4 1063(suspend the current bulletin board reading session but)7 2157 2 2000 3288 t
+( and the user is advised to play with this at her)11 1939(this is not known by the author)6 1281 2 2000 3408 t
+(own risk.)1 372 1 2000 3528 t
+10 S f
+(\357)1500 3696 w
+10 I f
+(\(pipe character\))1 651 1 1574 3696 t
+10 R f
+( which appears to pipe the current)6 1382(This is a previously undocumented command)5 1838 2 2000 3816 t
+( to)1 108( are advised)2 488( Users)1 283(article out to a program specified after the pipe character.)9 2341 4 2000 3936 t
+(use only at their own risk.)5 1038 1 2000 4056 t
+10 S f
+(>)1500 4224 w
+10 I f
+(\(redirect output character\))2 1076 1 1580 4224 t
+10 R f
+( which appears to write the current)6 1397(This is a previously undocumented command)5 1823 2 2000 4344 t
+( character.)1 436(article out to a file name which follows after the output redirect)11 2784 2 2000 4464 t
+(Users are advised to use only at their own risk.)9 1869 1 2000 4584 t
+(The)900 4752 w
+10 I f
+(bb)1084 4752 w
+10 R f
+( a "\255" character \(or "+" in the)7 1187(program may also be invoked with the following options preceded by)10 2820 2 1213 4752 t
+(case of the)2 428 1 900 4872 t
+10 CW f
+(old)1354 4872 w
+10 R f
+( in as few letters as necessary)6 1174( options can usually be specified)5 1306( These)1 289(option \255\255 depreciated\).)2 891 4 1560 4872 t
+( one option of)3 597( Only)1 263( uniquely.)1 413(to distinguish them)2 792 4 900 4992 t
+10 CW f
+(\255subject)3038 4992 w
+10 R f
+(,)3518 4992 w
+10 CW f
+(\255newsgroups)3581 4992 w
+10 R f
+(,)4241 4992 w
+10 CW f
+(+count)4304 4992 w
+10 R f
+(, \(or)1 179 1 4664 4992 t
+10 CW f
+(+old)4881 4992 w
+10 R f
+(if)5159 4992 w
+( the absense of one of these preceding)7 1627(still supported by the system\), may be specified at one time. In)11 2693 2 900 5112 t
+(options, the program)2 838 1 900 5232 t
+10 B f
+(read)1767 5232 w
+10 R f
+( are basically, the four func\255)5 1149( These)1 293(s unread articles on the newsgroups selected.)6 1817 3 1961 5232 t
+( provided by)2 521(tions \(not including that)3 986 2 900 5352 t
+10 CW f
+(+old)2440 5352 w
+10 R f
+( the ")2 229( Unless)1 330(\) that the program performs.)4 1160 3 2680 5352 t
+10 CW f
+(\255e)4399 5352 w
+10 R f
+(" option is speci\255)3 701 1 4519 5352 t
+( execution mode of the)4 951( The)1 214( to which the user has subscribed will be accessed.)9 2099(fied, only the newsgroups)3 1056 4 900 5472 t
+(program can be changed with the following command line options:)9 2683 1 900 5592 t
+10 B f
+(\255subject)1150 5760 w
+10 R f
+(Print the subjects of articles.)4 1135 1 1900 5760 t
+10 B f
+(\255newsgroups)1150 5928 w
+10 R f
+( old option \()3 534( An)1 186(List the names of the newsgroups.)5 1435 3 1900 5928 t
+10 B f
+(\255boards)4055 5928 w
+10 R f
+(\) performs the same)3 837 1 4383 5928 t
+(function as this option.)3 917 1 1900 6048 t
+10 B f
+(\255count)1150 6216 w
+10 R f
+( be counted and the)4 780(This option causes the number of articles on each newsgroup to)10 2540 2 1900 6216 t
+(counts outputted.)1 689 1 1900 6336 t
+10 B f
+(+old)1150 6504 w
+10 R f
+( option is depreciated)3 875( This)1 234( currency.)1 404(Print the subjects of all articles regardless of)7 1807 4 1900 6504 t
+(in favor of:)2 449 1 1900 6624 t
+10 CW f
+(bb \255subject \255a)2 840 1 2150 6792 t
+10 R f
+(which provides the same function.)4 1373 1 1900 6960 t
+(The following options display information about the program:)7 2485 1 900 7200 t
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 3)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 3 3
+%%Page: 4 4
+DpostDict begin
+/saveobj save def
+mark
+4 pagesetup
+9 B f
+( \( 1 \))3 126( UDD)1 2017( \))1 37( 0)1 68( v)1 52( \()1 68( PCS)1 1991(UDD \( 1 \))3 321 8 540 480 t
+10 B f
+(\255V)1150 960 w
+10 R f
+(Print out the version of the program and then exit.)9 1998 1 1900 960 t
+10 B f
+(\255?)1150 1128 w
+10 R f
+( to print a brief description of command line)8 1970(This option causes the program)4 1350 2 1900 1128 t
+(options and then the program exists.)5 1449 1 1900 1248 t
+10 B f
+(\255D)1150 1416 w
+10 R f
+( causes internal program debugging information to be written to stan\255)10 2854(This option)1 466 2 1900 1416 t
+(dard error as the program executes.)5 1406 1 1900 1536 t
+(The behavior of the)3 784 1 900 1776 t
+10 I f
+(bb)1709 1776 w
+10 R f
+(program can be modified with the following options:)7 2118 1 1834 1776 t
+10 B f
+(\255L termlines)1 524 1 1150 1944 t
+10 R f
+( the program to)3 637(This option sets the number of terminal lines that will be used by)12 2683 2 1900 1944 t
+10 I f
+(termlines)1900 2064 w
+10 R f
+( will override the)3 685(. This)1 253 2 2272 2064 t
+10 CW f
+(LINES)3235 2064 w
+10 R f
+(environment variable if it is specified.)5 1520 1 3560 2064 t
+10 B f
+(\255o)1150 2232 w
+10 R f
+( rather than)2 460(This option modifies the program behavior to act only on "old" articles)11 2860 2 1900 2232 t
+( definitions of)2 593( The)1 221( to act only on "new" articles.)6 1279(the default behavior which is)4 1227 4 1900 2352 t
+( If)1 119( respect to the user's newgroup currency time.)7 1866("old" and "new" are relative with)5 1335 3 1900 2472 t
+(the)1900 2592 w
+10 CW f
+(\255a)2047 2592 w
+10 R f
+(option is also supplied, it takes precedence over this option.)9 2384 1 2192 2592 t
+10 B f
+(\255a)1150 2760 w
+10 R f
+( of currency,)2 548(Print all articles for whatever newsgroups are selected, regardless)8 2772 2 1900 2760 t
+( option takes precedence over the)5 1337( This)1 229(both "old" and "new".)3 883 3 1900 2880 t
+10 CW f
+(\255o)4374 2880 w
+10 R f
+(option if it is also)4 701 1 4519 2880 t
+(present.)1900 3000 w
+10 B f
+(\255r)1150 3168 w
+10 R f
+( Normally)1 448(This option is used to reverse the order in which articles are visited.)12 2872 2 1900 3168 t
+( this)1 178( If)1 124(when this option is omitted, articles are visited oldest first and latest last.)12 3018 3 1900 3288 t
+(option is given, then articles are visited latest first and oldest last.)11 2612 1 1900 3408 t
+10 B f
+(\255e)1150 3576 w
+10 R f
+(Modify the behavior of the)4 1084 1 1900 3576 t
+10 I f
+(bb)3011 3576 w
+10 R f
+( reference to every newsgroup that)5 1396(program to make)2 686 2 3138 3576 t
+( board spool directory area \(BBDIR\). When combined with)8 2472(exists in the bulletin)3 848 2 1900 3696 t
+( user to be)3 428(other options, this permits newsgroups that are not subscribed to by the)11 2892 2 1900 3816 t
+(accessed.)1900 3936 w
+10 B f
+(\255interactive)1150 4104 w
+10 R f
+(This option selects whether)3 1129 1 1900 4104 t
+10 CW f
+(bb)3065 4104 w
+10 R f
+( most common)2 619( The)1 216(behaves interactively or not.)3 1164 3 3221 4104 t
+( cleaver users)2 552( Some)1 283( to catch up on unread articles non\255interactively.)7 1964(use of this is)3 521 4 1900 4224 t
+( program to simply get the articles written)7 1700(may use the non\255interactive mode of the)6 1620 2 1900 4344 t
+( "mailbox" option is usually better for)6 1599( The)1 219(out for postprocessing of some sort.)5 1502 3 1900 4464 t
+( compatibility for)2 704(this sort of use but non\255interactive mode is retained for backward)10 2616 2 1900 4584 t
+( option is only used during "read" mode operation.)8 2022( This)1 228(some old time users.)3 822 3 1900 4704 t
+10 B f
+(\255mailbox)1150 4872 w
+10 R f
+( by the)2 284(This option is used)3 774 2 1900 4872 t
+10 I f
+(bbr)2989 4872 w
+10 R f
+(program \(described later\) to have the news articles)7 2061 1 3159 4872 t
+( reading program like)3 925(\(selected by currency time\) formatted for use by a mail)9 2395 2 1900 4992 t
+10 B f
+(vmail)1900 5112 w
+10 R f
+(or)2165 5112 w
+10 B f
+(readmail)2274 5112 w
+10 R f
+( option can also be used by those users who want to write)12 2309(. This)1 254 2 2657 5112 t
+( filtering programs or the like for article sorting or alternate presen\255)11 2746(various article)1 574 2 1900 5232 t
+(tations. This option only has meaning while)6 1789 1 1900 5352 t
+10 B f
+(read)3721 5352 w
+10 R f
+( option is only)3 597( This)1 235(ing articles.)1 473 3 3915 5352 t
+(used during "read" mode operation.)4 1421 1 1900 5472 t
+10 B f
+(\255C)1150 5640 w
+10 R f
+( "read" mode of operation.)4 1104(This option is only useful when the program is in the)10 2216 2 1900 5640 t
+( causes the command output \(prompts, et cetera\) to be mixed with the)12 2854(This option)1 466 2 1900 5760 t
+( both types of output is filtered)6 1245( is sometimes useful for when)5 1201( This)1 229(message output.)1 645 4 1900 5880 t
+( still running the)3 701(through some sort of other program while)6 1760 2 1900 6000 t
+10 I f
+(bb)4400 6000 w
+10 R f
+(program interac\255)1 681 1 4539 6000 t
+( if standard output is not a terminal, command like output is)11 2592(tively. Normally,)1 728 2 1900 6120 t
+( kept for)2 374( behavior is)2 504( This)1 247(routed to standard error rather than standard output.)7 2195 4 1900 6240 t
+(backward compatibility reasons.)2 1295 1 1900 6360 t
+9 B f
+(The)690 6528 w
+9 I f
+(bbr)863 6528 w
+9 B f
+(Program)1011 6528 w
+10 R f
+(The)900 6648 w
+10 I f
+(bbr)1085 6648 w
+10 R f
+( articles from the user's selected newsgroups and puts them into)10 2617(program collects all the "current")4 1349 2 1254 6648 t
+(the user's mailbox)2 740 1 900 6768 t
+10 I f
+(bbtemp)1666 6768 w
+10 R f
+(\(user's file)1 429 1 1986 6768 t
+10 CW f
+(${HOME}/mail/bbtemp)2475 6768 w
+10 R f
+(\) suitable for viewing with a mail reader)7 1605 1 3615 6768 t
+(program like)1 513 1 900 6888 t
+10 I f
+(rdmail)1438 6888 w
+10 R f
+(or)1730 6888 w
+10 I f
+(vmail)1838 6888 w
+10 R f
+( articles are no longer considered "current" like when)8 2134(. These)1 314 2 2085 6888 t
+10 CW f
+(bb \255subject)1 661 1 4559 6888 t
+10 R f
+(is run.)1 250 1 900 7008 t
+9 B f
+(The)690 7176 w
+9 I f
+(bbpost)863 7176 w
+9 B f
+(Program)1126 7176 w
+10 R f
+( 4)1 75( Page)1 1931( Commands)1 481( User)1 1508(February 8, 2018)2 685 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 4 4
+%%Page: 5 5
+DpostDict begin
+/saveobj save def
+mark
+5 pagesetup
+9 B f
+( \( 1 \))3 126( UDD)1 2017( \))1 37( 0)1 68( v)1 52( \()1 68( PCS)1 1991(UDD \( 1 \))3 321 8 540 480 t
+10 R f
+(The)900 960 w
+10 I f
+(bbpost)1082 960 w
+10 R f
+( user is prompted for the)5 994( The)1 208( preparing and posting articles to newsgroups.)6 1857(program is used for)3 785 4 1376 960 t
+(newsgroups \(sometimes referred to as a)5 1617 1 900 1080 t
+10 I f
+(board)2549 1080 w
+10 R f
+(\) to post to \(prompt is)5 905 1 2788 1080 t
+10 CW f
+(NEWSGROUP)3724 1080 w
+10 R f
+(or)4295 1080 w
+10 CW f
+(NEWSGROUPS)4409 1080 w
+10 R f
+(\), the)1 211 1 5009 1080 t
+( \(prompt is)2 453(subject of the article)3 830 2 900 1200 t
+10 CW f
+(SUBJECT)2250 1200 w
+10 R f
+( The)1 212(\), and the text of the article.)6 1145 2 2670 1200 t
+10 I f
+(bbpost)4059 1200 w
+10 R f
+(program adds)1 553 1 4358 1200 t
+10 I f
+(FROM)4943 1200 w
+10 R f
+(and)900 1320 w
+10 I f
+(DATE)1069 1320 w
+10 R f
+(information to the article before submission into the bulletin board system.)10 2990 1 1344 1320 t
+(After the article is entered by the user,)7 1529 1 900 1488 t
+10 I f
+(bbpost)2454 1488 w
+10 R f
+(prompts for one of the following commands:)6 1793 1 2746 1488 t
+10 I f
+(Command Action)1 761 1 1500 1656 t
+10 B f
+(post)1500 1824 w
+10 R f
+(Post the article to the specified newsgroup.)6 1717 1 2000 1824 t
+10 B f
+(review)1500 1992 w
+10 R f
+(Print out the article for review by the user.)8 1694 1 2000 1992 t
+10 B f
+(edit)1500 2160 w
+10 R f
+(Edit the article \(the NEWSGROUPS and SUBJECT fields may also be edited\).)11 3164 1 2000 2160 t
+10 B f
+(quit)1500 2328 w
+10 R f
+(Terminate session without posting the article.)5 1821 1 2000 2328 t
+(The)900 2496 w
+10 I f
+(bbpost)1081 2496 w
+10 R f
+( that posted articles are usually)5 1244( Note)1 245(program then posts the article to the bulletin board system.)9 2357 3 1374 2496 t
+( with several different)3 890(transported throughout the bulletin board system which may contain many machines)10 3430 2 900 2616 t
+( to an hour or more of time may be needed for an article to appear in other)17 3200(newsgroup spool areas. Up)3 1120 2 900 2736 t
+(machine spool areas, depending on how articles are transported.)8 2555 1 900 2856 t
+(If the)1 220 1 900 3024 t
+10 CW f
+(edit)1152 3024 w
+10 R f
+(option is used,)2 595 1 1424 3024 t
+10 I f
+(bbpost)2052 3024 w
+10 R f
+( ")1 74( The)1 213(will enter the editor for the typing of the message.)9 2069 3 2352 3024 t
+10 CW f
+(\255s)4708 3024 w
+10 I f
+(subject)4896 3024 w
+10 R f
+(")5179 3024 w
+( bypass asking the user for a subject and will use the supplied subject \(specified)14 3268(command line option will)3 1052 2 900 3144 t
+(by)900 3264 w
+10 I f
+(subject)1041 3264 w
+10 R f
+( If)1 133(\) instead.)1 383 2 1324 3264 t
+10 I f
+(subject)1882 3264 w
+10 R f
+(has spaces or other shell offending characters in it, it should be quoted)12 3013 1 2207 3264 t
+( ")1 66( The)1 205( that the shell will leave it alone.)7 1299(appropriately so)1 647 4 900 3384 t
+10 CW f
+(\255a)3117 3384 w
+10 I f
+(attachment)3297 3384 w
+10 R f
+(" command line option will append a)6 1479 1 3741 3384 t
+(file specified as)2 634 1 900 3504 t
+10 I f
+(attachment)1563 3504 w
+10 R f
+( program will still ask the user to enter some text)10 2004( The)1 210(to the composed article.)3 969 3 2037 3504 t
+( the)1 153( If)1 122( character to end the text, the program appends the specified file.)11 2651(and after the user types the period)6 1394 4 900 3624 t
+(user now "edit"s or "review"s the article, the attachment will be seen and can be further edited it desired.)18 4177 1 900 3744 t
+9 B f
+(The)690 3912 w
+9 I f
+(rbbpost)863 3912 w
+9 B f
+(Program)1161 3912 w
+10 R f
+(The)900 4032 w
+10 I f
+(rbbpost)1088 4032 w
+10 R f
+(program is similar to the)4 1015 1 1427 4032 t
+10 I f
+(bbpost)2475 4032 w
+10 R f
+( an article into the bulletin)5 1097(program in that it is used to post)7 1348 2 2775 4032 t
+( command differs significantly from the)5 1650( This)1 239(board system.)1 566 3 900 4152 t
+10 I f
+(bbpost)3391 4152 w
+10 R f
+(program in that it is completely non\255)6 1526 1 3694 4152 t
+( newsgroup)1 476( command reads an article file on its standard input only and posts it to the)15 3158(interactive. This)1 686 3 900 4272 t
+( in an article format)4 867( input file is assumed to be)6 1198( The)1 226(specified as the program's invocation argument.)5 2029 4 900 4392 t
+( message and in fact this is the most)8 1454( article formatted file is similar to a file formatted as a mail)12 2375(already. An)1 491 3 900 4512 t
+( mail message files from a user's mail reading program.)9 2310(common use for this command ; namely, to post)8 2010 2 900 4632 t
+( and the)2 326(Actually, any input file that minimally begins with a blank line is acceptable)12 3104 2 900 4752 t
+10 I f
+(rbbpost)4360 4752 w
+10 R f
+(program will)1 524 1 4696 4752 t
+(add some additional article headers as appropriate if necessary.)8 2518 1 900 4872 t
+( using this program is to post an article from a user's mail reading program such as)16 3456(A typical example of)3 864 2 900 5040 t
+(PCS)900 5160 w
+10 I f
+(vmail)1123 5160 w
+10 R f
+(or PCS)1 306 1 1389 5160 t
+10 I f
+(readmail)1738 5160 w
+10 R f
+( these mail readers, the user would "pipe" the current message to the)12 2945(. In)1 176 2 2099 5160 t
+10 I f
+(rbbpost)900 5280 w
+10 R f
+(program with a command sequence similar to:)6 1853 1 1231 5280 t
+10 CW f
+(| rbbpost)1 540 1 1150 5448 t
+10 I f
+(newsgroup)1750 5448 w
+10 R f
+(where)900 5616 w
+10 I f
+(newsgroup)1168 5616 w
+10 R f
+(is the name of a valid newsgroup for the system such as:)11 2255 1 1632 5616 t
+10 CW f
+(misc)1150 5784 w
+(general)1150 5904 w
+10 R f
+(and so forth.)2 502 1 900 6072 t
+9 B f
+(The)690 6240 w
+9 I f
+(datepost)863 6240 w
+9 B f
+(Program)1191 6240 w
+10 R f
+(The)900 6360 w
+10 I f
+(datepost)1082 6360 w
+10 R f
+(program is similar to the)4 991 1 1448 6360 t
+10 I f
+(rbbpost)2466 6360 w
+10 R f
+( only difference between this program and the)7 1851(program. The)1 570 2 2799 6360 t
+10 I f
+(rbbpost)900 6480 w
+10 R f
+( in the newsgroup spool area in a file name that has a)12 2202(program is that the posted article isn stored)7 1779 2 1239 6480 t
+( is useful for posting to newsgroups that are linked to message storage areas)13 3096( feature)1 305( This)1 232(date type format.)2 687 4 900 6600 t
+( are implemented as files in the system, storing)8 1887( articles)1 315( Since)1 274(that may be scanned by looking at file names.)8 1844 4 900 6720 t
+(the articles with a file name that reflects the date of the posting is sometimes useful.)15 3351 1 900 6840 t
+( the)1 157(This program is otherwise used exactly as)6 1729 2 900 7008 t
+10 I f
+(rbbpost)2821 7008 w
+10 R f
+( usually originate from a user's)5 1295(program. Postings)1 763 2 3162 7008 t
+(mail reading program such as PCS)5 1395 1 900 7128 t
+10 I f
+(vmail)2321 7128 w
+10 R f
+(or PCS)1 288 1 2569 7128 t
+10 I f
+(readmail)2883 7128 w
+10 R f
+( these mail readers, the user would "pipe" the)8 1817(. In)1 159 2 3244 7128 t
+(current message to the)3 895 1 900 7248 t
+10 I f
+(datepost)1820 7248 w
+10 R f
+(program with a command sequence similar to:)6 1853 1 2184 7248 t
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 5)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 5 5
+%%Page: 6 6
+DpostDict begin
+/saveobj save def
+mark
+6 pagesetup
+9 B f
+( \( 1 \))3 126( UDD)1 2017( \))1 37( 0)1 68( v)1 52( \()1 68( PCS)1 1991(UDD \( 1 \))3 321 8 540 480 t
+10 CW f
+(| datepost)1 600 1 1150 960 t
+10 I f
+(newsgroup)1810 960 w
+10 R f
+(where)900 1128 w
+10 I f
+(newsgroup)1168 1128 w
+10 R f
+(is the name of a valid newsgroup for the system such as:)11 2255 1 1632 1128 t
+10 CW f
+(events)1150 1296 w
+(misc)1150 1416 w
+(general)1150 1536 w
+10 R f
+(and so forth.)2 502 1 900 1704 t
+9 B f
+(EXAMPLES)540 1872 w
+10 S1 f
+()900 1992 w
+10 S1 f
+900 1992 m
+100 build_rh
+1000 1992 m
+10 R f
+( login startup profiles to list out the articles)8 1842(Most people put the following command line in their)8 2228 2 1150 1992 t
+(posted in the newsgroups for which the user is subscribed:)9 2333 1 1150 2112 t
+10 CW f
+(bb \255subject)1 660 1 1400 2280 t
+10 S1 f
+()900 2496 w
+900 2496 m
+100 build_rh
+1000 2496 m
+10 R f
+(To just read unread articles from the user's subscribed newsgroups, execute:)10 3051 1 1150 2496 t
+10 CW f
+(bb)1400 2664 w
+10 S1 f
+()900 2880 w
+900 2880 m
+100 build_rh
+1000 2880 m
+10 R f
+(To catch up on unread articles, without seeing them, execute:)9 2448 1 1150 2880 t
+10 CW f
+(bb \255int > /dev/null)3 1140 1 1400 3048 t
+10 S1 f
+()900 3264 w
+900 3264 m
+100 build_rh
+1000 3264 m
+10 R f
+(To read unread articles in the order from the latest one posted to the earliest one posted:)16 3504 1 1150 3264 t
+10 CW f
+(bb \255r)1 300 1 1400 3432 t
+10 S1 f
+()900 3648 w
+900 3648 m
+100 build_rh
+1000 3648 m
+10 R f
+(To get the names of all of the user's subscribed newsgroups:)10 2418 1 1150 3648 t
+10 CW f
+(bb \255newsgroups)1 840 1 1400 3816 t
+10 S1 f
+()900 4032 w
+900 4032 m
+100 build_rh
+1000 4032 m
+10 R f
+(To get the names of all of the newsgroups in the system:)11 2256 1 1150 4032 t
+10 CW f
+(bb \255newsgroups \255e)2 1020 1 1400 4200 t
+10 S1 f
+()900 4416 w
+900 4416 m
+100 build_rh
+1000 4416 m
+10 R f
+(To search for a newsgroup \()5 1171 1 1150 4416 t
+10 CW f
+(SWAPEX_Classes)2321 4416 w
+10 R f
+(in this example\) when you only remember a few)8 2023 1 3197 4416 t
+(characters from the name of the newsgroup, execute:)7 2110 1 1150 4536 t
+10 CW f
+(bb \255newsgroups \255e | fgrep APEX)5 1800 1 1400 4704 t
+10 S1 f
+()900 4920 w
+900 4920 m
+100 build_rh
+1000 4920 m
+10 R f
+(To get the subject header values of unread articles on the user's subscribed newsgroups:)13 3517 1 1150 4920 t
+10 CW f
+(bb \255subject)1 660 1 1400 5088 t
+10 S1 f
+()900 5304 w
+900 5304 m
+100 build_rh
+1000 5304 m
+10 R f
+(To get the subject header values of all \(old and new\) articles on the user's subscribed newsgroups:)16 3925 1 1150 5304 t
+10 CW f
+(bb \255subject \255a)2 840 1 1400 5472 t
+10 S1 f
+()900 5688 w
+900 5688 m
+100 build_rh
+1000 5688 m
+10 R f
+(To get the subject header values of all articles on all newsgroups in the system:)14 3162 1 1150 5688 t
+10 CW f
+(bb \255subject \255a \255e)3 1020 1 1400 5856 t
+10 S1 f
+()900 6072 w
+900 6072 m
+100 build_rh
+1000 6072 m
+10 R f
+(To get the count of unread articles on the user's subscribed newsgroups:)11 2886 1 1150 6072 t
+10 CW f
+(bb \255count)1 540 1 1400 6240 t
+10 S1 f
+()900 6456 w
+900 6456 m
+100 build_rh
+1000 6456 m
+10 R f
+(To get the count of all old articles still in a newsgroup \(the newsgroup)13 2805 1 1150 6456 t
+10 I f
+(general)3980 6456 w
+10 R f
+(in this case\):)2 505 1 4310 6456 t
+10 CW f
+(bb \255count \255o general)3 1200 1 1400 6624 t
+9 B f
+(POPULAR NEWSGROUPS)1 1098 1 540 6840 t
+10 R f
+( these newsgrops are read only to normal)7 1736( of)1 121( Some)1 291(Some of the more popular newsgroups listed below.)7 2172 4 900 6960 t
+( are read\255only or that may have other restricted are identified as such below.)13 3101( newsgroups that)2 689(users. Those)1 530 3 900 7080 t
+( PCS)1 222( Your)1 273( also accessible \(can be posted to\) from outside of GBCS via email.)12 2915(Some newsgroups are)2 910 4 900 7200 t
+( 6)1 75( Page)1 1931( Commands)1 481( User)1 1508(February 8, 2018)2 685 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 6 6
+%%Page: 7 7
+DpostDict begin
+/saveobj save def
+mark
+7 pagesetup
+9 B f
+( \( 1 \))3 126( UDD)1 2017( \))1 37( 0)1 68( v)1 52( \()1 68( PCS)1 1991(UDD \( 1 \))3 321 8 540 480 t
+10 R f
+( on which news\255)3 678(bulletin board administrator \(listed at the end of this manual page\) will have information)13 3642 2 900 960 t
+(groups can be posted to via email.)6 1362 1 900 1080 t
+(The descriptions of the more popular newsgroups are:)7 2154 1 900 1248 t
+10 B f
+(general)1150 1416 w
+10 R f
+( on general items related to work.)6 1423(This newsgroup is meant to exchange articles)6 1897 2 1900 1416 t
+(Do not use this newsgroup for non\255work related topics.)8 2205 1 1900 1536 t
+10 B f
+(general.newuser)1150 1704 w
+10 R f
+( information useful to new members of the GBCS R&D or)10 2383(This newsgroup carries)2 937 2 1900 1704 t
+( the)1 153(other basic information useful for using the R&D computing environment for)10 3167 2 1900 1824 t
+(fist time.)1 356 1 1900 1944 t
+10 B f
+(misc)1150 2112 w
+10 R f
+(Use this newsgroup for all non\255work related items.)7 2030 1 1900 2112 t
+10 B f
+(events)1150 2280 w
+10 R f
+( like organizational)2 811(This newsgroup is used for work related events coming up)9 2509 2 1900 2280 t
+(wide meetings or other corporate AT&T activities.)6 2027 1 1900 2400 t
+10 B f
+(events.courses)1150 2568 w
+10 R f
+( that)1 187(This newsgroup is used to provide information on general courses available)10 3133 2 1900 2568 t
+(that not normally carried on any other newsgroup.)7 2002 1 1900 2688 t
+10 B f
+(workplace)1150 2856 w
+10 R f
+( workplace,)1 477(This newsgroup is used for the exchange of workplace, or quality of)11 2843 2 1900 2856 t
+(related issues.)1 560 1 1900 2976 t
+10 B f
+(tools)1150 3144 w
+10 R f
+( this)1 179( Watch)1 319( exchange of tool realted information.)5 1553(This newsgroup is used for the)5 1269 4 1900 3144 t
+( R&D\255wide computer tools and tool updates including PCS)8 2514(newsgroup for new)2 806 2 1900 3264 t
+(related tools.)1 516 1 1900 3384 t
+10 B f
+(luncheons)1150 3552 w
+10 R f
+(This is used for the posting of all luncheon announcements.)9 2381 1 1900 3552 t
+10 B f
+(jobposts)1150 3720 w
+10 R f
+( is readonly \(to normal users\) and is used to provide information)11 2671(This newsgroup)1 649 2 1900 3720 t
+(on job openings within GBCS \(usually the R&D community\).)8 2482 1 1900 3840 t
+10 B f
+(ATT)1150 4008 w
+10 S f
+(_)1356 4008 w
+10 B f
+(today)1406 4008 w
+10 R f
+(This newsgroup \(also readonly\) carries the)5 1704 1 1900 4008 t
+10 I f
+(AT&T Today)1 526 1 3629 4008 t
+10 R f
+(electronic newsletter.)1 853 1 4180 4008 t
+10 B f
+(test)1150 4176 w
+10 R f
+( users to test out posting an article to the sys\255)10 1849(This newsgroup can be used by new)6 1471 2 1900 4176 t
+(tem.)1900 4296 w
+10 B f
+(news)1150 4464 w
+10 R f
+( computer)1 426(This newsgroup and related subnewsgroups are usually used by the)9 2894 2 1900 4464 t
+( environment related information \(usually of a transient)7 2293(center to post computing)3 1027 2 1900 4584 t
+( newsgroup is special in that it is really cross posted from the UNIX)13 2781(nature\). This)1 539 2 1900 4704 t
+( on)1 126( may or may not be possible to this newsgroup depending)10 2324( Posts)1 264(News faciality.)1 606 4 1900 4824 t
+( posts can be made to this)6 1093( Sometimes,)1 531( computing administors set it up.)5 1367(how the)1 329 4 1900 4944 t
+(newsgroup but will not be readable using the UNIX)8 2109 1 1900 5064 t
+10 I f
+(news)4039 5064 w
+10 R f
+( your PCS)2 422(prgram. Ask)1 529 2 4269 5064 t
+( administrator \(listed at the end of this manual page\) for information)11 2760(bulletin board)1 560 2 1900 5184 t
+(about how posting \(if any\) can be made to this newsgroup.)10 2344 1 1900 5304 t
+10 B f
+(msgs)1150 5472 w
+10 R f
+( hold all articles that were)5 1149(This newsgroup, or its subnewsgroups, are used to)7 2171 2 1900 5472 t
+( articles can be)3 595( Although)1 428( MSGS facility.)2 631(mailed into the system through the UNIX)6 1666 4 1900 5592 t
+( a PCS program like)4 859(posted to this newsgroup like any other using)7 1890 2 1900 5712 t
+10 I f
+(bbpost)4686 5712 w
+10 R f
+(, these)1 267 1 4953 5712 t
+(posted articles will normally)3 1168 1 1900 5832 t
+10 B f
+(not)3102 5832 w
+10 R f
+( to the UNIX)3 548(be available)1 488 2 3275 5832 t
+10 B f
+(MSGS)4344 5832 w
+10 R f
+(system reader)1 559 1 4661 5832 t
+(program)1900 5952 w
+10 I f
+(msgs)2267 5952 w
+10 R f
+( it is advised that the)5 850(. Generally,)1 497 2 2467 5952 t
+10 I f
+(msgs)3844 5952 w
+10 R f
+(program be used for posting)4 1146 1 4074 5952 t
+( both systems simulatneously \(as)4 1357(to this newsgroup for articles to be available to)8 1963 2 1900 6072 t
+(generally intended\).)1 798 1 1900 6192 t
+( your project's pro\255)3 794( Contact)1 367(Many projects usually have project specific newsgroups for various purposes.)9 3159 3 900 6432 t
+( full list of all of the)6 812( A)1 124( newsgroups specific to your project.)5 1485(cess or methodology people for information on)6 1899 4 900 6552 t
+(newsgroups on the system at any time can be made by executing:)11 2610 1 900 6672 t
+10 CW f
+(bb \255newsgroups \255a)2 1020 1 1150 6840 t
+10 R f
+(Requests for the creation of new newsgroups should be made to the PCS bulletin board administrator.)15 4068 1 900 7008 t
+9 B f
+(ADMINISTRATION)540 7176 w
+10 R f
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 7)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 7 7
+%%Page: 8 8
+DpostDict begin
+/saveobj save def
+mark
+8 pagesetup
+9 B f
+( \( 1 \))3 126( UDD)1 2017( \))1 37( 0)1 68( v)1 52( \()1 68( PCS)1 1991(UDD \( 1 \))3 321 8 540 480 t
+(Newsgroup Spool Area)2 886 1 690 960 t
+10 R f
+( actually one or more directories in a news spool area someplace in the UNIX file sys\255)16 3554(Each newsgroup is)2 766 2 900 1080 t
+( in the hierarchy of the spool area is automatically considered)10 2456( appearance of a directory any place)6 1444(tems. The)1 420 3 900 1200 t
+( are followed when)3 776( links)1 222( Symbolic)1 436(to be a newsgroup \(possibly a new one\) and is scanned for new articles.)13 2886 4 900 1320 t
+( including expanding the)3 991( links allow for several possibilities)5 1424( Symbolic)1 435(traversing the newsgroup spool area.)4 1470 4 900 1440 t
+( can)1 173( possibilities)1 513( Other)1 286(apparent newsgroup spool area to a size larger than a physical UNIX file system.)13 3348 4 900 1560 t
+(include linking more than one newsgroup together to provide a physical newsgroup by two or more)15 4320 1 900 1680 t
+( hierarchy of newsgroups follows the UNIX directory hierarchy of the newsgroup)11 3437( The)1 220(apparent names.)1 663 3 900 1800 t
+( and sub\255)2 378( parent newsgroups)2 790( Both)1 252( subdirectories are taken to be subnewsgroups.)6 1902( Specifically,)1 559(spool area.)1 439 6 900 1920 t
+( hierarchical)1 496( Currently,)1 459( can occur to any level desired.)6 1244( nesting)1 314( Newsgroup)1 510(newsgroups can contain articles.)3 1297 6 900 2040 t
+( The)1 215( a UNIX directory name has one or more period characters in it.)12 2671(newsgroups are also realized when)4 1434 3 900 2160 t
+( these sorts of directory names separates the parent newsgroup name \(which can never contain any)15 3961(period in)1 359 2 900 2280 t
+( The)1 215(articles since there is no actual physical directory associated with it\) from the subnewsgroup name.)14 4105 2 900 2400 t
+( newsgroup)1 466( Full)1 215( which holds the article files for the subnewsgroup.)8 2068(directory itself is considered to the that)6 1571 4 900 2520 t
+( above mechanisms can exist simultaneously in the spool area and they are)12 3068(names made up by both of the)6 1252 2 900 2640 t
+( articles in any newsgroups found with the)7 1723( All)1 182( user.)1 220(taken to reference the same apparent newsgroup to the)8 2195 4 900 2760 t
+( mechanism, along)2 752( This)1 228( and taken to be in that single apparent newsgroup.)9 2030(same apparent name are scanned)4 1310 4 900 2880 t
+( make for some involved newsgroup structures which may or may not serve partic\255)13 3339(with symbolic links, can)3 981 2 900 3000 t
+( there is no limit to the number of newsgroups that can exist.)12 2423( Finally,)1 359(ular administrators.)1 777 3 900 3120 t
+9 B f
+(Articles)690 3288 w
+10 R f
+( UNIX modification)2 838( The)1 219(Each article is actually realized as an individual file in a newsgroup directory.)12 3263 3 900 3408 t
+( the UNIX modification)3 978( Although)1 461(times of the article files are taken to be the posted date of the articles.)14 2881 3 900 3528 t
+( read by a user, the UNIX modification)7 1633(time of an article file is used to determine if that article has been)13 2687 2 900 3648 t
+( scanning for new)3 721( When)1 291( article file is located in is also important.)8 1681(time of the newsgroup directory that the)6 1627 4 900 3768 t
+( directories are entered that have a modification time older than the currency time)13 3399(articles, no newsgroup)2 921 2 900 3888 t
+( can only be made to be freshly)7 1334( articles)1 326( Old)1 213(stored for that newsgroup in the user's newsgroup list file.)9 2447 4 900 4008 t
+( is)1 106( This)1 242( the article is in.)4 697(current by also updating the modification time of the newsgroup directory that)11 3275 4 900 4128 t
+(rather automatic for new articles placed into a directory since the modification time of the directory is)16 4320 1 900 4248 t
+(updated automatically when new directory entries are made.)7 2405 1 900 4368 t
+(Articles should be formatted as RFC 822 like mail messages \(UNIX mail messages\) in order to be properly)17 4320 1 900 4536 t
+( PCS requirement for properly formatted mail mes\255)7 2134( The)1 217( article reading programs.)3 1061(processed by the PCS)3 908 4 900 4656 t
+( that any file with at least a leading blank line \(a null header section followed)15 3111(sages is a rather lenient one in)6 1209 2 900 4776 t
+( allowed per news\255)3 774( there is currently a limit of 1000 articles)8 1687( Finally,)1 366(by a mail message body\) is allowed.)6 1493 4 900 4896 t
+( is a compile time variable which would require a recompile of the program)13 3045(group. This)1 488 2 900 5016 t
+10 I f
+(bb)4460 5016 w
+10 R f
+(in order for this)3 633 1 4587 5016 t
+(to be changed.)2 579 1 900 5136 t
+9 B f
+(Expiring Articles)1 663 1 690 5304 t
+10 R f
+( for an administrator to expire articles is to simply have their corresponding files removed)14 3673(The easiest way)2 647 2 900 5424 t
+( can be accomplished with various UNIX utilities for selecting files)10 2786( This)1 237(from the newsgroup spool area.)4 1297 3 900 5544 t
+( also search for files ignoring symbolic links or UNIX)9 2287( can)1 176( Administrators)1 663(based on modification times.)3 1194 4 900 5664 t
+( in symbolically linked)3 941( sorts of techniques can be used to not expire articles that are)12 2524( These)1 296(mount points.)1 559 4 900 5784 t
+( expiring articles could be a)5 1146(directories or in other file systems. A simple example of)9 2310 2 900 5904 t
+10 I f
+(cron)4389 5904 w
+10 R f
+(program which)1 615 1 4605 5904 t
+(executes:)900 6024 w
+10 CW f
+(find $BBDIR \255type f \255mtime +22 \255exec rm \255f {} ;)10 2820 1 1150 6192 t
+10 R f
+(Other strategies are possible and are left to the industrious system administrators out there.)13 3623 1 900 6360 t
+9 B f
+(Other)690 6528 w
+10 R f
+(Secretly, the program)2 874 1 900 6648 t
+10 I f
+(bbr)1805 6648 w
+10 R f
+(simply calls the)2 640 1 1975 6648 t
+10 I f
+(bb)2646 6648 w
+10 R f
+(program with the)2 700 1 2777 6648 t
+10 CW f
+(mailbox)3543 6648 w
+10 R f
+( of its work.)3 504(option to do most)3 722 2 3994 6648 t
+(Under some circumstances, the PCS mail reader program)7 2325 1 900 6768 t
+10 I f
+(vmail)3255 6768 w
+10 R f
+(also calls the)2 526 1 3507 6768 t
+10 I f
+(bb)4063 6768 w
+10 R f
+(program with the)2 698 1 4193 6768 t
+10 CW f
+(mail\255)4920 6768 w
+(box)900 6888 w
+10 R f
+(option when a user of)4 893 1 1112 6888 t
+10 I f
+(vmail)2037 6888 w
+10 R f
+( their)1 216(uses it to "change" into)4 954 2 2291 6888 t
+10 I f
+(bbtemp)3494 6888 w
+10 R f
+( this later case, the)4 772(mailbox. In)1 494 2 3821 6888 t
+10 I f
+(bb)5120 6888 w
+10 R f
+( that the user's)3 588(program ensures)1 664 2 900 7008 t
+10 I f
+(bbtemp)2178 7008 w
+10 R f
+(mailbox is "up\255to\255date" so that the)5 1378 1 2498 7008 t
+10 I f
+(vmail)3902 7008 w
+10 R f
+(program shows the current)3 1070 1 4150 7008 t
+(state of the updated mailbox.)4 1157 1 900 7128 t
+( 8)1 75( Page)1 1931( Commands)1 481( User)1 1508(February 8, 2018)2 685 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 8 8
+%%Page: 9 9
+DpostDict begin
+/saveobj save def
+mark
+9 pagesetup
+9 B f
+( \( 1 \))3 126( UDD)1 2017( \))1 37( 0)1 68( v)1 52( \()1 68( PCS)1 1991(UDD \( 1 \))3 321 8 540 480 t
+10 R f
+(The)900 960 w
+10 I f
+(rbbpost)1087 960 w
+10 R f
+(program is suitably capable of being executed by the UUCP system as a result of a remotely)16 3795 1 1425 960 t
+(executed)900 1080 w
+10 I f
+(uux)1286 1080 w
+10 R f
+( the sys\255)2 345( provides one means of posting articles to a system from outside of)12 2759(command. This)1 654 3 1462 1080 t
+( remote user would execute something like:)6 1742(tem. A)1 297 2 900 1200 t
+10 CW f
+(uux \255p mtgbcs!rbbpost misc < mail_msg_formatted_file)5 3120 1 1150 1368 t
+10 R f
+( the message in the)4 768(to get)1 226 2 900 1536 t
+10 I f
+(mail)1921 1536 w
+10 S f
+(_)2099 1536 w
+10 I f
+(msg)2149 1536 w
+10 S f
+(_)2310 1536 w
+10 I f
+(formatted)2360 1536 w
+10 S f
+(_)2749 1536 w
+10 I f
+(file)2799 1536 w
+10 R f
+(posted to newsgroup)2 831 1 2954 1536 t
+10 I f
+(misc)3812 1536 w
+10 R f
+(within the PCS bulletin board)4 1198 1 4022 1536 t
+(system on machine)2 772 1 900 1656 t
+10 I f
+(mtgbcs)1700 1656 w
+10 R f
+( this capability requires the UUCP system administrator to setup the)10 2741( course,)1 313(. Of)1 183 3 1983 1656 t
+10 I f
+(rbbpost)900 1776 w
+10 R f
+(program in the UUCP system)4 1183 1 1231 1776 t
+10 I f
+(Permissions)2439 1776 w
+10 R f
+(file.)2953 1776 w
+( the MSGS system spool area directory coincide with a PCS bulletin board news\255)13 3367(If the administrator has)3 953 2 900 1944 t
+( then users can also effectively post messages to the coi\255)10 2251(group \(reference the discussion in the next section\),)7 2069 2 900 2064 t
+(cident newsgroup by emailing to the local email alias)8 2227 1 900 2184 t
+10 I f
+(msgs)3164 2184 w
+10 R f
+( requires that the)3 704(. This)1 265 2 3364 2184 t
+10 I f
+(msgs)4370 2184 w
+10 R f
+( has)1 171(email alias)1 442 2 4607 2184 t
+( can still post messages using something like:)7 1820( Users)1 277(been setup on the local mail system.)6 1446 3 900 2304 t
+10 CW f
+(msgs \255s < mail_msg_formatted_file)3 1980 1 1150 2472 t
+10 R f
+(similarly to the previous example with the)6 1688 1 900 2640 t
+10 I f
+(rbbpost)2613 2640 w
+10 R f
+(program. The)1 568 1 2944 2640 t
+10 I f
+(msgs)3537 2640 w
+10 R f
+( the)1 148(program can also be executed by)5 1310 2 3762 2640 t
+(UUCP system due to a remote execution of)7 1748 1 900 2760 t
+10 I f
+(uux)2675 2760 w
+10 R f
+( properly setup by the UUCP administra\255)6 1649(if the command is)3 725 2 2846 2760 t
+(tor in the UUCP system)4 956 1 900 2880 t
+10 I f
+(Permissions)1881 2880 w
+10 R f
+(file.)2395 2880 w
+9 B f
+(COMPATIBILITY WITH OTHER NEWS SYSTEMS)4 2107 1 540 3048 t
+10 R f
+( system is similar to both the standard)7 1528(The protocol used for the storage of articles in the PCS bulletin board)12 2792 2 900 3168 t
+10 I f
+(Netnews)900 3288 w
+10 R f
+(system and the old)3 768 1 1271 3288 t
+10 I f
+(msgs)2071 3288 w
+10 R f
+( articles are stored in the PCS bulletin)7 1555( Since)1 278( UNIX systems.)2 653(facility for)1 431 4 2303 3288 t
+( a sort\), a high degree of compatibility is achieved with both standard)12 2891(board system as mail messages \(of)5 1429 2 900 3408 t
+( UNIX)1 275(RFC 822 mail systems \(including UNIX mail\) and the old)9 2343 2 900 3528 t
+10 I f
+(msgs)3544 3528 w
+10 R f
+(system \(which was popular on older)5 1450 1 3770 3528 t
+(BSD systems\).)1 595 1 900 3648 t
+9 B f
+(UNIX MSGS System)2 806 1 690 3816 t
+10 R f
+(Compatibility is almost automatic with the UNIX)6 1996 1 900 3936 t
+10 I f
+(msgs)2923 3936 w
+10 R f
+( named)1 294( the exception of a file usually)6 1221(system. With)1 555 3 3150 3936 t
+10 I f
+(bounds)900 4056 w
+10 R f
+(in the)1 227 1 1216 4056 t
+10 I f
+(msgs)1470 4056 w
+10 R f
+( or)1 109( One)1 217( news spool area.)3 690(spool area, all message articles can be cross posted to the PCS)11 2507 4 1697 4056 t
+(more newsgroups by the name)4 1220 1 900 4176 t
+10 B f
+(msgs)2145 4176 w
+10 R f
+(or)2381 4176 w
+10 B f
+(msgs.)2489 4176 w
+10 I f
+(location)2725 4176 w
+10 R f
+( to hold)2 308(can be created under the PCS news spool area)8 1834 2 3078 4176 t
+( files which are created under the)6 1335(the message)1 488 2 900 4296 t
+10 I f
+(msgs)2750 4296 w
+10 R f
+( the spool areas \(the)4 806( If)1 118(\(proper\) spool area.)2 787 3 2977 4296 t
+10 I f
+(msgs)4715 4296 w
+10 R f
+(system)4942 4296 w
+( one and the same, then the)6 1090(spool directory and a PCS newsgroup directory\) are in fact)9 2348 2 900 4416 t
+10 I f
+(msgs bounds)1 515 1 4364 4416 t
+10 R f
+(file will)1 315 1 4905 4416 t
+( can be overcome by selectively)5 1292( This)1 231(almost always be found to be unread \(or current\) by the PCS system.)12 2797 3 900 4536 t
+(cross posting the other files in the)6 1385 1 900 4656 t
+10 I f
+(msgs)2317 4656 w
+10 R f
+( An)1 179(area to the designated newsgroups under the PCS spool area.)9 2492 2 2549 4656 t
+( the older UNIX)3 657(enhanced version of)2 809 2 900 4776 t
+10 I f
+(msgs)2393 4776 w
+10 R f
+(facility is provided with the PCS package and can be installed to)11 2600 1 2620 4776 t
+(solve this problem with the)4 1109 1 900 4896 t
+10 I f
+(msgs bounds)1 519 1 2039 4896 t
+10 R f
+( version uses a file named)5 1064( PCS)1 209(file. The)1 368 3 2588 4896 t
+10 CW f
+(.msgs_bounds)4260 4896 w
+10 R f
+(as its)1 209 1 5011 4896 t
+(bounds control file instead and also, by default, locates the)9 2884 1 900 5016 t
+10 I f
+(msgs)3869 5016 w
+10 R f
+(spool area directory at)3 1066 1 4154 5016 t
+10 CW f
+(${PCS}/spool/msgs)900 5136 w
+10 R f
+( directory can be a symbolic link to a reg\255)9 1675(or something similar. This default spool)5 1600 2 1945 5136 t
+( the)1 147( Making)1 361( is normally desired.)3 816(ular PCS newsgroup directory which)4 1480 4 900 5256 t
+10 I f
+(msgs bounds)1 514 1 3729 5256 t
+10 R f
+(type file start with a dot)5 952 1 4268 5256 t
+(\(period character\) makes the file invisible to the PCS newsgroups reading programs.)11 3372 1 900 5376 t
+9 B f
+(UNIX News System)2 756 1 690 5544 t
+10 R f
+( under the UNIX news spool area \(usually)7 1689(Files \(or news items\) placed)4 1126 2 900 5664 t
+10 CW f
+(/var/news)3776 5664 w
+10 R f
+(\) are not automatically)3 904 1 4316 5664 t
+( the UNIX)2 433(compatible with the PCS news system since)6 1803 2 900 5784 t
+10 I f
+(news)3167 5784 w
+10 R f
+(system's articles are not, necessarily, in mail)6 1822 1 3398 5784 t
+( all articles posted to the UNIX)6 1278( If)1 121(message file format.)2 822 3 900 5904 t
+10 I f
+(news)3151 5904 w
+10 R f
+( minimally formatted as mail mes\255)5 1410(system are)1 429 2 3381 5904 t
+( is supported as well as simply making the two corresponding news spool)12 2937(sages, then complete cross posting)4 1383 2 900 6024 t
+( purposes of the PCS news system\))6 1417( minimally conforming mail message file \(for)6 1832( A)1 123(areas one and the same.)4 948 4 900 6144 t
+( leading blank line is interpreted as the end of the)10 2029( This)1 234( a blank line as the first line.)7 1174(consists of a file with)4 883 4 900 6264 t
+( minimal requirements for a mail message format\255)7 2012(header section of the mail message and therefor meets the)9 2308 2 900 6384 t
+( UNIX)1 279( If)1 121(ted file.)1 310 3 900 6504 t
+10 I f
+(news)1639 6504 w
+10 R f
+(files are not known to conform to mail messages, then allowing the PCS system to)14 3352 1 1868 6504 t
+(read them will result in totally unpredictable behavior.)7 2175 1 900 6624 t
+9 B f
+(Netnews)690 6792 w
+10 R f
+( ensure)1 291( should be taken to)4 775( Care)1 243(Full compatibility with the standard Netnews system should be automatic.)9 3011 4 900 6912 t
+( article's)1 360( on the)2 302( Restrictions)1 543(that PCS posted articles conform to the requirements for Netnews articles.)10 3115 4 900 7032 t
+( is the only)3 490( This)1 244( the PCS system.)3 727(FROM header is required for Netnews posting that is not present in)11 2859 4 900 7152 t
+(known potential problem.)2 1030 1 900 7272 t
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 9)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 9 9
+%%Page: 10 10
+DpostDict begin
+/saveobj save def
+mark
+10 pagesetup
+9 B f
+( \( 1 \))3 126( UDD)1 2017( \))1 37( 0)1 68( v)1 52( \()1 68( PCS)1 1991(UDD \( 1 \))3 321 8 540 480 t
+(ENVIRONMENT VARIABLES)1 1243 1 540 960 t
+10 R f
+( tailor the bulletin board services to the user's personal preferences.)10 2806(The following environment variables)3 1514 2 900 1080 t
+( updated by the PCS profiler program but should now be changed manu\255)12 2938(These variables used to be set and)6 1382 2 900 1200 t
+(ally by the user editing her)5 1068 1 900 1320 t
+10 CW f
+(.pcsprofile)1993 1320 w
+10 R f
+(file in her HOME directory.)4 1117 1 2678 1320 t
+10 B f
+(ED)900 1488 w
+10 R f
+(The default program to use for the editor.)7 1652 1 1500 1488 t
+10 B f
+(EDITOR)900 1656 w
+10 R f
+(This environment variable is used to specify an editor program when)10 2751 1 1500 1656 t
+10 I f
+(ED)4276 1656 w
+10 R f
+(is not set.)2 381 1 4434 1656 t
+10 B f
+(LINES)900 1824 w
+10 R f
+( If)1 125( lines to be used by the program.)7 1367(This environment variable sets the number of terminal)7 2228 3 1500 1824 t
+( value is used instead of)5 962(the number of terminal lines is given on the command line, then that)12 2758 2 1500 1944 t
+(this environment variable.)2 1046 1 1500 2064 t
+10 B f
+(BBNEWSRC)900 2232 w
+10 R f
+( If)1 123( the name of the user's newsgroup list file.)8 1756(This environment variable, if specified, gives)5 1841 3 1500 2352 t
+( then the default file)4 856(this variable is not specified,)4 1202 2 1500 2472 t
+10 CW f
+(${HOME}/.bbnewsrc)3631 2472 w
+10 R f
+( The)1 218(is used.)1 313 2 4689 2472 t
+( be specified on the command line with the)8 2008(user's newsgroup list file can also)5 1531 2 1500 2592 t
+10 CW f
+(\255u)5100 2592 w
+10 I f
+(user)1500 2712 w
+10 S f
+(_)1672 2712 w
+10 I f
+(news)1722 2712 w
+10 S f
+(_)1922 2712 w
+10 I f
+(file)1972 2712 w
+10 R f
+(option.)2125 2712 w
+10 B f
+(BBOPTS)900 2880 w
+10 R f
+( of the bul\255)3 444(This environment variable contains user preference options for use in one or more)12 3276 2 1500 2880 t
+( ")1 73( only the)2 366( Currently)1 441(letin board system commands.)3 1240 4 1500 3000 t
+10 CW f
+(\255edit)3620 3000 w
+10 R f
+(" option for the program)4 1001 1 3920 3000 t
+10 I f
+(bbpost)4953 3000 w
+10 R f
+(is supported.)1 511 1 1500 3120 t
+10 B f
+(BBBDS)900 3288 w
+10 R f
+( separated by a)3 634(This environment variable contains a list of the newsgroups subscribed to,)10 3086 2 1500 3288 t
+( mentioned previously, the list of newsgroups that the)8 2210( As)1 169(colon \(':'\) character.)2 837 3 1500 3408 t
+10 I f
+(bb)4749 3408 w
+10 R f
+(program)4882 3408 w
+(uses is a union of the list of newsgroups in this environment variable along with the list of)17 3720 1 1500 3528 t
+( the user's newsgroup list file \(usually)6 1598(newsgroups in)1 593 2 1500 3648 t
+10 CW f
+(${HOME}/.bbnewsrc)3728 3648 w
+10 R f
+(\) which are)2 472 1 4748 3648 t
+(followed by colon characters rather than exclamation point characters.)8 2806 1 1500 3768 t
+10 B f
+(PRINTER)900 3936 w
+10 R f
+( This)1 252( contain the printer destination for the user's default printer.)9 2606(This variable should)2 862 3 1500 3936 t
+(environment variable is used by the)5 1493 1 1500 4056 t
+10 I f
+(prt\255pcsmail)3032 4056 w
+10 R f
+( this variable is not set, then)6 1197(program. If)1 492 2 3531 4056 t
+(some sort of default is used but this is almost guaranteed to not be what the user wants.)17 3480 1 1500 4176 t
+10 B f
+(BBDIR)900 4344 w
+10 R f
+( or for a user to have some)7 1145(This environment variable is used primarily for system testing)8 2575 2 1500 4344 t
+( this variable should be unset or left alone.)8 1727( Otherwise,)1 489( area.)1 219(sort of private newsgroup spool)4 1285 4 1500 4464 t
+( hold the directory path to the top of the newsgroup spool)11 2405(When used, this variable should)4 1315 2 1500 4584 t
+( the system administrator\). A typical location for this is)9 2507(area \(usually determined by)3 1213 2 1500 4704 t
+10 CW f
+(${PCS}/spool/boards)1500 4824 w
+10 R f
+( with the)2 360( path to the newsgroup spool area can also be set)10 1986(. The)1 234 3 2640 4824 t
+(command line option)2 850 1 1500 4944 t
+10 CW f
+(\255N)2375 4944 w
+10 I f
+(news)2520 4944 w
+10 S f
+(_)2720 4944 w
+10 I f
+(spool)2770 4944 w
+10 S f
+(_)2987 4944 w
+10 I f
+(dir)3037 4944 w
+10 R f
+(.)3154 4944 w
+10 B f
+(PCS)900 5112 w
+10 R f
+( is usually at)3 521( This)1 234( to point to the PCS package directory.)7 1591(This environment variable is used)4 1374 4 1500 5112 t
+10 CW f
+(/usr/add\255on/pcs)1500 5232 w
+10 R f
+( in the PCS tool)4 663( all programs)2 543( Not)1 208(but may not be on some systems.)6 1373 4 2433 5232 t
+( proper user opera\255)3 782( For)1 198( variable.)1 380(set may be safely relocated by changing this environment)8 2360 4 1500 5352 t
+( recommended that this environment variable always point to the location of the)12 3340(tion, it is)2 380 2 1500 5472 t
+(properly installed system\255wide PCS package distribution directory.)6 2684 1 1500 5592 t
+9 B f
+(FILES)540 5760 w
+10 R f
+( file containing PCS related environment)5 1735( user's profile type)3 808(${HOME}/.pcsprofile default)1 1777 3 900 5880 t
+(variables)2400 6000 w
+( not specified)2 550( is the user's default newsgroup list file when one is)10 2125(${HOME}/.bbnewsrc this)1 1645 3 900 6168 t
+(on the command line or in the environment variable)8 2075 1 2400 6288 t
+10 CW f
+(BBNEWSRC)4500 6288 w
+10 R f
+(${HOME}/.user)900 6456 w
+10 S f
+(_)1559 6456 w
+10 R f
+( on)1 130( is the user's default newsgroup list file when it is not specifed)12 2545(bds this)1 936 3 1609 6456 t
+( environment variable)2 878(the command line, in the)4 999 2 2400 6576 t
+10 CW f
+(BBNEWSRC)4303 6576 w
+10 R f
+(, and when)2 437 1 4783 6576 t
+(the user does)2 545 1 2400 6696 t
+10 B f
+(not)2982 6696 w
+10 R f
+( a file named)3 557(already have)1 518 2 3158 6696 t
+10 I f
+(.bbnewsrc)4271 6696 w
+10 R f
+(in her home)2 503 1 4717 6696 t
+(directory)2400 6816 w
+( default mailbox to receive articles scanned by the)8 2001(${HOME}/mail/bbtemp user's)1 1738 2 900 6984 t
+10 I f
+(bbr)4664 6984 w
+10 R f
+(program)4828 6984 w
+( "saved" by the user while)5 1124( default mailbox to receive articles)5 1458(${HOME}/mail/new user's)1 1738 3 900 7152 t
+(executing the)1 535 1 2400 7272 t
+10 I f
+(bb)2960 7272 w
+10 R f
+(program)3085 7272 w
+( 10)1 125( Page)1 1881( Commands)1 481( User)1 1508(February 8, 2018)2 685 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 10 10
+%%Page: 11 11
+DpostDict begin
+/saveobj save def
+mark
+11 pagesetup
+9 B f
+( \( 1 \))3 126( UDD)1 2017( \))1 37( 0)1 68( v)1 52( \()1 68( PCS)1 1991(UDD \( 1 \))3 321 8 540 480 t
+10 R f
+( program)1 363(${PCS}/bin/bb executable)1 1926 2 900 960 t
+( program)1 363(${PCS}/bin/bbr executable)1 1926 2 900 1128 t
+( program)1 363(${PCS}/bin/bbpost executable)1 1926 2 900 1296 t
+( program)1 363(${PCS}/bin/rbbpost executable)1 1926 2 900 1464 t
+( program)1 363(${PCS}/bin/datepost executable)1 1926 2 900 1632 t
+( program)1 363(${PCS}/bin/pcsjobfile utility)1 1740 2 900 1800 t
+( program)1 363(${PCS}/bin/pcscl utility)1 1740 2 900 1968 t
+( of source files)3 590(${PCS}/src/bb directory)1 1860 2 900 2136 t
+( newsgroup spool area directory)4 1280(${PCS}/spool/boards default)1 1777 2 900 2304 t
+9 B f
+(SEE ALSO)1 438 1 540 2472 t
+10 R f
+(pcsmail\(1\), vmail\(1\), prt\255pcsmail\(1\), msgs\(1\), news\(1\))4 2185 1 900 2592 t
+9 B f
+(PCS BULLETIN BOARD ADMINISTRATOR)3 1814 1 540 2760 t
+10 R f
+(Mark Leeper)1 517 1 900 2880 t
+9 B f
+(PROGRAM AUTHOR)1 893 1 540 3048 t
+10 R f
+(Dave Morano)1 551 1 900 3168 t
+9 B f
+(ACKNOWLEDGEMENTS)540 3336 w
+10 R f
+( least a couple prob\255)4 817(Many people have worked on the Personal Communication Services \(PCS\) tools and at)12 3503 2 900 3456 t
+( bug fixes and improvements to the system have been)9 2139( Substantial)1 496(ably worked on the bulletin board system.)6 1685 3 900 3576 t
+( PCS system of tools)4 851( thanks are due to John Palframan for believing in the)10 2171( Special)1 347(made by Dave Morano.)3 951 4 900 3696 t
+( are also due to)4 640( Thanks)1 353( to keep some of them alive and well in our computing environment.)12 2847(and utilities)1 480 4 900 3816 t
+( the official administrator for routine maintenance of the bulletin board system and the)13 3505(Mark Leeper who is)3 815 2 900 3936 t
+(news spool area.)2 662 1 900 4056 t
+9 B f
+(AUTHOR)540 4224 w
+10 R f
+(David A.D. Morano)2 804 1 900 4344 t
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1874(Page 11)1 319 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 11 11
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 11
+%%DocumentFonts: Courier Times-Roman Times-Bold Times-Italic Times-Roman Symbol

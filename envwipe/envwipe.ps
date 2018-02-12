@@ -68,6 +68,14 @@ DpostDict begin
 /S  /S def
 /S1 /S1 def
 /GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
 
 /inch {72 mul} bind def
 /min {2 copy gt {exch} if pop} bind def
@@ -245,11 +253,308 @@ end
 DpostDict begin
 mark
 /xoffset 0.25 def
-/yoffset -0.25 def
 /resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
 setup
 2 setdecoding
-%!PS
 /build_rh {
 pop
 gsave
@@ -415,10 +720,14 @@ DpostDict begin
 mark
 1 pagesetup
 9 B f
-( \( 1 \))3 126( ENVWIPE)1 1714( 01/04/26 \))2 364( \()1 68( Research)1 378( Levo)1 1474(ENVWIPE \( 1 \))3 556 7 540 480 t
+( \( 1 \))3 126( ENVWIPE)1 1664( 2001\25504\25526 \))2 464( \()1 68( Research)1 378( Levo)1 1424(ENVWIPE \( 1 \))3 556 7 540 480 t
 (NAME)540 960 w
 10 R f
-(envwipe \261 run a program with a speci\256ed environment)8 2185 1 900 1080 t
+(envwipe)900 1080 w
+10 S1 f
+(\261)1263 1080 w
+10 R f
+(run a program with a specified environment)6 1752 1 1353 1080 t
 9 B f
 (SYNOPSIS)540 1248 w
 10 B f
@@ -426,23 +735,23 @@ mark
 10 R f
 ([)1275 1368 w
 10 CB f
-(-e)1308 1368 w
+(\255e)1308 1368 w
 10 I f
-(env\256le)1486 1368 w
+(envfile)1486 1368 w
 10 R f
-(] [)1 91 1 1762 1368 t
+(] [)1 91 1 1768 1368 t
 10 CB f
-(-V)1853 1368 w
+(\255V)1859 1368 w
 10 R f
-(])1997 1368 w
+(])2003 1368 w
 10 I f
-(program arg0)1 564 1 2055 1368 t
+(program arg0)1 564 1 2061 1368 t
 10 CW f
-([)2644 1368 w
+([)2650 1368 w
 10 I f
-(argument\(s\) ...)1 588 1 2729 1368 t
+(argument\(s\) ...)1 588 1 2735 1368 t
 10 CW f
-(])3367 1368 w
+(])3373 1368 w
 9 B f
 (DESCRIPTION)540 1536 w
 (Introduction)690 1656 w
@@ -452,38 +761,38 @@ mark
 (envwipe)1090 1776 w
 10 R f
 (program is used on a UNIX system to run another program with a controlled environment.)14 3768 1 1452 1776 t
-( in order to get a precise and repeatable instruction execution trace of the pro-)14 3167(This is sometimes necessary)3 1153 2 900 1896 t
-( comparison with the execution of the same pro-)8 2010( instruction execution traces are useful for)6 1733(gram. Precise)1 577 3 900 2016 t
+( in order to get a precise and repeatable instruction execution trace of the pro\255)14 3167(This is sometimes necessary)3 1153 2 900 1896 t
+( comparison with the execution of the same pro\255)8 2010( instruction execution traces are useful for)6 1733(gram. Precise)1 577 3 900 2016 t
 ( is essentially the same as the)6 1225( program)1 373( This)1 238(gram on other machine platforms, like simulators.)6 2058 4 900 2136 t
 10 I f
 (execname)4828 2136 w
 10 R f
-( The)1 217( commonly used for starting programs in multi-architecture computer environments.)9 3476(program that is)2 627 3 900 2256 t
+( The)1 217( commonly used for starting programs in multi\255architecture computer environments.)9 3476(program that is)2 627 3 900 2256 t
 (difference is that no environment variables are passed to the target program by default.)13 3464 1 900 2376 t
-( to execute \(its \256le path\) and the)7 1298( are the program)3 659( These)1 289(Two arguments to the program are always required.)7 2074 4 900 2544 t
-( the program environment so)4 1162( second argument forms part of)5 1265( This)1 231(\256rst \(or zeroth\) argument to the program.)6 1662 4 900 2664 t
-(care should be used if it needs to be matched up with some speci\256c value.)14 2948 1 900 2784 t
+( and the)2 320( are the program to execute \(its file path\))8 1637( These)1 289(Two arguments to the program are always required.)7 2074 4 900 2544 t
+( second argument forms part of the program environment so)9 2422( This)1 231(first \(or zeroth\) argument to the program.)6 1667 3 900 2664 t
+(care should be used if it needs to be matched up with some specific value.)14 2953 1 900 2784 t
 9 B f
 (Options)690 2952 w
 10 R f
 (There is only one important argument option for the program.)9 2469 1 900 3072 t
 10 B f
-(-e)1150 3240 w
+(\255e)1150 3240 w
 10 I f
-(env\256le)1277 3240 w
+(envfile)1277 3240 w
 10 R f
-( environment that)2 731(This option allows for the speci\256cation of a \256le that holds the)11 2589 2 1900 3240 t
-( \256le should contains lines of the form :)8 1544( The)1 205(should be setup for the target program.)6 1550 3 1900 3360 t
+( that holds the environment that)5 1329(This option allows for the specification of a file)8 1991 2 1900 3240 t
+( file should contains lines of the form:)7 1524( The)1 205(should be setup for the target program.)6 1550 3 1900 3360 t
 10 CW f
 (key=value)2150 3528 w
 10 R f
 (These should look like environment variables being set by shell programs like)11 3320 1 1900 3696 t
-( in this \256le.)3 469( and blank lines are allowed)5 1152( Comments)1 491(Bourne Shell and Korn Shell.)4 1208 4 1900 3816 t
-( shell-like)1 400( that full)2 343( Note)1 246(Comments are introduced using the pound \('#'\) character.)7 2331 4 1900 3936 t
+( and blank lines are allowed in this file.)8 1621( Comments)1 491(Bourne Shell and Korn Shell.)4 1208 3 1900 3816 t
+( shell\255like)1 400( that full)2 343( Note)1 246(Comments are introduced using the pound \('#'\) character.)7 2331 4 1900 3936 t
 ( Quoting)1 386( assignment.)1 508(quoting is not allowed for the value portion of the variable)10 2426 3 1900 4056 t
 (with the double quote character is allowed.)6 1716 1 1900 4176 t
 10 B f
-(-V)1150 4344 w
+(\255V)1150 4344 w
 10 R f
 ( standard error and)3 774(This option causes the program to print its program version to)10 2546 2 1900 4344 t
 (then the program exits.)3 921 1 1900 4464 t
@@ -491,28 +800,28 @@ mark
 (Operation)690 4632 w
 10 R f
 ( program, when invoked with no optional arguments, is to execute the target)12 3190(The default behavior of the)4 1130 2 900 4752 t
-( environment variables and only the arguments that are speci\256ed in addition to the zeroth)14 3640(program with no)2 680 2 900 4872 t
-( then that environment is setup for the)7 1546( some optional environment is speci\256ed,)5 1631( If)1 119(argument to the program.)3 1024 4 900 4992 t
-( combination of the program arguments)5 1604( The)1 209( speci\256ed.)1 409(target program in addition to the arguments that are)8 2098 4 900 5112 t
-(and its environment form the full user speci\256ed environment for the target program.)12 3353 1 900 5232 t
+( to the zeroth)3 539(program with no environment variables and only the arguments that are specified in addition)13 3781 2 900 4872 t
+( for the)2 296( some optional environment is specified, then that environment is setup)10 2881( If)1 119(argument to the program.)3 1024 4 900 4992 t
+( combination of the program arguments)5 1604( The)1 209( to the arguments that are specified.)6 1446(target program in addition)3 1061 4 900 5112 t
+(and its environment form the full user specified environment for the target program.)12 3358 1 900 5232 t
 9 B f
 (Environment File)1 678 1 690 5400 t
 10 R f
-( program invocation so that some environment variables can be setup for)11 2975(An option \256le can be speci\256ed at)6 1345 2 900 5520 t
-( this \256le is)3 445( If)1 126( default, no environment variables are setup for the target program.)10 2787( By)1 178(the target program.)2 784 5 900 5640 t
+( for)1 147(An option file can be specified at program invocation so that some environment variables can be setup)16 4173 2 900 5520 t
+( this file is)3 450( If)1 126( setup for the target program.)5 1214( default, no environment variables are)5 1568( By)1 178(the target program.)2 784 6 900 5640 t
 (given with the)2 580 1 900 5760 t
 10 CW f
-(-e)1509 5760 w
+(\255e)1509 5760 w
 10 R f
-( be passed to the target pro-)6 1133(option, then any environment variables given in the \256le will)9 2429 2 1658 5760 t
-( are)1 149( is similar to how environment variables)6 1634( This)1 232( format of this \256le consists of key-value pairs.)8 1866(gram. The)1 439 5 900 5880 t
-( are of the form :)5 673( Entries)1 333(assigned in the Bourne and Korn shell programs.)7 1953 3 900 6000 t
+( pro\255)1 196(option, then any environment variables given in the file will be passed to the target)14 3366 2 1658 5760 t
+( similar to how environment variables are)6 1682( is)1 96( This)1 232( format of this file consists of key\255value pairs.)8 1871(gram. The)1 439 5 900 5880 t
+( are of the form:)4 648( Entries)1 333(assigned in the Bourne and Korn shell programs.)7 1953 3 900 6000 t
 10 CW f
 (key=value)1150 6168 w
 10 R f
-( lines in this \256le are)5 861( Blank)1 304(The value can be quoted with double quotes if it contains any white space.)13 3155 3 900 6336 t
+( are)1 161( lines in this file)4 701( Blank)1 303(The value can be quoted with double quotes if it contains any white space.)13 3155 4 900 6336 t
 ( the value is taken to)5 864( Also,)1 272( lines that are introduced with the pound \('#'\) character.)9 2305(ignored as well as all)4 879 4 900 6456 t
-(only be the \256rst white-space terminated string after the equals-sign character.)10 3079 1 900 6576 t
+(only be the first white\255space terminated string after the equals\255sign character.)10 3084 1 900 6576 t
 9 B f
 (EXAMPLES)540 6744 w
 10 S1 f
@@ -526,12 +835,12 @@ mark
 10 I f
 (compress)2148 6864 w
 10 R f
-(with its \256rst argument being the string)6 1528 1 2550 6864 t
+(with its first argument being the string)6 1533 1 2550 6864 t
 10 CW f
-(compress)4103 6864 w
+(compress)4108 6864 w
 (envwipe /proj/levo/benchmarks/bin/compress compress)2 3060 1 1400 7032 t
 10 R f
-( 24, 200)2 325( May)1 4086(Page 1)1 269 3 540 7680 t
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 1)1 269 5 540 7680 t
 cleartomark
 showpage
 saveobj restore
@@ -543,7 +852,7 @@ DpostDict begin
 mark
 2 pagesetup
 9 B f
-( \( 1 \))3 126( ENVWIPE)1 1714( 01/04/26 \))2 364( \()1 68( Research)1 378( Levo)1 1474(ENVWIPE \( 1 \))3 556 7 540 480 t
+( \( 1 \))3 126( ENVWIPE)1 1664( 2001\25504\25526 \))2 464( \()1 68( Research)1 378( Levo)1 1424(ENVWIPE \( 1 \))3 556 7 540 480 t
 10 S1 f
 ()900 960 w
 900 960 m
@@ -554,18 +863,18 @@ mark
 10 I f
 (compress)2148 960 w
 10 R f
-(with its \256rst argument being the string)6 1528 1 2550 960 t
+(with its first argument being the string)6 1533 1 2550 960 t
 10 CW f
-(compress)4103 960 w
+(compress)4108 960 w
 10 R f
-( the \256le)2 318(; its environment should be setup according to that which is found in)12 2839 2 1175 1080 t
+(; its environment should be setup according to that which is found in the file)14 3160 1 1175 1080 t
 10 CW f
-(envfile)4366 1080 w
+(envfile)4368 1080 w
 10 R f
-(located in)1 400 1 4820 1080 t
+(located in)1 399 1 4821 1080 t
 (the current directory)2 814 1 1150 1200 t
 10 CW f
-(envwipe -e envfile /proj/levo/benchmarks/bin/compress compress)4 3720 1 1400 1368 t
+(envwipe \255e envfile /proj/levo/benchmarks/bin/compress compress)4 3720 1 1400 1368 t
 9 B f
 (CAVEATS)540 1584 w
 10 R f
@@ -576,7 +885,7 @@ mark
 ( the exact arrangement of)4 1037( Also,)1 270( purposes.)1 411(are setup the same on all machines that are used for comparison)11 2602 4 900 2184 t
 ( Of)1 168(program environment data needs to be the same across platforms that are expected to be compared.)15 4152 2 900 2304 t
 ( is left to the)4 548( It)1 123( using a vendor supplied OS.)5 1215(course, this is not usually possible when running programs)8 2434 4 900 2424 t
-( with)1 204(reader to \256gure out where remaining differences in OS setup for program execution occurs and to deal)16 4116 2 900 2544 t
+( execution occurs and to deal with)6 1370(reader to figure out where remaining differences in OS setup for program)11 2950 2 900 2544 t
 (it in some manner \(if possible\).)5 1249 1 900 2664 t
 9 B f
 (SEE ALSO)1 453 1 540 2832 t
@@ -587,7 +896,7 @@ mark
 10 R f
 (This program is currently located in)5 1434 1 900 3240 t
 10 CW f
-(/usr/add-on/local/bin)960 3360 w
+(/usr/add\255on/local/bin)960 3360 w
 10 R f
 (or possibly where ever)3 915 1 2248 3360 t
 10 I f
@@ -606,8 +915,8 @@ mark
 9 B f
 (AUTHOR)540 4056 w
 10 R f
-(Dave Morano)1 551 1 900 4176 t
-( 2)1 75( Page)1 4097(May 24, 200)2 508 3 540 7680 t
+(David A.D. Morano)2 804 1 900 4176 t
+( 2)1 75( Page)1 1931( Commands)1 481( User)1 1508(February 8, 2018)2 685 5 540 7680 t
 cleartomark
 showpage
 saveobj restore
@@ -618,4 +927,4 @@ DpostDict begin
 done
 end
 %%Pages: 2
-%%DocumentFonts: Times-Roman Times-Bold Times-Italic Times-Roman Courier-Bold Courier
+%%DocumentFonts: Courier-Bold Courier Times-Roman Times-Bold Times-Italic Times-Roman

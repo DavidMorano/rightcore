@@ -357,7 +357,6 @@ static cchar *argopts[] = {
 	"md",
 	"mr",
 	"nm",
-	"oi",
 	"cp",
 	NULL
 } ;
@@ -381,7 +380,6 @@ enum argopts {
 	argopt_md,
 	argopt_mr,
 	argopt_nm,
-	argopt_oi,
 	argopt_cp,
 	argopt_overlast
 } ;
@@ -920,11 +918,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	                    pip->f.nopollmsg = TRUE ;
 	                    break ;
 
-/* ignore dots on input (default anyway!) */
-	                case argopt_oi:
-	                    pip->f.optin = TRUE ;
-	                    break ;
-
 /* COMAST port */
 	                case argopt_cp:
 	                    if (f_optequal) {
@@ -953,7 +946,7 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	            } else {
 
 	                while (akl--) {
-	                    const int	kc = (*akp & 0xff) ;
+	                    const int	kc = MKCHAR(*akp) ;
 
 	                    switch (kc) {
 
@@ -1003,11 +996,6 @@ int main(int argc,cchar *argv[],cchar *envv[])
 				    }
 	                        } else
 	                            rs = SR_INVALID ;
-	                        break ;
-
-/* ignore dots on input (default anyway!) */
-	                    case 'i':
-	                        pip->f.optin = TRUE ;
 	                        break ;
 
 /* boxname for DMAILBOX */

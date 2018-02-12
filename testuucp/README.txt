@@ -1,9 +1,5 @@
 TESTUUCP
 
-
-Synopsis :
-
-$ testuucp.x host svc < inputfile
-
-
+Synopsis:
+$ testuucp.x <host> <svc> < <inputfile>
 

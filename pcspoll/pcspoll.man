@@ -4,83 +4,7 @@
 pcspoll \- PCS polling helper program
 .SH SYNOPSIS
 .\"_
-.\"_
-.\"_ some AT&T standard strings
-.\"_
-.if t \{\
-.fp5 CW
-.ds mW \&\f5
-.ds mB \&\f(CB
-.ds Tm \v'-0.5m'\s-4TM\s+4\v'0.5m'
-.ds Sm \v'-0.5m'\s-4SM\s+4\v'0.5m'
-.ds Rg \v'-0.4m'\s-4\(rg\s+4\v'0.4m'
-.ds rq ''
-.ds lq ``
-.tr * \(**
-'br\}
-.if n \{\
-.ds mW \f3
-.ds mB \f3
-.ds Tm \uTM\d
-.ds Sm \uSM\d
-.ds Rg (Reg.)
-.ds lq \&"
-.ds rq \&"
-'br\}
-.\"_
-.\"_ some AT&T standard macros
-.\"_
-.de HY
-.hy14
-..
-.\"_
-.de MW
-.nh
-.it1 }N
-.ie\\n(.$ \{\
-.ie\\n(.$=1 \*(mW\&\\$1\fP
-.el.ie \\n(.$=2 \*(mW\&\\$1 \\$2\fP
-.el.ie \\n(.$=3 \*(mW\&\\$1 \\$2 \\$3\fP
-.el.ie \\n(.$=4 \*(mW\&\\$1 \\$2 \\$3 \\$4\fP
-.el.ie \\n(.$=5 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5\fP
-.el.ie \\n(.$=6 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6\fP
-.el.ie \\n(.$=7 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7\fP
-.el.ie \\n(.$=8 \*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8\fP
-.el\*(mW\&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8 \\$9\fP \}
-.el\{\
-.ift .ft 5
-.ifn .ft 3 \}
-.HY
-..
-.\"_
-.de OP
-.ie'\\$3'[]' \ \f1[\ \*(mB\\$1\f2\^\\$2\|\f1\ ]
-.el\&\\$4\&\*(mB\\$1\fP\f2\^\\$2\|\fP\\$3
-..
-.\"_
-.de EX
-.sp\\n(PDu
-.in+5n
-.ifn .ft 3
-.ift \{\
-.ft5
-.if\\$1-1 \{\
-.ps-1
-.vs-1
-.nreX 1 \}\}
-.nf
-..
-.de EE
-.fi
-.if\\n(eX \{\
-.ps+1
-.vs+1
-.nreX 0 \}
-.ft1
-.in-5n
-.sp\\n(PDu
-..
-.\"_
+.so tmac.att
 .\"_
 .BR pcspoll
 \&[
@@ -88,7 +12,7 @@ pcspoll \- PCS polling helper program
 \&]
 .OP -C "  filepath" ] [
 .OP -R "  programroot" ] [
-.OP -d[=\fItime\fP] "" ] [
+.OP -d\fR[=\fItime\fP]\fP "" ] [
 .OP -f "" ] [
 .OP -m "  time" ] [
 .OP -V "" ] [
@@ -184,7 +108,7 @@ on all participating PCS machines in the current PCS cluster.
 If the optional time is given along with the key to do into
 daemon mode, the program will only execute in daemon for the
 amount of time specified.  When no time is given, the program
-will continue executing in daemon mode indefinely.
+will continue executing in daemon mode indefinitely.
 It is not clear what the benefit might be for executing in daemon
 mode (standing daemon program) for a limited time but certain
 systems might benefit if it is known that a flurry of PCS related
@@ -196,7 +120,7 @@ give for when to leave daemon mode and return to normal operation.
 \fB-f\fP
 This option is used for force 
 the \fIpcspoll\fP program
-to execute even if other heuristis used by the program
+to execute even if other heuristics used by the program
 indicate that an execution at the present time is
 not particularly needed.
 Normally 
@@ -269,17 +193,17 @@ The \fB-R\fP argument overides this environment variable.
 .\"_
 .SH EXAMPLES
 .IP \(rh 5
-poll certain services that are not configured to run automatically :
+poll certain services that are not configured to run automatically:
 .EX
- \f(CWpcspoll serivce_name ...\fP
+ \f(CWpcspoll service_name ...\fP
 .EE
 .IP \(rh 5
-run in daemon mode for two hours :
+run in daemon mode for two hours:
 .EX
  \f(CWpcspoll -d=2h\fP
 .EE
 .IP \(rh 5
-poll everything configured to run automatically once for work :
+poll everything configured to run automatically once for work:
 .EX
   \f(CWpcspoll \fP
 .EE
@@ -302,10 +226,10 @@ Be careful to put at one space between all option key
 letters and the associated
 key letter parameter.
 .\"_
-.SH AUTHOR
-David Morano
-.\"_
 .SH ACKNOWLEDGEMENTS
 All previous PCS contributors and administrators.
+.\"_
+.SH AUTHOR
+David A.D. Morano
 .\"_
 .\"_

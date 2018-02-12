@@ -10,6 +10,5 @@ several possible "system" directories. These "system" directories are:
 	/usr/sbin
 
 Synopsis:
-
 $ <name> <args_for_real_program>
 

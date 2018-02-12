@@ -1,0 +1,98 @@
+'\" t
+.TH FINGERS 1 "1998-06-29" LOCAL
+.SH NAME
+fingers \- de-multiplexing super-server for the INET FINGER protocol
+.SH SYNOPSIS
+.\"_
+.so tmac.att
+.\"_
+.B fingers
+.OP -d\fR[=\fItime\fP]\fP "" ] [
+.OP -ra "" ] [
+.\"_
+.SH DESCRIPTION
+.\"_
+.SS Introduction
+.PP
+This program is a de-multiplexing super-server for the INET FINGER protocol.
+The case portion of a FINGER recipient is used as a server name to lookup
+and find a subserver to handle the incomming connection.
+.\"_
+.SS Options
+There are some argument options that can be used to
+provide values in addition to the standard way of supplying them.
+.PP
+.RS 5
+.TP 15
+\fB-d\fP[=\fIrun-duration\fP]
+This will override any run-duration otherwise specified to the program.
+arguments.
+.TP 15
+.OP -o " option(s)" ] [
+Options can be specified in the form of key-value pairs, with the value
+being optional.
+.TP 15
+.OP -ra "" ] [
+This option ("Reuse-Address") is used to have the server reuse an IP address
+that had been recently used (bound) to a previous program or server.
+.RE
+.\"_
+.SS Output
+.\"_
+Any output from the program is from the sub-server that is spawned
+given am acquired service specification.
+.\"_
+.SH ENVIRONMENT VARIABLES
+.\"_
+.LP
+Some environment variables can be pre-arranged to modify the behavior
+of the server.
+.RS 5
+.TP 15
+.B FINGERS_PROGRAMROOT
+This environment variable is taken to contain
+the program root over any other such environment variable.
+The \fB-R\fP argument overides this environment variable.
+.\"_
+.TP 15
+.B LOCAL
+This environment variable is normally taken to contain
+the program root.
+The \fB-R\fP argument overides this environment variable.
+.\"_
+.TP 15
+.B PROGRAMROOT
+This environment variable is taken to contain
+the program root if not other suitable environment variable
+this this purpose are in the environment.
+The \fB-R\fP argument overides this environment variable.
+.TP 15
+.B FINGERS_OPTS
+Options can be supplied in the form of key-value pairs, as if they
+appeared among the program invocation arguments using the '-o' option.
+.B FINGERS_NAME
+This environment variable can be used to change the "search-name" of
+the server program.  
+The search-name of a program is the name (a text
+string) under which the program uses to search for any auxillary files,
+such as default configuration files.
+The default search-name of any program is usually the name (base-name)
+under which it was invoked as.
+.RE
+.\"_
+.SH SEE ALSO
+.LP
+inetd(1m), tcpmuxd(1), pcsuucpd(1)
+.\"_
+.SH PATH TO
+.LP
+This program is currently located in \fC/usr/add-on/local/bin\fP
+or possibly where ever "local" programs are stored on your system.
+This is often at
+.MW "${LOCAL}/bin"
+on some systems.
+.\"_
+.SH AUTHOR
+David A.D. Morano
+.\"_
+.\"_

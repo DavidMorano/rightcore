@@ -6,4 +6,3 @@ with it.
 Synopsis:
 $ termsize
 
-

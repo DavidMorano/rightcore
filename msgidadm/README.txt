@@ -3,12 +3,10 @@ MSGIDADM
 This program is an administrative interface to the MSGID database.
 
 Synopsis:
-
 $ msgidadm [<recipient(s)> ...] [-s <sortkey>] [-db <database>] 
 	[-m] [-a] [-<n>] [-m] [-td <displaykey>] [-r] [-h[=<b>]] [-nh] [-V]
 
-where:
-
+Arguments:
 <recipient(s)>		restrict listing to messages with given recipient(s)
 -s <sortkey>		sort by time: 'update' (d), 'msg', or 'create'
 -db <database>		use alternate database

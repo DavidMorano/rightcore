@@ -1,7 +1,7 @@
 BACKDISK
 
-Report the name of disks (really file-systems) designated for backup
-related purposes.
+Report the name of disks (really file-systems) designated for backup related
+purposes.
 
 Synopsis:
 # backdisk <disktype>

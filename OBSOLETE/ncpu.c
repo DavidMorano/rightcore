@@ -1,6 +1,6 @@
 /* ncpu */
 
-/* find the number of processes on the system */
+/* find the number of processors (CPUs) on the system */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */

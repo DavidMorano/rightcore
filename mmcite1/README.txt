@@ -6,12 +6,10 @@ input and produces output that has the citations annotated with their
 bibliographical data.
 
 Synopsis:
-
 $ mmcite [<file(s)> ...] [-af <afile>] [-B <incdir(s)>] 
 	[-p <bibfile(s)>] [-V]
 
-where:
-
+Arguments:
 <file(s)>		files to process
 -af <afile>		list of files to process
 -B <incdir(s)>		search directories for unrooted BIB files

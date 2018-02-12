@@ -1,12 +1,7 @@
 TESTLOADAVE
 
-
 This program tests the LOADAVE object.
 
-Synopsis :
-
+Synopsis:
 $ testloadave.x
-
-
-
 

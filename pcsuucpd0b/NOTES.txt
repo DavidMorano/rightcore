@@ -1,15 +1,16 @@
 PCSUUCPD
 
-
-You can run this program either in stand-alone mode or through the
-use of the INETD server (or equivalent), if you have something like that.
-To start it as a stand-alone server, run it as :
+You can run this program either in stand-alone mode or through the use of the
+INETD server (or equivalent), if you have something like that. To start it as a
+stand-alone server, run it as:
 
 $ pcsuucp -d
 
-or non-stand-alone with an entry in 'inetd.conf' such as :
+or non-stand-alone with an entry in 'inetd.conf' such as:
 
 uucp stream	tcp	nowait	nuucp /etc/bin/pcsuucpd pcsuucpd
 
 
+----
+1994-10-10, Dave Morano
 

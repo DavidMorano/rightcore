@@ -9,7 +9,6 @@ cotd		Commandment-Of-The-Day
 votd		Verse-of-the-Day
 hotd		History-Of-The-Day
 
-
 = COTD
 
 This service provides the COTD type of function for an opened FD.
@@ -19,26 +18,19 @@ very cheap already and essentially in an essentially almost cached format
 as they are.
 
 Synopsis:
-
 local§cotd[­<day>]
-
 
 = VOTD
 
 This service provides the VOTD function for the returned FD.
 
 Synopsis:
-
 local§votd[­<day>][­-o­allcache]
-
 
 = HOTD
 
 This service provides the HOTD function for the returned FD.
 
 Synopsis:
-
 local§hotd[­<day>]
-
-
 

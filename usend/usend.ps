@@ -1,0 +1,1072 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+/build_rh {
+pop
+gsave
+size .0022 mul dup scale
+currentpoint translate
+
+15 66 moveto
+15 86 lineto
+16 131 lineto
+17 146 lineto
+18 158 lineto
+19 167 lineto
+21 181 lineto
+24 190 lineto
+34 193 lineto
+49 189 lineto
+58 182 lineto
+60 177 lineto
+60 166 lineto
+59 156 lineto
+58 143 lineto
+57 130 lineto
+56 117 lineto
+55 102 lineto
+54 42 lineto
+53 39 lineto
+49 35 lineto
+34 34 lineto
+19 39 lineto
+16 47 lineto
+15 66 lineto
+stroke
+
+65 60 moveto
+65 111 lineto
+66 127 lineto
+67 139 lineto
+69 153 lineto
+72 163 lineto
+83 171 lineto
+98 177 lineto
+113 182 lineto
+128 187 lineto
+143 190 lineto
+158 194 lineto
+173 196 lineto
+188 199 lineto
+203 201 lineto
+218 203 lineto
+233 205 lineto
+248 205 lineto
+263 206 lineto
+278 206 lineto
+293 206 lineto
+308 206 lineto
+323 206 lineto
+338 205 lineto
+353 203 lineto
+368 202 lineto
+383 200 lineto
+394 197 lineto
+389 190 lineto
+389 180 lineto
+391 176 lineto
+391 173 lineto
+380 173 lineto
+365 173 lineto
+350 174 lineto
+335 175 lineto
+320 176 lineto
+305 176 lineto
+290 176 lineto
+275 177 lineto
+260 177 lineto
+245 177 lineto
+240 173 lineto
+240 170 lineto
+245 165 lineto
+260 164 lineto
+275 164 lineto
+290 164 lineto
+305 163 lineto
+320 160 lineto
+327 155 lineto
+330 149 lineto
+330 134 lineto
+328 129 lineto
+323 124 lineto
+309 121 lineto
+294 121 lineto
+279 121 lineto
+264 121 lineto
+249 121 lineto
+234 121 lineto
+228 118 lineto
+228 112 lineto
+234 109 lineto
+249 109 lineto
+264 109 lineto
+279 108 lineto
+294 108 lineto
+306 104 lineto
+311 97 lineto
+312 91 lineto
+312 88 lineto
+311 82 lineto
+305 74 lineto
+290 72 lineto
+275 72 lineto
+260 72 lineto
+245 73 lineto
+230 73 lineto
+215 73 lineto
+205 70 lineto
+205 63 lineto
+217 60 lineto
+232 60 lineto
+247 60 lineto
+262 60 lineto
+277 57 lineto
+283 52 lineto
+285 44 lineto
+285 41 lineto
+284 35 lineto
+280 30 lineto
+268 26 lineto
+253 25 lineto
+238 26 lineto
+223 28 lineto
+208 31 lineto
+193 33 lineto
+178 34 lineto
+163 33 lineto
+148 31 lineto
+133 28 lineto
+118 27 lineto
+103 28 lineto
+88 34 lineto
+73 43 lineto
+67 52 lineto
+65 60 lineto
+stroke
+
+396 180 moveto
+396 188 lineto
+399 194 lineto
+410 196 lineto
+416 190 lineto
+416 180 lineto
+415 177 lineto
+411 173 lineto
+400 173 lineto
+396 180 lineto
+stroke
+
+grestore
+} def
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1 \))3 126( USEND)1 1788( 1994\25512\25502 \))2 464( \()1 68( LOCAL)1 1803(USEND \( 1 \))3 431 6 540 480 t
+(NAME)540 960 w
+10 R f
+(usend, dosusend)1 655 1 900 1080 t
+10 S1 f
+(\261)1580 1080 w
+10 R f
+(send files from one machine to another)6 1558 1 1670 1080 t
+9 B f
+(SYNOPSIS)540 1248 w
+10 B f
+(usend)900 1368 w
+10 CB f
+(\255d)1176 1368 w
+10 I f
+(nodename)1354 1368 w
+10 CB f
+(\255u)1805 1368 w
+10 I f
+(username file)1 557 1 1983 1368 t
+10 CW f
+([)2565 1368 w
+10 I f
+(file\(s\) ...)1 333 1 2650 1368 t
+10 CW f
+(])3008 1368 w
+10 B f
+(usend)900 1488 w
+10 CB f
+(\255d)1176 1488 w
+10 I f
+(nodename)1354 1488 w
+10 CB f
+(\255u)1805 1488 w
+10 I f
+(username)1983 1488 w
+10 CB f
+(\255f)2412 1488 w
+10 I f
+(filename)2590 1488 w
+10 S f
+(<)2975 1488 w
+10 I f
+(file)3055 1488 w
+10 B f
+(dosusend)900 1608 w
+10 CB f
+(\255d)1321 1608 w
+10 I f
+(nodename)1499 1608 w
+10 CB f
+(\255u)1950 1608 w
+10 I f
+(username file)1 557 1 2128 1608 t
+10 CW f
+([)2710 1608 w
+10 I f
+(file\(s\) ...)1 333 1 2795 1608 t
+10 CW f
+(])3153 1608 w
+10 B f
+(dosusend)900 1728 w
+10 CB f
+(\255d)1321 1728 w
+10 I f
+(nodename)1499 1728 w
+10 CB f
+(\255u)1950 1728 w
+10 I f
+(username)2128 1728 w
+10 CB f
+(\255f)2557 1728 w
+10 I f
+(filename)2735 1728 w
+10 S f
+(<)3120 1728 w
+10 I f
+(file)3200 1728 w
+9 B f
+(DESCRIPTION)540 1896 w
+(Introduction)690 2016 w
+10 R f
+( com\255)1 231( different)1 368( The)1 205(This program simply transfers one or more files from one computer machine to another.)13 3516 4 900 2136 t
+( as the originating machine, the)5 1274( the case of a DOS based computer)7 1434( In)1 138(puters may be UNIX or DOS based.)6 1474 4 900 2256 t
+(command)900 2376 w
+10 B f
+(dosusend)1321 2376 w
+10 R f
+(may be suitable for converting DOS based line encoded text files to the normal UNIX)14 3475 1 1745 2376 t
+( of the commands,)3 744( Both)1 247(line encoding.)1 568 3 900 2496 t
+10 B f
+(usend)2486 2496 w
+10 R f
+(and)2764 2496 w
+10 B f
+(dosusend)2934 2496 w
+10 R f
+(, are the same except that)5 1013 1 3330 2496 t
+10 B f
+(dosusend)4369 2496 w
+10 R f
+(does a line)2 429 1 4791 2496 t
+( latter command is)3 768( This)1 237( input files before sending to the destination machine.)8 2217(encoding conversion on its)3 1098 4 900 2616 t
+( All)1 180( a UNIX platform.)3 743(therefor oriented towards running from a DOS based PC platform to transfer files to)13 3397 3 900 2736 t
+( user's Remote Job Entry \(RJE\) directory. If the destina\255)9 2266(files are only transferred to the destination machine)7 2054 2 900 2856 t
+( if its write per\255)4 641(tion user's RJE directory already has a file with the same name then it will be overwritten)16 3679 2 900 2976 t
+(missions allow for)2 753 1 900 3096 t
+10 I f
+(other)1685 3096 w
+10 R f
+( this command will fail in some way that may or may)11 2223( Otherwise,)1 492(s to write to it.)4 609 3 1896 3096 t
+(not provide notification back to the sending user.)7 1959 1 900 3216 t
+9 B f
+(Command Arguments)1 873 1 690 3384 t
+10 R f
+(\255d)900 3504 w
+10 I f
+(dst)1033 3504 w
+10 R f
+( and its associated value)4 1085(This key letter)2 635 2 1400 3504 t
+10 B f
+(must)3175 3504 w
+10 R f
+( argument provides the)3 1008( This)1 258(be supplied.)1 513 3 3441 3504 t
+(nodename for the destination machine.)4 1550 1 1400 3624 t
+(\255u)900 3792 w
+10 I f
+(user)1033 3792 w
+10 R f
+(This argument must also be supplied and it provides the recipient user to receive the file)15 3820 1 1400 3792 t
+( valid user name on the destination machine is required here.)10 2426(transfer\(s\). A)1 556 2 1400 3912 t
+(\255f)900 4080 w
+10 I f
+(filename)1016 4080 w
+10 R f
+(This option must be used when the)6 1418 1 1400 4080 t
+10 I f
+(standard input)1 591 1 2847 4080 t
+10 R f
+( of naming files on the com\255)6 1162(is used instead)2 591 2 3467 4080 t
+( simple file name that will be used for the name of the file)13 2342( argument must be a)4 822( This)1 231(mand line.)1 425 4 1400 4200 t
+( paths for this filename)4 945( No)1 177(on the destination machine in the destination user's RJE directory.)9 2698 3 1400 4320 t
+(argument are allowed.)2 889 1 1400 4440 t
+( pair and any input)4 753(If files are present on the command line, they will be sent to the destination machine/user)15 3567 2 900 4608 t
+(waiting on)1 430 1 900 4728 t
+10 I f
+(standard input)1 592 1 1360 4728 t
+10 R f
+( line, then the)3 556( there are no files on the command)7 1418( If)1 121(is ignored.)1 427 4 1982 4728 t
+10 I f
+(standard input)1 591 1 4533 4728 t
+10 R f
+(is)5153 4728 w
+(read to obtain the file contents.)5 1237 1 900 4848 t
+9 B f
+(EXAMPLES)540 5016 w
+10 S1 f
+()900 5136 w
+10 S1 f
+900 5136 m
+100 build_rh
+1000 5136 m
+10 R f
+(Send a file named)3 727 1 1150 5136 t
+10 CW f
+(myfile)1905 5136 w
+10 R f
+(to a destination machine cluster named)5 1571 1 2293 5136 t
+10 CW f
+(mainhub)3892 5136 w
+10 R f
+(using)4340 5136 w
+10 CW f
+(pcs)4585 5136 w
+10 R f
+(as the des\255)2 427 1 4793 5136 t
+(tination user:)1 525 1 1150 5256 t
+10 CW f
+(usend \255d mainhub \255u pcs myfile)5 1800 1 1400 5424 t
+10 R f
+(The file will appear at the path)6 1225 1 1150 5592 t
+10 CW f
+(~/pcs/rje/myfile)2400 5592 w
+10 R f
+(on the destination machine.)3 1099 1 3385 5592 t
+10 S1 f
+()900 5760 w
+900 5760 m
+100 build_rh
+1000 5760 m
+10 R f
+(Send several files \(all ending in ')6 1320 1 1150 5760 t
+10 S f
+(*)2470 5760 w
+10 R f
+(.c'\) to the destination machine)4 1212 1 2520 5760 t
+10 CW f
+(mainhub)3757 5760 w
+10 R f
+(using)4202 5760 w
+10 CW f
+(pcs)4444 5760 w
+10 R f
+(as the destina\255)2 571 1 4649 5760 t
+(tion user:)1 375 1 1150 5880 t
+10 CW f
+(usend \255d mainhub \255u pcs)4 1380 1 1400 6048 t
+10 S f
+(*)2840 6048 w
+10 CW f
+(.c)2890 6048 w
+10 R f
+(The files will all end up in the directory)8 1587 1 1150 6216 t
+10 CW f
+(~/pcs/rje/)2762 6216 w
+10 R f
+(on the destination machine.)3 1099 1 3387 6216 t
+10 S1 f
+()900 6384 w
+900 6384 m
+100 build_rh
+1000 6384 m
+10 R f
+( to the file path)4 629(Send a DOS based line coded file)6 1372 2 1150 6384 t
+10 CW f
+(/home/gav/rje/newfile)3182 6384 w
+10 R f
+(on the UNIX plat\255)3 747 1 4473 6384 t
+(form)1150 6504 w
+10 CW f
+(mtgbcs,)1369 6504 w
+10 R f
+(using the local UUCP machine)4 1238 1 1814 6504 t
+10 CW f
+(mtsva)3077 6504 w
+10 R f
+(as the gateway:)2 615 1 3402 6504 t
+10 CW f
+(uux \255p mtsva!dosusend \255d mtgbcs \255u gav \255f newfile < file)10 3360 1 1400 6672 t
+10 R f
+(Note that the)2 516 1 1150 6840 t
+10 B f
+(\255f)1691 6840 w
+10 R f
+(argument is required when reading source from standard input.)8 2514 1 1782 6840 t
+10 S1 f
+()900 7008 w
+900 7008 m
+100 build_rh
+1000 7008 m
+10 R f
+(Send a binary file \(named)4 1347 1 1150 7008 t
+10 I f
+(file)2601 7008 w
+10 R f
+( a DOS based platform to the file path)8 2160(\) from)1 331 2 2729 7008 t
+10 CW f
+(/home/wen/rje/myfile)1150 7128 w
+10 R f
+(on the UNIX platform)3 908 1 2381 7128 t
+10 CW f
+(drutx)3319 7128 w
+10 R f
+(using the PC's UUCP partner machine)5 1571 1 3649 7128 t
+10 CW f
+(mtsva)1150 7248 w
+10 R f
+(as a gateway:)2 537 1 1475 7248 t
+( 8, 2018)2 325( February)1 1681( Commands)1 481( User)1 1924(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 1 \))3 126( USEND)1 1788( 1994\25512\25502 \))2 464( \()1 68( LOCAL)1 1803(USEND \( 1 \))3 431 6 540 480 t
+10 CW f
+(uux \255p mtsva!usend \255d drutx \255u wen !myfile)7 2520 1 1400 960 t
+10 R f
+(Note the use of specifying a local file named)8 1905 1 1150 1128 t
+10 CW f
+(myfile)3095 1128 w
+10 R f
+( This)1 244( host.)1 233(that resides on the originating)4 1248 3 3495 1128 t
+(local\255file syntax is required when using the)6 1725 1 1150 1248 t
+10 B f
+(uux)2900 1248 w
+10 R f
+(program in this way.)3 827 1 3087 1248 t
+9 B f
+(SEE ALSO)1 453 1 540 1416 t
+10 R f
+(uux\(1\), uucp\(1\), uuto\(1\))2 970 1 900 1536 t
+9 B f
+(CAVEATS)540 1704 w
+10 R f
+( binary files using the)4 910(Do not attempt to send)4 951 2 900 1824 t
+10 B f
+(dosusend)2797 1824 w
+10 R f
+( the straight)2 494(command. Use)1 635 2 3229 1824 t
+10 B f
+(usend)4394 1824 w
+10 R f
+(,)4645 1824 w
+10 B f
+(uucp)4706 1824 w
+10 R f
+(, or the)2 302 1 4918 1824 t
+10 B f
+(uuto)900 1944 w
+10 R f
+(command instead for this.)3 1038 1 1120 1944 t
+9 B f
+(PATH TO)1 418 1 540 2112 t
+10 R f
+(This program is currently located in:)5 1462 1 900 2232 t
+10 CW f
+(${LOCAL}/bin)900 2352 w
+10 R f
+(or)900 2472 w
+10 CW f
+(/usr/add\255on/local/bin)900 2592 w
+10 R f
+( program may also be in:)5 996( The)1 205(on most systems.)2 687 3 900 2712 t
+10 CW f
+(${PCS}/bin)900 2832 w
+10 R f
+(on those systems that only have UUCP connectivity through the PCS system.)11 3095 1 900 2952 t
+9 B f
+(AUTHOR)540 3120 w
+10 R f
+(David A.D. Morano)2 804 1 900 3240 t
+( 2)1 75( Page)1 1931( Commands)1 481( User)1 1508(February 8, 2018)2 685 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 2
+%%DocumentFonts: Courier-Bold Courier Times-Roman Times-Bold Times-Italic Times-Roman Symbol

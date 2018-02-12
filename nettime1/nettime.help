@@ -9,7 +9,6 @@ time is:
 	ntp1.ece.neu.edu
 
 Synopsis:
-
 $ nettime -s [-proto <proto>] [-f <af>] <server(s)> [...]
 
 This form is used to set the UNIX® system time from the first server
