@@ -1,2 +1,2 @@
 const char prtdb_makedate[] =
-"@(#)prtdb                   170822_2302:03_USEDT Rightcore Network Services" ;
+"@(#)prtdb                   180213_2218:47_USEST Rightcore Network Services" ;

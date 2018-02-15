@@ -52,8 +52,10 @@
 
 /* local defines */
 
-#define	CITEDB_MAGIC		31
-#define	CITEDB_DEFENTRIES	200
+#define	CITEDB_MAGIC	31
+#define	CITEDB_DEFENTS	200
+
+#define	STORE		CITEDB_STORE
 
 
 /* external subroutines */
@@ -88,8 +90,7 @@ static int	store_start(CITEDB_STORE *,const char *,int) ;
 static int	store_update(CITEDB_STORE *,int) ;
 static int	store_finish(CITEDB_STORE *) ;
 
-static int	entry_load(CITEDB_ENT *,CITEDB_STORE *,
-			CITEDB_OFF *) ;
+static int	entry_load(CITEDB_ENT *,CITEDB_STORE *,CITEDB_OFF *) ;
 
 
 /* local variables */
@@ -100,7 +101,7 @@ static int	entry_load(CITEDB_ENT *,CITEDB_STORE *,
 
 int citedb_start(CITEDB *op)
 {
-	const int	n = CITEDB_DEFENTRIES ;
+	const int	n = CITEDB_DEFENTS ;
 	const int	size = sizeof(CITEDB_OFF) ;
 	int		rs ;
 
@@ -142,6 +143,7 @@ int citedb_adds(CITEDB *op,int fi,uint coff,cchar *kp,int kl)
 	if (kp == NULL) return SR_FAULT ;
 
 	if (op->magic != CITEDB_MAGIC) return SR_NOTOPEN ;
+
 	if (kp[0] == '\0') return SR_INVALID ;
 
 	if (kl < 0) kl = strlen(kp) ;
@@ -183,6 +185,7 @@ int citedb_add(CITEDB *op,int fi,uint coff,cchar *kp,int kl)
 	if (kp == NULL) return SR_FAULT ;
 
 	if (op->magic != CITEDB_MAGIC) return SR_NOTOPEN ;
+
 	if (kp[0] == '\0') return SR_INVALID ;
 
 	if (kl < 0) kl = strlen(kp) ;
@@ -347,13 +350,16 @@ int citedb_enum(CITEDB *op,CITEDB_CUR *curp,CITEDB_ENT *ep)
 #endif
 
 	if ((rs >= 0) && (offp != NULL)) {
-
 	    sp = offp->sp ;
-	    if (ep != NULL)
+	    if (ep != NULL) {
 	        rs = entry_load(ep,sp,offp) ;
-
+	    }
 	    curp->i = i ;
 	}
+
+#if	CF_DEBUGS
+	debugprintf("citedb_enum: ret rs=%d i=%u\n",rs,i) ;
+#endif
 
 	return (rs >= 0) ? i : rs ;
 }
@@ -364,7 +370,7 @@ int citedb_fetch(CITEDB *op,cchar *citekey,CITEDB_CUR *curp,CITEDB_ENT *ep)
 {
 	CITEDB_OFF	*offp ;
 	CITEDB_STORE	*sp ;
-	CITEDB_CUR		cur ;
+	CITEDB_CUR	cur ;
 	int		rs ;
 	int		i ;
 
@@ -394,11 +400,10 @@ int citedb_fetch(CITEDB *op,cchar *citekey,CITEDB_CUR *curp,CITEDB_ENT *ep)
 	} /* end while */
 
 	if ((rs >= 0) && (offp != NULL)) {
-
 	    sp = offp->sp ;
-	    if (ep != NULL)
+	    if (ep != NULL) {
 	        rs = entry_load(ep,sp,offp) ;
-
+	    }
 	    curp->i = i ;
 	}
 
@@ -471,13 +476,10 @@ int citedb_audit(CITEDB *op)
 /* private subroutines */
 
 
-static int store_start(sp,kp,kl)
-CITEDB_STORE	*sp ;
-const char		*kp ;
-int			kl ;
+static int store_start(CITEDB_STORE *sp,cchar *kp,int kl)
 {
 	int		rs ;
-	const char	*cp ;
+	cchar		*cp ;
 
 	if (sp == NULL) return SR_FAULT ;
 	if (kp == NULL) return SR_FAULT ;
@@ -494,9 +496,7 @@ int			kl ;
 /* end subroutine (store_start) */
 
 
-static int store_update(sp,n)
-CITEDB_STORE	*sp ;
-int			n ;
+static int store_update(CITEDB_STORE *sp,int n)
 {
 	int		rs = SR_OK ;
 
@@ -514,8 +514,7 @@ int			n ;
 /* end subroutine (store_update) */
 
 
-static int store_finish(sp)
-CITEDB_STORE	*sp ;
+static int store_finish(CITEDB_STORE *sp)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -557,9 +556,7 @@ static int entry_load(CITEDB_ENT *ep,CITEDB_STORE *sp,CITEDB_OFF *offp)
 
 
 /* make a TROFF citation reference string */
-static int mkcitestr(buf,index)
-char	buf[] ;
-int	index ;
+static int mkcitestr(char *buf,int index)
 {
 
 	buf[0] = '\0' ;

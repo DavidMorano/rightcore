@@ -22,8 +22,31 @@
 
 /*******************************************************************************
 
+	This subroutine is meant to work only on TROFF source language (of
+	whatever sort).
+
         This subroutine removes trailing white-space from a line, and then
-        prints it.
+        prints it. But if the line ends up as having only soe punctuation left
+        to it and that punctuation starts in the first column, then some
+        non-printing blank character is stuffed at the fron of the line to
+        prevent the punctuation from starting the line. In the case of a period,
+        this is particularly important since that might falsely indicate that a
+        TROFF macro is present.
+
+	Synopsis:
+
+	int bprinter(bfile *tfp,int f_bol,cchar *lp,int ll)
+
+	Arguments:
+
+	tfp		pointer to BFILE object
+	f_bol		flag indicating Beginning-Of-Line or not
+	lp		character buffer to print
+	ll		length of buffer to print
+
+	Returns:
+
+	-		number of characters (bytes) printed 
 
 
 *******************************************************************************/
@@ -87,10 +110,12 @@ int bprinter(bfile *tfp,int f_bol,cchar *lp,int ll)
 
 	if (ll > 0) {
 	    const int	splen = NSPUNCTS ;
+	    const int	sch = MKCHAR(lp[0]) ;
 	    int		spl = 0 ;
 	    int		f_preserve ;
+	    int		f = FALSE ;
 	    char	spuncts[NSPUNCTS+1] ;
-	    f_preserve = ((strchr(puncts,MKCHAR(lp[0])) != NULL) && f_bol) ;
+	    f_preserve = ((strchr(puncts,sch)) != NULL) && f_bol ;
 	    if (lp[ll-1] == '\n') ll -= 1 ;
 	    while (ll && CHAR_ISWHITE(lp[ll-1])) ll -= 1 ;
 	    while (ll && lp[0]) {
@@ -99,10 +124,13 @@ int bprinter(bfile *tfp,int f_bol,cchar *lp,int ll)
 		    if (spl < splen) {
 			int	i = (splen-1-spl++) ;
 			spuncts[i] = ch ;
-		    } else
-			break ;
-		} else if (! CHAR_ISWHITE(ch)) 
-		    break ;
+		    } else {
+			f = TRUE ;
+		    }
+		} else if (! CHAR_ISWHITE(ch)) {
+		    f = TRUE ;
+		}
+		if (f) break ;
 		ll -= 1 ;
 	    } /* end while */
 	    if (ll > 0) {
@@ -111,7 +139,7 @@ int bprinter(bfile *tfp,int f_bol,cchar *lp,int ll)
 	    }
 	    if ((rs >= 0) && (spl > 0)) {
 		if ((ll == 0) && (! f_preserve)) {
-		    rs = bwrite(tfp,"\\%",-1) ;
+		    rs = bwrite(tfp,"\\&",-1) ;
 		    wlen += rs ;
 	        }
 		if (rs >= 0) {

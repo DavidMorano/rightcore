@@ -1,15 +1,12 @@
 .\"_ ECE3321 project
 .\"_
+.\"_ no page number on first page
 .nr N 2
 .BIB mp3.rbd
 .\"_
-.\"_ heading at level three (and below) start a new line
+.\"_ if heading at level three (and below) then start a new line
 .nr Hb 3
 .\"_
-.\"_ puts first arg in CW font
-.de CW
-\%\&\\$3\f(CW\\$1\f1\&\\$2
-..
 .\"_
 .EQ
 delim $$

@@ -884,8 +884,7 @@ int main(int argc,cchar **argv,cchar **envv)
 
 retearly:
 	if (pip->debuglevel > 0) {
-	    bprintf(pip->efp,"%s: exiting ex=%u (%d)\n",
-	        pip->progname,ex,rs) ;
+	    bprintf(pip->efp,"%s: exiting ex=%u (%d)\n",pip->progname,ex,rs) ;
 	}
 
 #if	CF_DEBUG
@@ -989,7 +988,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                vl = keyopt_fetch(kop,kp,NULL,&vp) ;
 
 	                switch (oi) {
-
 	                case progopt_binder:
 	                    pip->f.binder = TRUE ;
 	                    if (vl > 0) {
@@ -997,7 +995,6 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                        pip->f.binder = (rs > 0) ;
 	                    }
 	                    break ;
-
 	                } /* end switch */
 
 	                c += 1 ;

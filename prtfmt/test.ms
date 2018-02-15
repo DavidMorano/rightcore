@@ -9,7 +9,7 @@ Typing Documents on the UNIX System:
 \!.br
 Using the \-ms Macros with Troff and Nroff
 .AU "MH 2C-572" 6377
-M. E. Lesk
+M.E. Lesk
 .AI
 .MH
 .OK

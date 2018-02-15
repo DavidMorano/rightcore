@@ -55,6 +55,8 @@
 
 /* local defines */
 
+#define	SUBINFO		struct subinfo
+
 
 /* external subroutines */
 
@@ -65,8 +67,8 @@ extern int	nextfield(const char *,int,const char **) ;
 extern int	sicite(const char *,int,const char *,int) ;
 extern int	silbrace(const char *,int) ;
 
-extern int	bprinter(bfile *,int,const char *,int) ;
-extern int	findbibfile(struct proginfo *,PARAMOPT *,const char *,char *) ;
+extern int	bprinter(bfile *,int,cchar *,int) ;
+extern int	findbibfile(PROGINFO *,PARAMOPT *,cchar *,char *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugprintf(const char *,...) ;
@@ -82,7 +84,7 @@ extern char	*strnchr(const char *,int,int) ;
 
 /* local structures */
 
-struct procinfo {
+struct subinfo {
 	PARAMOPT	*app ;
 	TAGTRACK	*ttp ;
 	int		fi ;
@@ -102,7 +104,7 @@ struct mbdinfo {
 /* forward references */
 
 #ifdef	COMMENT
-static int mbdescape(struct proginfo *,struct mbdinfo *,uint,const char *,int) ;
+static int mbdescape(PROGINFO *,struct mbdinfo *,uint,cchar *,int) ;
 #endif
 
 
@@ -112,21 +114,13 @@ static int mbdescape(struct proginfo *,struct mbdinfo *,uint,const char *,int) ;
 /* exported subroutines */
 
 
-int progscan(pip,app,ttp,fi,fname)
-struct proginfo	*pip ;
-PARAMOPT	*app ;
-TAGTRACK	*ttp ;
-int		fi ;
-const char	fname[] ;
+int progscan(PROGINFO *pip,PARAMOPT *app,TAGTRACK *ttp,int fi,cchar *fname)
 {
-	struct procinfo	pc ;
-
-	bfile	infile, *ifp = &infile ;
-	bfile	*tfp = &pip->tf.tfile ;
-
-	int	rs ;
-	int	tlen = 0 ;
-
+	SUBINFO		pc ;
+	bfile		ifile, *ifp = &ifile ;
+	int		rs ;
+	int		rs1 ;
+	int		tlen = 0 ;
 	const char	*cp ;
 
 #if	CF_DEBUG
@@ -138,7 +132,7 @@ const char	fname[] ;
 
 	if (fname[0] == '\0') return SR_INVALID ;
 
-	memset(&pc,0,sizeof(struct procinfo)) ;
+	memset(&pc,0,sizeof(SUBINFO)) ;
 	pc.app = app ;
 	pc.ttp = ttp ;
 
@@ -158,11 +152,14 @@ const char	fname[] ;
 	if (fname[0] == '-') fname = BFILE_STDIN ;
 
 	if ((rs = bopen(ifp,fname,"r",0666)) >= 0) {
+	    bfile	*tfp = &pip->tf.tfile ;
 	    const int	llen = LINEBUFLEN ;
 	    uint	foff = pip->tf.tlen ;
 	    int		ll ;
 	    int		f_bol, f_eol ;
-	    const char	*lp ;
+	    const char	*pn = pip->progname ;
+	    const char	*fmt ;
+	    cchar	*lp ;
 	    char	lbuf[LINEBUFLEN + 1] ;
 
 #if	CF_DEBUG
@@ -203,8 +200,6 @@ const char	fname[] ;
 	                rs = bprintln(tfp,".\\\" TAG\n",-1) ;
 		        tlen += rs ;
 		    } else if (rs == SR_INVALID) {
-			const char	*pn = pip->progname ;
-			const char	*fmt ;
 		        fmt = "%s: same label for multiple tags (%d)\n" ;
 		        bprintf(pip->efp,fmt,pn,rs) ;
 	                rs = bprinter(tfp,f_eol,lp,ll) ;
@@ -213,8 +208,6 @@ const char	fname[] ;
 	                rs = bprinter(tfp,f_eol,lp,ll) ;
 	                tlen += rs ;
 		    } else if (rs < 0) {
-			const char	*pn = pip->progname ;
-			const char	*fmt ;
 		        fmt = "%s: error in scaning file=%d (%d)\n" ;
 		        bprintf(pip->efp,fmt,pn,fi,rs) ;
 		    }
@@ -227,7 +220,8 @@ const char	fname[] ;
 	        if (rs < 0) break ;
 	    } /* end while (reading input lines) */
 
-	    bclose(ifp) ;
+	    rs1 = bclose(ifp) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (file-open) */
 	pip->tf.tlen += tlen ;
 
@@ -246,21 +240,18 @@ const char	fname[] ;
 
 #ifdef	COMMENT
 static int mbdescape(pip,ip,loff,lp,ll)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 struct mbdinfo	*ip ;
 uint		loff ;
 const char	*lp ;
 int		ll ;
 {
 	const int	el = strlen(BIBESCAPE) ;
-
-	int	sl, cl ;
-	int	si ;
-	int	f = FALSE ;
-
+	int		sl, cl ;
+	int		si ;
+	int		f = FALSE ;
 	const char	*tp ;
 	const char	*sp, *cp ;
-
 
 	memset(ip,0,sizeof(struct mbdinfo)) ;
 	ip->loff = loff ;
@@ -300,8 +291,9 @@ int		ll ;
 	            ip->rp = (tp + 1) ;
 	            ip->rl = sl - ((tp + 1) - sp) ;
 
-	        } else
+	        } else {
 	            f = FALSE ;
+		}
 
 	    } /* end if (open brace) */
 

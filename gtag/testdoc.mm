@@ -6,10 +6,6 @@
 .\"_ heading at level three (and below) start a new line
 .nr Hb 3
 .\"_
-.\"_ puts first arg in CW font
-.de CW
-\%\&\\$3\f(CW\\$1\f1\&\\$2
-..
 .\"_
 .EQ
 delim $$
@@ -269,7 +265,7 @@ ISO AAC standard \cite{ bosi96aac,bosi97aac}.
 The AAC compression is not backward
 compatible with these first three Layers and therefore is often referred
 to as "Not Backward Compatible"     	   	 	   
-or NBC for short \cite{ johnson96nbc } .   !   
+or NBC for short \cite{ johnson96nbc }    	 !   
 In addition, not related directly to MPEG, there is an increasingly
 popular advanced audio compression scheme known as \fIAdvanced Coding -3\fP
 (AC-3) from Dolby.

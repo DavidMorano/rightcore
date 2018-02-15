@@ -32,7 +32,7 @@ CCOPTS= $(CCOPTS_GCCALL) -O $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
-#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
+CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
@@ -90,7 +90,7 @@ LIBDIRS= -L$(LIBDIR)
 
 LIB0=
 LIB1= -ldam -lb
-LIB2=
+LIB2= -ldebug
 LIB3= -luc -lu
 LIB4= $(CGS_LIBS)
 LIB5= 
@@ -145,16 +145,16 @@ INCS= config.h defs.h citedb.h bdb.h
 
 
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o 
-OBJ01= progfile.o progout.o progoutbib.o
+OBJ01= progfile.o progoutfin.o progoutbib.o
 OBJ02= bdb.o citedb.o keytracker.o
 OBJ03= 
 OBJ04= sicite.o silbrace.o
 OBJ05=
 OBJ06=
 OBJ07= printhelp.o 
-OBJ08=
+OBJ08= isMacro.o
 OBJ09=
-OBJ10= bprintlines.o bprinter.o
+OBJ10= bprinter.o
 OBJ11=
 OBJ12=
 OBJ13= 
@@ -274,7 +274,8 @@ proginfo_setpiv.o:	proginfo_setpiv.c defs.h
 
 progfile.o:		progfile.c $(INCS)
 
-progout.o:		progout.c $(INCS) keytracker.h
+progoutfin.o:		progoutfin.cc $(INCS) keytracker.h
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) progoutfin.cc
 
 
 bdb.o:			bdb.c bdb.h

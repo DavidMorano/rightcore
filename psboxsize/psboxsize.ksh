@@ -30,10 +30,11 @@ function dimensions(file) {
   if ((arg[3] < 0) && (arg[4] < 0)) {
     arg[3] = height/72.0
     arg[4] = width/72.0
-  } else if (arg[3] < 0)
+  } else if (arg[3] < 0) {
     arg[3] = arg[4] * height / width
-  else
+  } else {
     arg[4] = arg[3] * width / height
+  }
 
   for (i = 1 ; i <= argc ; i += 1) {
     if (i > 1) printf " "

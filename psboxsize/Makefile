@@ -6,7 +6,6 @@ SRCROOT= $(LOCAL)
 
 
 BINDIR= $(SRCROOT)/bin
-SBINDIR= $(SRCROOT)/sbin
 LIBDIR= $(SRCROOT)/lib
 MANDIR= $(SRCROOT)/man/man1
 HELPDIR= $(SRCROOT)/share/help
@@ -18,10 +17,10 @@ $(T):		$(T).ksh
 
 install:	install-raw install-help install-man
 
-install-raw:	$(T)
+install-raw:	$(T).ksh
 	rm -f $(BINDIR)/$(T).ksh
 	rm -f $(BINDIR)/$(T).$(OFF)
-	makenewer -r $(T) $(SBINDIR)
+	makenewer -r -o rmsuf $(T).ksh $(BINDIR)
 
 install-help:	$(T).help
 	-mkdir $(HELPDIR) 2> /dev/null

@@ -32,7 +32,7 @@ CCOPTS= $(CCOPTS_GCCALL) -O $(CCOPTS_GCCOPTSPARC)
 #CCOPTS= $(CCOPTS_GCCALL) -g -O
 #CCOPTS= $(CCOPTS_GCCALL) -g -pg
 #CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing -Wall
-#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
+CCOPTS= $(CCOPTS_GCCALL) -g -Wall
 
 CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 
@@ -168,9 +168,9 @@ OBJ04=
 OBJ05=
 OBJ06= findinline.o
 OBJ07= printhelp.o 
-OBJ08=
+OBJ08= isMacro.o
 OBJ09=
-OBJ10= bprintlines.o bprinter.o
+OBJ10= bprinter.o
 OBJ11=
 OBJ12=
 OBJ13= 

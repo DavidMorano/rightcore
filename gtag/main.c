@@ -671,7 +671,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	    pip->efp = &errfile ;
 	    pip->open.errfile = TRUE ;
 	    bcontrol(&errfile,BC_SETBUFLINE,TRUE) ;
-	} else if (! isFailOpen(rs)) {
+	} else if (! isFailOpen(rs1)) {
 	    if (rs >= 0) rs = rs1 ;
 	}
 
@@ -684,8 +684,7 @@ int main(int argc,cchar **argv,cchar **envv)
 #endif
 
 	if (f_version) {
-	    bprintf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    bprintf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* get the program root */
@@ -842,8 +841,9 @@ int main(int argc,cchar **argv,cchar **envv)
 	    case SR_INVALID:
 	        ex = EX_USAGE ;
 	        if (! pip->f.quiet) {
-	            bprintf(pip->efp,"%s: invalid query (%d)\n",
-	                pip->progname,rs) ;
+		    cchar	*pn = pip->progname ;
+		    cchar	*fmt = "%s: invalid query (%d)\n" ;
+	            bprintf(pip->efp,fmt,pn,rs) ;
 	        }
 	        break ;
 	    case SR_NOENT:
@@ -861,8 +861,7 @@ int main(int argc,cchar **argv,cchar **envv)
 /* we are out of here */
 retearly:
 	if (pip->debuglevel > 0) {
-	    bprintf(pip->efp,"%s: exiting ex=%u (%d)\n",
-	        pip->progname,ex,rs) ;
+	    bprintf(pip->efp,"%s: exiting ex=%u (%d)\n",pip->progname,ex,rs) ;
 	}
 
 #if	CF_DEBUG
@@ -900,7 +899,6 @@ badprogstart:
 	        UCMALLREG_CUR	cur ;
 	        UCMALLREG_REG	reg ;
 	        const int	size = (10*sizeof(uint)) ;
-	        int		rs1 ;
 	        const char	*ids = "main" ;
 	        uc_mallinfo(mi,size) ;
 	        debugprintf("main: MIoutnum=%u\n",mi[ucmallreg_outnum]) ;

@@ -65,9 +65,7 @@ static int	matkey(const char *(*)[2],const char *,int) ;
 /* exported subroutines */
 
 
-int keytracker_start(op,keyvals)
-KEYTRACKER	*op ;
-const char	*(*keyvals)[2] ;
+int keytracker_start(KEYTRACKER *op,cchar *(*keyvals)[2])
 {
 	int		rs ;
 	int		n = 0 ;
@@ -89,8 +87,7 @@ const char	*(*keyvals)[2] ;
 
 
 /* free up this keytracker object */
-int keytracker_finish(op)
-KEYTRACKER	*op ;
+int keytracker_finish(KEYTRACKER *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -108,9 +105,7 @@ KEYTRACKER	*op ;
 /* end subroutine (keytracker_finish) */
 
 
-int keytracker_done(op,n)
-KEYTRACKER	*op ;
-int		n ;
+int keytracker_done(KEYTRACKER *op,int n)
 {
 	int		rs ;
 
@@ -128,9 +123,7 @@ int		n ;
 
 
 /* are there more keys that have not been completed? */
-int keytracker_more(op,morestr)
-KEYTRACKER	*op ;
-const char	morestr[] ;
+int keytracker_more(KEYTRACKER *op,cchar *morestr)
 {
 	int		rs = SR_OK ;
 	int		f = FALSE ;
@@ -161,10 +154,7 @@ const char	morestr[] ;
 /* private subroutines */
 
 
-static int keytracker_checkmore(op,sp,sl)
-KEYTRACKER	*op ;
-const char	*sp ;
-int		sl ;
+static int keytracker_checkmore(KEYTRACKER *op,cchar *sp,int sl)
 {
 	int		cl ;
 	int		f = FALSE ;
@@ -186,10 +176,7 @@ int		sl ;
 /* end subroutine (keytracker_checkmore) */
 
 
-static int matkey(keyvals,kp,kl)
-const char	*(*keyvals)[2] ;
-const char	kp[] ;
-int		kl ;
+static int matkey(cchar *(*keyvals)[2],cchar *kp,int kl)
 {
 	int		i ;
 	int		f = FALSE ;

@@ -4,7 +4,7 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debug print-outs */
-#define	CF_DEBUG	0		/* run-time debug print-outs */
+#define	CF_DEBUG	1		/* run-time debug print-outs */
 #define	CF_DEBUGMALL	1		/* debug memory-allocations */
 
 
@@ -72,7 +72,7 @@ extern int	mkpath1(char *,const char *) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
-extern int	shshrink(cchar *,int,cchar **) ;
+extern int	sfshrink(cchar *,int,cchar **) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecti(const char *,int,int *) ;
 extern int	optbool(const char *,int) ;
@@ -84,19 +84,19 @@ extern int	isNotPresent(int) ;
 extern int	isFailOpen(int) ;
 
 extern int	printhelp(void *,const char *,const char *,const char *) ;
-extern int	proginfo_setpiv(PROGINFO *,const char *,
-			const struct pivars *) ;
-extern int	progfile(PROGINFO *,PARAMOPT *,
-			BDB *,CITEDB *,const char *) ;
-extern int	progout(PROGINFO *,BDB *,CITEDB *,const char *) ;
+extern int	proginfo_setpiv(PROGINFO *,cchar *,const PIVARS *) ;
+extern int	progfile(PROGINFO *,PARAMOPT *,BDB *,CITEDB *,cchar *) ;
+extern int	progoutfin(PROGINFO *,BDB *,CITEDB *,cchar *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
 extern int	debugopen(const char *) ;
 extern int	debugprintf(const char *,...) ;
-extern int	debugprinthex(const char *,int,const char *,int) ;
+extern int	debugprinthexblock(cchar *,int,const void *,int) ;
 extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
+
+extern cchar	*getourenv(cchar **,cchar *) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 extern char	*strshrink(char *) ;
@@ -222,18 +222,14 @@ int main(int argc,cchar **argv,cchar **envv)
 
 	int		argr, argl, aol, akl, avl, kwi ;
 	int		ai, ai_max, ai_pos ;
-	int		pan = 0 ;
 	int		rs = SR_OK ;
 	int		rs1 ;
-	int		opts ;
-	int		v ;
 	int		cl ;
 	int		ex = EX_INFO ;
 	int		f_optminus, f_optplus, f_optequal ;
 	int		f_usage = FALSE ;
 	int		f_version = FALSE ;
 	int		f_help = FALSE ;
-	int		f ;
 
 	const char	*argp, *aop, *akp, *avp ;
 	const char	*argval = NULL ;
@@ -244,7 +240,6 @@ int main(int argc,cchar **argv,cchar **envv)
 	const char	*efname = NULL ;
 	const char	*ofname = NULL ;
 	const char	*cp ;
-	char		template[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
@@ -632,7 +627,7 @@ int main(int argc,cchar **argv,cchar **envv)
 	                        if ((rs >= 0) && (cp != NULL)) {
 	                            PARAMOPT	*pop = &aparams ;
 	                            cchar	*po = PO_SUFFIX ;
-	                            rs = paramopt_loads(&aparams,po,cp,cl) ;
+	                            rs = paramopt_loads(pop,po,cp,cl) ;
 	                        }
 	                        break ;
 
@@ -910,7 +905,6 @@ badprogstart:
 	        UCMALLREG_CUR	cur ;
 	        UCMALLREG_REG	reg ;
 	        const int	size = (10*sizeof(uint)) ;
-	        int		rs1 ;
 	        const char	*ids = "main" ;
 	        uc_mallinfo(mi,size) ;
 	        debugprintf("main: MIoutnum=%u\n",mi[ucmallreg_outnum]) ;
@@ -1041,7 +1035,7 @@ static int process(PROGINFO *pip,ARGINFO *aip,BITS *bop,PARAMOPT *pop,
 	                    CITEDB	*c = &citer ;
 	                    if ((rs = procargs(pip,aip,bop,pop,b,c,afn)) >= 0) {
 	                        brewind(&pip->tf.tfile) ;
-	                        rs = progout(pip,&bibber,&citer,ofn) ;
+	                        rs = progoutfin(pip,&bibber,&citer,ofn) ;
 	                        if ((pip->debuglevel > 0) && (rs >= 0)) {
 	                            fmt = "%s: files=%u\n" ;
 	                            bprintf(pip->efp,fmt,pn,pip->c_files) ;
@@ -1171,14 +1165,11 @@ static int procereport(PROGINFO *pip,int prs)
 	cchar		*pn = pip->progname ;
 	cchar		*fmt ;
 	if (pip->f.uniq && (prs == SR_NOTUNIQ)) {
-	    bprintf(pip->efp,
-	        "%s: citation "
-	        "was not unique in DB (%d)\n",
-	        pip->progname,prs) ;
+	    fmt = "%s: citation was not unique in DB (%d)\n" ;
+	    bprintf(pip->efp,fmt,pn,prs) ;
 	} else {
-	    bprintf(pip->efp,
-	        "%s: could not process citation (%d)\n",
-	        pip->progname,prs) ;
+	    fmt = "%s: could not process citation (%d)\n" ;
+	    bprintf(pip->efp,fmt,pn,prs) ;
 	}
 	return rs ;
 }

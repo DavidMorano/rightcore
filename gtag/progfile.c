@@ -1,4 +1,5 @@
-/* progfile */
+/* progfile (Program-File) */
+/* lang=C99 */
 
 /* process a file by inserting bibliographical references */
 /* last modified %G% version %I% */
@@ -62,26 +63,29 @@
 
 /* local defines */
 
+#define	SUBINFO		struct subinfo
+#define	MBDINFO		struct mbdinfo
+
 
 /* external subroutines */
 
-extern int	matstr(const char **,const char *,int) ;
 extern int	sfshrink(const char *,int,const char **) ;
 extern int	sfsub(const char *,int,const char **) ;
 extern int	nextfield(const char *,int,const char **) ;
 extern int	sicite(const char *,int,const char *,int) ;
 extern int	silbrace(const char *,int) ;
+extern int	matstr(cchar **,cchar *,int) ;
 
-extern int	bprinter(bfile *,int,const char *,int) ;
-extern int	findbibfile(PROGINFO *,PARAMOPT *,const char *,char *) ;
+extern int	bprinter(bfile *,int,cchar *,int) ;
+extern int	findbibfile(PROGINFO *,PARAMOPT *,cchar *,char *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
-extern int	debugprintf(const char *,...) ;
-extern int	debugprinthex(const char *,int,const char *,int) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	debugprinthex(cchar *,int,cchar *,int) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
-extern char	*strnchr(const char *,int,int) ;
+extern char	*strnchr(cchar *,int,int) ;
 
 
 /* external variables */
@@ -89,7 +93,7 @@ extern char	*strnchr(const char *,int,int) ;
 
 /* local structures */
 
-struct procinfo {
+struct subinfo {
 	PARAMOPT	*app ;
 	BDB		*bdbp ;
 	CITEDB		*cdbp ;
@@ -109,14 +113,12 @@ struct mbdinfo {
 
 /* forward references */
 
-static int procmacro(PROGINFO *,struct procinfo *,
-		const char *,int,int) ;
-static int procescape(PROGINFO *,struct procinfo *,
-		struct mbdinfo *) ;
+static int	procmacro(PROGINFO *,SUBINFO *,cchar *,int,int) ;
+static int	procescape(PROGINFO *,SUBINFO *,MBDINFO *) ;
 
-static int mbdmacro(PROGINFO *,const char *,int) ;
-static int mbdmacrofiles(PROGINFO *,VECSTR *,const char *,int) ;
-static int mbdescape(PROGINFO *,struct mbdinfo *,uint,const char *,int) ;
+static int	mbdmacro(PROGINFO *,cchar *,int) ;
+static int	mbdmacrofiles(PROGINFO *,VECSTR *,cchar *,int) ;
+static int	mbdescape(PROGINFO *,MBDINFO *,uint,cchar *,int) ;
 
 
 /* local variables */
@@ -152,17 +154,11 @@ static const uchar	fterms[] = {
 /* exported subroutines */
 
 
-int progfile(pip,app,bdbp,cdbp,fname)
-PROGINFO	*pip ;
-PARAMOPT	*app ;
-BDB		*bdbp ;
-CITEDB		*cdbp ;
-const char	fname[] ;
+int progfile(PROGINFO *pip,PARAMOPT *app,BDB *bdbp,CITEDB *cdbp,cchar *fname)
 {
-	struct procinfo	pc ;
-	bfile		infile, *ifp = &infile ;
-	bfile		*tfp = &pip->tf.tfile ;
+	SUBINFO		pc ;
 	int		rs ;
+	int		rs1 ;
 	int		tlen = 0 ;
 	const char	*cp ;
 
@@ -175,7 +171,7 @@ const char	fname[] ;
 
 	if (fname[0] == '\0') return SR_INVALID ;
 
-	memset(&pc,0,sizeof(struct procinfo)) ;
+	memset(&pc,0,sizeof(SUBINFO)) ;
 	pc.app = app ;
 	pc.bdbp = bdbp ;
 	pc.cdbp = cdbp ;
@@ -186,76 +182,82 @@ const char	fname[] ;
 	if (cp[0] == '-')
 	    cp = "*STDIN*" ;
 
-	rs = vecstr_add(&pip->filenames,cp,-1) ;
-	pc.fi = rs ;
-	if (rs < 0) goto ret0 ;
+	if ((rs = vecstr_add(&pip->filenames,cp,-1)) >= 0) {
+	    bfile	ifile, *ifp = &ifile ;
+	    bfile	*tfp = &pip->tf.tfile ;
+	    pc.fi = rs ;
 
 /* proceed to open the file */
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(3))
-	    debugprintf("progfile: open file\n") ;
-#endif
-
-	if (fname[0] == '-') fname = BFILE_STDIN ;
-
-	if ((rs = bopen(ifp,fname,"r",0666)) >= 0) {
-	    struct mbdinfo	info ;
-	    const int	llen = LINEBUFLEN ;
-	    uint	foff = pip->tf.tlen ;
-	    int		ll ;
-	    int		li ;
-	    int		f_bol, f_eol ;
-	    const char	*lp ;
-	    char	lbuf[LINEBUFLEN + 1] ;
-
-#if	CF_DEBUG
 	    if (DEBUGLEVEL(3))
-	        debugprintf("progfile: while-above\n") ;
+	        debugprintf("progfile: open file\n") ;
 #endif
 
-	    f_bol = TRUE ;
-	    while ((rs = breadline(ifp,lbuf,llen)) > 0) {
-	        uint	loff = (foff+tlen) ;
-	        int	len = rs ;
+	    if (fname[0] == '-') fname = BFILE_STDIN ;
 
-	        f_eol = (lbuf[len - 1] == '\n') ;
-
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(2))
-	            debugprintf("progfile: begin loff=%u\n",loff) ;
-#endif
+	    if ((rs = bopen(ifp,fname,"r",0666)) >= 0) {
+	        MBDINFO		info ;
+	        const int	llen = LINEBUFLEN ;
+	        uint		foff = pip->tf.tlen ;
+	        int		ll ;
+	        int		li ;
+	        int		f_bol, f_eol ;
+	        cchar		*lp ;
+	        char		lbuf[LINEBUFLEN + 1] ;
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(3))
-	            debugprintf("progfile: line=>%t<\n",lbuf,
-	                ((lbuf[len - 1] == '\n') ? (len - 1) : len)) ;
+	            debugprintf("progfile: while-above\n") ;
+#endif
+
+	        f_bol = TRUE ;
+	        while ((rs = breadline(ifp,lbuf,llen)) > 0) {
+	            uint	loff = (foff+tlen) ;
+	            int		len = rs ;
+
+	            f_eol = (lbuf[len - 1] == '\n') ;
+
+#if	CF_DEBUG
+	            if (DEBUGLEVEL(2))
+	                debugprintf("progfile: begin loff=%u\n",loff) ;
+#endif
+
+#if	CF_DEBUG
+	            if (DEBUGLEVEL(3))
+	                debugprintf("progfile: line=>%t<\n",lbuf,
+	                    ((lbuf[len - 1] == '\n') ? (len - 1) : len)) ;
 #endif
 
 /* check for macros and escapes */
 
-	        lp = lbuf ;
-	        ll = (f_eol) ? (len - 1) : len ;
-	        if (f_bol && ((li = mbdmacro(pip,lp,ll)) > 0)) {
-	            rs = procmacro(pip,&pc,lp,ll,li) ;
-	            tlen += rs ;
-	        } else if (mbdescape(pip,&info,loff,lp,ll)) {
-	            rs = procescape(pip,&pc,&info) ;
-	            tlen += rs ;
-	        } else {
-	            rs = bprinter(tfp,f_eol,lp,ll) ;
-	            tlen += rs ;
-	        } /* end if (specialized processing) */
+	            lp = lbuf ;
+	            ll = (f_eol) ? (len - 1) : len ;
+	            if (f_bol && ((li = mbdmacro(pip,lp,ll)) > 0)) {
+	                rs = procmacro(pip,&pc,lp,ll,li) ;
+	                tlen += rs ;
+	            } else if (mbdescape(pip,&info,loff,lp,ll)) {
+	                rs = procescape(pip,&pc,&info) ;
+	                tlen += rs ;
+	            } else {
+	                rs = bprinter(tfp,f_eol,lp,ll) ;
+	                tlen += rs ;
+	            } /* end if (specialized processing) */
 
-	        f_bol = f_eol ;
-	        if (rs < 0) break ;
-	    } /* end while (reading input lines) */
+	            f_bol = f_eol ;
+	            if (rs < 0) break ;
+	        } /* end while (reading input lines) */
 
-	    bclose(ifp) ;
-	} /* end if (file-open) */
-	pip->tf.tlen += tlen ;
+	        rs1 = bclose(ifp) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (file-open) */
+	    pip->tf.tlen += tlen ;
 
-ret0:
+	    if (rs < 0) {
+	        vecstr_del(&pip->filenames,pc.fi) ;
+	        pc.fi = -1 ;
+	    }
+	} /* end if (vecstr_add) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -270,19 +272,12 @@ ret0:
 /* local subroutines */
 
 
-static int procmacro(pip,pcp,lp,ll,li)
-PROGINFO	*pip ;
-struct procinfo	*pcp ;
-const char	*lp ;
-int		ll ;
-int		li ;
+static int procmacro(PROGINFO *pip,SUBINFO *pcp,cchar *lp,int ll,int li)
 {
-	VECSTR	mbs ;
-	bfile	*tfp = &pip->tf.tfile ;
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	tlen = 0 ;
-	const char	*cp ;
+	VECSTR		mbs ;
+	int		rs ;
+	int		rs1 ;
+	int		tlen = 0 ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -290,13 +285,14 @@ int		li ;
 #endif
 
 	if ((rs = vecstr_start(&mbs,10,0)) >= 0) {
-
 	    if ((rs = mbdmacrofiles(pip,&mbs,(lp + li),(ll - li))) >= 0) {
+		bfile	*tfp = &pip->tf.tfile ;
 	        int	i ;
+		cchar	*cp ;
 	        char	tmpfname[MAXPATHLEN+1] ;
 
 	        for (i = 0 ; vecstr_get(&mbs,i,&cp) >= 0 ; i += 1) {
-	            if (cp == NULL) continue ;
+	            if (cp != NULL) {
 
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(3))
@@ -321,8 +317,7 @@ int		li ;
 #if	CF_DEBUG
 	                    if (DEBUGLEVEL(3))
 	                        debugprintf("progfile: "
-	                            "findbibfile() rs=%d\n",
-	                            rs1) ;
+	                            "findbibfile() rs=%d\n", rs1) ;
 #endif
 
 	                    cp = tmpfname ;
@@ -343,23 +338,25 @@ int		li ;
 
 	            }
 
+		    } /* end if (have) */
 	            if (rs < 0) break ;
 	        } /* end for */
 
 #if	CF_DEBUG
-	    if (DEBUGLEVEL(3))
-	        debugprintf("progfile: mid rs=%d\n",rs) ;
+	        if (DEBUGLEVEL(3))
+	            debugprintf("progfile: mid rs=%d\n",rs) ;
 #endif
 
-	    if (rs >= 0) {
-	        const char	*alp = (lp+1) ;
-	        const int	all= (ll-1) ;
-	        rs = bprintf(tfp,".\\\"_ %t\n",alp,all) ;
-	        tlen = rs ;
-	    }
+	        if (rs >= 0) {
+	            const int	all= (ll-1) ;
+	            cchar	*alp = (lp+1) ;
+	            rs = bprintf(tfp,".\\\"_ %t\n",alp,all) ;
+	            tlen = rs ;
+	        }
 
-	    } /* end if */
-	    vecstr_finish(&mbs) ;
+	    } /* end if (mbdmacrofiles) */
+	    rs1 = vecstr_finish(&mbs) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (mbs) */
 
 	return (rs >= 0) ? tlen : rs ;
@@ -367,17 +364,14 @@ int		li ;
 /* end subroutine (procmacro) */
 
 
-static int procescape(pip,pcp,eip)
-PROGINFO	*pip ;
-struct procinfo	*pcp ;
-struct mbdinfo	*eip ;
+static int procescape(PROGINFO *pip,SUBINFO *pcp,MBDINFO *eip)
 {
-	bfile	*tfp = &pip->tf.tfile ;
-	uint	loff = eip->loff ;
-	uint	coff ;
-	int	rs = SR_OK ;
-	int	sl ;
-	int	tlen = 0 ;
+	bfile		*tfp = &pip->tf.tfile ;
+	uint		loff = eip->loff ;
+	uint		coff ;
+	int		rs = SR_OK ;
+	int		sl ;
+	int		tlen = 0 ;
 	const char	*sp ;
 
 	if (eip->pl > 0) {
@@ -387,9 +381,8 @@ struct mbdinfo	*eip ;
 
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(2))
-	        debugprintf("progfile: "
-	            "leader pl=%u bwrite() rs=%d\n",
-	            eip->pl,rs) ;
+	        debugprintf("progfile: leader pl=%u bwrite() rs=%d\n",
+		eip->pl,rs) ;
 #endif
 
 	}
@@ -425,7 +418,7 @@ struct mbdinfo	*eip ;
 /* process this key */
 
 	    if (rs >= 0) {
-		coff = (loff+tlen) ;
+	        coff = (loff+tlen) ;
 	        rs = citedb_adds(pcp->cdbp,pcp->fi,coff,eip->kp,eip->kl) ;
 	    }
 
@@ -451,17 +444,10 @@ struct mbdinfo	*eip ;
 
 
 /* do we have a MBD macro? */
-static int mbdmacro(pip,lp,ll)
-PROGINFO	*pip ;
-const char	*lp ;
-int		ll ;
+static int mbdmacro(PROGINFO *pip,cchar *lp,int ll)
 {
-	int	rs = SR_OK ;
-	int	li = 0 ;
-	int	cl ;
-
-	const char	*cp ;
-
+	int		rs = SR_OK ;
+	int		li = 0 ;
 
 	if (ll < 0)
 	    ll = strlen(lp) ;
@@ -473,30 +459,25 @@ int		ll ;
 	        ((lp[ll - 1] == '\n') ? (ll - 1) : ll)) ;
 #endif
 
-	if (ll < 2)
-	    goto done ;
-
-	if (lp[0] != '.')
-	    goto done ;
-
-	cl = nextfield((lp + 1),(ll - 1),&cp) ;
+	if ((ll >= 2) && (lp[0] == '.')) {
+	    int		cl ;
+	    cchar	*cp ;
+	    if ((cl = nextfield((lp + 1),(ll - 1),&cp)) > 0) {
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(2)) {
-	    debugprintf("progfile/mbdmacro: nextfield() rs=%d\n",rs) ;
-	    if (cl > 0)
-	        debugprintf("progfile/mbdmacro: cp=>%t<\n",cp,cl) ;
-	}
+	        if (DEBUGLEVEL(2)) {
+	            debugprintf("progfile/mbdmacro: nextfield() rs=%d\n",rs) ;
+	            if (cl > 0)
+	                debugprintf("progfile/mbdmacro: cp=>%t<\n",cp,cl) ;
+	        }
 #endif
 
-	if ((cl > 0) &&
-	    (matstr(macronames,cp,cl) >= 0)) {
+	        if (matstr(macronames,cp,cl) >= 0) {
+	            li = (cp + cl) - lp ;
+	        }
 
-	    li = (cp + cl) - lp ;
-
-	}
-
-done:
+	    } /* end if (nextfield) */
+	} /* end if (big enough) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -509,60 +490,48 @@ done:
 
 
 /* extract the RBD file names from an RBD macro invocation */
-static int mbdmacrofiles(pip,flp,lp,ll)
-PROGINFO	*pip ;
-VECSTR		*flp ;
-const char	*lp ;
-int		ll ;
+static int mbdmacrofiles(PROGINFO *pip,VECSTR *flp,cchar *lp,int ll)
 {
-	FIELD	fsb ;
-
-	int	rs = SR_OK ;
-	int	c = 0 ;
-
+	int		rs = SR_OK ;
+	int		c = 0 ;
 
 	if (ll < 0)
 	    ll = strlen(lp) ;
 
-	if (ll < 1)
-	    goto done ;
+	if (ll >= 1) {
+	    FIELD	fsb ;
 
 #if	CF_DEBUG
-	if (DEBUGLEVEL(2))
-	    debugprintf("progfile/mbdmacrofiles: line=>%t<\n",
-	        lp,
-	        ((lp[ll - 1] == '\n') ? (ll - 1) : ll)) ;
+	    if (DEBUGLEVEL(2))
+	        debugprintf("progfile/mbdmacrofiles: line=>%t<\n",
+	            lp,
+	            ((lp[ll - 1] == '\n') ? (ll - 1) : ll)) ;
 #endif
 
-	if ((rs = field_start(&fsb,lp,ll)) >= 0) {
-	    int		fl ;
-	    const char	*fp ;
+	    if ((rs = field_start(&fsb,lp,ll)) >= 0) {
+	        int	fl ;
+	        cchar	*fp ;
 
-	    while ((fl = field_get(&fsb,fterms,&fp)) >= 0) {
-	        if (fl == 0) continue ;
+	        while ((fl = field_get(&fsb,fterms,&fp)) >= 0) {
+	            if (fl > 0) {
 
 #if	CF_DEBUG
-	        if (DEBUGLEVEL(2))
-	            debugprintf("progfile/mbdmacrofiles: field=>%t<\n",
-	                fp,fl) ;
+	            if (DEBUGLEVEL(2))
+	                debugprintf("progfile/mbdmacrofiles: "
+			    "field=>%t<\n", fp,fl) ;
 #endif
 
-	        c += 1 ;
-	        rs = vecstr_add(flp,fp,fl) ;
+	                c += 1 ;
+	                rs = vecstr_add(flp,fp,fl) ;
 
-#if	CF_DEBUG
-	        if (DEBUGLEVEL(2))
-	            debugprintf("progfile/mbdmacrofiles: vecstr_add() rs=%d\n",
-	                rs) ;
-#endif
+		    }
+	            if (rs < 0) break ;
+	        } /* end while */
 
-	        if (rs < 0) break ;
-	    } /* end while */
+	        field_finish(&fsb) ;
+	    } /* end if */
 
-	    field_finish(&fsb) ;
-	} /* end if */
-
-done:
+	} /* end if (big enough) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(2))
@@ -574,22 +543,13 @@ done:
 /* end subroutine (mbdmacrofiles) */
 
 
-static int mbdescape(pip,ip,loff,lp,ll)
-PROGINFO	*pip ;
-struct mbdinfo	*ip ;
-uint		loff ;
-const char	*lp ;
-int		ll ;
+static int mbdescape(PROGINFO *pip,MBDINFO *ip,uint loff,cchar *lp,int ll)
 {
 	const int	el = strlen(BIBESCAPE) ;
-	int		sl, cl ;
 	int		si ;
 	int		f = FALSE ;
-	const char	*tp ;
-	const char	*sp, *cp ;
 
-
-	memset(ip,0,sizeof(struct mbdinfo)) ;
+	memset(ip,0,sizeof(MBDINFO)) ;
 	ip->loff = loff ;
 	ip->pp = lp ;
 	ip->pl = ll ;
@@ -599,6 +559,9 @@ int		ll ;
 	ip->rl = ll ;
 
 	if ((si = sicite(lp,ll,BIBESCAPE,el)) >= 0) {
+	    int		sl, cl ;
+	    cchar	*tp ;
+	    cchar	*sp, *cp ;
 	    ip->pl = si ;
 
 #if	CF_DEBUG
@@ -628,8 +591,9 @@ int		ll ;
 	            ip->rp = (tp + 1) ;
 	            ip->rl = sl - ((tp + 1) - sp) ;
 
-	        } else
+	        } else {
 	            f = FALSE ;
+	        }
 
 	    } /* end if (open brace) */
 

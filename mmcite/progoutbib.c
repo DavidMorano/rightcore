@@ -37,7 +37,6 @@
 
 #include	<vsystem.h>
 #include	<bfile.h>
-#include	<char.h>
 #include	<sbuf.h>
 #include	<realname.h>
 #include	<ascii.h>
@@ -69,13 +68,13 @@ extern int	mkpath2(char *,const char *,const char *) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecti(const char *,int,int *) ;
 extern int	bprintlns(bfile *,int,const char *,int) ;
+extern int	touc(int) ;
 
-extern int	progwritebib(struct proginfo *,bfile *,BDB_ENT *) ;
+extern int	progwritebib(PROGINFO *,bfile *,BDB_ENT *) ;
 
 #if	CF_DEBUGS || CF_DEBUG
-extern int	debugprintf(const char *,...) ;
-extern int	debugprinthex(const char *,int,const char *,int) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 extern char	*strwcpy(char *,const char *,int) ;
@@ -83,7 +82,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 /* forward references */
 
-static int	mkname(struct proginfo *,const char *,char *,int) ;
+static int	mkname(PROGINFO *,char *,int,cchar *) ;
 static int	matkey(const char *(*)[2],const char *) ;
 
 
@@ -96,26 +95,15 @@ static int	matkey(const char *(*)[2],const char *) ;
 /* exported subroutines */
 
 
-int progoutbib(pip,ofp,bep)
-struct proginfo	*pip ;
-bfile		*ofp ;
-BDB_ENT	*bep ;
+int progoutbib(PROGINFO *pip,bfile *ofp,BDB_ENT *bep)
 {
 	KEYTRACKER	bibkeys ;
-
 	const int	lflen = LINEFOLDLEN ;
-
-	int	rs ;
-	int	i, ji ;
-	int	n, c ;
-	int	ll, cl ;
-	int	blen ;
-	int	wlen = 0 ;
-
-	const char	*cp ;
-
-	char	buf[BUFLEN + 1] ;
-
+	int		rs ;
+	int		rs1 ;
+	int		i, ji ;
+	int		ll, cl ;
+	int		wlen = 0 ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4)) {
@@ -129,6 +117,12 @@ BDB_ENT	*bep ;
 #endif /* CF_DEBUG */
 
 	if ((rs = keytracker_start(&bibkeys,bep->keyvals)) >= 0) {
+	    const int	nlen = BUFLEN ;
+	    int		nl ;
+	    int		n = 0 ;
+	    int		c = 0 ;
+	    cchar	*cp ;
+	    char	nbuf[BUFLEN + 1] ;
 
 /* process authors */
 
@@ -137,27 +131,20 @@ BDB_ENT	*bep ;
 	        debugprintf("main/writebib: authors\n") ;
 #endif
 
-	    n = 0 ;
 	    for (i = 0 ; bep->keyvals[i][0] != NULL ; i += 1) {
-	        if (strcmp(bep->keyvals[i][0],"A") != 0) continue ;
-
-	        n += 1 ;
-
+	        if (strcmp(bep->keyvals[i][0],"A") == 0) {
+	            n += 1 ;
+	        }
 	    } /* end for */
 
 	    ll = 0 ;
-	    c = 0 ;
 	    for (i = 0 ; bep->keyvals[i][0] != NULL ; i += 1) {
 	        if (strcmp(bep->keyvals[i][0],"A") != 0) continue ;
 
 	        keytracker_done(&bibkeys,i) ;
 
-	        cp = buf ;
-	        cl = mkname(pip,bep->keyvals[i][1],buf,BUFLEN) ;
-
-	        if (cl > 0) {
-
-	            if (c > 0) {
+	        cp = nbuf ;
+	        if ((cl = mkname(pip,nbuf,nlen,bep->keyvals[i][1])) > 0) {
 
 	                if ((ll + (cl + 4)) >= lflen) {
 	                    ll = 0 ;
@@ -169,8 +156,6 @@ BDB_ENT	*bep ;
 	                    wlen += rs ;
 	                    ll += rs ;
 	                }
-
-	            } /* end if (line folding accomodation) */
 
 	            c += 1 ;
 	            if ((n > 1) && (c == n)) {
@@ -221,13 +206,14 @@ BDB_ENT	*bep ;
 
 	        keytracker_done(&bibkeys,i) ;
 
-	        if ((rs = sbuf_start(&tb,buf,BUFLEN)) >= 0) {
-	            const char	*keys = "J,I,C,V,N,D,DD,MM,YY,P" ;
+	        if ((rs = sbuf_start(&tb,nbuf,nlen)) >= 0) {
+	            cchar	*keys = "J,I,C,V,N,D,DD,MM,YY,P" ;
 
 	            if (ji >= 0) {
 	                sbuf_strw(&tb,"\"",-1) ;
-	            } else
+	            } else {
 	                sbuf_strw(&tb,"\\fI",-1) ;
+		    }
 
 	            sbuf_strw(&tb,bep->keyvals[i][1],-1) ;
 
@@ -235,24 +221,26 @@ BDB_ENT	*bep ;
 
 	                if (ji >= 0) {
 	                    sbuf_strw(&tb,",\"",-1) ;
-	                } else
+	                } else {
 	                    sbuf_strw(&tb,"\\fP,",-1) ;
+			}
 
 	            } else {
 
 	                if (ji >= 0) {
 	                    sbuf_strw(&tb,".\"",-1) ;
-	                } else
+	                } else {
 	                    sbuf_strw(&tb,"\\fP.",-1) ;
+			}
 
 	            } /* end if */
 
-	            blen = sbuf_finish(&tb) ;
-	            if (rs >= 0) rs = blen  ;
+	            nl = sbuf_finish(&tb) ;
+	            if (rs >= 0) rs = nl ;
 	        } /* end if (buffer management) */
 
 	        if (rs >= 0) {
-	            rs = bprintlns(ofp,lflen,buf,blen) ;
+	            rs = bprintlns(ofp,lflen,nbuf,nl) ;
 	            wlen += rs ;
 	        }
 
@@ -270,29 +258,25 @@ BDB_ENT	*bep ;
 
 	        keytracker_done(&bibkeys,ji) ;
 
-	        if ((rs = sbuf_start(&tb,buf,BUFLEN)) >= 0) {
-	            const char	*keys = "I,C,V,N,D,DD,MM,YY,P" ;
+	        if ((rs = sbuf_start(&tb,nbuf,nlen)) >= 0) {
+	            cchar	*keys = "I,C,V,N,D,DD,MM,YY,P" ;
 
 	            sbuf_strw(&tb,"\\fI",-1) ;
 
 	            sbuf_strw(&tb,bep->keyvals[ji][1],-1) ;
 
 	            if (keytracker_more(&bibkeys,keys) > 0) {
-
 	                sbuf_strw(&tb,"\\fP,",-1) ;
-
 	            } else {
-
 	                sbuf_strw(&tb,"\\fP.",-1) ;
-
 	            }
 
-	            blen = sbuf_finish(&tb) ;
-	            if (rs >= 0) rs = blen  ;
+	            nl = sbuf_finish(&tb) ;
+	            if (rs >= 0) rs = nl ;
 	        } /* end if (buffer management) */
 
 	        if (rs >= 0) {
-	            rs = bprintlns(ofp,lflen,buf,blen) ;
+	            rs = bprintlns(ofp,lflen,nbuf,nl) ;
 	            wlen += rs ;
 	        }
 
@@ -307,27 +291,23 @@ BDB_ENT	*bep ;
 
 	        keytracker_done(&bibkeys,i) ;
 
-	        if ((rs = sbuf_start(&tb,buf,BUFLEN)) >= 0) {
-	            const char	*keys = "C,V,N,D,DD,MM,YY,P" ;
+	        if ((rs = sbuf_start(&tb,nbuf,nlen)) >= 0) {
+	            cchar	*keys = "C,V,N,D,DD,MM,YY,P" ;
 
 	            sbuf_strw(&tb,bep->keyvals[i][1],-1) ;
 
 	            if (keytracker_more(&bibkeys,keys) > 0) {
-
 	                sbuf_strw(&tb,",",-1) ;
-
 	            } else {
-
 	                sbuf_strw(&tb,".",-1) ;
-
 	            }
 
-	            blen = sbuf_finish(&tb) ;
-	            if (rs >= 0) rs = blen ;
+	            nl = sbuf_finish(&tb) ;
+	            if (rs >= 0) rs = nl ;
 	        } /* end if (buffer management) */
 
 	        if (rs >= 0) {
-	            rs = bprintlns(ofp,lflen,buf,blen) ;
+	            rs = bprintlns(ofp,lflen,nbuf,nl) ;
 	            wlen += rs ;
 	        }
 
@@ -342,27 +322,23 @@ BDB_ENT	*bep ;
 
 	        keytracker_done(&bibkeys,i) ;
 
-	        if ((rs = sbuf_start(&tb,buf,BUFLEN)) >= 0) {
-	            const char	*keys = "V,N,D,DD,MM,YY,P" ;
+	        if ((rs = sbuf_start(&tb,nbuf,nlen)) >= 0) {
+	            cchar	*keys = "V,N,D,DD,MM,YY,P" ;
 
 	            sbuf_strw(&tb,bep->keyvals[i][1],-1) ;
 
 	            if (keytracker_more(&bibkeys,keys) > 0) {
-
 	                sbuf_strw(&tb,",",-1) ;
-
 	            } else {
-
 	                sbuf_strw(&tb,".",-1) ;
-
 	            }
 
-	            blen = sbuf_finish(&tb) ;
-	            if (rs >= 0) rs = blen ;
+	            nl = sbuf_finish(&tb) ;
+	            if (rs >= 0) rs = nl ;
 	        } /* end if (buffer management) */
 
 	        if (rs >= 0) {
-	            rs = bprintlns(ofp,lflen,buf,blen) ;
+	            rs = bprintlns(ofp,lflen,nbuf,nl) ;
 	            wlen += rs ;
 	        }
 
@@ -381,8 +357,8 @@ BDB_ENT	*bep ;
 
 	        keytracker_done(&bibkeys,ji) ;
 
-	        if ((rs = sbuf_start(&tb,buf,BUFLEN)) >= 0) {
-	            const char	*keys = "D,DD,MM,YY,P" ;
+	        if ((rs = sbuf_start(&tb,nbuf,nlen)) >= 0) {
+	            cchar	*keys = "D,DD,MM,YY,P" ;
 
 	            sbuf_strw(&tb,bep->keyvals[i][1],-1) ;
 
@@ -393,21 +369,17 @@ BDB_ENT	*bep ;
 	            sbuf_char(&tb,CH_RPAREN) ;
 
 	            if (keytracker_more(&bibkeys,keys) > 0) {
-
 	                sbuf_strw(&tb,",",-1) ;
-
 	            } else {
-
 	                sbuf_strw(&tb,".",-1) ;
-
 	            }
 
-	            blen = sbuf_finish(&tb) ;
-	            if (rs >= 0) rs = blen ;
+	            nl = sbuf_finish(&tb) ;
+	            if (rs >= 0) rs = nl ;
 	        } /* end if (buffer management) */
 
 	        if (rs >= 0) {
-	            rs = bprintlns(ofp,lflen,buf,blen) ;
+	            rs = bprintlns(ofp,lflen,nbuf,nl) ;
 	            wlen += rs ;
 	        }
 
@@ -416,29 +388,25 @@ BDB_ENT	*bep ;
 
 	        keytracker_done(&bibkeys,i) ;
 
-	        if ((rs = sbuf_start(&tb,buf,BUFLEN)) >= 0) {
-	            const char	*keys = "D,DD,MM,YY,P" ;
+	        if ((rs = sbuf_start(&tb,nbuf,nlen)) >= 0) {
+	            cchar	*keys = "D,DD,MM,YY,P" ;
 
 	            sbuf_strw(&tb,"v. ",3) ;
 
 	            sbuf_strw(&tb,bep->keyvals[i][1],-1) ;
 
 	            if (keytracker_more(&bibkeys,keys) > 0) {
-
 	                sbuf_strw(&tb,",",-1) ;
-
 	            } else {
-
 	                sbuf_strw(&tb,".",-1) ;
-
 	            }
 
-	            blen = sbuf_finish(&tb) ;
-	            if (rs >= 0) rs = blen ;
+	            nl = sbuf_finish(&tb) ;
+	            if (rs >= 0) rs = nl ;
 	        } /* end if (buffer management) */
 
 	        if (rs >= 0) {
-	            rs = bprintlns(ofp,lflen,buf,blen) ;
+	            rs = bprintlns(ofp,lflen,nbuf,nl) ;
 	            wlen += rs ;
 	        }
 
@@ -453,26 +421,22 @@ BDB_ENT	*bep ;
 
 	        keytracker_done(&bibkeys,i) ;
 
-	        if ((rs = sbuf_start(&tb,buf,BUFLEN)) >= 0) {
+	        if ((rs = sbuf_start(&tb,nbuf,nlen)) >= 0) {
 
 	            sbuf_strw(&tb,bep->keyvals[i][1],-1) ;
 
 	            if (keytracker_more(&bibkeys,"P") > 0) {
-
 	                sbuf_strw(&tb,",",-1) ;
-
 	            } else {
-
 	                sbuf_strw(&tb,".",-1) ;
-
 	            }
 
-	            blen = sbuf_finish(&tb) ;
-	            if (rs >= 0) rs = blen ;
+	            nl = sbuf_finish(&tb) ;
+	            if (rs >= 0) rs = nl ;
 	        } /* end if (buffer management) */
 
 	        if (rs >= 0) {
-	            rs = bprintlns(ofp,lflen,buf,blen) ;
+	            rs = bprintlns(ofp,lflen,nbuf,nl) ;
 	            wlen += rs ;
 	        }
 
@@ -487,7 +451,7 @@ BDB_ENT	*bep ;
 
 	        keytracker_done(&bibkeys,i) ;
 
-	        if ((rs = sbuf_start(&tb,buf,BUFLEN)) >= 0) {
+	        if ((rs = sbuf_start(&tb,nbuf,nlen)) >= 0) {
 
 	            sbuf_strw(&tb,"pp. ",-1) ;
 
@@ -495,18 +459,19 @@ BDB_ENT	*bep ;
 
 	            sbuf_strw(&tb,".",-1) ;
 
-	            blen = sbuf_finish(&tb) ;
-	            if (rs >= 0) rs = blen ;
+	            nl = sbuf_finish(&tb) ;
+	            if (rs >= 0) rs = nl ;
 	        } /* end if (buffer management) */
 
 	        if (rs >= 0) {
-	            rs = bprintlns(ofp,lflen,buf,blen) ;
+	            rs = bprintlns(ofp,lflen,nbuf,nl) ;
 	            wlen += rs ;
 	        }
 
 	    } /* end if (pages) */
 
-	    keytracker_finish(&bibkeys) ;
+	    rs1 = keytracker_finish(&bibkeys) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (keytracker) */
 
 #if	CF_DEBUG
@@ -523,45 +488,35 @@ BDB_ENT	*bep ;
 
 
 /* make a presentable name out of the author field */
-static int mkname(pip,nameval,rbuf,rlen)
-struct proginfo	*pip ;
-const char	nameval[] ;
-char		rbuf[] ;
-int		rlen ;
+static int mkname(PROGINFO *pip,char *rbuf,int rlen,cchar *nameval)
 {
 	SBUF		ab ;
-	REALNAME	a ;
-
-	int	rs, rs1 ;
-	int	cl ;
-	int	c = 0 ;
-	int	len = 0 ;
-
-	const char	*cp ;
-
+	int		rs, rs1 ;
+	int		len = 0 ;
 
 	if (pip == NULL) return SR_FAULT ;
+	if (nameval == NULL) return SR_FAULT ;
 
-	if (nameval == NULL)
-	    return SR_FAULT ;
-
-	if (nameval[0] == '\0')
-	    return SR_INVALID ;
+	if (nameval[0] == '\0') return SR_INVALID ;
 
 	if ((rs = sbuf_start(&ab,rbuf,rlen)) >= 0) {
+	    REALNAME	a ;
 	    if ((rs = realname_start(&a,nameval,-1)) >= 0) {
+		int	c = 0 ;
+		int	cl ;
+		cchar	*cp ;
 
 	        rs1 = realname_getfirst(&a,&cp) ;
 	        if (rs1 > 0) {
 	            c += 1 ;
-	            sbuf_char(&ab,toupper(cp[0])) ;
+	            sbuf_char(&ab,touc(cp[0])) ;
 	            sbuf_char(&ab,'.') ;
 	        }
 
 	        rs1 = realname_getm1(&a,&cp) ;
 	        if (rs1 > 0) {
 	            c += 1 ;
-	            sbuf_char(&ab,toupper(cp[0])) ;
+	            sbuf_char(&ab,touc(cp[0])) ;
 	            sbuf_char(&ab,'.') ;
 	        }
 
@@ -571,7 +526,7 @@ int		rlen ;
 	        rs = realname_getlast(&a,&cp) ;
 	        cl = rs ;
 	        if ((rs >= 0) && (cl > 0)) {
-	            sbuf_char(&ab,toupper(cp[0])) ;
+	            sbuf_char(&ab,cp[0]) ;
 	            if (cl > 1)
 	                sbuf_strw(&ab,(cp + 1),(cl - 1)) ;
 	        }
@@ -587,25 +542,19 @@ int		rlen ;
 /* end subroutine (mkname) */
 
 
-static int matkey(keyvals,keyname)
-const char	*(*keyvals)[2] ;
-const char	keyname[] ;
+static int matkey(cchar *(*keyvals)[2],cchar *keyname)
 {
-	int	i ;
-	int	f = FALSE ;
-
+	int		i ;
+	int		f = FALSE ;
 
 	for (i = 0 ; keyvals[i][0] != NULL ; i += 1) {
-
 	    f = (strcmp(keyvals[i][0],keyname) == 0) ;
 	    f = f && (keyvals[i][1] != NULL) ;
 	    if (f) break ;
-
 	} /* end for */
 
 	return (f) ? i : -1 ;
 }
 /* end subroutine (matkey) */
-
 
 
