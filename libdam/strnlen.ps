@@ -575,22 +575,20 @@ mark
 (SYNOPSIS)540 1248 w
 10 B f
 (int strnlen\(const char)2 916 1 900 1368 t
-10 S f
-(*)1841 1368 w
 10 I f
-(str)1891 1368 w
+(str)1866 1368 w
 10 B f
-(, int)1 167 1 2005 1368 t
+(, int)1 167 1 1980 1368 t
 10 I f
-(maxlen)2197 1368 w
+(maxlen)2172 1368 w
 10 B f
-(\);)2493 1368 w
+(\);)2468 1368 w
 9 B f
 (DESCRIPTION)540 1536 w
 10 B f
 (strnlen\( \))1 382 1 900 1656 t
 10 R f
-( to a maximum)3 621(calculate the length of a string \(not including any terminating NUL character\) up)12 3287 2 1312 1656 t
+( a string \(not including any terminating NUL character\) up to a maximum)12 2982(calculates the length of)3 929 2 1309 1656 t
 ( See)1 194(specified length.)1 660 2 900 1776 t
 10 B f
 (strlen)1779 1776 w
@@ -599,23 +597,11 @@ mark
 9 B f
 (EXAMPLES)540 1944 w
 10 CW f
-(/)1150 2064 w
-10 S f
-(*)1210 2064 w
-10 CW f
-(calculate the length of a string)5 1920 1 1320 2064 t
-10 S f
-(*)3300 2064 w
-10 CW f
-(/)3350 2064 w
+( /)1 180( the length of a string)5 1380(/ calculate)1 720 3 1150 2064 t
 ( ;)1 120(int cl)1 840 2 1150 2184 t
-(const char)1 600 1 1150 2304 t
-10 S f
-(*)1870 2304 w
-10 CW f
-(cp = "hello world!0 ;)4 1260 1 1920 2304 t
+( = "hello world!\\n" ;)4 1260( cp)1 300(const char)1 600 3 1150 2304 t
 (cl = strnlen\(cp,10\) ;)3 1260 1 1150 2424 t
-(fprintf\(stdout,"len=%d0,cl\) ;)1 1740 1 1150 2544 t
+(fprintf\(stdout,"len=%d\\n",cl\) ;)1 1860 1 1150 2544 t
 (.)1150 2664 w
 (.)1150 2784 w
 (.)1150 2904 w
@@ -634,7 +620,7 @@ mark
 (strlcpy)1354 3648 w
 10 R f
 (\(3c\))1648 3648 w
-( 8, 2018)2 325( February)1 1420( C Library Functions)3 836( Standard)1 1830(Page 1)1 269 5 540 7680 t
+( 15, 2018)2 375( February)1 1370( C Library Functions)3 836( Standard)1 1830(Page 1)1 269 5 540 7680 t
 cleartomark
 showpage
 saveobj restore
@@ -645,4 +631,4 @@ DpostDict begin
 done
 end
 %%Pages: 1
-%%DocumentFonts: Courier Times-Roman Times-Bold Times-Italic Times-Roman Symbol
+%%DocumentFonts: Courier Times-Roman Times-Bold Times-Italic Times-Roman

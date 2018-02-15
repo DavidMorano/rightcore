@@ -14,8 +14,9 @@ strnlen \- calculate the length of a string up to a maximum value
 .SH DESCRIPTION
 .IX "strnlen" "" "\fLstrnlen\fP \(em calculate the length of a string"
 .B strnlen(\|)
-calculate the length of a string (not including any terminating NUL 
-character) up to a maximum specified length.
+calculates the length of a string 
+(not including any terminating NUL character) 
+up to a maximum specified length.
 See
 .BR strlen (3c) 
 for a simpler version of this subroutine.
@@ -24,9 +25,9 @@ for a simpler version of this subroutine.
 .EX
 /\(** calculate the length of a string \(**/
 int		cl ;
-const char	*cp = "hello world!\n" ;
+const char	*cp = "hello world!\\n" ;
 cl = strnlen(cp,10) ;
-fprintf(stdout,"len=%d\n",cl) ;
+fprintf(stdout,"len=%d\\n",cl) ;
 \&\.
 \&\.
 \&\.

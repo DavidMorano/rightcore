@@ -81,7 +81,7 @@ done
 export NODE OSTYPE
 
 DN=/dev/null
-PN=$(0##*/}
+PN=${0##*/}
 
 
 case ${OSTYPE} in
