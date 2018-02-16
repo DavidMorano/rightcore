@@ -1,6 +1,6 @@
-/* main */
+/* main (openport) */
 
-/* program to create and bind a socket */
+/* program to create and bind a socket (OPENPORT setuid program) */
 /* last modified %G% version %I% */
 
 

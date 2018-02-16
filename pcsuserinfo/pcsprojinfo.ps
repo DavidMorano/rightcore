@@ -785,112 +785,115 @@ mark
 10 R f
 (The following options can be used to change the mode of operation.)11 2718 1 900 2424 t
 10 B f
-(\255s)1150 2592 w
+(\255u)1150 2592 w
 10 I f
-(project\255information)1272 2592 w
+(username)1289 2592 w
 10 R f
-( The)1 215( for setting of the project\255information string for the user.)9 2342(This option allows)2 763 3 1900 2712 t
-( if it contains either whitespace or)6 1485(project\255information string should be quoted)4 1835 2 1900 2832 t
-(other characters that would be interpreted by a SHELL.)8 2214 1 1900 2952 t
+( privileges)1 429( Proper)1 326( alternative user besides the default calling user.)7 1988(Operate on an)2 577 4 1900 2592 t
+(are required for setting the project information of another user.)9 2505 1 1900 2712 t
 10 B f
-(\255R)1150 3120 w
+(\255s)1150 2880 w
 10 I f
-(program\255root)1305 3120 w
+(project\255information)1272 2880 w
 10 R f
-( is largely)2 424( This)1 243( the program.)2 565(This option allows for setting the program\255root of)7 2088 4 1900 3120 t
-(used for special debugging purposes.)4 1478 1 1900 3240 t
+( The)1 215( for setting of the project\255information string for the user.)9 2342(This option allows)2 763 3 1900 3000 t
+( if it contains either whitespace or)6 1485(project\255information string should be quoted)4 1835 2 1900 3120 t
+(other characters that would be interpreted by a SHELL.)8 2214 1 1900 3240 t
 10 B f
-(\255V)1150 3408 w
+(\255R)1150 3408 w
+10 I f
+(program\255root)1305 3408 w
 10 R f
-( program print the version of the program to standard\255error)9 2416(This option makes the)3 904 2 1900 3408 t
-(and then causes the program to exit \(no other functions are performed\).)11 2843 1 1900 3528 t
+( is largely)2 424( This)1 243( the program.)2 565(This option allows for setting the program\255root of)7 2088 4 1900 3408 t
+(used for special debugging purposes.)4 1478 1 1900 3528 t
+10 B f
+(\255V)1150 3696 w
+10 R f
+( program print the version of the program to standard\255error)9 2416(This option makes the)3 904 2 1900 3696 t
+(and then causes the program to exit \(no other functions are performed\).)11 2843 1 1900 3816 t
 9 B f
-(ENVIRONMENT VARIABLES)1 1258 1 540 3696 t
+(ENVIRONMENT VARIABLES)1 1258 1 540 3984 t
 10 R f
-(The following environment variables may change the default behavior of the program.)11 3454 1 900 3816 t
+(The following environment variables may change the default behavior of the program.)11 3454 1 900 4104 t
 10 B f
-(PCSPROJINFO)1150 3984 w
+(PCSPROJINFO)1150 4272 w
 10 S f
-(_)1850 3984 w
+(_)1850 4272 w
 10 B f
-(PROGRAMROOT)1900 3984 w
+(PROGRAMROOT)1900 4272 w
 10 R f
-( program root over any other such)6 1364(This environment variable is taken to contain the)7 1956 2 1900 4104 t
-( The)1 205(environment variable.)1 876 2 1900 4224 t
+( program root over any other such)6 1364(This environment variable is taken to contain the)7 1956 2 1900 4392 t
+( The)1 205(environment variable.)1 876 2 1900 4512 t
 10 B f
-(\255R)3006 4224 w
+(\255R)3006 4512 w
 10 R f
-(argument overides this environment variable.)4 1811 1 3136 4224 t
+(argument overides this environment variable.)4 1811 1 3136 4512 t
 10 B f
-(PCS)1150 4392 w
+(PCS)1150 4680 w
 10 R f
-( The)1 211( normally taken to contain the program root.)7 1812(This environment variable is)3 1161 3 1900 4392 t
+( The)1 211( normally taken to contain the program root.)7 1812(This environment variable is)3 1161 3 1900 4680 t
 10 B f
-(\255R)5115 4392 w
+(\255R)5115 4680 w
 10 R f
-(argument overides this environment variable.)4 1811 1 1900 4512 t
+(argument overides this environment variable.)4 1811 1 1900 4800 t
 10 B f
-(PROGRAMROOT)1150 4680 w
+(PROGRAMROOT)1150 4968 w
 10 R f
-( taken to contain the program root if not other suitable)10 2174(This environment variable is)3 1146 2 1900 4800 t
-( The)1 214( this this purpose are in the environment.)7 1695(environment variable)1 861 3 1900 4920 t
+( taken to contain the program root if not other suitable)10 2174(This environment variable is)3 1146 2 1900 5088 t
+( The)1 214( this this purpose are in the environment.)7 1695(environment variable)1 861 3 1900 5208 t
 10 B f
-(\255R)4704 4920 w
+(\255R)4704 5208 w
 10 R f
-(argument)4843 4920 w
-(overides this environment variable.)3 1409 1 1900 5040 t
+(argument)4843 5208 w
+(overides this environment variable.)3 1409 1 1900 5328 t
 9 B f
-(EXAMPLES)540 5208 w
+(EXAMPLES)540 5496 w
 10 S1 f
-()900 5328 w
+()900 5616 w
 10 S1 f
-900 5328 m
+900 5616 m
 100 build_rh
-1000 5328 m
+1000 5616 m
 10 R f
-(simply get the current PCS project\255information string:)6 2166 1 1150 5328 t
+(simply get the current PCS project\255information string:)6 2166 1 1150 5616 t
 10 CW f
-(pcsprojinfo)1460 5496 w
+(pcsprojinfo)1460 5784 w
 10 S1 f
-()900 5712 w
-900 5712 m
+()900 6000 w
+900 6000 m
 100 build_rh
-1000 5712 m
+1000 6000 m
 10 R f
-(get the PCS project\255information string for another user:)7 2217 1 1150 5712 t
+(get the PCS project\255information string for another user:)7 2217 1 1150 6000 t
 10 CW f
-(pcsprojinfo \255u johny)2 1200 1 1460 5880 t
+(pcsprojinfo \255u johny)2 1200 1 1460 6168 t
 10 S1 f
-()900 6096 w
-900 6096 m
+()900 6384 w
+900 6384 m
 100 build_rh
-1000 6096 m
+1000 6384 m
 10 R f
-(set an organization name:)3 1023 1 1150 6096 t
+(set an organization name:)3 1023 1 1150 6384 t
 10 CW f
-(pcsprojinfo \255s "Acne Plumbing")3 1800 1 1460 6264 t
+(pcsprojinfo \255s "Acne Plumbing")3 1800 1 1460 6552 t
 9 B f
-(SEE ALSO)1 453 1 540 6480 t
+(SEE ALSO)1 453 1 540 6768 t
 10 R f
-(pcsname\(1\), pcsorg\(1\), bb\(1\), vmail\(1\), msgs\(1\))4 1929 1 900 6600 t
+(pcsname\(1\), pcsorg\(1\), bb\(1\), vmail\(1\), msgs\(1\))4 1929 1 900 6888 t
 9 B f
-(PATH TO)1 418 1 540 6768 t
+(PATH TO)1 418 1 540 7056 t
 10 R f
-(This program is currently located in)5 1484 1 900 6888 t
+(This program is currently located in)5 1484 1 900 7176 t
 10 CW f
-(/usr/add\255on/pcs/bin)2479 6888 w
+(/usr/add\255on/pcs/bin)2479 7176 w
 10 R f
-( where ever PCS programs)4 1114(or possibly)1 452 2 3654 6888 t
-( is often at)3 419( This)1 228(are stored on your system.)4 1051 3 900 7008 t
+( where ever PCS programs)4 1114(or possibly)1 452 2 3654 7176 t
+( is often at)3 419( This)1 228(are stored on your system.)4 1051 3 900 7296 t
 10 CW f
-(${PCS}/bin)2683 7008 w
+(${PCS}/bin)2683 7296 w
 10 R f
-(on some systems.)2 703 1 3308 7008 t
-9 B f
-(WARNINGS)540 7176 w
-10 R f
-(Be careful to put at one space between all option key letters and the associated key letter parameter.)17 3979 1 900 7296 t
-( 12, 2018)2 375( February)1 1631( Commands)1 481( User)1 1924(Page 1)1 269 5 540 7680 t
+(on some systems.)2 703 1 3308 7296 t
+( 15, 2018)2 375( February)1 1631( Commands)1 481( User)1 1924(Page 1)1 269 5 540 7680 t
 cleartomark
 showpage
 saveobj restore
@@ -903,14 +906,18 @@ mark
 2 pagesetup
 9 B f
 ( \( 1 \))3 126( PCSPROJINFO)1 2051( 0 \))2 89( \()1 68( PCS)1 1590(PCSPROJINFO \( 1 \))3 756 6 540 480 t
-(ACKNOWLEDGEMENTS)540 960 w
+(WARNINGS)540 960 w
 10 R f
-(All previous PCS contributors and administrators.)5 2000 1 900 1080 t
+(Be careful to put at one space between all option key letters and the associated key letter parameter.)17 3979 1 900 1080 t
 9 B f
-(AUTHOR)540 1248 w
+(ACKNOWLEDGEMENTS)540 1248 w
 10 R f
-(David A.D. Morano)2 804 1 900 1368 t
-( 2)1 75( Page)1 1931( Commands)1 481( User)1 1458(February 12, 2018)2 735 5 540 7680 t
+(All previous PCS contributors and administrators.)5 2000 1 900 1368 t
+9 B f
+(AUTHOR)540 1536 w
+10 R f
+(David A.D. Morano)2 804 1 900 1656 t
+( 2)1 75( Page)1 1931( Commands)1 481( User)1 1458(February 15, 2018)2 735 5 540 7680 t
 cleartomark
 showpage
 saveobj restore

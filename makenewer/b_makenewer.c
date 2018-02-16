@@ -820,8 +820,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 #endif
 
 	if (pip->debuglevel > 0) {
-	    shio_printf(pip->efp,"%s: version %s\n",
-	        pip->progname,VERSION) ;
+	    shio_printf(pip->efp,"%s: version %s\n",pip->progname,VERSION) ;
 	}
 
 /* program root */
@@ -934,7 +933,7 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 	if (rs >= 0) {
 	    rs = uc_stat(tardname,&sb) ;
-	    if ((rs < 0) || (! S_ISDIR(sb.st_mode))) {
+	    if (isNotPresent(rs) || (! S_ISDIR(sb.st_mode))) {
 	        if (rs >= 0) rs = SR_NOTDIR ;
 	        ex = EX_USAGE ;
 	        shio_printf(pip->efp,
@@ -954,8 +953,8 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	if ((rs >= 0) && (pip->debuglevel > 0)) {
 	    vecstr	*lp ;
 	    int		type, i ;
-	    const char	*pn = pip->progname ;
-	    const char	*name ;
+	    cchar	*pn = pip->progname ;
+	    cchar	*name ;
 	    for (type = 0 ; suffers[type] != NULL ; type += 1) {
 	        name  = suffers[type] ;
 	        switch (type) {
@@ -1482,15 +1481,16 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *ofn,cchar *afn)
 
 	if ((rs = procout_begin(pip,ofp,ofn)) >= 0) {
 	    int		cl ;
-	    const char	*cp ;
+	    cchar	*cp ;
 
 	    if (rs >= 0) {
 	        int	ai ;
 	        int	f ;
+		cchar	**argv = aip->argv ;
 	        for (ai = 1 ; ai < aip->argc ; ai += 1) {
 
 	            f = (ai <= aip->ai_max) && (bits_test(bop,ai) > 0) ;
-	            f = f || ((ai > aip->ai_pos) && (aip->argv[ai] != NULL)) ;
+	            f = f || ((ai > aip->ai_pos) && (argv[ai] != NULL)) ;
 	            if (f) {
 	                cp = aip->argv[ai] ;
 	                if (cp[0] != '\0') {
@@ -1653,11 +1653,8 @@ static int proctouchfile(PROGINFO *pip,cchar *touchfname)
 static int procname(PROGINFO *pip,void *ofp,cchar *name)
 {
 	LOCINFO		*lip = pip->lip ;
-	FSDIRTREE_STAT	sb, ssb, *sbp = &sb ;
 	int		rs ;
 	int		rs1 ;
-	int		f_islink = FALSE ;
-	int		f_isdir = FALSE ;
 	char		mfname[MAXPATHLEN+1] ;
 
 	if (name == NULL) return SR_FAULT ;
@@ -1672,6 +1669,10 @@ static int procname(PROGINFO *pip,void *ofp,cchar *name)
 /* form the actual file name to be processed after suffix mapping */
 
 	if ((rs = procfilesuf(pip,&lip->sufmaps,mfname,name,-1)) >= 0) {
+	    FSDIRTREE_STAT	sb, ssb, *sbp = &sb ;
+	    int			f_islink = FALSE ;
+	    int			f_isdir = FALSE ;
+
 	    if (rs > 0) name = mfname ;
 
 /* continue */
@@ -1716,8 +1717,9 @@ static int procname(PROGINFO *pip,void *ofp,cchar *name)
 	        if (rs >= 0) {
 	            if (f_isdir) {
 	                rs = procdir(pip,ofp,name,sbp) ;
-	            } else
+	            } else {
 	                rs = procfile(pip,ofp,name,sbp) ;
+		    }
 	        }
 
 	    } else {
@@ -1784,6 +1786,7 @@ static int procdir(PROGINFO *pip,void *ofp,cchar *name,FSDIRTREE_STAT *sbp)
 	    if (lip->f.follow) opts |= FSDIRTREE_MFOLLOW ;
 
 	    if ((rs = fsdirtree_open(&d,name,opts)) >= 0) {
+	        vecstr		*slp = &lip->sufmaps ;
 	        const int	mpl = MAXPATHLEN ;
 
 	        while ((rs = fsdirtree_read(&d,fsp,bp,mpl)) > 0) {
@@ -1798,9 +1801,8 @@ static int procdir(PROGINFO *pip,void *ofp,cchar *name,FSDIRTREE_STAT *sbp)
 	                    pip->progname,fname) ;
 	            }
 
-	            rs = procfilesuf(pip,&lip->sufmaps,mfname,fname,-1) ;
-	            if (rs >= 0) {
-	                const char	*pfname = fname ;
+	            if ((rs = procfilesuf(pip,slp,mfname,fname,-1)) >= 0) {
+	                cchar	*pfname = fname ;
 	                if (rs > 0) {
 	                    pfname = mfname ;
 	                    rs = fsdirtreestat(pfname,1,fsp) ; /* LSTAT */
@@ -1934,7 +1936,7 @@ static int procfiler(PROGINFO *pip,void *ofp,struct ustat *ssbp,cchar *fname)
 
 	if ((bfl = sfbasename(fname,-1,&bfp)) > 0) {
 	    if (lip->f.rmsuf) {
-	        const char	*tp = strnrchr(bfp,bfl,'.') ;
+	        cchar	*tp = strnrchr(bfp,bfl,'.') ;
 	        rs = mknewfname(dstfname,tardname,fname,tp,NULL) ;
 	    } else {
 		vecstr	*lp = &lip->sufsubs ;
@@ -1943,8 +1945,9 @@ static int procfiler(PROGINFO *pip,void *ofp,struct ustat *ssbp,cchar *fname)
 	            rs = mkpath2(dstfname,tardname,fn) ;
 		}
 	    } /* end if */
-	} else
+	} else {
 	    rs = SR_NOENT ;
+	}
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3)) {
@@ -1989,8 +1992,8 @@ static int procfiler(PROGINFO *pip,void *ofp,struct ustat *ssbp,cchar *fname)
 #endif
 
 	    if (rs == SR_NOTDIR) {
-	        int		dnl ;
-	        const char	*dnp ;
+	        int	dnl ;
+	        cchar	*dnp ;
 	        rs = SR_OK ;
 	        if ((dnl = sfdirname(dstfname,-1,&dnp)) > 0) {
 	            if ((rs = mkpath1w(tmpfname,dnp,dnl)) >= 0) {
@@ -2022,7 +2025,7 @@ static int procfiler(PROGINFO *pip,void *ofp,struct ustat *ssbp,cchar *fname)
 
 	if (f_create) {
 	    int		dnl ;
-	    const char	*dnp ;
+	    cchar	*dnp ;
 	    if ((dnl = sfdirname(dstfname,-1,&dnp)) > 0) {
 	        if ((rs = mkpath1w(tmpfname,dnp,dnl)) >= 0) {
 	            struct ustat	sb ;
@@ -2223,12 +2226,7 @@ static int procdisposition(PROGINFO *pip,cchar *name,int rs)
 /* end subroutine (procdisposition) */
 
 
-static int procfilesuf(pip,slp,newfname,np,nl)
-PROGINFO	*pip ;
-vecstr		*slp ;
-char		newfname[] ;
-const char	np[] ;
-int		nl ;
+static int procfilesuf(PROGINFO *pip,vecstr *slp,char *nfname,cchar *np,int nl)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -2243,7 +2241,7 @@ int		nl ;
 #endif
 
 	if (pip == NULL) return SR_FAULT ;
-	newfname[0] = '\0' ;
+	nfname[0] = '\0' ;
 	if ((bnl = sfbasename(np,nl,&bnp)) > 0) {
 	    if ((tp = strnrchr(bnp,bnl,'.')) != NULL) {
 	        int	sl ;
@@ -2259,7 +2257,7 @@ int		nl ;
 	        }
 
 	        if (rs1 >= 0) {
-	            rs = mknewfname(newfname,NULL,np,tp,cp) ;
+	            rs = mknewfname(nfname,NULL,np,tp,cp) ;
 	            fl = rs ;
 	        }
 
@@ -2269,7 +2267,7 @@ int		nl ;
 #if	CF_DEBUG
 	if (DEBUGLEVEL(5)) {
 	    if (rs >= 0) {
-	        debugprintf("main/procfilesuf: newfname=%s\n",newfname) ;
+	        debugprintf("main/procfilesuf: nfname=%s\n",nfname) ;
 	    }
 	    debugprintf("main/procfilesuf: ret rs=%d fl=%u\n",rs,fl) ;
 	}
@@ -2331,7 +2329,7 @@ static int mknewfname(char *rbuf,cchar *dname,cchar *fname,cchar *sp,cchar *cp)
 	const int	rlen = MAXPATHLEN ;
 	int		rs = SR_OK ;
 	int		i = 0 ;
-	const char	*tp ;
+	cchar		*tp ;
 
 	if (dname != NULL) {
 	    rs = storebuf_strw(rbuf,rlen,i,dname,-1) ;
@@ -2343,7 +2341,7 @@ static int mknewfname(char *rbuf,cchar *dname,cchar *fname,cchar *sp,cchar *cp)
 	}
 
 	if (rs >= 0) {
-	    int	fl = (sp != NULL) ? (sp - fname) : -1 ;
+	    int		fl = (sp != NULL) ? (sp - fname) : -1 ;
 	    rs = storebuf_strw(rbuf,rlen,i,fname,fl) ;
 	    i += rs ;
 	}
@@ -2369,13 +2367,13 @@ static int mknewfname(char *rbuf,cchar *dname,cchar *fname,cchar *sp,cchar *cp)
 static int sufclean(char *rbuf,int rlen,cchar *sp,int sl)
 {
 	int		rs = SR_OK ;
-	int		cl ;
 	int		i = 0 ;
-	const char	*tp ;
-	const char	*cp ;
+	cchar		*tp ;
 
 	rbuf[0] = '\0' ;
 	if ((tp = strnchr(sp,sl,'=')) != NULL) {
+	    int		cl ;
+	    cchar	*cp ;
 
 	    if ((cl = sfshrink(sp,(tp - sp),&cp)) > 0) {
 	        rs = storebuf_strw(rbuf,rlen,i,cp,cl) ;
@@ -2409,7 +2407,7 @@ static int mkpdirs(const char *tarfname,mode_t dm)
 {
 	int		rs = SR_OK ;
 	int		dl ;
-	const char	*dp ;
+	cchar		*dp ;
 
 	if ((dl = sfdirname(tarfname,-1,&dp)) > 0) {
 	    char	dname[MAXPATHLEN + 1] ;
@@ -2417,8 +2415,9 @@ static int mkpdirs(const char *tarfname,mode_t dm)
 	        uc_unlink(dname) ; /* just a little added help */
 	        rs = mkdirs(dname,dm) ;
 	    }
-	} else
+	} else {
 	    rs = SR_NOENT ;
+	}
 
 	return rs ;
 }

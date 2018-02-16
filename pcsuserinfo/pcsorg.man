@@ -30,6 +30,11 @@ The following options can be used to change the mode of operation.
 .PP
 .RS 5
 .TP 15
+\fB-u\fP  \fIusername\fP
+Operate on an alternative user besides the default calling user.
+Proper privileges are required for setting the origanization of
+another user.
+.TP 15
 \fB-s\fP  \fIorganization\fP
 This option allows for setting of the organization name for the user.
 The organization name should be quoted if it contains either whitespace

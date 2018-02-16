@@ -1,2 +1,2 @@
 const char makenewer_makedate[] =
-"@(#)makenewer               170921_2218:24_USEDT Rightcore Network Services" ;
+"@(#)makenewer               180215_1418:40_USEST Rightcore Network Services" ;
