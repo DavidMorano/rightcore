@@ -10,8 +10,8 @@
 
 #include	<sys/types.h>
 
-#include	<localmisc.h>
 #include	<vsystem.h>
+#include	<localmisc.h>
 
 #include	"ass.h"
 
@@ -24,13 +24,10 @@
 /* exported subroutines */
 
 
-int ass_start(asp)
-ASS		*asp ;
+int ass_start(ASS *asp)
 {
 
-
-	if (asp == NULL) 
-	    return SR_FAULT ;
+	if (asp == NULL) return SR_FAULT ;
 
 	asp->len = 0 ;
 	asp->e = 0 ;
@@ -39,29 +36,21 @@ ASS		*asp ;
 }
 
 
-int ass_add(asp,c)
-ASS		*asp ;
-int		c ;
+int ass_add(ASS *asp,int c)
 {
-	int	rs = 0 ;
-	int	size ;
-
-	caddr_t	p ;
-
+	int		rs = SR_OK ;
+	int		size ;
+	caddr_t		p ;
 
 	if (asp->s == NULL) {
-
 	    asp->len = 0 ;
 	    asp->e = ASS_ADDLEN ;
 	    size = asp->e ;
 	    rs = uc_malloc(size,&p) ;
-
 	} else if (asp->e == asp->len) {
-
 	    asp->e += ASS_ADDLEN ;
 	    size = asp->e ;
 	    rs = uc_realloc(asp->s,size,&p) ;
-
 	}
 
 	if (rs >= 0) {
@@ -73,23 +62,22 @@ int		c ;
 }
 
 
-int ass_finish(asp)
-ASS		*asp ;
+int ass_finish(ASS *asp)
 {
+	int		rs = SR_OK ;
+	int		rs1 ;
 
-
-	if (asp == NULL) 
-	    return SR_FAULT ;
+	if (asp == NULL) return SR_FAULT ;
 
 	if (asp->s != NULL) {
-	    uc_free(asp->s) ;
+	    rs1 = uc_free(asp->s) ;
+	    if (rs >= 0) rs = rs1 ;
 	    asp->s = NULL ;
 	}
 
 	asp->len = 0 ;
 	asp->e = 0 ;
-	return SR_OK ;
+	return rs ;
 }
-
 
 

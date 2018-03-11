@@ -112,8 +112,8 @@ INCS= config.h defs.h
 
 OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o
 OBJ01= 
-OBJ02= expander.o progmsgs.o mkmsgid.o deliver.o copyparts.o
-OBJ03= mailspooldir.o lkmail.o headkeymat.o
+OBJ02= expander.o progmsgs.o progdeliver.o copyparts.o
+OBJ03= mailspooldir.o lkmail.o headkeymat.o mkmsgid.o
 OBJ04= emainfo.o msgid.o msgide.o
 OBJ05= getfname.o
 OBJ06= 
@@ -229,7 +229,7 @@ mailspooldir.o:		mailspooldir.c $(INCS)
 
 progmss.o:		progmsgs.c $(INCS)
 
-deliver.o:		deliver.c $(INCS) lkmail.h
+progdeliver.o:		progdeliver.c $(INCS) lkmail.h
 
 copyparts.o:		copyparts.c $(INCS)
 

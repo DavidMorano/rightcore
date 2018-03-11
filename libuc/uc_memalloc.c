@@ -258,7 +258,11 @@ int uc_malloc(int size,void *vp)
 int uc_calloc(int nelem,int esize,void *vp)
 {
 	const int	size = (nelem*esize) ;
-	return uc_malloc(size,vp) ;
+	int		rs ;
+	if ((rs = uc_malloc(size,vp)) >= 0) {
+	    memset(vp,0,size) ;
+	}
+	return rs ;
 }
 /* end subroutine (uc_calloc) */
 

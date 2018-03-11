@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 2000-05-14, David A­D­ Morano
-
 	Originally written for Rightcore Network Services.
-
 
 */
 

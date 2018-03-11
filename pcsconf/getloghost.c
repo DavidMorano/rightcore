@@ -48,7 +48,6 @@
 #include	<sys/types.h>
 #include	<sys/param.h>
 #include	<unistd.h>
-#include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
 
@@ -74,29 +73,20 @@ extern int	sncpy1(char *,int,const char *) ;
 /* exported subroutines */
 
 
-int getloghost(rbuf,rlen,sid)
-char		rbuf[] ;
-int		rlen ;
-pid_t		sid ;
+int getloghost(char *rbuf,int rlen,pid_t sid)
 {
 	GETUTMPENT	e ;
+	int		rs ;
 
-	int	rs ;
-
-
-	if (rbuf == NULL)
-	    return SR_FAULT ;
+	if (rbuf == NULL) return SR_FAULT ;
 
 	rbuf[0] = '\0' ;
-	rs = getutmpent(&e,sid) ;
-
-	if (rs >= 0)
+	if ((rs = getutmpent(&e,sid)) >= 0) {
 	    rs = sncpy1(rbuf,rlen,e.host) ;
+	}
 
-ret0:
 	return rs ;
 }
 /* end subroutine (getloghost) */
-
 
 

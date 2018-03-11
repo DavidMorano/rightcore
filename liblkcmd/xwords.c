@@ -77,7 +77,7 @@ static int	xwords_more(XWORDS *,const char *,int,int) ;
 /* exported subroutines */
 
 
-int xwords_start(XWORDS *op,cchar wbuf[],int wlen)
+int xwords_start(XWORDS *op,cchar *wbuf,int wlen)
 {
 	int		rs = SR_OK ;
 	int		si ;
@@ -95,7 +95,7 @@ int xwords_start(XWORDS *op,cchar wbuf[],int wlen)
 /* try for possessives */
 
 	if (wlen > 2) {
-	    int	f = FALSE ;
+	    int		f = FALSE ;
 
 	    el = wlen - 2 ;
 	    if (strncmp((wbuf + el),"'s",2) == 0) {
@@ -189,8 +189,8 @@ static int xwords_more(XWORDS *op,cchar wbuf[],int wlen,int si)
 	    wi.wp = wbuf ;
 	    wi.wl = si ;
 	    if ((rs = vecobj_add(&wil,&wi)) >= 0) {
-		const char	*wp = (wbuf+(si+1)) ;
-		int		wl = (wlen-(si+1)) ;
+		int	wl = (wlen-(si+1)) ;
+		cchar	*wp = (wbuf+(si+1)) ;
 		while ((si = sichr(wp,wl,'-')) >= 0) {
 		    if (si > 0) {
 	    	        wi.wp = wp ;
@@ -212,7 +212,7 @@ static int xwords_more(XWORDS *op,cchar wbuf[],int wlen,int si)
 		    n = op->nwords + vecobj_count(&wil) ;
 		    if (n > XWORDS_MAX) {
 		        const int	size = (n * esize) ;
-		        void	*p ;
+		        void		*p ;
 		        if ((rs = uc_malloc(size,&p)) >= 0) {
 			    op->xa = p ;
 			    for (j = 0 ; j < op->nwords ; j += 1) {

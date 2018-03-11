@@ -2,7 +2,9 @@
 
 T= unlinkd
 
-ALL= $(T)
+ALL= $(T).o
+
+HELPFILE= $(T).help
 
 SRCROOT= $(LOCAL)
 
@@ -10,8 +12,8 @@ SRCROOT= $(LOCAL)
 BINDIR= $(SRCROOT)/bin
 INCDIR= $(SRCROOT)/include
 LIBDIR= $(SRCROOT)/lib
-MANDIR= $(SRCROOT)/man/man1
 HELPDIR= $(SRCROOT)/share/help
+MAXDIR= $(SRCROOT)/man
 
 LDCRTDIR= $(CGS_CRTDIR)
 VALDIR= $(CGS_VALDIR)
@@ -21,22 +23,13 @@ CC= $(CGS_CC)
 GPP= $(CGS_GPP)
 
 GPPFLAGS= $(CGS_CCFLAGS)
-CCOPTS_GCCALL= -pthreads -fexceptions
-CCOPTS_CCALL= -MT
 
 CCOPTS_GCCOPTSGPP= $(CGS_CCFLAGS)
-CCOPTS_GCCOPTSPARC= -mcpu=ultrasparc
-CCOPTS_GCCLIBSPARC= -mno-app-regs
+CCOPTS= $(CCOPTS_GCCOPT) $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB) -Wall
+CCOPTS= $(CCOPTS_GCCOPT) $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB)
+#CCOPTS= $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB)
+#CCOPTS= -g -Wstrict-aliasing -Wall $(CCOPTS_GCCALL) $(CCOPTS_GCCLIB) 
 
-CCOPTS= $(CCOPTS_GCCALL) -O $(CCOPTS_GCCOPTSPARC)
-#CCOPTS= $(CCOPTS_GCCALL) -g -O
-#CCOPTS= $(CCOPTS_GCCALL) -g -pg
-#CCOPTS= $(CCOPTS_GCCALL) -g -Wstrict-aliasing
-#CCOPTS= $(CCOPTS_GCCALL) -g -Wall
-
-CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
-
-#CCOPTS= $(CCOPTS_CCALL) -g -xs
 
 # HyperSPARC
 #CCOPTS= -xO5 -xtarget=ss20/hs22 -dalign -xdepend
@@ -45,17 +38,16 @@ CCOPTS_GCCLIB= -fpic $(CCOPTS_GCCLIBSPARC)
 #CCOPTS= -xO5 -xtarget=ultra -xsafe=mem -dalign -xdepend
 
 
-DEF0=
-DEF1=
+DEF0= -DOSNAME_$(SYSNAME)=$(OSNUM) -DOSTYPE_$(OSTYPE)=1
+DEF1= 
 DEF2=
 DEF3=
 DEF4=
 DEF5=
 DEF6=
-DEF7= $(LF_DEFS)
+DEF7=
 
 DEFS= $(DEF0) $(DEF1) $(DEF2) $(DEF3) $(DEF4) $(DEF5) $(DEF6) $(DEF7)
-
 
 INCDIRS= -I$(INCDIR)
 
@@ -68,45 +60,33 @@ CFLAGS= $(CCOPTS)
 LD= ld
 
 
-LDRPATH=
-
-LDFLAGS= -m -R$(LIBDIR):$(CGS_RPATH)
-
+LDFLAGS= -m # -Bdirect
 
 LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
-LIB1= -ldam -lb
-LIB2=
-LIB3= -luc -lu
+LIB1= -ldam -lb 
+LIB2= -luc -lu
+LIB3=
 LIB4= $(CGS_LIBS)
-LIB5= 
-LIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
+LIB5=
+LIB6= -lsecdb -lproject -lrt -lpthread -lxnet -lsocket -lnsl
 LIB7= -ldl -lc
 
 LIBS= $(LIB0) $(LIB1) $(LIB2) $(LIB3) $(LIB4) $(LIB5) $(LIB6) $(LIB7)
 
-LIBINFO= $(LIBDIRS) $(LIBS)
 
+VALUES= $(VALDIR)/$(CGS_VALDIR)
 
-VALUES= $(VALDIR)/$(CGS_VALUES)
-
-CRT1= $(LDCRTDIR)/crt1.o
 CRTI= $(LDCRTDIR)/crti.o
-CRTBEGIN= $(LDCRTDIR)/crtbegin.o
-MCRT1= $(LDCRTDIR)/mcrt1.o
-GCRT1= $(LDCRTDIR)/gcrt1.o
-CRTEND= $(LDCRTDIR)/crtend.o
+CRT1= $(LDCRTDIR)/crt1.o
 CRTN= $(LDCRTDIR)/crtn.o
 
-CRTFRONT= $(CRT1) $(CRTI) $(VALUES) $(CRTBEGIN)
-CRTBACK= $(CRTEND) $(CRTN)
-
-CRT0= $(CRT1) $(CRTI) $(VALUES)
+CRT0= $(CRTI) $(CRT1) $(VALUES)
 CRTC= makedate.o
 
 LINT= lint
-LINTFLAGS= -uxn -Dlint
+LINTFLAGS= -uxn
 
 NM= nm
 NMFLAGS= -xs
@@ -114,22 +94,24 @@ NMFLAGS= -xs
 CPP= cpp
 
 
-INCS= b_$(T).h defs.h
+UPINCS=
+
+INCS= rmermsg.h
 
 
-OBJ00= main.o whatinfo.o proginfo.o proginfo_setpiv.o 
-OBJ01= b_$(T).o
-OBJ02= 
+OBJ00= unlinkdmain.o 
+OBJ01= rmermsg.o
+OBJ02= pcsgetprogpath.o
 OBJ03=
 OBJ04=
-OBJ05= 
-OBJ06= 
-OBJ07= printhelp.o shio.o kshlib.o maininfo.o sesmsg.o msgdata.o
+OBJ05=
+OBJ06=
+OBJ07=
 OBJ08=
 OBJ09=
 OBJ10=
 OBJ11=
-OBJ12= 
+OBJ12=
 OBJ13=
 OBJ14=
 OBJ15=
@@ -139,13 +121,13 @@ OBJB= $(OBJ08) $(OBJ09) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15)
 
 OBJ= $(OBJA) $(OBJB)
 
-OBJS= $(CRTFRONT) $(OBJ) $(CRTC) $(CRTBACK)
+OBJS= $(CRT0) $(OBJ) $(CRTC)
 
 
-.SUFFIXES:		.ls .i .cs .cx
+.SUFFIXES:		.ls .i .cx .cs
 
 
-default:		$(T).x
+default:		$(T).o
 
 all:			$(ALL)
 
@@ -164,77 +146,46 @@ all:			$(ALL)
 .c.i:
 	$(CPP) $(CPPFLAGS) $< > $(*).i
 
+.c.cx:
+	$(CXREF) -C $(CXREFFLAGS) $(CPPFLAGS) $<
 
-$(T):			$(T).ee
-	cp -p $(T).ee $(T)
+.c.cs:
+	$(CXREF) $(CXREFFLAGS) $(CPPFLAGS) -o $(*).cs $<
 
-$(T).x:			$(OBJ) Makefile
-	makedate -m $(T) > makedate.c
-	$(CC) -c $(CFLAGS) makedate.c
-	$(LD) -o $@ $(LDFLAGS) $(OBJS) $(LIBINFO) > $(T).lm
 
-$(T).$(OFF) $(OFF):	$(T).x
-	cp -p $(T).x $(T).$(OFF)
+$(T).o:			$(OBJ) Makefile $(T).map
+	$(LD) -r -o $@ $(LDFLAGS) -M $(T).map -B reduce $(OBJ) > $(T).lm
 
-$(T).nm nm:		$(T).x
-	$(NM) $(NMFLAGS) $(T).x > $(T).nm
+$(T).nm nm:		$(T).o
+	$(NM) $(NMFLAGS) $(T).o > $(T).nm
 
 safe:
 	makesafe -v=3 -I $(INCDIR) $(OBJ)
 
-strip:			$(T).x
-	strip $(T).x
-	rm -f $(T).$(OFF) $(T)
+# there are no include files as part of this interface
+upincs:			$(UPINCS)
 
-install:		install-raw
-
-install-ee:		$(ALL)
-	makenewer -r $(ALL) $(BINDIR)
-
-install-raw:		$(T).x
-	rm -f $(BINDIR)/$(T).$(OFF)
-	makenewer -r -o rmsuf $(T).x $(BINDIR)
-
-install-help:
-	mkdir -p $(HELPDIR) 2> /dev/null
-	makenewer -o rmsuf $(T).help $(HELPDIR)
+up:			upincs $(ALL)
+	makenewer $(ALL) .. -t $(@)
 
 again:
-	rm -f $(ALL) $(T).x
+	rm -f $(ALL) $(T).lm $(T).ln $(T).ls
 
 clean:			again
-	makeclean
+	rm -f *.o
 
 control:
 	uname -n > Control
 	date >> Control
 
 
-main.o:			main.c $(INCS) maininfo.h
-
-whatinfo.o:		whatinfo.c config.h
-
-proginfo.o:		proginfo.c $(INCS)
-
-proginfo_setpiv.o:	proginfo_setpiv.c $(INCS)
-
-b_$(T).o:		b_$(T).c $(INCS)
-
-maininfo.o:		maininfo.c maininfo.h kshlib.h
-
-kshlib.o:		kshlib.c kshlib.h sesmsg.h msgdata.h
-
-sesmsg.o:		sesmsg.c sesmsg.h
-
-msgdata.o:		msgdata.c msgdata.h
+unlinkdmain.o:		unlinkdmain.c $(INCS)
 
 
-shio.o:			shio.c shio.h
+vecstr_loadfile.o:	vecstr_loadfile.c
 
-filemap.o:		filemap.c filemap.h
+vecstr_env.o:		vecstr_env.c
 
-realname.o:		realname.c realname.h
-
-lastlogfile.o:		lastlogfile.c lastlogfile.h
+rmermsg.o:		rmermsg.c rmermsg.h
 
 

@@ -125,8 +125,8 @@
 #endif
 #endif
 
-#define	HDRBUFLEN	(sizeof(TXTINDEXFU) + 128)
-#define	BUFLEN		(sizeof(TXTINDEXFU) + 128)
+#define	HDRBUFLEN	(sizeof(TXTINDEXHDR) + 128)
+#define	BUFLEN		(sizeof(TXTINDEXHDR) + 128)
 #define	SUFBUFLEN	32
 #define	TMPFNAMELEN	14
 
@@ -230,14 +230,14 @@ static int	txtindexmks_listbegin(TXTINDEXMKS *) ;
 static int	txtindexmks_listend(TXTINDEXMKS *) ;
 static int	txtindexmks_addtag(TXTINDEXMKS *,TXTINDEXMKS_TAG *) ;
 static int	txtindexmks_mkhash(TXTINDEXMKS *) ;
-static int	txtindexmks_mkhashwrmain(TXTINDEXMKS *,TXTINDEXFU *) ;
-static int	txtindexmks_mkhashwrhdr(TXTINDEXMKS *,TXTINDEXFU *,
+static int	txtindexmks_mkhashwrmain(TXTINDEXMKS *,TXTINDEXHDR *) ;
+static int	txtindexmks_mkhashwrhdr(TXTINDEXMKS *,TXTINDEXHDR *,
 			FILEBUF *,int) ;
-static int	txtindexmks_mkhashwrtab(TXTINDEXMKS *,TXTINDEXFU *,
+static int	txtindexmks_mkhashwrtab(TXTINDEXMKS *,TXTINDEXHDR *,
 			FILEBUF *,int) ;
-static int	txtindexmks_mkhashwreigen(TXTINDEXMKS *,TXTINDEXFU *,
+static int	txtindexmks_mkhashwreigen(TXTINDEXMKS *,TXTINDEXHDR *,
 			FILEBUF *,int) ;
-static int	txtindexmks_mkhashwrtabone(TXTINDEXMKS *,TXTINDEXFU *,
+static int	txtindexmks_mkhashwrtabone(TXTINDEXMKS *,TXTINDEXHDR *,
 			FILEBUF *,int,int *,int) ;
 static int	txtindexmks_nhashopen(TXTINDEXMKS *) ;
 static int	txtindexmks_nhashclose(TXTINDEXMKS *) ;
@@ -886,10 +886,10 @@ static int txtindexmks_mkhash(TXTINDEXMKS *op)
 	int		clists = 0 ;
 
 	if ((rs = txtindexmks_nhashopen(op)) >= 0) {
-	    TXTINDEXFU	hdr ;
+	    TXTINDEXHDR	hdr ;
 
-	    memset(&hdr,0,sizeof(TXTINDEXFU)) ;
-	    hdr.vetu[0] = TXTINDEXFU_VERSION ;
+	    memset(&hdr,0,sizeof(TXTINDEXHDR)) ;
+	    hdr.vetu[0] = TXTINDEXHDR_VERSION ;
 	    hdr.vetu[1] = ENDIAN ;
 	    hdr.vetu[2] = 0 ;
 	    hdr.vetu[3] = 0 ;
@@ -944,7 +944,7 @@ static int txtindexmks_mkhash(TXTINDEXMKS *op)
 /* end subroutine (txtindexmks_mkhash) */
 
 
-static int txtindexmks_mkhashwrmain(TXTINDEXMKS *op,TXTINDEXFU *hdrp)
+static int txtindexmks_mkhashwrmain(TXTINDEXMKS *op,TXTINDEXHDR *hdrp)
 {
 	FILEBUF		hf, *hfp = &hf ;
 	const int	nfd = op->nfd ;
@@ -989,7 +989,7 @@ static int txtindexmks_mkhashwrmain(TXTINDEXMKS *op,TXTINDEXFU *hdrp)
 
 
 /* ARGSUSED */
-static int txtindexmks_mkhashwrhdr(TXTINDEXMKS *op,TXTINDEXFU *hdrp,
+static int txtindexmks_mkhashwrhdr(TXTINDEXMKS *op,TXTINDEXHDR *hdrp,
 		FILEBUF *hfp,int off)
 {
 	const int	hlen = HDRBUFLEN ;
@@ -1007,7 +1007,7 @@ static int txtindexmks_mkhashwrhdr(TXTINDEXMKS *op,TXTINDEXFU *hdrp,
 /* end subroutine (txtindexmks_mkhashwrhdr) */
 
 
-static int txtindexmks_mkhashwrtab(TXTINDEXMKS *op,TXTINDEXFU *hdrp,
+static int txtindexmks_mkhashwrtab(TXTINDEXMKS *op,TXTINDEXHDR *hdrp,
 		FILEBUF *hfp,int off)
 {
 	int		*table = NULL ;
@@ -1038,7 +1038,7 @@ static int txtindexmks_mkhashwrtab(TXTINDEXMKS *op,TXTINDEXFU *hdrp,
 
 
 /* ARGSUSED */
-static int txtindexmks_mkhashwrtabone(TXTINDEXMKS *op,TXTINDEXFU *hdrp,
+static int txtindexmks_mkhashwrtabone(TXTINDEXMKS *op,TXTINDEXHDR *hdrp,
 		FILEBUF *hfp,int off,int *tab,int i)
 {
 	LISTOBJ		*lop = (LISTOBJ *) op->lists ;
@@ -1078,7 +1078,7 @@ static int txtindexmks_mkhashwrtabone(TXTINDEXMKS *op,TXTINDEXFU *hdrp,
 /* end subroutine (txtindexmks_mkhashwrtabone) */
 
 
-static int txtindexmks_mkhashwreigen(TXTINDEXMKS *op,TXTINDEXFU *hdrp,
+static int txtindexmks_mkhashwreigen(TXTINDEXMKS *op,TXTINDEXHDR *hdrp,
 		FILEBUF *hfp,int off)
 {
 	int		rs ;

@@ -5,6 +5,7 @@
 
 #define	CF_DEBUG	1		/* run-time debugging */
 #define	CF_DELREMOTE	0		/* ? */
+#define	CF_REPLY	0		/* |cmd_reply()| */
 
 
 /* revision history:
@@ -115,10 +116,14 @@ extern int	sfshrink(const char *,int,const char **) ;
 extern int	getfiledirs(const char *,const char *,const char *,vecstr *) ;
 
 extern int	cmd_save() ;
-extern int	cmd_reply() ;
 extern int	cmd_printout() ;
 extern int	cmd_follow() ;
 extern int	cmd_output() ;
+
+#if	CF_REPLY
+extern int	cmd_reply() ;
+#endif
+
 extern int	bbcpy(char *,char *) ;
 extern int	hmatch() ;
 extern int	term_linecheck(struct proginfo *) ;
@@ -1081,12 +1086,12 @@ prompt:
 
 /* reply */
 
+#if	CF_REPLY
 	    if ((strcmp(cp,"rep") == 0) || (strcmp(cp,"reply") == 0)) {
-
 	        cmd_reply(gp,ap,ngdir,af) ;
-
 	        goto prompt ;
 	    }
+#endif
 
 /* review */
 

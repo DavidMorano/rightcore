@@ -165,7 +165,7 @@ OBJ01= proguserlist.o proglogid.o proglog.o
 OBJ02= progconf.o prognewsrc.o progufname.o
 OBJ03= progmode.o progng.o progmsgenv.o proghdr.o
 OBJ04= mkdirlist.o dirshown.o
-OBJ05= cmd_save.o cmd_output.o cmd_printout.o cmd_reply.o cmd_follow.o
+OBJ05= cmd_save.o cmd_output.o cmd_printout.o cmd_follow.o
 OBJ06= emit_count.o emit_header.o emit_article.o emit_mailbox.o emit_test.o
 OBJ07= printhelp.o 
 

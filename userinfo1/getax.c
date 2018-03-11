@@ -17,10 +17,10 @@
 
 /*******************************************************************************
 
-	These subroutines were was written so that we could use a single
-	interface to access the 'passwd' database on all UNIX® platforms.  This
-	code module provides a platform independent implementation of UNIX®
-	'passwd' database access subroutines.
+        These subroutines were written so that we could use a single interface
+        to access the 'passwd' database on all UNIX® platforms. This code module
+        provides a platform independent implementation of UNIX® 'passwd'
+        database access subroutines.
 
 	These are the preferred interfaces:
 

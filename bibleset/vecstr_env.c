@@ -300,7 +300,7 @@ static int vecstr_addwithin(vecstr *op,cchar *sp,int sl)
 			    }
 	                } /* end if (was not found) */
 
-	            } /* end if */
+	            } /* end if (ok) */
 
 	        } /* end if (non-zero key) */
 

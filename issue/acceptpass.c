@@ -19,7 +19,9 @@
 /*******************************************************************************
 
         This little subroutine accepts a file descriptor from some type of FIFO,
-        pipe, or other (weirdo) STREAMS-like thing.
+        pipe, or other (weirdo) STREAMS-like thing. This subroutine will not
+        compile on a non-STREAMS system; we depend on passing FDs through pipes
+        and not eveyone (every OS) has that ability.
 
 	Synopsis:
 

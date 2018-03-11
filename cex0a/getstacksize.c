@@ -49,6 +49,10 @@
         So, bascially, this code needs to be updated and recompiled for any
         given OS. Some better solution for this situation should be found.
 
+        Our little caching scheme depends on the assumption that an 'int' is
+        atomic. We can live with this in most all machine architectures we care
+        about.
+
 
 *******************************************************************************/
 

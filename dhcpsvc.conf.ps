@@ -1,0 +1,1093 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 4 \))3 126( dhcpsvc.conf)1 1750( \))1 37( Oct 2001)2 366( 3)1 52( \()1 68( 5.8)1 136( SunOS)1 1521(dhcpsvc.conf \( 4 \))3 624 9 540 480 t
+(NAME)540 960 w
+10 R f
+(dhcpsvc.conf)900 1080 w
+10 S1 f
+(\261)1454 1080 w
+10 R f
+(file containing service configuration parameters for the DHCP service)8 2799 1 1544 1080 t
+9 B f
+(DESCRIPTION)540 1248 w
+10 R f
+(The)900 1368 w
+10 B f
+(dhcpsvc.conf)1087 1368 w
+10 R f
+( directory)1 393(file resides in)2 552 2 1672 1368 t
+10 B f
+(/etc/inet)2650 1368 w
+10 R f
+(and contains parameters for specifying Dynamic Host)6 2199 1 3021 1368 t
+(Configuration Protocol \()2 1003 1 900 1488 t
+10 B f
+(DHCP)1903 1488 w
+10 R f
+( and location of)3 651(\) service configuration settings, including the type)6 2066 2 2186 1488 t
+10 B f
+(DHCP)4937 1488 w
+10 R f
+(data store used.)2 618 1 900 1608 t
+(The description of the)3 903 1 900 1776 t
+10 B f
+(dhcpsvc.conf)1836 1776 w
+10 R f
+( preferred method of)3 849(file in this man page is informational only. The)8 1949 2 2422 1776 t
+(setting or modifying values within the)5 1535 1 900 1896 t
+10 B f
+(dhcpsvc.conf)2462 1896 w
+10 R f
+( using)1 243(file is by)2 354 2 3042 1896 t
+10 B f
+(dhcpconfig)3665 1896 w
+10 R f
+(\(1M\) or the)2 462 1 4138 1896 t
+10 B f
+(dhcpmgr)4626 1896 w
+10 R f
+(\(1M\))5015 1896 w
+(utility. Do not edit the)4 887 1 900 2016 t
+10 B f
+(dhcpsvc.conf)1812 2016 w
+10 R f
+(file.)2390 2016 w
+(The)900 2184 w
+10 B f
+(dhcpsvc.conf)1082 2184 w
+10 R f
+(file format is)2 520 1 1662 2184 t
+10 B f
+(ASCII)2210 2184 w
+10 R f
+(; comment lines begin with the crosshatch \()7 1761 1 2488 2184 t
+10 B f
+(#)4249 2184 w
+10 R f
+(\) character. Parameters)2 921 1 4299 2184 t
+(consist of a keyword followed by an equals \()8 1791 1 900 2304 t
+10 B f
+(=)2691 2304 w
+10 R f
+(\) sign followed by the parameter value, of the form:)9 2068 1 2748 2304 t
+10 I f
+(Keyword)900 2472 w
+10 R f
+(=)1261 2472 w
+10 I f
+(Value)1317 2472 w
+10 R f
+(The following)1 569 1 900 2640 t
+10 I f
+(Keyword)1494 2640 w
+10 R f
+(and)1880 2640 w
+10 I f
+(Value)2049 2640 w
+10 R f
+(parameters are supported:)2 1030 1 2307 2640 t
+(BOOTP)900 2808 w
+10 S f
+(_)1228 2808 w
+10 R f
+(COMPAT)1278 2808 w
+(String.)1200 2928 w
+10 B f
+(automatic)1506 2928 w
+10 R f
+(or)1969 2928 w
+10 B f
+(manual)2088 2928 w
+10 R f
+( of)1 120(. Enables support)2 713 2 2411 2928 t
+10 B f
+(BOOTP)3281 2928 w
+10 R f
+(clients. Default is no)3 863 1 3669 2928 t
+10 B f
+(BOOTP)4569 2928 w
+10 R f
+(. Value)1 300 1 4920 2928 t
+(selects)1200 3048 w
+10 B f
+(BOOTP)1503 3048 w
+10 R f
+(address allocation method.)2 1092 1 1891 3048 t
+10 B f
+(automatic)3045 3048 w
+10 R f
+( BOOTP clients,)2 686(to support all)2 552 2 3509 3048 t
+10 B f
+(manual)4783 3048 w
+10 R f
+(to)5142 3048 w
+(support only registered)2 921 1 1200 3168 t
+10 B f
+(BOOTP)2146 3168 w
+10 R f
+(clients.)2522 3168 w
+10 B f
+(server)2833 3168 w
+10 R f
+(mode only parameter.)2 873 1 3123 3168 t
+(CACHE)900 3336 w
+10 S f
+(_)1239 3336 w
+10 R f
+(TIMEOUT)1289 3336 w
+( data from data store. Used to improve perfor\255)8 1949( cache)1 264( will)1 219(Integer. Number of seconds the server)5 1588 4 1200 3456 t
+(mance. Default is 10 seconds.)4 1192 1 1200 3576 t
+10 B f
+(server)2417 3576 w
+10 R f
+(mode only parameter.)2 873 1 2707 3576 t
+(CONVER)900 3744 w
+( DHCP administrative tools to identify which version of the)9 2535(Integer. Container version. Used by)4 1485 2 1200 3864 t
+( being used to administer the data store.)7 1636(public module is)2 683 2 1200 3984 t
+10 B f
+(CONVER)3551 3984 w
+10 R f
+(should)4016 3984 w
+10 I f
+(not)4315 3984 w
+10 R f
+(be changed manu\255)2 745 1 4475 3984 t
+(ally.)1200 4104 w
+(DAEMON)900 4272 w
+10 S f
+(_)1338 4272 w
+10 R f
+(ENABLED)1388 4272 w
+10 B f
+(TRUE)1200 4392 w
+10 R f
+(/)1478 4392 w
+10 B f
+(FALSE)1506 4392 w
+10 R f
+(. If)1 123 1 1829 4392 t
+10 B f
+(TRUE)1984 4392 w
+10 R f
+(, the DHCP daemon can be run. If)7 1410 1 2262 4392 t
+10 B f
+(FALSE)3704 4392 w
+10 R f
+( process will)2 521(, DHCP daemon)2 672 2 4027 4392 t
+(exit immediately if the daemon is started. Default is)8 2073 1 1200 4512 t
+10 B f
+(TRUE)3298 4512 w
+10 R f
+(. Generic parameter.)2 813 1 3576 4512 t
+(HOSTS)900 4680 w
+10 S f
+(_)1217 4680 w
+10 R f
+(DOMAIN)1267 4680 w
+( when managing the hosts)4 1058(String. Defines name service domain that DHCP administration tools use)9 2962 2 1200 4800 t
+(table. Valid only when)3 910 1 1200 4920 t
+10 B f
+(HOSTS)2135 4920 w
+10 S f
+(_)2470 4920 w
+10 B f
+(RESOURCE)2520 4920 w
+10 R f
+(is set to)2 306 1 3101 4920 t
+10 B f
+(nisplus)3432 4920 w
+10 R f
+(or)3759 4920 w
+10 B f
+(dns)3867 4920 w
+10 R f
+(.)4018 4920 w
+(HOSTS)900 5088 w
+10 S f
+(_)1217 5088 w
+10 R f
+(RESOURCE)1267 5088 w
+( service resource should be used by the DHCP administration tools when)11 2949(String. Defines what name)3 1071 2 1200 5208 t
+(managing the hosts table. Current valid values are)7 1997 1 1200 5328 t
+10 B f
+(files)3222 5328 w
+10 R f
+(,)3394 5328 w
+10 B f
+(nisplus)3444 5328 w
+10 R f
+(, and)1 194 1 3746 5328 t
+10 B f
+(dns)3965 5328 w
+10 R f
+(.)4116 5328 w
+(ICMP)900 5496 w
+10 S f
+(_)1145 5496 w
+10 R f
+(VERIFY)1195 5496 w
+10 B f
+(TRUE)1200 5616 w
+10 R f
+(/)1478 5616 w
+10 B f
+(FALSE)1506 5616 w
+10 R f
+(. Toggles)1 377 1 1829 5616 t
+10 B f
+(ICMP)2236 5616 w
+10 R f
+( Default is)2 428( addresses.)1 463(echo verification of IP)3 913 3 2533 5616 t
+10 B f
+(TRUE)4368 5616 w
+10 R f
+(.)4646 5616 w
+10 B f
+(server)4702 5616 w
+10 R f
+(mode)4998 5616 w
+(only parameter.)1 626 1 1200 5736 t
+(INTERFACES)900 5904 w
+(String. Comma\255separated list of interface names to listen to. Generic parameter.)10 3191 1 1200 6024 t
+(LOGGING)900 6192 w
+10 S f
+(_)1354 6192 w
+10 R f
+(FACILITY)1404 6192 w
+(Integer. Local facility number \()4 1271 1 1200 6312 t
+10 B f
+(0)2471 6312 w
+10 R f
+(\255)2521 6312 w
+10 B f
+(7)2554 6312 w
+10 R f
+(inclusive\) to log)2 660 1 2634 6312 t
+10 B f
+(DHCP)3324 6312 w
+10 R f
+(events to. Default is not to log transac\255)7 1583 1 3637 6312 t
+(tions. Generic parameter.)2 1008 1 1200 6432 t
+(OFFER)900 6600 w
+10 S f
+(_)1212 6600 w
+10 R f
+(CACHE)1262 6600 w
+10 S f
+(_)1601 6600 w
+10 R f
+(TIMEOUT)1651 6600 w
+( of seconds before)3 764(Integer. Number)1 670 2 1200 6720 t
+10 B f
+(OFFER)2671 6720 w
+10 R f
+(cache timeouts occur. Default is)4 1331 1 3047 6720 t
+10 B f
+(10)4415 6720 w
+10 R f
+(seconds.)4577 6720 w
+10 B f
+(server)4955 6720 w
+10 R f
+(mode only parameter.)2 873 1 1200 6840 t
+( within the data store specified by the RESOURCE parameter. The value)11 2978( to DHCP data tables)4 864(PATH Path)1 478 3 900 7008 t
+(of the)1 230 1 1200 7128 t
+10 B f
+(PATH)1455 7128 w
+10 R f
+( the RESOURCE.)2 720( to)1 128(keyword is specific)2 776 3 1758 7128 t
+( 8, 2018)2 325( March)1 1761( Formats)1 353( File)1 1972(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 4 \))3 126( dhcpsvc.conf)1 1750( \))1 37( Oct 2001)2 366( 3)1 52( \()1 68( 5.8)1 136( SunOS)1 1521(dhcpsvc.conf \( 4 \))3 624 9 540 480 t
+10 R f
+(RELAY)900 960 w
+10 S f
+(_)1233 960 w
+10 R f
+(DESTINATIONS)1283 960 w
+(String. Comma\255separated list of host names and/or)6 2077 1 1200 1080 t
+10 B f
+(IP)3311 1080 w
+10 R f
+(addresses of relay destinations.)3 1269 1 3445 1080 t
+10 B f
+(relay)4748 1080 w
+10 R f
+(mode)4998 1080 w
+(only parameter.)1 626 1 1200 1200 t
+(RELAY)900 1368 w
+10 S f
+(_)1233 1368 w
+10 R f
+(HOPS)1283 1368 w
+( of)1 109(Integer. Max number)2 845 2 1200 1488 t
+10 B f
+(BOOTP)2180 1488 w
+10 R f
+(relay hops before packet is dropped. Default is)7 1869 1 2557 1488 t
+10 B f
+(4)4452 1488 w
+10 R f
+(. Generic parame\255)2 718 1 4502 1488 t
+(ter.)1200 1608 w
+(RESCAN)900 1776 w
+10 S f
+(_)1295 1776 w
+10 R f
+(INTERVAL)1345 1776 w
+(Integer. Number of minutes between automatic)5 1990 1 1200 1896 t
+10 B f
+(dhcptab)3236 1896 w
+10 R f
+( to do rescans.)3 637(rescans. Default is not)3 950 2 3633 1896 t
+10 B f
+(server)1200 2016 w
+10 R f
+(mode only parameter.)2 873 1 1490 2016 t
+(RESOURCE)900 2184 w
+(Data store resource used. Use this parameter to name the public module. See the)13 3233 1 1200 2304 t
+10 B f
+(PATH)4460 2304 w
+10 R f
+(keyword in)1 455 1 4765 2304 t
+10 B f
+(dhcp)1200 2424 w
+10 S f
+(_)1412 2424 w
+10 B f
+(modules)1462 2424 w
+10 R f
+(\(5\).)1818 2424 w
+(RESOURCE)900 2592 w
+10 S f
+(_)1423 2592 w
+10 R f
+(CONFIG)1473 2592 w
+( database account name or other authentication or authorization)8 2661(String. This might be used for a)6 1359 2 1200 2712 t
+(parameters required by a particular data store.)6 1830 1 1200 2832 t
+10 B f
+(dhcp)3055 2832 w
+10 S f
+(_)3267 2832 w
+10 B f
+(modules)3317 2832 w
+10 R f
+(\(5\).)3673 2832 w
+(Providers can use the)3 872 1 1200 3072 t
+10 B f
+(RESOURCE)2104 3072 w
+10 S f
+(_)2660 3072 w
+10 B f
+(CONFIG)2710 3072 w
+10 R f
+(known as)1 388 1 3142 3072 t
+10 B f
+(configure)3563 3072 w
+10 R f
+(by specifying an optional ser\255)4 1219 1 4001 3072 t
+(vice provider layer API function:)4 1325 1 1200 3192 t
+(int configure\(const char)2 953 1 1200 3432 t
+10 S f
+(*)2178 3432 w
+10 R f
+(configp\);)2228 3432 w
+( during module load time by the)6 1289(If this function is defined by the public module provider, it is called)12 2706 2 1225 3672 t
+(private layer, with the contents of the)6 1495 1 1200 3792 t
+10 B f
+(RESOURCE)2721 3792 w
+10 S f
+(_)3277 3792 w
+10 B f
+(CONFIG)3327 3792 w
+10 R f
+( the administrative)2 744(string acquired by)2 723 2 3753 3792 t
+(interface \(in the case of the)5 1082 1 1200 3912 t
+10 B f
+(dhcpmgr)2307 3912 w
+10 R f
+(, through the use of a public module\255specific java bean extend\255)10 2524 1 2696 3912 t
+(ing the)1 275 1 1200 4032 t
+10 B f
+(dhcpmgr)1500 4032 w
+10 R f
+(to provide a configuration dialog for this information.)7 2148 1 1914 4032 t
+(RUN)900 4200 w
+10 S f
+(_)1111 4200 w
+10 R f
+(MODE)1161 4200 w
+10 B f
+(server)1200 4320 w
+10 R f
+(or)1490 4320 w
+10 B f
+(relay)1598 4320 w
+10 R f
+(. Selects daemon run mode. Default is)6 1520 1 1814 4320 t
+10 B f
+(server)3359 4320 w
+10 R f
+(.)3624 4320 w
+(SECONDARY)900 4488 w
+10 S f
+(_)1511 4488 w
+10 R f
+(SERVER)1561 4488 w
+10 S f
+(_)1945 4488 w
+10 R f
+(TIMEOUT)1995 4488 w
+( to respond)2 492(Integer. The number of seconds a secondary server will wait for a primary server)13 3528 2 1200 4608 t
+(before responding itself. Default is)4 1389 1 1200 4728 t
+10 B f
+(20)2614 4728 w
+10 R f
+(seconds. This is a server)4 973 1 2739 4728 t
+(mode only parameter.)2 873 1 1350 4848 t
+(UPDATE)900 5016 w
+10 S f
+(_)1294 5016 w
+10 R f
+(TIMEOUT)1344 5016 w
+( response from the DNS server before timing out. If this)10 2338(Integer. Number of minutes to wait for a)7 1682 2 1200 5136 t
+( of DHCP clients, and will wait)6 1276(parameter is present, the DHCP daemon will update DNS on behalf)10 2744 2 1200 5256 t
+( out. You can use)4 972(the number of seconds specified for a response before timing)9 3048 2 1200 5376 t
+10 B f
+(UPDATE)1200 5496 w
+10 S f
+(_)1611 5496 w
+10 B f
+(TIMEOUT)1661 5496 w
+10 R f
+(without specifying a number to enable DNS updates with the default)10 3021 1 2199 5496 t
+( the DHCP daemon will not update DNS for)8 1811(timeout of 15 minutes. If this parameter is not present,)9 2209 2 1200 5616 t
+(DHCP clients.)1 578 1 1200 5736 t
+(VERBOSE)900 5904 w
+10 B f
+(TRUE)1200 6024 w
+10 R f
+(/)1478 6024 w
+10 B f
+(FALSE)1506 6024 w
+10 R f
+( of status and error messages reported)6 1549(. Toggles verbose mode, determining amount)5 1842 2 1829 6024 t
+(by the daemon. Default is)4 1029 1 1200 6144 t
+10 B f
+(FALSE)2254 6144 w
+10 R f
+(. Set to)2 281 1 2577 6144 t
+10 B f
+(TRUE)2883 6144 w
+10 R f
+(only for debugging. Generic parameter.)4 1579 1 3186 6144 t
+9 B f
+(SEE ALSO)1 438 1 540 6312 t
+10 B f
+(dhcpmgr)900 6432 w
+10 R f
+(\(1M\),)1289 6432 w
+10 B f
+(in.dhcpd)1544 6432 w
+10 R f
+(\(1M\),)1921 6432 w
+10 B f
+(dhcp)2176 6432 w
+10 R f
+(\(5\),)2388 6432 w
+10 B f
+(dhcp)2554 6432 w
+10 S f
+(_)2766 6432 w
+10 B f
+(modules)2816 6432 w
+10 R f
+(\(5\))3172 6432 w
+10 I f
+(System Administration Guide, Volume 3)4 1602 1 900 6600 t
+10 R f
+( 2)1 75( Page)1 2011( Formats)1 353( File)1 1656(March 8, 2018)2 585 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 2
+%%DocumentFonts: Times-Roman Times-Bold Times-Italic Times-Roman Symbol

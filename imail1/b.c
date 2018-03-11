@@ -1213,10 +1213,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 	cchar		*cfname = NULL ;
 	cchar		*cp ;
 
-#if	CF_DEBUGN
-	nprintf(NDF,"starting builtin=%u\n",(contextp != NULL)) ;
-#endif
-
 #if	CF_DEBUGS || CF_DEBUG
 	if ((cp = getourenv(envv,VARDEBUGFNAME)) != NULL) {
 	    rs = debugopen(cp) ;
@@ -1813,11 +1809,6 @@ static int mainsub(int argc,cchar *argv[],cchar *envv[],void *contextp)
 
 #if	CF_DEBUGS
 	debugprintf("b_imail: args rs=%d debuglevel=%u\n",
-	    rs,pip->debuglevel) ;
-#endif
-
-#if	CF_DEBUGN
-	nprintf(NDF,"args rs=%d debuglevel=%u\n",
 	    rs,pip->debuglevel) ;
 #endif
 
@@ -5077,7 +5068,7 @@ static int procmsghdr_sender(PROGINFO *pip,FILEBUF *ofp,int mi,MSGOPTS *mop)
 
 #if	CF_VSENDERS
 static int procmsghdr_vsenders(PROGINFO *pip,FILEBUF *ofp,MSGDATA *mdp,
-MSGOPTS *mop)
+	MSGOPTS *mop)
 {
 	int		rs ;
 	int		wlen = 0 ;
@@ -5120,17 +5111,17 @@ static int procprinthdr_emaone(PROGINFO *pip,FILEBUF *ofp,cchar *kn,EMA_ENT *ep)
 /* end subroutine (procprinthdr_emaone) */
 #else /* CF_VSENDERS */
 static int procmsghdr_vsenders(PROGINFO *pip,FILEBUF *ofp,MSGDATA *mdp,
-MSGOPTS *mop)
+	MSGOPTS *mop)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs ;
 	int		rs1 ;
 	int		wlen = 0 ;
 	if ((rs = msgdata_getnsenders(mdp)) > 0) {
-	    EMA	*slp = (mdp->addrs + msgloghdr_sender) ;
+	    EMA		*slp = (mdp->addrs + msgloghdr_sender) ;
 	    EMA_ENT	*ep ;
 	    if ((rs = ema_count(slp)) > 0) {
-	        OUTEMA	ld ;
+	        OUTEMA		ld ;
 	        const int	msgcols = lip->msgcols ;
 	        if ((rs = outema_start(&ld,ofp,msgcols)) >= 0) {
 	            cchar	*kn = HN_SENDER ;
@@ -10041,10 +10032,7 @@ static int isHup(int rs)
 
 
 #if	CF_DEBUGOFF && (CF_DEBUG || CF_DEBUGS)
-static int debugfilebuf_printoff(fbp,n,s,wlen)
-FILEBUF		*fbp ;
-cchar		*n, *s ;
-int		wlen ;
+static int debugfilebuf_printoff(FILEBUF *fbp,cchar *n,cchar *s,int wlen)
 {
 	offset_t	coff ;
 	filebuf_tell(fbp,&coff) ;

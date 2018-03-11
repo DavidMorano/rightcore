@@ -191,7 +191,7 @@ OBJ10= field_wordphrase.o
 #OBJ11= textlook.o rtags.o searchkeys.o
 #OBJ12= txtindexmks.o txtindexes.o 
 #OBJ13= offindex.o strtab.o
-#OBJ14= txtindexfu.o strtabfind.o
+#OBJ14= txtindexhdr.o strtabfind.o
 #OBJ15= eigendb.o xwords.o txtindex.o txtindexmk.o 
 
 OBJA= $(OBJ00) $(OBJ01) $(OBJ02) $(OBJ03) $(OBJ04) $(OBJ05) $(OBJ06) $(OBJ07)
@@ -208,9 +208,9 @@ GOBJS= $(GCRT0) $(OBJ) $(CRTC)
 
 GGOBJS= $(OBJ)
 
-TISOBJ= txtindexes.o txtindexfu.o offindex.o strtabfind.o
+TISOBJ= txtindexes.o txtindexhdr.o offindex.o strtabfind.o
 
-MKSOBJ= txtindexmks.o txtindexfu.o strtabfind.o
+MKSOBJ= txtindexmks.o txtindexhdr.o strtabfind.o
 
 BQSOBJ0= bibleqs.o xwords.o txtindex.o txtindexmk.o eigendb.o dirseen.o 
 BQSOBJ1= sfword.o txtindexmkwait.o searchkeys.o
@@ -418,13 +418,13 @@ txtindex.o:		txtindex.c txtindex.h txtindexes.h
 txtindexmk.o:		txtindexmk.c txtindexmk.h txtindexmks.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
-txtindexes.o:		txtindexes.c txtindexes.h txtindexfu.h
+txtindexes.o:		txtindexes.c txtindexes.h txtindexhdr.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
-txtindexmks.o:		txtindexmks.c txtindexmks.h txtindexfu.h
+txtindexmks.o:		txtindexmks.c txtindexmks.h txtindexhdr.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
-txtindexfu.o:		txtindexfu.c txtindexfu.h
+txtindexhdr.o:		txtindexhdr.c txtindexhdr.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
 offindex.o:		offindex.c offindex.h

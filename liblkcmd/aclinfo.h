@@ -1,7 +1,7 @@
 /* aclinfo */
 
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2005 David A­D­ Morano.  All rights reserved. */
 
 #ifndef	ACLINFO_INCLUDE
 #define	ACLINFO_INCLUDE		1

@@ -1709,13 +1709,13 @@ int		ll ;
 	            kp = keybuf ;
 	        }
 
-#if	CF_DEBUGS
-	        debugprintf("bibleqs_havekeysline: match? w=>%t<\n",
-	            kp,kl) ;
-#endif
-
 	        rs = bibleqs_matchkeys(op,skp,pkp,kp,kl) ;
 	        f = (rs > 0) ;
+
+#if	CF_DEBUGS
+	        debugprintf("bibleqs_havekeysline: match? w=>%t< f=%u\n",
+	            kp,kl,f) ;
+#endif
 
 	        if (f) break ;
 	        if (rs < 0) break ;
@@ -1746,7 +1746,7 @@ int		sl ;
 	int		f = FALSE ;
 
 #if	CF_DEBUGS 
-	debugprintf("bibleqs_matchkeys: s=>%t<\n",sp,sl) ;
+	debugprintf("bibleqs_matchkeys: ent s=>%t<\n",sp,sl) ;
 #endif
 
 	if (op == NULL) return SR_FAULT ;
@@ -1766,7 +1766,7 @@ int		sl ;
 	    int		rs1 ;
 	    int		wi ;
 	    int		cl ;
-	    const char	*cp ;
+	    cchar	*cp ;
 
 	    f = FALSE ;
 	    for (wi = 0 ; ((cl = xwords_get(&xw,wi,&cp)) > 0) ; wi += 1) {
@@ -1792,7 +1792,7 @@ int		sl ;
 	} /* end if (xwords) */
 #endif /* CF_SINGLEWORD */
 
-#if	CF_DEBUGS && 0
+#if	CF_DEBUGS
 	debugprintf("bibleqs_matchkeys: ret rs=%d f=%u\n",rs,f) ;
 #endif
 

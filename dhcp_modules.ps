@@ -1,0 +1,844 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+(dhcp)540 480 w
+9 S f
+(_)730 480 w
+9 B f
+( dhcp)1 1347( \))1 37( Mar 2001)2 396( 13)1 97( \()1 68( 5.8)1 136( SunOS)1 1427(modules \( 5 \))3 446 8 775 480 t
+9 S f
+(_)4729 480 w
+9 B f
+(modules \( 5 \))3 446 1 4774 480 t
+(NAME)540 960 w
+10 R f
+(dhcp)900 1080 w
+10 S f
+(_)1094 1080 w
+10 R f
+(modules)1144 1080 w
+10 S1 f
+(\261)1508 1080 w
+10 R f
+(data storage modules for the DHCP service)6 1730 1 1598 1080 t
+9 B f
+(DESCRIPTION)540 1248 w
+10 R f
+( \(public modules\) for use by the Solaris)7 1600(This man page describes the characteristics of data storage modules)9 2720 2 900 1368 t
+(Dynamic Host Configuration Protocol \()4 1588 1 900 1488 t
+10 B f
+(DHCP)2488 1488 w
+10 R f
+(\) service.)1 365 1 2771 1488 t
+( part of the)3 444(Public modules are the)3 919 2 900 1656 t
+10 B f
+(DHCP)2291 1656 w
+10 R f
+(service architecture that encapsulate the details of storing)7 2307 1 2602 1656 t
+10 B f
+(DHCP)4937 1656 w
+10 R f
+( of data storage services are)5 1119(service data in a data storage service. Examples)7 1928 2 900 1776 t
+10 B f
+(NIS+)3975 1776 w
+10 R f
+(, Oracle, and)2 515 1 4199 1776 t
+10 B f
+(ufs)4742 1776 w
+10 R f
+(file sys\255)1 322 1 4898 1776 t
+(tems.)900 1896 w
+(Public modules are dynamic objects which can be shipped separately from the Solaris)12 3440 1 900 2064 t
+10 B f
+(DHCP)4366 2064 w
+10 R f
+(service. Once)1 544 1 4676 2064 t
+( module is visible to the)5 959(installed, a public)2 710 2 900 2184 t
+10 B f
+(DHCP)2594 2184 w
+10 R f
+(service, and can be selected for use by the service through)10 2318 1 2902 2184 t
+(the)900 2304 w
+10 B f
+(DHCP)1106 2304 w
+10 R f
+(service management interfaces \()3 1464 1 1473 2304 t
+10 B f
+(dhcpmgr)2937 2304 w
+10 R f
+(\(1M\),)3326 2304 w
+10 B f
+(dhcpconfig)3640 2304 w
+10 R f
+(\(1M\),)4113 2304 w
+10 B f
+(dhtadm)4427 2304 w
+10 R f
+(\(1M\), and)1 459 1 4761 2304 t
+10 B f
+(pntadm)900 2424 w
+10 R f
+(\(1M\)\).)1234 2424 w
+(Public modules may be provided by Sun Microsystems, Inc or by third parties.)12 3148 1 900 2592 t
+(The Solaris)1 461 1 900 2760 t
+10 B f
+(DHCP)1389 2760 w
+10 R f
+( public module\255)2 641(service management architecture provides a mechanism for plugging in)8 2879 2 1700 2760 t
+(specific administration functionality into the)4 1793 1 900 2880 t
+10 B f
+(dhcpmgr)2722 2880 w
+10 R f
+(\(1M\) and)1 377 1 3111 2880 t
+10 B f
+(dhcpconfig)3516 2880 w
+10 R f
+(\(1M\) utilities. This functional\255)3 1231 1 3989 2880 t
+( Java Bean, which is provided by the public module vendor. This Java Bean collects)14 3446(ity is in the form of a)6 874 2 900 3000 t
+(public module\255specific configuration from the user \(you\) and provides it to the Solaris)12 3451 1 900 3120 t
+10 B f
+(DHCP)4376 3120 w
+10 R f
+(service.)4684 3120 w
+(The Solaris)1 466 1 900 3288 t
+10 B f
+(DHCP)1399 3288 w
+10 R f
+( There are)2 421(service bundles three modules with the service, which are described below.)10 3084 2 1715 3288 t
+(three)900 3408 w
+10 B f
+(dhcpsvc.conf)1190 3408 w
+10 R f
+(\(4\))1743 3408 w
+10 B f
+(DHCP)1950 3408 w
+10 R f
+(service configuration parameters pertaining to public modules:)6 2897 1 2323 3408 t
+10 B f
+(RESOURCE)900 3528 w
+10 R f
+(,)1456 3528 w
+10 B f
+(PATH)1529 3528 w
+10 R f
+(, and)1 217 1 1807 3528 t
+10 B f
+(RESOURCE)2072 3528 w
+10 S f
+(_)2628 3528 w
+10 B f
+(CONFIG)2678 3528 w
+10 R f
+(. See)1 217 1 3078 3528 t
+10 B f
+(dhcpsvc.conf)3343 3528 w
+10 R f
+( about)1 271(\(4\) for more information)3 1053 2 3896 3528 t
+(these parameters.)1 692 1 900 3648 t
+9 B f
+(SUNWfiles)690 3816 w
+10 R f
+(This module stores it's data in)5 1233 1 900 3936 t
+10 B f
+(ASCII)2163 3936 w
+10 R f
+( is)1 98(files. Although the format)3 1053 2 2471 3936 t
+10 B f
+(ASCII)3653 3936 w
+10 R f
+(, hand\255editing is discouraged. It)4 1289 1 3931 3936 t
+(is useful for)2 489 1 900 4056 t
+10 B f
+(DHCP)1420 4056 w
+10 R f
+( hundred to a couple thousand of clients and)8 1804(service environments that support several)4 1682 2 1734 4056 t
+(lease times are a few hours or more.)7 1440 1 900 4176 t
+(This module's data may be shared between)6 1724 1 900 4344 t
+10 B f
+(DHCP)2649 4344 w
+10 R f
+(servers through the use of)4 1031 1 2957 4344 t
+10 B f
+(NFS)4013 4344 w
+10 R f
+(.)4202 4344 w
+9 B f
+(SUNWbinfiles)690 4512 w
+10 R f
+(This module stores it's data in binary files. It is useful for)11 2430 1 900 4632 t
+10 B f
+(DHCP)3367 4632 w
+10 R f
+(service environments with many net\255)4 1533 1 3687 4632 t
+( in performance)2 633(works and many thousands of clients. This module provides an order of magnitude increase)13 3687 2 900 4752 t
+(and capacity over SUNWfiles.)3 1219 1 900 4872 t
+(This module's data cannot be shared between)6 1818 1 900 5040 t
+10 B f
+(DHCP)2743 5040 w
+10 R f
+(servers.)3051 5040 w
+9 B f
+(SUNWnisplus)690 5208 w
+10 R f
+( its data within a)4 721(This module stores)2 789 2 900 5328 t
+10 B f
+(NIS+)2450 5328 w
+10 R f
+(domain. It is useful in environments where)6 1802 1 2714 5328 t
+10 B f
+(NIS+)4556 5328 w
+10 R f
+(is already)1 400 1 4820 5328 t
+(deployed and facilitates sharing among multiple)5 1953 1 900 5448 t
+10 B f
+(DHCP)2884 5448 w
+10 R f
+(servers. This module suports several hundred to a)7 2022 1 3198 5448 t
+(few thousand clients with lease times of several hours or more.)10 2515 1 900 5568 t
+(The)900 5736 w
+10 B f
+(NIS+)1084 5736 w
+10 R f
+( a machine with ample)4 924(service should be hosted on)4 1120 2 1337 5736 t
+10 B f
+(CPU)3411 5736 w
+10 R f
+(power, memory, and disk space, as the)6 1574 1 3646 5736 t
+(load on)1 298 1 900 5856 t
+10 B f
+(NIS+)1224 5856 w
+10 R f
+( used to store)3 530(is significant when it is)4 932 2 1474 5856 t
+10 B f
+(DHCP)2961 5856 w
+10 R f
+(data. Periodic checkpointing of the)4 1395 1 3269 5856 t
+10 B f
+(NIS+)4689 5856 w
+10 R f
+(service)4938 5856 w
+(is necessary in order to roll the transaction logs and keep the)11 2547 1 900 5976 t
+10 B f
+(NIS+)3484 5976 w
+10 R f
+( at its highest effi\255)4 779(service operating)1 696 2 3745 5976 t
+(ciency. See)1 454 1 900 6096 t
+10 B f
+(nisping)1379 6096 w
+10 R f
+(\(1M\) and)1 374 1 1692 6096 t
+10 B f
+(crontab)2091 6096 w
+10 R f
+(\(1\) for more information.)3 1009 1 2424 6096 t
+9 B f
+(SEE ALSO)1 438 1 540 6264 t
+10 B f
+(crontab)900 6384 w
+10 R f
+(\(1\),)1233 6384 w
+10 B f
+(dhcpconfig)1400 6384 w
+10 R f
+(\(1M\),)1873 6384 w
+10 B f
+(dhcpmgr)2129 6384 w
+10 R f
+(\(1M\),)2518 6384 w
+10 B f
+(dhtadm)2774 6384 w
+10 R f
+(\(1M\),)3108 6384 w
+10 B f
+(nisping)3365 6384 w
+10 R f
+(\(1M\),)3678 6384 w
+10 B f
+(pntadm)3935 6384 w
+10 R f
+(\(1M\),)4269 6384 w
+10 B f
+(dhcpsvc.conf)4526 6384 w
+10 R f
+(\(4\),)5079 6384 w
+10 B f
+(dhcp)900 6504 w
+10 R f
+(\(5\))1112 6504 w
+10 I f
+(Solaris DHCP Service Developer's Guide)4 1680 1 900 6672 t
+10 R f
+( 8, 2018)2 325( March)1 1254( Environments, and Macros)3 1104( Standards,)1 1728(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 1
+%%DocumentFonts: Times-Roman Times-Bold Times-Italic Times-Roman Symbol

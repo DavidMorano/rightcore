@@ -36,8 +36,8 @@
 	Arguments:
 
 	pr		program root
-	cbuf	buffer to receive the requested cluster name
-	sbuf	buffer to receive the requested system name
+	cbuf		buffer to receive the requested cluster name
+	sbuf		buffer to receive the requested system name
 	kp		pointer to VECSTR to hold resulting key-value pairs
 	nodename	nodename used to find associated cluster
 
@@ -162,11 +162,13 @@ int getnodeinfo(cchar *pr,char *cbuf,char *sbuf,vecstr *klp,cchar *nodename)
 	                if (cbuf != NULL) {
 	                    rs = sncpy1(cbuf,nlen,ste.clu) ;
 			    len = rs ;
-	                } else
+	                } else {
 	                    len = strlen(ste.clu) ;
+			}
 
-	                if ((rs >= 0) && (sbuf != NULL))
+	                if ((rs >= 0) && (sbuf != NULL)) {
 	                    rs = sncpy1(sbuf,nlen,ste.sys) ;
+			}
 
 	                if ((rs >= 0) && (klp != NULL)) {
 	                    int		i ;

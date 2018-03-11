@@ -2,7 +2,7 @@
 
 T= deliver
 
-ALL= $(T) $(T).ksh
+ALL= $(T)
 
 SRCROOT= $(PCS)
 

@@ -123,6 +123,8 @@ ASTPCSINCDIRS= -I$(AINCDIR) -I$(PCS)/include -I$(INCDIR)
 ASTMFSINCDIRS= -I$(AINCDIR) -I$(PCS)/include -I$(INCDIR) 
 
 
+MAINCPPFLAGS= -DKSHBUILTIN=1 $(DEFS) $(INCDIRS)
+
 CPPFLAGS= $(DEFS) $(INCDIRS)
 
 # AST 
@@ -1009,7 +1011,7 @@ b_testsfio2.o:		b_testsfio2.c b_testsfio2.h $(INCS)
 # normal library compile begin
 
 main.o:			main.c maininfo.h kshlib.h sesmsg.h msgdata.h
-	$(CC) -c $(CCOPTS_GCCOPT) $(CCOPTS_GCCALL) $(CPPFLAGS) $<
+	$(CC) -c $(ASTCFLAGS) $(MAINCPPFLAGS) $<
 
 maininfo.o:		maininfo.c maininfo.h kshlib.h
 	$(CC) -c $(CCOPTS_GCCOPT) $(CCOPTS_GCCALL) $(CPPFLAGS) $<
@@ -1378,11 +1380,11 @@ txtindexmk.o:		txtindexmk.c txtindexmk.h txtindexmks.h
 
 bibleqs.o:		bibleqs.c bibleqs.h
 
-txtindexes.o:		txtindexes.c txtindexes.h txtindexfu.h
+txtindexes.o:		txtindexes.c txtindexes.h txtindexhdr.h
 
-txtindexmks.o:		txtindexmks.c txtindexmks.h txtindexfu.h
+txtindexmks.o:		txtindexmks.c txtindexmks.h txtindexhdr.h
 
-txtindexfu.o:		txtindexfu.c txtindexfu.h
+txtindexhdr.o:		txtindexhdr.c txtindexhdr.h
 
 searchkeys.o:		searchkeys.c searchkeys.h
 

@@ -1,10 +1,10 @@
-/* txtindexfu */
+/* txtindexhdr */
 
 
 /* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
 
-#ifndef	TXTINDEXFU_INCLUDE
-#define	TXTINDEXFU_INCLUDE	1
+#ifndef	TXTINDEXHDR_INCLUDE
+#define	TXTINDEXHDR_INCLUDE	1
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -14,14 +14,14 @@
 #include	<localmisc.h>
 
 
-#define	TXTINDEXFU		struct txtindexfu
-#define	TXTINDEXFU_MAGICSIZE	16
-#define	TXTINDEXFU_MAGICSTR	"MKINVHASH"
-#define	TXTINDEXFU_MAGICLEN	sizeof(TXTINDEXFU_MAGICSTR)
-#define	TXTINDEXFU_VERSION	0
+#define	TXTINDEXHDR		struct txtindexhdr
+#define	TXTINDEXHDR_MAGICSIZE	16
+#define	TXTINDEXHDR_MAGICSTR	"MKINVHASH"
+#define	TXTINDEXHDR_MAGICLEN	sizeof(TXTINDEXHDR_MAGICSTR)
+#define	TXTINDEXHDR_VERSION	0
 
 
-struct txtindexfu {
+struct txtindexhdr {
 	uint		hfsize ;	/* hash-file size */
 	uint		tfsize ;	/* tag-file size */
 	uint		ersize ;	/* eigen-record table size */
@@ -51,12 +51,12 @@ struct txtindexfu {
 extern "C" {
 #endif
 
-extern int txtindexfu(TXTINDEXFU *,int,char *,int) ;
+extern int txtindexhdr(TXTINDEXHDR *,int,char *,int) ;
 
 #ifdef	__cplusplus
 }
 #endif
 
-#endif /* TXTINDEXFU_INCLUDE */
+#endif /* TXTINDEXHDR_INCLUDE */
 
 

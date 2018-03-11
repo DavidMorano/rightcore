@@ -776,7 +776,7 @@ static int txtindexes_dbproc(TXTINDEXES *op,time_t dt)
 {
 	TXTINDEXES_FI	*fip = &op->hf ;
 	TXTINDEXES_MI	*mip = &op->mi ;
-	TXTINDEXFU	*hip ;
+	TXTINDEXHDR	*hip ;
 	int		rs ;
 	int		c = 0 ;
 
@@ -869,7 +869,7 @@ static int txtindexes_mkhashkeys(TXTINDEXES *op,vecstr *clp,cchar **klp)
 
 static int txtindexes_mktaglist(TXTINDEXES *op,uint **tlpp,vecstr *hlp)
 {
-	TXTINDEXFU	*hip = &op->ifi ;
+	TXTINDEXHDR	*hip = &op->ifi ;
 	int		rs ;
 	int		tagcount = 0 ;
 
@@ -1143,7 +1143,7 @@ int txtindexes_oureigen(TXTINDEXES *op,cchar *kp,int kl)
 static int txtindexes_hdrverify(TXTINDEXES *op,time_t dt)
 {
 	TXTINDEXES_FI	*fip = &op->hf ;
-	TXTINDEXFU	*hip = &op->ifi ;
+	TXTINDEXHDR	*hip = &op->ifi ;
 	uint		utime = (uint) dt ;
 	int		rs = SR_OK ;
 	int		hfsize, tfsize ;
@@ -1280,7 +1280,7 @@ static int txtindexes_audithash(TXTINDEXES *op,OFFINDEX *oip)
 {
 	TXTINDEXES_FI	*fip = &op->hf ;
 	TXTINDEXES_MI	*mip = &op->mi ;
-	TXTINDEXFU	*hip ;
+	TXTINDEXHDR	*hip ;
 	uint		listoff ;
 	uint		tagoff ;
 	uint		hfsize ;
@@ -1410,7 +1410,7 @@ static int txtindexes_audithash(TXTINDEXES *op,OFFINDEX *oip)
 
 static int txtindexes_auditeigen(TXTINDEXES *op)
 {
-	TXTINDEXFU	*hip ;
+	TXTINDEXHDR	*hip ;
 	TXTINDEXES_MI	*mip ;
 	int		rs = SR_OK ;
 	int		i, si, nhi ;
@@ -1595,7 +1595,7 @@ static int txtindexes_auditeigen(TXTINDEXES *op)
 #if	CF_DEBUGS
 static int txtindexes_printeigens(TXTINDEXES *op)
 {
-	TXTINDEXFU	*hip ;
+	TXTINDEXHDR	*hip ;
 	TXTINDEXES_MI	*mip ;
 	int		rs = SR_OK ;
 	int		i ;

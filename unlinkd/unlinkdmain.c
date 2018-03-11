@@ -155,11 +155,9 @@ static int	(*scheds[])(SUBINFO *) = {
 
 int unlinkd(cchar *fname,int delay)
 {
-	SUBINFO		si, *sip = &si ;
 	struct stat	sb ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		rs1 ;
-	int		i = 0 ;
 
 	if (fname == NULL) return SR_FAULT ;
 
@@ -169,27 +167,19 @@ int unlinkd(cchar *fname,int delay)
 	debugprintf("unlinkd: f=%s d=%d\n",fname,delay) ;
 #endif
 
-	rs1 = u_stat(fname,&sb) ;
-	if (rs1 < 0)
-	    goto ret0 ;
-
-	if ((rs = subinfo_start(sip,fname,delay)) >= 0) {
-
-	for (i = 0 ; scheds[i] != NULL ; i += 1) {
-
-#if	CF_DEBUGS
-	debugprintf("unlinkd: try=%u\n",i) ;
-#endif
-
-	    rs = (*scheds[i])(sip) ;
-	    if (rs >= 0) break ;
-
-	} /* end for */
-
-	subinfo_finish(sip) ;
-	} /* end if (subinfo) */
-
-ret0:
+	if ((rs = u_stat(fname,&sb)) >= 0) {
+	    SUBINFO	si, *sip = &si ;
+	    if ((rs = subinfo_start(sip,fname,delay)) >= 0) {
+		int	i ;
+		for (i = 0 ; scheds[i] != NULL ; i += 1) {
+	    	    rs = (*scheds[i])(sip) ;
+	    	    if (rs >= 0) break ;
+	        } /* end for */
+	        subinfo_finish(sip) ;
+	    } /* end if (subinfo) */
+	} else if (isNotPresent(rs)) {
+	    rs = SR_OK ;
+	} /* end if (uc_stat) */
 
 #if	CF_DEBUGS
 	debugprintf("unlinkd: ret rs=%d\n",rs) ;
@@ -232,30 +222,22 @@ static int subinfo_finish(SUBINFO *sip)
 
 static int subinfo_fork(SUBINFO *sip)
 {
-	struct stat	sb ;
-	pid_t		pid ;
-	time_t		ti_expire ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		rs1 ;
-	int		i ;
 
-	rs = u_fork() ;
-	pid = rs ;
-	if (rs < 0)
-	    goto ret0 ;
-
-	if (pid == 0) { /* child */
+	if ((rs = u_fork()) == 0) {
+	    struct stat	sb ;
+	    time_t	ti_expire ;
+	    pid_t	pid = rs ;
+	    int		i ;
 
 #if	CF_SETRUID
 	{
-	    uid_t	uid, euid ;
-
-	    uid = getuid() ;
-
-	    euid = geteuid() ;
-
-	    if (euid != uid)
+	    uid_t	uid = getuid() ;
+	    uid_t	euid = geteuid() ;
+	    if (euid != uid) {
 	        u_setreuid(euid,-1) ;
+	    }
 	}
 #endif /* CF_SETRUID */
 
@@ -284,10 +266,8 @@ static int subinfo_fork(SUBINFO *sip)
 	        u_unlink(sip->arg.fname) ;
 
 	    uc_exit(EX_OK) ;
-
 	} /* end if (we got a child off) */
 
-ret0:
 	return rs ;
 }
 /* end subroutine (subinfo_fork) */
@@ -308,28 +288,28 @@ static int subinfo_rmer(SUBINFO *sip)
 	struct rmermsg_fname	m0 ;
 	pid_t		pid ;
 
-	int	rs = SR_OK ;
-	int	rs1 ;
-	int	fd ;
-	int	sv ;
-	int	m0_size = sizeof(struct rmermsg_fname) ;
-	int	ipclen ;
-	int	len ;
-	int	cs = 0 ;
-	int	opt = 0 ;
-	int	i ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		fd ;
+	int		sv ;
+	int		m0_size = sizeof(struct rmermsg_fname) ;
+	int		ipclen ;
+	int		len ;
+	int		cs = 0 ;
+	int		opt = 0 ;
+	int		i ;
 
 #if	CF_DEBUGS
-	int	fd_err ;
+	int		fd_err ;
 #endif
 
 	const char	*pn = PROG_RMER ;
 	const char	*av[10 + 1] ;
 
-	char	dname[MAXHOSTNAMELEN + 1] ;
-	char	pr[MAXPATHLEN + 1] ;
-	char	progfname[MAXPATHLEN + 1] ;
-	char	*ipcbuf = NULL ;
+	char		dname[MAXHOSTNAMELEN + 1] ;
+	char		pr[MAXPATHLEN + 1] ;
+	char		progfname[MAXPATHLEN + 1] ;
+	char		*ipcbuf = NULL ;
 
 
 	rs1 = getnodedomain(NULL,dname) ;
@@ -418,12 +398,13 @@ static int subinfo_rmer(SUBINFO *sip)
 
 #if	CF_DEBUGS
 	{
-	vecstr	envs ;
-	int	i ;
+	vecstr		envs ;
+	int		i ;
 	const char	**ev ;
 	vecstr_start(&envs,10,VECSTR_OCOMPACT) ;
-	for (i = 0 ; environ[i] != NULL ; i += 1)
+	for (i = 0 ; environ[i] != NULL ; i += 1) {
 		vecstr_add(&envs,environ[i],-1) ;
+	}
 	vecstr_add(&envs,"RMER_DEBUGFILE=rmer.d",-1) ;
 	vecstr_getvec(&envs,&ev) ;
 	rs = spawnproc(&pg,progfname,av,ev) ;
@@ -470,8 +451,7 @@ static int subinfo_rmer(SUBINFO *sip)
 		break ;
 
 	    if ((rs1 < 0) && (rs1 != SR_INTR)) {
-		if (rs >= 0)
-		    rs = rs1 ;
+		if (rs >= 0) rs = rs1 ;
 		break ;
 	    }
 

@@ -9,6 +9,7 @@
 #define	CF_LINECHECK	0		/* |proglinecheck()| */
 #define	CF_DELREMOTE	0		/* |delremote()| */
 #define	CF_ISUS		0		/* |isus()| */
+#define	CF_REPLY	0		/* |cmd_reply()| */
 
 
 /* revision history:
@@ -124,10 +125,14 @@ extern int	getfiledirs(const char *,const char *,const char *,vecstr *) ;
 extern int	bufprintf(char *,int,const char *,...) ;
 
 extern int	cmd_save() ;
-extern int	cmd_reply() ;
 extern int	cmd_printout() ;
 extern int	cmd_follow() ;
 extern int	cmd_output() ;
+
+#if	CF_REPLY
+extern int	cmd_reply() ;
+#endif
+
 extern int	bbcpy(char *,const char *) ;
 extern int	hmatch(cchar *,cchar *) ;
 extern int	proglinecheck(struct proginfo *) ;
@@ -1093,10 +1098,12 @@ prompt:
 
 /* reply */
 
+#if	CF_REPLY
 	    if ((strcmp(cp,"rep") == 0) || (strcmp(cp,"reply") == 0)) {
 	        cmd_reply(pip,ap,ngdir,af) ;
 	        goto prompt ;
 	    }
+#endif
 
 /* review */
 

@@ -1,0 +1,907 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 5 \))3 126( dhcp)1 1712( \))1 37( Mar 2001)2 396( 13)1 97( \()1 68( 5.8)1 136( SunOS)1 1792(dhcp \( 5 \))3 316 9 540 480 t
+(NAME)540 960 w
+10 R f
+(dhcp)900 1080 w
+10 S1 f
+(\261)1119 1080 w
+10 R f
+(Dynamic Host Configuration Protocol)3 1530 1 1209 1080 t
+9 B f
+(DESCRIPTION)540 1248 w
+10 R f
+(Dynamic Host Configuration Protocol \()4 1588 1 900 1368 t
+10 B f
+(DHCP)2488 1368 w
+10 R f
+(\) enables host systems in a)5 1063 1 2771 1368 t
+10 B f
+(TCP/IP)3859 1368 w
+10 R f
+( be configured)2 578(network to)1 430 2 4212 1368 t
+(automatically for the network as they boot.)6 1735 1 900 1488 t
+10 B f
+(DHCP)2663 1488 w
+10 R f
+( client/server mechanism: servers store configura\255)5 2002(uses a)1 244 2 2974 1488 t
+( can)1 182(tion information for clients, and provide that information upon a client's request. The information)13 4138 2 900 1608 t
+(include the client's)2 760 1 900 1728 t
+10 B f
+(IP)1685 1728 w
+10 R f
+(address and information about network services available to the client.)9 2817 1 1810 1728 t
+(This manual page provides a brief summary of the Solaris)9 2316 1 900 1896 t
+10 B f
+(DHCP)3241 1896 w
+10 R f
+(implementation.)3549 1896 w
+9 B f
+(Solaris DHCP Client)2 801 1 690 2064 t
+10 R f
+( implemented as background daemon,)4 1545(The Solaris DHCP client is)4 1113 2 900 2184 t
+10 B f
+(dhcpagent)3590 2184 w
+10 R f
+(\(1M\). This daemon is started)4 1185 1 4035 2184 t
+( exists at least one)4 767(automatically during bootup if there)4 1487 2 900 2304 t
+10 B f
+(dhcp.)3189 2304 w
+10 I f
+(interface)3426 2304 w
+10 R f
+(file in)1 246 1 3816 2304 t
+10 B f
+(/etc)4097 2304 w
+10 R f
+(. Only interfaces with a)4 974 1 4246 2304 t
+(corresponding)900 2424 w
+10 B f
+(/etc/dhcp.)1526 2424 w
+10 I f
+(interface)1940 2424 w
+10 R f
+( configured during boot. Network parameters)5 1962(file are automatically)2 908 2 2350 2424 t
+( the daemon)2 496(needed for system configuration during bootup are extracted from the information recieved by)12 3824 2 900 2544 t
+(through the use of the)4 903 1 900 2664 t
+10 B f
+(dhcpinfo)1836 2664 w
+10 R f
+( by changing)2 534(\(1\) command. The daemon's default behavior can be altered)8 2471 2 2215 2664 t
+( the)1 168(the tunables in)2 627 2 900 2784 t
+10 B f
+(/etc/default/dhcpagent)1741 2784 w
+10 R f
+(file. The daemon is controlled by the)6 1599 1 2737 2784 t
+10 B f
+(ifconfig)4382 2784 w
+10 R f
+(\(1M\) utility.)1 516 1 4704 2784 t
+(Check the status of the daemon using the)7 1640 1 900 2904 t
+10 B f
+(netstat)2565 2904 w
+10 R f
+(\(1M\) and)1 374 1 2853 2904 t
+10 B f
+(ifconfig)3252 2904 w
+10 R f
+(\(1M\) commands.)1 688 1 3574 2904 t
+9 B f
+(Solaris DHCP Server)2 821 1 690 3072 t
+10 R f
+(The Solaris)1 478 1 900 3192 t
+10 B f
+(DHCP)1423 3192 w
+10 R f
+( implemented as a background daemon,)5 1691(server is)1 355 2 1751 3192 t
+10 B f
+(in.dhcpd)3843 3192 w
+10 R f
+(\(1M\). This daemon can)3 1000 1 4220 3192 t
+(deliver network configuration information to either)5 2074 1 900 3312 t
+10 B f
+(BOOTP)3005 3312 w
+10 R f
+(or)3387 3312 w
+10 B f
+(DHCP)3501 3312 w
+10 R f
+( Solaris)1 308(clients. The)1 472 2 3815 3312 t
+10 B f
+(DHCP)4625 3312 w
+10 R f
+(service)4938 3312 w
+(can be managed using the)4 1215 1 900 3432 t
+10 B f
+(dhcpmgr)2186 3432 w
+10 R f
+(\(1M\))2575 3432 w
+10 B f
+(GUI)2851 3432 w
+10 R f
+(or the command line utilities)4 1334 1 3111 3432 t
+10 B f
+(dhcpconfig)4517 3432 w
+10 R f
+(\(1M\),)4990 3432 w
+10 B f
+(dhtadm)900 3552 w
+10 R f
+(\(1M\), and)1 399 1 1234 3552 t
+10 B f
+(pntadm)1658 3552 w
+10 R f
+(\(1M\).)1992 3552 w
+9 B f
+(DHCP Configuration Tables)2 1101 1 690 3720 t
+10 R f
+(The Solaris)1 458 1 900 3840 t
+10 B f
+(DHCP)1383 3840 w
+10 R f
+(server stores client configuration information in the following two types of tables:)11 3277 1 1691 3840 t
+10 B f
+(dhcptab)1260 4008 w
+10 R f
+(tables)1636 4008 w
+( used to construct a package of confi\255)7 1500(Contain macros and options \(also known as symbols\),)7 2160 2 1560 4128 t
+(guration information to send to each)5 1481 1 1560 4248 t
+10 B f
+(DHCP)3072 4248 w
+10 R f
+(client. There exists only one)4 1153 1 3386 4248 t
+10 B f
+(dhcptab)4570 4248 w
+10 R f
+(for the)1 268 1 4952 4248 t
+10 B f
+(DHCP)1560 4368 w
+10 R f
+(service. The)1 490 1 1871 4368 t
+10 B f
+(dhcptab)2389 4368 w
+10 R f
+( using the)2 397(\(4\) can be viewed and modified)5 1281 2 2740 4368 t
+10 B f
+(dhtadm)4447 4368 w
+10 R f
+(\(1M\) com\255)1 439 1 4781 4368 t
+(mand or)1 340 1 1560 4488 t
+10 B f
+(dhcpmgr)1935 4488 w
+10 R f
+( utility. See)2 477(\(1M\) graphical)1 611 2 2324 4488 t
+10 B f
+(dhcptab)3446 4488 w
+10 R f
+(\(4\) for more information about the)5 1423 1 3797 4488 t
+(syntax of)1 382 1 1560 4608 t
+10 B f
+(dhcptab)1980 4608 w
+10 R f
+(records. See)1 500 1 2369 4608 t
+10 B f
+(dhcp)2907 4608 w
+10 S f
+(_)3119 4608 w
+10 B f
+(inittab)3169 4608 w
+10 R f
+( about the)2 422(\(4\) for more information)3 1023 2 3453 4608 t
+10 B f
+(DHCP)4937 4608 w
+10 R f
+(options and symbols.)2 848 1 1560 4728 t
+10 B f
+(DHCP)1260 4896 w
+10 R f
+(network tables)1 585 1 1568 4896 t
+10 B f
+(DHCP)1560 5016 w
+10 R f
+(network tables, which contain mappings of client)6 1991 1 1872 5016 t
+10 B f
+(ID)3892 5016 w
+10 R f
+(s to)1 146 1 4003 5016 t
+10 B f
+(IP)4178 5016 w
+10 R f
+(addresses and parame\255)2 912 1 4308 5016 t
+( addresses. Network tables are named with the)7 1893(ters associated with those)3 1039 2 1560 5136 t
+10 B f
+(IP)4523 5136 w
+10 R f
+(address of the)2 566 1 4654 5136 t
+( the)1 177(network, and can be created, viewed, and modified using)8 2507 2 1560 5256 t
+10 B f
+(pntadm)4299 5256 w
+10 R f
+(command or)1 532 1 4688 5256 t
+10 B f
+(dhcpmgr)1560 5376 w
+10 R f
+( See)1 190(graphical utility.)1 683 2 1996 5376 t
+10 B f
+(dhcp)2915 5376 w
+10 S f
+(_)3127 5376 w
+10 B f
+(network)3177 5376 w
+10 R f
+(\(4\) for more information about network)5 1688 1 3532 5376 t
+(tables.)1560 5496 w
+9 B f
+(SEE ALSO)1 438 1 540 5784 t
+10 B f
+(dhcpinfo)900 5904 w
+10 R f
+(\(1\),)1279 5904 w
+10 B f
+(dhcpagent)1557 5904 w
+10 R f
+(\(1M\),)2002 5904 w
+10 B f
+(dhcpconfig)2369 5904 w
+10 R f
+(\(1M\),)2842 5904 w
+10 B f
+(dhcpmgr)3209 5904 w
+10 R f
+(\(1M\),)3598 5904 w
+10 B f
+(dhtadm)3966 5904 w
+10 R f
+(\(1M\),)4300 5904 w
+10 B f
+(ifconfig)4668 5904 w
+10 R f
+(\(1M\),)4990 5904 w
+10 B f
+(in.dhcpd)900 6024 w
+10 R f
+(\(1M\),)1277 6024 w
+10 B f
+(netstat)1545 6024 w
+10 R f
+(\(1M\),)1833 6024 w
+10 B f
+(pntadm)2100 6024 w
+10 R f
+(\(1M\),)2434 6024 w
+10 B f
+(syslog)2701 6024 w
+10 R f
+(\(3C\),)2957 6024 w
+10 B f
+(dhcp)3202 6024 w
+10 S f
+(_)3414 6024 w
+10 B f
+(network)3464 6024 w
+10 R f
+(\(4\),)3819 6024 w
+10 B f
+(dhcptab)3997 6024 w
+10 R f
+(\(4\),)4348 6024 w
+10 B f
+(dhcpsvc.conf)4526 6024 w
+10 R f
+(\(4\),)5079 6024 w
+10 B f
+(dhcp)900 6144 w
+10 S f
+(_)1112 6144 w
+10 B f
+(inittab)1162 6144 w
+10 R f
+(\(4\),)1446 6144 w
+10 B f
+(dhcp)1612 6144 w
+10 S f
+(_)1824 6144 w
+10 B f
+(modules)1874 6144 w
+10 R f
+(\(5\))2230 6144 w
+10 I f
+(Solaris DHCP Service Developer's Guide)4 1680 1 900 6312 t
+10 R f
+(Alexander, S., and R. Droms,)4 1199 1 900 6480 t
+10 I f
+(DHCP Options and BOOTP Vendor Extensions,)5 1963 1 2129 6480 t
+10 R f
+( Silicon Graph\255)2 628(RFC 2132,)1 445 2 4147 6480 t
+(ics, Inc., Bucknell University, March 1997.)5 1731 1 900 6600 t
+(Droms, R.,)1 439 1 900 6768 t
+10 I f
+(Interoperation Between DHCP and BOOTP,)4 1790 1 1364 6768 t
+10 R f
+(, RFC 1534, Bucknell University, October 1993.)6 1944 1 3154 6768 t
+(Droms, R.,)1 439 1 900 6936 t
+10 I f
+( Protocol,)1 425(Dynamic Host Configuration)2 1167 2 1364 6936 t
+10 R f
+(RFC 2131, Bucknell University, March 1997.)5 1833 1 2981 6936 t
+(Wimer, W.,)1 473 1 900 7104 t
+10 I f
+(Clarifications and Extensions for the Bootstrap Protocol,)6 2311 1 1400 7104 t
+10 R f
+(RFC 1542, Carnegie Mellon Univer\255)4 1482 1 3738 7104 t
+(sity, October 1993.)2 766 1 900 7224 t
+( 8, 2018)2 325( March)1 1254( Environments, and Macros)3 1104( Standards,)1 1728(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 1
+%%DocumentFonts: Times-Roman Times-Bold Times-Italic Times-Roman Symbol

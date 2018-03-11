@@ -232,6 +232,7 @@ int getdomainname(char *dbuf,int dlen,cchar *nodename)
 {
 	TRY		ti ;
 	int		rs ;
+	int		rs1 ;
 
 	if (dbuf == NULL) return SR_FAULT ;
 
@@ -255,7 +256,8 @@ int getdomainname(char *dbuf,int dlen,cchar *nodename)
 	    if ((rs >= 0) && (dbuf[0] != '\0'))
 	        rs = rmwhitedot(dbuf,rs) ;
 
-	    try_finish(&ti) ;
+	    rs1 = try_finish(&ti) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (try) */
 
 #if	CF_DEBUGS
@@ -269,11 +271,7 @@ int getdomainname(char *dbuf,int dlen,cchar *nodename)
 /* local subroutines */
 
 
-static int try_start(tip,dbuf,dlen,nodename)
-TRY		*tip ;
-char		*dbuf ;
-int		dlen ;
-const char	nodename[] ;
+static int try_start(TRY *tip,char *dbuf,int dlen,cchar *nodename)
 {
 	int		rs = SR_OK ;
 
@@ -290,8 +288,7 @@ const char	nodename[] ;
 /* end subroutine (try_start) */
 
 
-static int try_nodename(tip)
-TRY		*tip ;
+static int try_nodename(TRY *tip)
 {
 	int		rs = SR_OK ;
 
@@ -314,11 +311,10 @@ TRY		*tip ;
 /* end subroutine (try_nodename) */
 
 
-static int try_vardomain(tip)
-TRY		*tip ;
+static int try_vardomain(TRY *tip)
 {
 	int		rs = SR_OK ;
-	const char	*ep ;
+	cchar		*ep ;
 
 	if ((ep = getenv(VARDOMAIN)) != NULL) {
 	    int		 cl ;
@@ -334,11 +330,10 @@ TRY		*tip ;
 /* end subroutine (try_vardomain) */
 
 
-static int try_varlocaldomain(tip)
-TRY		*tip ;
+static int try_varlocaldomain(TRY *tip)
 {
 	int		rs = SR_OK ;
-	const char	*ep ;
+	cchar		*ep ;
 
 	if ((ep = getenv(VARLOCALDOMAIN)) != NULL) {
 	    int		cl = -1 ;
@@ -370,15 +365,14 @@ TRY		*tip ;
 /* end subroutine (try_varlocaldomain) */
 
 
-static int try_nodeuser(tip)
-TRY		*tip ;
+static int try_nodeuser(TRY *tip)
 {
 	int		rs = SR_OK ;
 
 	if (tip->nodename != NULL) {
 	    int		cl ;
-	    const char	*cp ;
-	    const char	*nn = tip->nodename ;
+	    cchar	*cp ;
+	    cchar	*nn = tip->nodename ;
 	    if ((cl = sfdomain(nn,-1,&cp)) > 0) {
 	        if (cl <= MAXHOSTNAMELEN) {
 	            rs = snwcpy(tip->dbuf,tip->dlen,cp,cl) ;
@@ -391,8 +385,7 @@ TRY		*tip ;
 /* end subroutine (try_nodeuser) */
 
 
-static int try_gethostuser(tip)
-TRY		*tip ;
+static int try_gethostuser(TRY *tip)
 {
 	int		rs = SR_OK ;
 
@@ -405,8 +398,7 @@ TRY		*tip ;
 /* end subroutine (try_gethostuser) */
 
 
-static int try_nodesys(tip)
-TRY		*tip ;
+static int try_nodesys(TRY *tip)
 {
 	int		rs ;
 
@@ -417,9 +409,9 @@ TRY		*tip ;
 	    debugprintf("try_nodesys: nbuf=%s\n",nbuf) ;
 #endif
 	    if ((rs = uc_gethostname(nbuf,nlen)) > 0) {
-	        int		nl = rs ;
-	        int		cl ;
-	        const char	*cp ;
+	        int	nl = rs ;
+	        int	cl ;
+	        cchar	*cp ;
 	        rs = 0 ;
 	        if ((cl = sfdomain(nbuf,nl,&cp)) > 0) {
 	            if (cl <= MAXHOSTNAMELEN)
@@ -444,8 +436,7 @@ TRY		*tip ;
 /* end subroutine (try_nodesys) */
 
 
-static int try_gethostsys(tip)
-TRY		*tip ;
+static int try_gethostsys(TRY *tip)
 {
 	int		rs = SR_OK ;
 
@@ -458,8 +449,7 @@ TRY		*tip ;
 /* end subroutine (try_gethostsys) */
 
 
-static int try_resolve(tip)
-TRY		*tip ;
+static int try_resolve(TRY *tip)
 {
 	int		rs = SR_OK ;
 	int		i ;
@@ -474,25 +464,24 @@ TRY		*tip ;
 /* end subroutine (try_resolve) */
 
 
-static int try_resolvefile(tip,fname)
-TRY		*tip ;
-const char	fname[] ;
+static int try_resolvefile(TRY *tip,cchar *fname)
 {
 	FILEBUF		b ;
 	const int	to = TO_READ ;
 	int		rs ;
+	int		rs1 ;
 
 	if ((rs = u_open(fname,O_RDONLY,0666)) >= 0) {
-	    int	fd = rs ;
-	    int	f_found = FALSE ;
+	    const int	fd = rs ;
+	    int		f_found = FALSE ;
 
 	    if ((rs = filebuf_start(&b,fd,0L,FILEBUFLEN,0)) >= 0) {
 		const int	llen = LINEBUFLEN ;
 		int		len ;
 		int		sl ;
 		int		cl = 0 ;
-		const char	*tp, *sp ;
-		const char	*cp = NULL ;
+		cchar		*tp, *sp ;
+		cchar		*cp = NULL ;
 		char		lbuf[LINEBUFLEN + 1] ;
 
 	        while ((rs = filebuf_readline(&b,lbuf,llen,to)) > 0) {
@@ -536,12 +525,15 @@ const char	fname[] ;
 	        	rs = snwcpy(tip->dbuf,tip->dlen,cp,cl) ;
 		}
 
-	        filebuf_finish(&b) ;
+	        rs1 = filebuf_finish(&b) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (filebuf) */
 
-	    u_close(fd) ;
-	} else if (isNotPresent(rs))
+	    rs1 = u_close(fd) ;
+	    if (rs >= 0) rs = rs1 ;
+	} else if (isNotPresent(rs)) {
 	    rs = SR_OK ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("try_resolvefile: ret rs=%d\n",rs) ;
@@ -552,11 +544,10 @@ const char	fname[] ;
 /* end subroutine (try_resolvefile) */
 
 
-static int try_guess(tip)
-TRY		*tip ;
+static int try_guess(TRY *tip)
 {
 	int		rs = SR_OK ;
-	const char	*nn = tip->nodename ;
+	cchar		*nn = tip->nodename ;
 
 	if (nn == NULL) {
 	    rs = try_nodename(tip) ;
@@ -569,7 +560,7 @@ TRY		*tip ;
 	    int		m ;
 	    int		m_max = 0 ;
 	    int		gnl ;
-	    const char	*gnp ;
+	    cchar	*gnp ;
 	    rs = 0 ;
 	    for (i = 0 ; ga[i].name != NULL ; i += 1) {
 	        gnp = ga[i].name ;
@@ -590,8 +581,7 @@ TRY		*tip ;
 /* end subroutine (try_guess) */
 
 
-static int try_finish(tip)
-TRY		*tip ;
+static int try_finish(TRY *tip)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -650,9 +640,10 @@ static int try_bufhostname(TRY *tip)
 /* end subroutine (try_bufhostname) */
 
 
-static int try_hashostdomain(TRY *tip,const char *nn)
+static int try_hashostdomain(TRY *tip,cchar *nn)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (nn != NULL) {
 	    struct hostent	he, *hep = &he ;
@@ -693,7 +684,8 @@ static int try_hashostdomain(TRY *tip,const char *nn)
 	        } else if (isNotPresent(rs)) {
 	            rs = SR_OK ;
 	        }
-		uc_free(hebuf) ;
+		rs1 = uc_free(hebuf) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (m-a) */
 	} /* end if (nodename available) */
 
@@ -705,23 +697,22 @@ static int try_hashostdomain(TRY *tip,const char *nn)
 static int sfdomain(const char *sp,int sl,const char **rpp)
 {
 	int		cl = -1 ;
-	const char	*tp ;
-	const char	*cp ;
+	cchar		*tp ;
+	cchar		*cp ;
 	if ((tp = strnchr(sp,sl,'.')) != NULL) {
 	    cp = (tp + 1) ;
 	    if (cp[0] != '\0') cl = strlen(cp) ;
 	}
-	if (rpp != NULL)
+	if (rpp != NULL) {
 	    *rpp = (cl >= 0) ? cp : NULL ;
+	}
 	return cl ;
 }
 /* end subroutine (sfdomain) */
 
 
 /* remove trailing whitespace and dots */
-static int rmwhitedot(bp,bl)
-char		*bp ;
-int		bl ;
+static int rmwhitedot(char *bp,int bl)
 {
 
 	if (bl < 0) bl = strlen(bp) ;

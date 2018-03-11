@@ -21,7 +21,7 @@
 #include	<ptm.h>
 #include	<localmisc.h>
 
-#include	"txtindexfu.h"		/* this is the hash-file-header */
+#include	"txtindexhdr.h"		/* this is the hash-file-header */
 
 
 #define	TXTINDEXES_MAGIC	0x88773421
@@ -87,7 +87,7 @@ struct txtindexes_head {
 	const char 	*dbname ;
 	TXTINDEXES_FI	hf, tf ;
 	TXTINDEXES_MI	mi ;
-	TXTINDEXFU	ifi ;		/* index-file (header) information */
+	TXTINDEXHDR	ifi ;		/* index-file (header) information */
 	PTM		m ;
 	time_t		ti_lastcheck ;	/* time last check of file */
 	int		ncursors ;

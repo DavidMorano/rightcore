@@ -212,7 +212,7 @@ OBJ15=
 #OBJ17= txtindexmks.o txtindexes.o 
 #OBJ18= bibleparas.o bpimk.o bpi.o bpihdr.o bvcitekey.o
 #OBJ19= offindex.o strtab.o
-#OBJ20= txtindexfu.o strtabfind.o
+#OBJ20= txtindexhdr.o strtabfind.o
 #OBJ21=
 #OBJ22=
 #OBJ23=
@@ -237,9 +237,9 @@ BQSOBJ1= sfword.o searchkeys.o modload.o
 
 BQSOBJ= $(BQSOBJ0) $(BQSOBJ1)
 
-TISOBJ= txtindexes.o txtindexfu.o offindex.o strtabfind.o
+TISOBJ= txtindexes.o txtindexhdr.o offindex.o strtabfind.o
 
-MKSOBJ= txtindexmks.o txtindexfu.o strtab.o strtabfind.o
+MKSOBJ= txtindexmks.o txtindexhdr.o strtab.o strtabfind.o
 
 
 SRC= $(OBJ:.c=.o)
@@ -434,13 +434,13 @@ txtindex.o:		txtindex.c txtindex.h txtindexes.h
 txtindexmk.o:		txtindexmk.c txtindexmk.h txtindexmks.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
-txtindexes.o:		txtindexes.c txtindexes.h txtindexfu.h
+txtindexes.o:		txtindexes.c txtindexes.h txtindexhdr.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
-txtindexmks.o:		txtindexmks.c txtindexmks.h txtindexfu.h
+txtindexmks.o:		txtindexmks.c txtindexmks.h txtindexhdr.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
-txtindexfu.o:		txtindexfu.c txtindexfu.h
+txtindexhdr.o:		txtindexhdr.c txtindexhdr.h
 	$(CC) -c $(CFLAGS) $(CCOPTS_GCCLIB) $(CPPFLAGS) $<
 
 offindex.o:		offindex.c offindex.h

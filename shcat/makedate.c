@@ -1,2 +1,2 @@
 const char shcat_makedate[] =
-"@(#)shcat                   171229_0224:36_USEST Rightcore Network Services" ;
+"@(#)shcat                   180310_1706:44_USEST Rightcore Network Services" ;

@@ -323,11 +323,11 @@ txtindex.o:		txtindex.c txtindex.h txtindexes.h
 
 txtindexmk.o:		txtindexmk.c txtindexmk.h txtindexmks.h
 
-txtindexes.o:		txtindexes.c txtindexes.h txtindexfu.h
+txtindexes.o:		txtindexes.c txtindexes.h txtindexhdr.h
 
-txtindexmks.o:		txtindexmks.c txtindexmks.h txtindexfu.h
+txtindexmks.o:		txtindexmks.c txtindexmks.h txtindexhdr.h
 
-txtindexfu.o:		txtindexfu.c txtindexfu.h
+txtindexhdr.o:		txtindexhdr.c txtindexhdr.h
 
 offindex.o:		offindex.c offindex.h
 

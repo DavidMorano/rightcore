@@ -1,0 +1,999 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1 \))3 126( dhcpinfo)1 1737( \))1 37( Jul 1999)2 346( 29)1 97( \()1 68( 5.8)1 136( SunOS)1 1667(dhcpinfo \( 1 \))3 466 9 540 480 t
+(NAME)540 960 w
+10 R f
+(dhcpinfo)900 1080 w
+10 S1 f
+(\261)1280 1080 w
+10 R f
+(display values of parameters received through DHCP)6 2129 1 1370 1080 t
+9 B f
+(SYNOPSIS)540 1248 w
+10 B f
+(dhcpinfo)900 1368 w
+10 R f
+([ \255)1 116 1 1304 1368 t
+10 B f
+(c)1420 1368 w
+10 R f
+( \255)1 58(] [)1 116 2 1514 1368 t
+10 B f
+(i)1688 1368 w
+10 I f
+(interface)1741 1368 w
+10 R f
+( \255)1 58(] [)1 116 2 2121 1368 t
+10 B f
+(n)2295 1368 w
+10 I f
+(limit)2376 1368 w
+10 R f
+(])2610 1368 w
+10 I f
+(code)2693 1368 w
+10 B f
+(dhcpinfo)900 1536 w
+10 R f
+([ \255)1 116 1 1304 1536 t
+10 B f
+(c)1420 1536 w
+10 R f
+( \255)1 58(] [)1 116 2 1514 1536 t
+10 B f
+(i)1688 1536 w
+10 I f
+(interface)1741 1536 w
+10 R f
+( \255)1 58(] [)1 116 2 2121 1536 t
+10 B f
+(n)2295 1536 w
+10 I f
+(limit)2376 1536 w
+10 R f
+(])2610 1536 w
+10 I f
+(identifier)2693 1536 w
+9 B f
+(DESCRIPTION)540 1704 w
+10 R f
+(The)900 1824 w
+10 B f
+(dhcpinfo)1086 1824 w
+10 R f
+(utility prints the)2 652 1 1496 1824 t
+10 B f
+(DHCP)2180 1824 w
+10 R f
+(\255supplied value\(s\) of the parameter requested on the command line.)9 2757 1 2463 1824 t
+( either by its numeric code in the)7 1326(The parameter may be identified)4 1314 2 900 1944 t
+10 B f
+(DHCP)3567 1944 w
+10 R f
+(specification, or by its mnemonic)4 1343 1 3877 1944 t
+(identifier, as listed in)3 862 1 900 2064 t
+10 B f
+(dhcp)1793 2064 w
+10 S f
+(_)2005 2064 w
+10 B f
+(inittab)2055 2064 w
+10 R f
+( in command substitutions in)4 1185(\(4\). This command is intended to be used)7 1696 2 2339 2064 t
+( scripts invoked by)3 869(the shell)1 374 2 900 2184 t
+10 B f
+(init)2205 2184 w
+10 R f
+(\(1M\) at system boot. It first contacts the)7 1863 1 2350 2184 t
+10 B f
+(DHCP)4275 2184 w
+10 R f
+(client daemon)1 600 1 4620 2184 t
+10 B f
+(dhcpagent)900 2304 w
+10 R f
+(\(1M\) to verify that)3 761 1 1345 2304 t
+10 B f
+(DHCP)2136 2304 w
+10 R f
+( requested interface. If)3 914(has successfully completed on the)4 1379 2 2449 2304 t
+10 B f
+(DHCP)4773 2304 w
+10 R f
+(has)5087 2304 w
+( interface,)1 403(successfully completed on the requested)4 1632 2 900 2424 t
+10 B f
+(dhcpinfo)2965 2424 w
+10 R f
+(retrieves the values for the requested parame\255)6 1846 1 3374 2424 t
+(ter. Parameter values echoed by)4 1315 1 900 2544 t
+10 B f
+(dhcpinfo)2251 2544 w
+10 R f
+( status. See)2 471(should not be used without checking its exit)7 1835 2 2666 2544 t
+10 I f
+(EXIT)5009 2544 w
+(STATUS)900 2664 w
+10 R f
+(.)1245 2664 w
+(See)900 2832 w
+10 B f
+(dhcp)1079 2832 w
+10 S f
+(_)1291 2832 w
+10 B f
+(inittab)1341 2832 w
+10 R f
+( of mnemonic identifier codes for all)6 1530(\(4\) for the list)3 582 2 1625 2832 t
+10 B f
+(DHCP)3773 2832 w
+10 R f
+(parameters. See)1 642 1 4092 2832 t
+10 I f
+(RFC 2132,)1 450 1 4770 2832 t
+(DHCP Options and BOOTP Vendor Extensions)5 1913 1 900 2952 t
+10 R f
+(for more detail.)2 618 1 2838 2952 t
+9 B f
+(Output Format)1 593 1 690 3120 t
+10 R f
+(The output from)2 671 1 900 3240 t
+10 B f
+(dhcpinfo)1604 3240 w
+10 R f
+(consists of one or more lines of)6 1302 1 2016 3240 t
+10 B f
+(ASCII)3351 3240 w
+10 R f
+(text; the format of the output depends)6 1558 1 3662 3240 t
+( output)1 285(upon the requested parameter. The number of values returned per line and the total number of lines)16 4035 2 900 3360 t
+(for a given parameter are determined by the parameter's)8 2282 1 900 3480 t
+10 I f
+(granularity)3212 3480 w
+10 R f
+(and)3698 3480 w
+10 I f
+(maximum)3872 3480 w
+10 R f
+(values, respectively, as)2 930 1 4290 3480 t
+(defined by)1 424 1 900 3600 t
+10 B f
+(dhcp)1349 3600 w
+10 S f
+(_)1561 3600 w
+10 B f
+(inittab)1611 3600 w
+10 R f
+(\(4\).)1895 3600 w
+( determined by)2 647(The format of each individual value is determined by the data type of the option, as)15 3673 2 900 3768 t
+10 B f
+(dhcp)900 3888 w
+10 S f
+(_)1112 3888 w
+10 B f
+(inittab)1162 3888 w
+10 R f
+(\(4\). The possible data types and their formats are listed below:)10 2493 1 1446 3888 t
+( Format)1 1031(Data Type)1 418 2 900 4128 t
+10 B f
+(dhcp)3719 4128 w
+10 S f
+(_)3931 4128 w
+10 B f
+(inittab)3981 4128 w
+10 R f
+(\(4\) type)1 313 1 4265 4128 t
+( or more decimal digits)4 927( One)1 591(Unsigned Number)1 735 3 900 4248 t
+10 B f
+(UNUMBER8)3719 4248 w
+10 R f
+(,)4285 4248 w
+10 B f
+(UNUMBER16)4518 4248 w
+10 R f
+(,)5134 4248 w
+10 B f
+(UNUMBER32)3719 4368 w
+10 R f
+(,)4335 4368 w
+10 B f
+(UNUMBER64)4385 4368 w
+10 R f
+( digits, option\255)2 619( or more decimal)3 724( One)1 696(Signed Number)1 630 4 900 4488 t
+(ally preceded by a minus sign)5 1190 1 2060 4608 t
+10 B f
+(SNUMBER8)3719 4488 w
+10 R f
+(,)4269 4488 w
+10 B f
+(SNUMBER16)4534 4488 w
+10 R f
+(,)5134 4488 w
+10 B f
+(SNUMBER32)3719 4608 w
+10 R f
+(,)4319 4608 w
+10 B f
+(SNUMBER64)4369 4608 w
+(IP)900 4728 w
+10 R f
+( notation)1 353(Address Dotted\255decimal)1 1656 2 1025 4728 t
+10 B f
+(IP)3719 4728 w
+10 R f
+(Octet)900 4848 w
+10 B f
+(OCTET)3719 4848 w
+10 R f
+( followed by a two\255)4 858(The string "0x")2 651 2 2060 4848 t
+(digit hexadecimal value)2 954 1 2060 4968 t
+( or more)2 338(String Zero)1 1348 2 900 5088 t
+10 B f
+(ASCII)2611 5088 w
+10 R f
+(characters)2914 5088 w
+10 B f
+(ASCII)3719 5088 w
+9 B f
+(OPTIONS)540 5376 w
+10 R f
+(The following options are supported:)4 1482 1 900 5496 t
+(\255)900 5664 w
+10 B f
+(c)933 5664 w
+10 R f
+( format. This format is identical to the)7 1612(Displays the output in a canonical)5 1417 2 1200 5664 t
+10 B f
+(OCTET)4267 5664 w
+10 R f
+(format with a)2 564 1 4656 5664 t
+(granularity of)1 546 1 1200 5784 t
+10 B f
+(1)1771 5784 w
+10 R f
+(.)1821 5784 w
+(\255)900 5952 w
+10 B f
+(i)933 5952 w
+10 I f
+(interface)986 5952 w
+10 R f
+( for)1 146(Specifies the interface to retrieve values)5 1618 2 1200 6072 t
+10 B f
+(DHCP)2994 6072 w
+10 R f
+(parameters from. If this option is not specified,)7 1913 1 3307 6072 t
+(the primary interface is used.)4 1161 1 1200 6192 t
+(\255)900 6360 w
+10 B f
+(n)933 6360 w
+10 I f
+(limit)1014 6360 w
+10 R f
+(Limits the list of values displayed to)6 1456 1 1200 6480 t
+10 I f
+(limit)2681 6480 w
+10 R f
+(lines.)2890 6480 w
+9 B f
+(OPERANDS)540 6648 w
+10 R f
+(The following operands are supported:)4 1547 1 900 6768 t
+10 I f
+(code)1260 6936 w
+10 R f
+(Numeric code for the requested)4 1281 1 1560 6936 t
+10 B f
+(DHCP)2872 6936 w
+10 R f
+( the)1 154(parameter, as defined by)3 998 2 3186 6936 t
+10 B f
+(DHCP)4370 6936 w
+10 R f
+(specification.)4685 6936 w
+( by adding 256 to the actual vendor code.)8 1650( specified)1 410(Vendor options are)2 765 3 1560 7056 t
+( 8, 2018)2 325( March)1 1681( Commands)1 481( User)1 1924(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 1 \))3 126( dhcpinfo)1 1737( \))1 37( Jul 1999)2 346( 29)1 97( \()1 68( 5.8)1 136( SunOS)1 1667(dhcpinfo \( 1 \))3 466 9 540 480 t
+10 I f
+(identifier)1260 960 w
+10 R f
+(Mnemonic symbol for the requested)4 1448 1 1560 1080 t
+10 B f
+(DHCP)3033 1080 w
+10 R f
+(parameter, as listed in)3 876 1 3341 1080 t
+10 B f
+(dhcp)4242 1080 w
+10 S f
+(_)4454 1080 w
+10 B f
+(inittab)4504 1080 w
+10 R f
+(\(4\).)4788 1080 w
+9 B f
+(EXIT STATUS)1 593 1 540 1368 t
+10 R f
+(The following exit values are returned:)5 1555 1 900 1488 t
+10 B f
+(0)1260 1656 w
+10 R f
+(Successful operation.)1 854 1 1560 1656 t
+10 B f
+(2)1260 1824 w
+10 R f
+(The operation was not successful. The)5 1535 1 1560 1824 t
+10 B f
+(DHCP)3121 1824 w
+10 R f
+( the inter\255)2 392(client daemon may not be running,)5 1398 2 3430 1824 t
+(face might have failed to configure, or no satisfactory)8 2142 1 1560 1944 t
+10 B f
+(DHCP)3727 1944 w
+10 R f
+(responses were received.)2 993 1 4035 1944 t
+10 B f
+(3)1260 2112 w
+10 R f
+(Bad arguments.)1 627 1 1560 2112 t
+10 B f
+(4)1260 2280 w
+10 R f
+(The operation timed out.)3 988 1 1560 2280 t
+10 B f
+(6)1260 2448 w
+10 R f
+(Some system error \(should never occur\).)5 1624 1 1560 2448 t
+9 B f
+(ATTRIBUTES)540 2736 w
+10 R f
+(See)900 2856 w
+10 B f
+(attributes)1069 2856 w
+10 R f
+(\(5\) for descriptions of the following attributes:)6 1859 1 1485 2856 t
+10 S f
+(_ ____________________________________________________________________________________)1 4210 1 900 2996 t
+10 R f
+( VALUE)1 363( ATTRIBUTE)1 1811(ATTRIBUTE TYPE)1 830 3 1525 3116 t
+10 S f
+(_ ____________________________________________________________________________________)1 4210 1 900 3136 t
+10 R f
+(Availability SUNWcsr)1 2540 1 950 3256 t
+10 S f
+(_ ____________________________________________________________________________________)1 4210 1 900 3276 t
+10 R f
+( Evolving)1 1779(Interface Stability)1 718 2 950 3396 t
+10 S f
+( \347)1 -4210(_ ____________________________________________________________________________________)1 4210 2 900 3416 t
+(\347)900 3396 w
+(\347)900 3296 w
+(\347)900 3196 w
+(\347)900 3096 w
+(\347)3005 3416 w
+(\347)3005 3396 w
+(\347)3005 3296 w
+(\347)3005 3196 w
+(\347)3005 3096 w
+(\347)5110 3416 w
+(\347)5110 3396 w
+(\347)5110 3296 w
+(\347)5110 3196 w
+(\347)5110 3096 w
+9 B f
+(SEE ALSO)1 438 1 540 3704 t
+10 B f
+(dhcpagent)900 3824 w
+10 R f
+(\(1M\),)1345 3824 w
+10 B f
+(ifconfig)1600 3824 w
+10 R f
+(\(1M\),)1922 3824 w
+10 B f
+(init)2177 3824 w
+10 R f
+(\(1M\),)2322 3824 w
+10 B f
+(dhcp)2552 3824 w
+10 S f
+(_)2764 3824 w
+10 B f
+(inittab)2814 3824 w
+10 R f
+(\(4\),)3098 3824 w
+10 B f
+(attributes)3239 3824 w
+10 R f
+(\(5\))3655 3824 w
+(Alexander, S., and R. Droms,)4 1199 1 900 3992 t
+10 I f
+( Extensions)1 464(RFC 2132, DHCP Options and BOOTP Vendor)6 1949 2 2129 3992 t
+10 R f
+( Graph\255)1 313(, Silicon)1 365 2 4542 3992 t
+(ics, Inc., Bucknell University, March 1997.)5 1731 1 900 4112 t
+( 2)1 75( Page)1 1931( Commands)1 481( User)1 1608(March 8, 2018)2 585 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 2
+%%DocumentFonts: Times-Roman Times-Bold Times-Italic Times-Roman Symbol

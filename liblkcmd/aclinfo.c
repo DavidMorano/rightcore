@@ -17,11 +17,11 @@
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2005 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	These subroutines perform (various) ACL handling.
+	These subroutines perform (various) ACL handling functions.
 
 
 *******************************************************************************/

@@ -3137,7 +3137,7 @@ static int procother(PROGINFO *pip,cchar *name,USTAT *sbp)
 		    f_process = FALSE ;
 		}
 	    }
-	} /* end if (no-program) */
+	} /* end if (program) */
 
 /* process this file */
 

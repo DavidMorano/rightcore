@@ -15,7 +15,7 @@
 #include	<bfile.h>
 #include	<localmisc.h>
 
-#include	"txtindexfu.h"		/* this is the hash-file-header */
+#include	"txtindexhdr.h"		/* this is the hash-file-header */
 
 
 #define	TXTINDEXMKS_MAGIC	0x88773422

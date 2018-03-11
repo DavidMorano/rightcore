@@ -117,7 +117,7 @@ int maininfo_start(MAININFO *mip,int argc,cchar **argv)
 	        cchar	*cp ;
 
 	        if ((cl = sfbasename(argz,-1,&cp)) > 0) {
-	            const char	**vpp = &mip->progname ;
+	            cchar	**vpp = &mip->progname ;
 	            if (cp[0] == '-') {
 	                mip->f.progdash = TRUE ;
 	                cp += 1 ;

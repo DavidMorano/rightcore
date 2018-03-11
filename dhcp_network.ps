@@ -1,0 +1,1106 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+(dhcp)540 480 w
+9 S f
+(_)730 480 w
+9 B f
+( dhcp)1 1347( \))1 37( Mar 2001)2 396( 13)1 97( \()1 68( 5.8)1 136( SunOS)1 1427(network \( 4 \))3 446 8 775 480 t
+9 S f
+(_)4729 480 w
+9 B f
+(network \( 4 \))3 446 1 4774 480 t
+(NAME)540 960 w
+10 R f
+(dhcp)900 1080 w
+10 S f
+(_)1094 1080 w
+10 R f
+(network)1144 1080 w
+10 S1 f
+(\261)1496 1080 w
+10 R f
+(DHCP network tables)2 877 1 1586 1080 t
+9 B f
+(DESCRIPTION)540 1248 w
+10 R f
+(The Dynamic Host Configuration Protocol \()5 1778 1 900 1368 t
+10 B f
+(DHCP)2678 1368 w
+10 R f
+(\) network tables are used to map the client identifiers of)10 2259 1 2961 1368 t
+10 B f
+(DHCP)900 1488 w
+10 R f
+(clients to)1 366 1 1210 1488 t
+10 B f
+(IP)1603 1488 w
+10 R f
+(addresses and the associated configuration parameters of that address. One)9 2999 1 1730 1488 t
+10 B f
+(DHCP)4756 1488 w
+10 R f
+(net\255)5065 1488 w
+( the)1 172(work table exists for each network served by)7 1955 2 900 1608 t
+10 B f
+(DHCP)3077 1608 w
+10 R f
+(server, and each table is named using the)7 1810 1 3410 1608 t
+(network's)900 1728 w
+10 B f
+(IP)1324 1728 w
+10 R f
+(address. There is no table or file with the name)9 1874 1 1449 1728 t
+10 B f
+(dhcp)3348 1728 w
+10 S f
+(_)3560 1728 w
+10 B f
+(network)3610 1728 w
+10 R f
+(.)3965 1728 w
+(The)900 1896 w
+10 B f
+(DHCP)1081 1896 w
+10 R f
+( exist as)2 326(network tables can)2 750 2 1390 1896 t
+10 B f
+(ASCII)2493 1896 w
+10 R f
+(text files, binary text files, or)5 1167 1 2798 1896 t
+10 B f
+(NIS+)3992 1896 w
+10 R f
+(tables, depending on the)3 977 1 4243 1896 t
+( Since the format of the file could change, the preferred method of managing the)14 3212(data store used.)2 620 2 900 2016 t
+10 B f
+(DHCP)4757 2016 w
+10 R f
+(net\255)5065 2016 w
+(work tables is through the use of)6 1304 1 900 2136 t
+10 B f
+(dhcpmgr)2229 2136 w
+10 R f
+(\(1M\) or the)2 460 1 2618 2136 t
+10 B f
+(pntadm)3103 2136 w
+10 R f
+(\(1M\) command.)1 649 1 3437 2136 t
+(The format of the records in a)6 1233 1 900 2304 t
+10 B f
+(DHCP)2165 2304 w
+10 R f
+( store used to maintain the table.)6 1344(network table depends on the data)5 1396 2 2480 2304 t
+(However, an entry in a)4 911 1 900 2424 t
+10 B f
+(DHCP)1836 2424 w
+10 R f
+(network table must contain the following fields:)6 1921 1 2144 2424 t
+10 B f
+(Client)900 2592 w
+10 S f
+(_)1161 2592 w
+10 B f
+(ID)1211 2592 w
+10 R f
+(The client identifier field,)3 1053 1 1200 2712 t
+10 B f
+(Client)2287 2712 w
+10 S f
+(_)2548 2712 w
+10 B f
+(ID)2598 2712 w
+10 R f
+(, is an)2 254 1 2709 2712 t
+10 B f
+(ASCII)2997 2712 w
+10 R f
+( octet)1 229(hexadecimal representation of the unique)4 1682 2 3309 2712 t
+( of the)2 275(string value)1 504 2 1200 2832 t
+10 B f
+(DHCP)2039 2832 w
+10 R f
+( \(code 61\) which identifies a)5 1184(Client Identifier Option)2 964 2 2357 2832 t
+10 B f
+(DHCP)4539 2832 w
+10 R f
+(client. In)1 364 1 4856 2832 t
+(the absence of the)3 744 1 1200 2952 t
+10 B f
+(DHCP)2003 2952 w
+10 R f
+(Client Identifier Option, the)3 1143 1 2320 2952 t
+10 B f
+(DHCP)3522 2952 w
+10 R f
+(client is identified using the form)5 1380 1 3840 2952 t
+(given below for)2 652 1 1200 3072 t
+10 B f
+(BOOTP)1887 3072 w
+10 R f
+(clients. The number of characters in this field must be an even number,)12 2947 1 2273 3072 t
+( 64 characters. Valid characters are)5 1419(with a maximum length of)4 1073 2 1200 3192 t
+10 B f
+(0 \255 9)2 191 1 3721 3192 t
+10 R f
+(and)3941 3192 w
+10 B f
+(A)4114 3192 w
+10 R f
+(\255)4186 3192 w
+10 B f
+(F)4219 3192 w
+10 R f
+(. Entries with values of)4 940 1 4280 3192 t
+10 B f
+(00)1200 3312 w
+10 R f
+( requesting clients.)2 752(are freely available for dynamic allocation to)6 1801 2 1326 3312 t
+10 B f
+(BOOTP)3904 3312 w
+10 R f
+(clients are identified by)3 940 1 4280 3312 t
+( network's hardware type \(as defined by)6 1750(the concatenation of the)3 1025 2 1200 3432 t
+10 B f
+(RFC)4024 3432 w
+10 R f
+(1340, titled "Assigned)2 942 1 4278 3432 t
+( address. For example, the following)5 1552(Numbers"\) and the client's hardware)4 1546 2 1200 3552 t
+10 B f
+(BOOTP)4341 3552 w
+10 R f
+(client has a)2 485 1 4735 3552 t
+( ')1 74(hardware type of)2 705 2 1200 3672 t
+10 B f
+(01)1979 3672 w
+10 R f
+(' \(10mb ethernet\) and a hardware address of)7 1875 1 2079 3672 t
+10 B f
+(8:0:20:11:12:b7)3995 3672 w
+10 R f
+(, so its client)3 554 1 4666 3672 t
+(identifier would be:)2 788 1 1200 3792 t
+10 B f
+(010800201112B7)2013 3792 w
+(Flags)900 3960 w
+10 R f
+(The)1200 3960 w
+10 B f
+(Flags)1385 3960 w
+10 R f
+( a combination of the following)5 1293(field is a decimal value, the bit fields of which can have)11 2284 2 1643 3960 t
+(values:)1200 4080 w
+10 B f
+(1 \(PERMANENT\))1 785 1 1200 4248 t
+10 R f
+(Evaluation of the)2 690 1 1500 4368 t
+10 B f
+(Lease)2216 4368 w
+10 R f
+( Evalua\255)1 362(field is turned off \(lease is permanent\). If this bit is not set,)12 2371 2 2487 4368 t
+(tion of the)2 411 1 1500 4488 t
+10 B f
+(Lease)1936 4488 w
+10 R f
+(field is enabled and the)4 926 1 2205 4488 t
+10 B f
+(Lease)3181 4488 w
+10 R f
+(is)3450 4488 w
+10 B f
+(DYNAMIC.)3567 4488 w
+(2 \(MANUAL\))1 590 1 1200 4656 t
+10 R f
+( manual client)2 586(This entry has a)3 662 2 1500 4776 t
+10 B f
+(ID)2783 4776 w
+10 R f
+(binding \(cannot be reclaimed by)4 1332 1 2929 4776 t
+10 B f
+(DHCP)4296 4776 w
+10 R f
+(server\). Client)1 606 1 4614 4776 t
+(will not be allocated another address.)5 1486 1 1500 4896 t
+10 B f
+(4 \(UNUSABLE\))1 686 1 1200 5064 t
+10 R f
+( through)1 337(When set, this value means that either)6 1517 2 1500 5184 t
+10 B f
+(ICMP)3380 5184 w
+10 R f
+(echo or client)2 545 1 3672 5184 t
+10 B f
+(DECLINE,)4243 5184 w
+10 R f
+(this address)1 470 1 4750 5184 t
+(has been found to be unusable. Can also be used by the network administrator to)14 3313 1 1500 5304 t
+10 I f
+(prevent)4845 5304 w
+10 R f
+(a)5176 5304 w
+(certain client from booting, if used in conjunction with the)9 2337 1 1500 5424 t
+10 B f
+(MANUAL)3862 5424 w
+10 R f
+(flag.)4336 5424 w
+10 B f
+(8 \(BOOTP\))1 492 1 1200 5592 t
+10 R f
+(This entry is reserved for allocation to)6 1525 1 1500 5712 t
+10 B f
+(BOOTP)3050 5712 w
+10 R f
+(clients only.)1 489 1 3426 5712 t
+10 B f
+(Client)900 6000 w
+10 S f
+(_)1161 6000 w
+10 B f
+(IP)1211 6000 w
+10 R f
+(The)1200 6120 w
+10 B f
+(Client)1380 6120 w
+10 S f
+(_)1641 6120 w
+10 B f
+(IP)1691 6120 w
+10 R f
+(field holds the)2 572 1 1816 6120 t
+10 B f
+(IP)2413 6120 w
+10 R f
+(address for this entry. This value must be unique in the database.)11 2588 1 2538 6120 t
+10 B f
+(Server)900 6288 w
+10 S f
+(_)1182 6288 w
+10 B f
+(IP)1232 6288 w
+10 R f
+(This field holds the)3 793 1 1200 6408 t
+10 B f
+(IP)2024 6408 w
+10 R f
+(address of the)2 568 1 2155 6408 t
+10 B f
+(DHCP)2755 6408 w
+10 R f
+(server which)1 519 1 3070 6408 t
+10 I f
+(owns)3621 6408 w
+10 R f
+(this client)1 399 1 3859 6408 t
+10 B f
+(IP)4290 6408 w
+10 R f
+(address, and thus is)3 798 1 4422 6408 t
+(responsible for initial allocation to a requesting client.)7 2159 1 1200 6528 t
+10 B f
+(Lease)900 6696 w
+10 R f
+( is in seconds since)4 778(This numeric field holds the entry's absolute lease expiration time, and)10 2858 2 1200 6696 t
+10 B f
+(January)4864 6696 w
+(1, 1970)1 307 1 1200 6816 t
+10 R f
+( decimal, or hexadecimal \(if)4 1146(. It can be)3 414 2 1507 6816 t
+10 B f
+(0x)3098 6816 w
+10 R f
+(prefixes number\). The special value)4 1456 1 3229 6816 t
+10 B f
+(\2551)4716 6816 w
+10 R f
+(is used to)2 390 1 4830 6816 t
+(denote a permanent lease.)3 1030 1 1200 6936 t
+10 B f
+(Macro)900 7104 w
+10 R f
+(This)1200 7224 w
+10 B f
+(ASCII)1408 7224 w
+10 R f
+( the)1 153(text field contains)2 726 2 1716 7224 t
+10 B f
+(dhcptab)2626 7224 w
+10 R f
+(macro name used to look up this entry's configuration)8 2212 1 3008 7224 t
+( 8, 2018)2 325( March)1 1761( Formats)1 353( File)1 1972(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+(dhcp)540 480 w
+9 S f
+(_)730 480 w
+9 B f
+( dhcp)1 1347( \))1 37( Mar 2001)2 396( 13)1 97( \()1 68( 5.8)1 136( SunOS)1 1427(network \( 4 \))3 446 8 775 480 t
+9 S f
+(_)4729 480 w
+9 B f
+(network \( 4 \))3 446 1 4774 480 t
+10 R f
+(parameters in the)2 687 1 1200 960 t
+10 B f
+(dhcptab)1912 960 w
+10 R f
+(\(4\) database.)1 509 1 2263 960 t
+10 B f
+(Comment)900 1128 w
+10 R f
+(This)1200 1248 w
+10 B f
+(ASCII)1403 1248 w
+10 R f
+(text field contains an optional comment.)5 1610 1 1706 1248 t
+9 B f
+(TREATISE ON LEASES)2 981 1 690 1416 t
+10 R f
+(This section describes how the)4 1242 1 900 1536 t
+10 B f
+(DHCP/BOOTP)2171 1536 w
+10 R f
+(server calculates a client's configuration lease using infor\255)7 2358 1 2862 1536 t
+( in the)2 280(mation contained)1 707 2 900 1656 t
+10 B f
+(dhcptab)1927 1656 w
+10 R f
+(\(4\) and)1 300 1 2278 1656 t
+10 B f
+(DHCP)2618 1656 w
+10 R f
+(network tables. The server consults the)5 1633 1 2941 1656 t
+10 B f
+(LeaseTim)4614 1656 w
+10 R f
+(and)5076 1656 w
+10 B f
+(LeaseNeg)900 1776 w
+10 R f
+(symbols in the)2 596 1 1341 1776 t
+10 B f
+(dhcptab)1968 1776 w
+10 R f
+(, and the)2 355 1 2319 1776 t
+10 B f
+(Flags)2706 1776 w
+10 R f
+(and)2966 1776 w
+10 B f
+(Lease)3142 1776 w
+10 R f
+(fields of the chosen IP address record in the)8 1802 1 3418 1776 t
+10 B f
+(DHCP)900 1896 w
+10 R f
+(network table.)1 571 1 1208 1896 t
+(The server first examines the)4 1238 1 900 2064 t
+10 B f
+(Flags)2183 2064 w
+10 R f
+(field for the identified)3 939 1 2456 2064 t
+10 B f
+(DHCP)3440 2064 w
+10 R f
+(network table record. If the)4 1172 1 3769 2064 t
+10 B f
+(PER\255)4987 2064 w
+(MANENT)900 2184 w
+10 R f
+(flag is on, then the client's lease is considered permanent.)9 2304 1 1369 2184 t
+(If the)1 214 1 900 2352 t
+10 B f
+(PERMANENT)1140 2352 w
+10 R f
+(flag is not on, the server checks if the client's lease as represented by the)14 2929 1 1810 2352 t
+10 B f
+(Lease)4766 2352 w
+10 R f
+(field)5037 2352 w
+( not expired, the server checks if the client has)9 2004(in the network table record has expired. If the lease is)10 2316 2 900 2472 t
+( the)1 152( If)1 121(requested a new lease.)3 906 3 900 2592 t
+10 B f
+(LeaseNeg)2109 2592 w
+10 R f
+( included in the client's)4 962(symbol has not been)3 834 2 2549 2592 t
+10 B f
+(dhcptab)4376 2592 w
+10 R f
+(parameters,)4758 2592 w
+( be the time remaining as shown)6 1299(then the client's requested lease extension is ignored, and the lease is set to)13 3021 2 900 2712 t
+(by the)1 248 1 900 2832 t
+10 B f
+(Lease)1174 2832 w
+10 R f
+(field. If the)2 450 1 1444 2832 t
+10 B f
+(LeaseNeg)1921 2832 w
+10 R f
+(symbol)2358 2832 w
+10 I f
+(has)2680 2832 w
+10 R f
+(been included, then the server will extend the client's lease)9 2374 1 2846 2832 t
+( this requested lease is less than or equal to the current time plus the value of the)17 3260(to the value it requested if)5 1060 2 900 2952 t
+(client's)900 3072 w
+10 B f
+(LeaseTim dhcptab)1 798 1 1219 3072 t
+10 R f
+(parameter.)2042 3072 w
+( than policy allows \(value of)5 1175(If the client's requested lease is greater)6 1592 2 900 3240 t
+10 B f
+(LeaseTim)3699 3240 w
+10 R f
+(\), then the client is given a)6 1099 1 4121 3240 t
+(lease equal to the current time plus the value of)9 2077 1 900 3360 t
+10 B f
+(LeaseTim)3023 3360 w
+10 R f
+(. If)1 136 1 3445 3360 t
+10 B f
+(LeaseTim)3626 3360 w
+10 R f
+(is not set, then the default)5 1127 1 4093 3360 t
+10 B f
+(LeaseTim)900 3480 w
+10 R f
+(value is one hour.)3 710 1 1347 3480 t
+(For more information about the)4 1260 1 900 3648 t
+10 B f
+(dhcptab)2185 3648 w
+10 R f
+(symbols, see)1 511 1 2561 3648 t
+10 B f
+(dhcptab)3097 3648 w
+10 R f
+(\(4\).)3448 3648 w
+9 B f
+(SEE ALSO)1 438 1 540 3816 t
+10 B f
+(dhcpconfig)900 3936 w
+10 R f
+(\(1M\),)1373 3936 w
+10 B f
+(dhcpmgr)1672 3936 w
+10 R f
+(\(1M\),)2061 3936 w
+10 B f
+(dhtadm)2360 3936 w
+10 R f
+(\(1M\),)2694 3936 w
+10 B f
+(in.dhcpd)2994 3936 w
+10 R f
+(\(1M\),)3371 3936 w
+10 B f
+(pntadm)3671 3936 w
+10 R f
+(\(1M\),)4005 3936 w
+10 B f
+(dhcptab)4305 3936 w
+10 R f
+(\(4\),)4656 3936 w
+10 B f
+(dhcp)4867 3936 w
+10 R f
+(\(5\),)5079 3936 w
+10 B f
+(dhcp)900 4056 w
+10 S f
+(_)1112 4056 w
+10 B f
+(modules)1162 4056 w
+10 R f
+(\(5\))1518 4056 w
+10 I f
+(Solaris DHCP Service Developer's Guide)4 1680 1 900 4224 t
+(System Administration Guide, Volume 3)4 1602 1 900 4392 t
+10 R f
+(Reynolds, J. and J. Postel,)4 1053 1 900 4560 t
+10 I f
+(Assigned Numbers)1 749 1 1980 4560 t
+10 R f
+( Institute, July)2 576(, STD 2, RFC 1340, USC/Information Sciences)6 1915 2 2729 4560 t
+(1992.)900 4680 w
+( 2)1 75( Page)1 2011( Formats)1 353( File)1 1656(March 8, 2018)2 585 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 2
+%%DocumentFonts: Times-Roman Times-Bold Times-Italic Times-Roman Symbol

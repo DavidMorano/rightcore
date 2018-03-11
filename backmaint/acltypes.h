@@ -1,7 +1,15 @@
 /* acltypes */
 
 
+/* revision history:
+
+	= 2005-02-24, David A­D­ Morano
+        This was created along w/ the '.c' file.
+
+*/
+
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+
 
 #ifndef	ACLTYPES_INCLUDE
 #define	ACLTYPES_INCLUDE	1

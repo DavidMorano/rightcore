@@ -27,6 +27,13 @@
 	due to behavior on Linux related to EAGAIN; namely, that Linux can 
 	return that!
 
+	Notes:
+
+        Really only |setuid(2)| and |setreuid(2)| need to have handling for
+        EAGAIN at this present time, but we added that same handling to all of
+        these in this family, sort of to guard against future changes in both
+        the Linux kernel and maybe other kernels also.
+
 
 *******************************************************************************/
 

@@ -1,0 +1,2200 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1M \))3 211( dhtadm)1 1627( \))1 37( Mar 2001)2 396( 13)1 97( \()1 68( 5.8)1 136( SunOS)1 1597(dhtadm \( 1M \))3 511 9 540 480 t
+(NAME)540 960 w
+10 R f
+(dhtadm)900 1080 w
+10 S1 f
+(\261)1225 1080 w
+10 R f
+(DHCP configuration table management utility)4 1849 1 1315 1080 t
+9 B f
+(SYNOPSIS)540 1248 w
+10 B f
+(dhtadm)900 1368 w
+10 R f
+(\255)1259 1368 w
+10 B f
+(C)1292 1368 w
+10 R f
+([ \255)1 91 1 1414 1368 t
+10 B f
+(r)1505 1368 w
+10 I f
+(resource)1574 1368 w
+10 R f
+( \255)1 58(] [)1 116 2 1948 1368 t
+10 B f
+(p)2122 1368 w
+10 I f
+(path)2203 1368 w
+10 R f
+( \255)1 58(] [)1 116 2 2406 1368 t
+10 B f
+(u)2580 1368 w
+10 I f
+(uninterpreted)2661 1368 w
+10 R f
+(])3230 1368 w
+10 B f
+(dhtadm)900 1536 w
+10 R f
+(\255)1259 1536 w
+10 B f
+(A)1292 1536 w
+10 R f
+(\255)1414 1536 w
+10 B f
+(s)1447 1536 w
+10 I f
+(symbol)1511 1536 w
+10 S f
+(_)1794 1536 w
+10 I f
+(name)1844 1536 w
+10 R f
+(\255)2110 1536 w
+10 B f
+(d)2143 1536 w
+10 I f
+(definition)2224 1536 w
+10 R f
+([ \255)1 91 1 2658 1536 t
+10 B f
+(r)2749 1536 w
+10 I f
+(resource)2818 1536 w
+10 R f
+( \255)1 58(] [)1 116 2 3192 1536 t
+10 B f
+(p)3366 1536 w
+10 I f
+(path)3447 1536 w
+10 R f
+( \255)1 58(] [)1 116 2 3650 1536 t
+10 B f
+(u)3824 1536 w
+10 I f
+(uninterpreted)3905 1536 w
+10 R f
+(])4474 1536 w
+10 B f
+(dhtadm)900 1704 w
+10 R f
+(\255)1259 1704 w
+10 B f
+(A)1292 1704 w
+10 R f
+(\255)1414 1704 w
+10 B f
+(m)1447 1704 w
+10 I f
+(macro)1555 1704 w
+10 S f
+(_)1810 1704 w
+10 I f
+(name)1860 1704 w
+10 R f
+(\255)2126 1704 w
+10 B f
+(d)2159 1704 w
+10 I f
+(definition)2240 1704 w
+10 R f
+([ \255)1 91 1 2674 1704 t
+10 B f
+(r)2765 1704 w
+10 I f
+(resource)2834 1704 w
+10 R f
+( \255)1 58(] [)1 116 2 3208 1704 t
+10 B f
+(p)3382 1704 w
+10 I f
+(path)3463 1704 w
+10 R f
+( \255)1 58(] [)1 116 2 3666 1704 t
+10 B f
+(u)3840 1704 w
+10 I f
+(uninterpreted)3921 1704 w
+10 R f
+(])4490 1704 w
+10 B f
+(dhtadm)900 1872 w
+10 R f
+(\255)1259 1872 w
+10 B f
+(M)1292 1872 w
+10 R f
+(\255)1436 1872 w
+10 B f
+(s)1469 1872 w
+10 I f
+(symbol)1533 1872 w
+10 S f
+(_)1816 1872 w
+10 I f
+(name)1866 1872 w
+10 R f
+(\255)2132 1872 w
+10 B f
+(d)2165 1872 w
+10 I f
+(definition)2246 1872 w
+10 R f
+([ \255)1 91 1 2680 1872 t
+10 B f
+(r)2771 1872 w
+10 I f
+(resource)2840 1872 w
+10 R f
+( \255)1 58(] [)1 116 2 3214 1872 t
+10 B f
+(p)3388 1872 w
+10 I f
+(path)3469 1872 w
+10 R f
+( \255)1 58(] [)1 116 2 3672 1872 t
+10 B f
+(u)3846 1872 w
+10 I f
+(uninterpreted)3927 1872 w
+10 R f
+(])4496 1872 w
+10 B f
+(dhtadm)900 2040 w
+10 R f
+(\255)1259 2040 w
+10 B f
+(M)1292 2040 w
+10 R f
+(\255)1436 2040 w
+10 B f
+(s)1469 2040 w
+10 I f
+(symbol)1533 2040 w
+10 S f
+(_)1816 2040 w
+10 I f
+(name)1866 2040 w
+10 R f
+(\255)2132 2040 w
+10 B f
+(n)2165 2040 w
+10 I f
+(new)2246 2040 w
+10 S f
+(_)2407 2040 w
+10 I f
+(name)2457 2040 w
+10 R f
+([ \255)1 91 1 2723 2040 t
+10 B f
+(r)2814 2040 w
+10 I f
+(resource)2883 2040 w
+10 R f
+( \255)1 58(] [)1 116 2 3257 2040 t
+10 B f
+(p)3431 2040 w
+10 I f
+(path)3512 2040 w
+10 R f
+( \255)1 58(] [)1 116 2 3715 2040 t
+10 B f
+(u)3889 2040 w
+10 I f
+(uninterpreted)3970 2040 w
+10 R f
+(])4539 2040 w
+10 B f
+(dhtadm)900 2208 w
+10 R f
+(\255)1259 2208 w
+10 B f
+(M)1292 2208 w
+10 R f
+(\255)1436 2208 w
+10 B f
+(m)1469 2208 w
+10 I f
+(macro)1577 2208 w
+10 S f
+(_)1832 2208 w
+10 I f
+(name)1882 2208 w
+10 R f
+(\255)2148 2208 w
+10 B f
+(n)2181 2208 w
+10 I f
+(new)2262 2208 w
+10 S f
+(_)2423 2208 w
+10 I f
+(name)2473 2208 w
+10 R f
+([ \255)1 91 1 2739 2208 t
+10 B f
+(r)2830 2208 w
+10 I f
+(resource)2899 2208 w
+10 R f
+( \255)1 58(] [)1 116 2 3273 2208 t
+10 B f
+(p)3447 2208 w
+10 I f
+(path)3528 2208 w
+10 R f
+( \255)1 58(] [)1 116 2 3731 2208 t
+10 B f
+(u)3905 2208 w
+10 I f
+(uninterpreted)3986 2208 w
+10 R f
+(])4555 2208 w
+10 B f
+(dhtadm)900 2376 w
+10 R f
+(\255)1259 2376 w
+10 B f
+(M)1292 2376 w
+10 R f
+(\255)1436 2376 w
+10 B f
+(m)1469 2376 w
+10 I f
+(macro)1577 2376 w
+10 S f
+(_)1832 2376 w
+10 I f
+(name)1882 2376 w
+10 R f
+(\255)2148 2376 w
+10 B f
+(d)2181 2376 w
+10 I f
+(definition)2262 2376 w
+10 R f
+([ \255)1 91 1 2696 2376 t
+10 B f
+(r)2787 2376 w
+10 I f
+(resource)2856 2376 w
+10 R f
+( \255)1 58(] [)1 116 2 3230 2376 t
+10 B f
+(p)3404 2376 w
+10 I f
+(path)3485 2376 w
+10 R f
+( \255)1 58(] [)1 116 2 3688 2376 t
+10 B f
+(u)3862 2376 w
+10 I f
+(uninterpreted)3943 2376 w
+10 R f
+(])4512 2376 w
+10 B f
+(dhtadm)900 2544 w
+10 R f
+(\255)1259 2544 w
+10 B f
+(M)1292 2544 w
+10 R f
+(\255)1436 2544 w
+10 B f
+(m)1469 2544 w
+10 I f
+(macro)1577 2544 w
+10 S f
+(_)1832 2544 w
+10 I f
+(name)1882 2544 w
+10 R f
+(\255)2148 2544 w
+10 B f
+(e)2181 2544 w
+10 I f
+(symbol=value)2250 2544 w
+10 R f
+([ \255)1 91 1 2867 2544 t
+10 B f
+(r)2958 2544 w
+10 I f
+(resource)3027 2544 w
+10 R f
+( \255)1 58(] [)1 116 2 3401 2544 t
+10 B f
+(p)3575 2544 w
+10 I f
+(path)3656 2544 w
+10 R f
+( \255)1 58(] [)1 116 2 3859 2544 t
+10 B f
+(u)4033 2544 w
+10 I f
+(uninterpreted)4114 2544 w
+10 R f
+(])4683 2544 w
+10 B f
+(dhtadm)900 2712 w
+10 R f
+(\255)1259 2712 w
+10 B f
+(D)1292 2712 w
+10 R f
+(\255)1414 2712 w
+10 B f
+(s)1447 2712 w
+10 I f
+(symbol)1511 2712 w
+10 S f
+(_)1794 2712 w
+10 I f
+(name)1844 2712 w
+10 R f
+([ \255)1 91 1 2110 2712 t
+10 B f
+(r)2201 2712 w
+10 I f
+(resource)2270 2712 w
+10 R f
+( \255)1 58(] [)1 116 2 2644 2712 t
+10 B f
+(p)2818 2712 w
+10 I f
+(path)2899 2712 w
+10 R f
+( \255)1 58(] [)1 116 2 3102 2712 t
+10 B f
+(u)3276 2712 w
+10 I f
+(uninterpreted)3357 2712 w
+10 R f
+(])3926 2712 w
+10 B f
+(dhtadm)900 2880 w
+10 R f
+(\255)1259 2880 w
+10 B f
+(D)1292 2880 w
+10 R f
+(\255)1414 2880 w
+10 B f
+(m)1447 2880 w
+10 I f
+(macro)1555 2880 w
+10 S f
+(_)1810 2880 w
+10 I f
+(name)1860 2880 w
+10 R f
+([ \255)1 91 1 2126 2880 t
+10 B f
+(r)2217 2880 w
+10 I f
+(resource)2286 2880 w
+10 R f
+( \255)1 58(] [)1 116 2 2660 2880 t
+10 B f
+(p)2834 2880 w
+10 I f
+(path)2915 2880 w
+10 R f
+( \255)1 58(] [)1 116 2 3118 2880 t
+10 B f
+(u)3292 2880 w
+10 I f
+(uninterpreted)3373 2880 w
+10 R f
+(])3942 2880 w
+10 B f
+(dhtadm)900 3048 w
+10 R f
+(\255)1259 3048 w
+10 B f
+(P)1292 3048 w
+10 R f
+([ \255)1 91 1 1403 3048 t
+10 B f
+(r)1494 3048 w
+10 I f
+(resource)1563 3048 w
+10 R f
+( \255)1 58(] [)1 116 2 1937 3048 t
+10 B f
+(p)2111 3048 w
+10 I f
+(path)2192 3048 w
+10 R f
+( \255)1 58(] [)1 116 2 2395 3048 t
+10 B f
+(u)2569 3048 w
+10 I f
+(uninterpreted)2650 3048 w
+10 R f
+(])3219 3048 w
+10 B f
+(dhtadm)900 3216 w
+10 R f
+(\255)1259 3216 w
+10 B f
+(R)1292 3216 w
+10 R f
+([ \255)1 91 1 1414 3216 t
+10 B f
+(r)1505 3216 w
+10 I f
+(resource)1574 3216 w
+10 R f
+( \255)1 58(] [)1 116 2 1948 3216 t
+10 B f
+(p)2122 3216 w
+10 I f
+(path)2203 3216 w
+10 R f
+( \255)1 58(] [)1 116 2 2406 3216 t
+10 B f
+(u)2580 3216 w
+10 I f
+(uninterpreted)2661 3216 w
+10 R f
+(])3230 3216 w
+10 B f
+(dhtadm)900 3384 w
+10 R f
+(\255)1259 3384 w
+10 B f
+(B)1292 3384 w
+10 R f
+([ \255)1 91 1 1409 3384 t
+10 B f
+(v)1500 3384 w
+10 R f
+(] [)1 116 1 1575 3384 t
+10 I f
+(batchfile)1716 3384 w
+10 R f
+(])2091 3384 w
+9 B f
+(DESCRIPTION)540 3552 w
+10 B f
+(dhtadm)900 3672 w
+10 R f
+(manages the Dynamic Host Configuration Protocol \()6 2121 1 1260 3672 t
+10 B f
+(DHCP)3381 3672 w
+10 R f
+(\) service configuration table,)3 1153 1 3664 3672 t
+10 B f
+(dhcptab)4844 3672 w
+10 R f
+(.)5195 3672 w
+( delete, or modify)3 737(You can use it to add,)5 921 2 900 3792 t
+10 B f
+(DHCP)2592 3792 w
+10 R f
+(configuration macros or options or view the table. For a)9 2311 1 2909 3792 t
+(description of the table format, see)5 1386 1 900 3912 t
+10 B f
+(dhcptab)2311 3912 w
+10 R f
+(\(4\).\))2662 3912 w
+(The)900 4080 w
+10 B f
+(dhtadm)1088 4080 w
+10 R f
+( by other users assigned to the DHCP Management profile.)9 2439(command can be run by root, or)6 1326 2 1455 4080 t
+(See)900 4200 w
+10 B f
+(rbac)1069 4200 w
+10 R f
+(\(5\) and)1 285 1 1263 4200 t
+10 B f
+(user)1573 4200 w
+10 S f
+(_)1756 4200 w
+10 B f
+(attr)1806 4200 w
+10 R f
+(\(4\).)1966 4200 w
+(After you make changes with)4 1183 1 900 4368 t
+10 B f
+(dhtadm)2110 4368 w
+10 R f
+( a)1 72(, you should issue)3 723 2 2444 4368 t
+10 B f
+(SIGHUP)3267 4368 w
+10 R f
+(to the DHCP server, causing it to read)7 1541 1 3679 4368 t
+(the)900 4488 w
+10 B f
+(dhcptab)1058 4488 w
+10 R f
+( this using the command using the)6 1427(and pick up the changes. Do)5 1186 2 1445 4488 t
+10 B f
+(pkill \255HUP in.dhcpd)2 887 1 4093 4488 t
+10 R f
+(com\255)5015 4488 w
+(mand. See)1 416 1 900 4608 t
+10 B f
+(in.dhcpd)1341 4608 w
+10 R f
+(\(1M\).)1718 4608 w
+9 B f
+(OPTIONS)540 4776 w
+10 R f
+(One of the following function flags must be specified with the)10 2486 1 900 4896 t
+10 B f
+(dhtadm)3412 4896 w
+10 R f
+(command: \255)1 481 1 3772 4896 t
+10 B f
+(A)4253 4896 w
+10 R f
+(, \255)1 84 1 4325 4896 t
+10 B f
+(B)4409 4896 w
+10 R f
+(, \255)1 84 1 4476 4896 t
+10 B f
+(C)4560 4896 w
+10 R f
+(, \255)1 84 1 4632 4896 t
+10 B f
+(D)4716 4896 w
+10 R f
+(, \255)1 84 1 4788 4896 t
+10 B f
+(M)4872 4896 w
+10 R f
+(, \255)1 84 1 4966 4896 t
+10 B f
+(P)5050 4896 w
+10 R f
+(or)5137 4896 w
+(\255)900 5016 w
+10 B f
+(R)933 5016 w
+10 R f
+(.)1005 5016 w
+(The following options are supported:)4 1482 1 900 5184 t
+(\255)900 5352 w
+10 B f
+(A)933 5352 w
+10 R f
+(Add a symbol or macro definition to the)7 1607 1 1200 5352 t
+10 B f
+(dhcptab)2832 5352 w
+10 R f
+(table.)3208 5352 w
+(The following sub\255options are required:)4 1592 1 1200 5592 t
+(\255)1200 5760 w
+10 B f
+(d)1233 5760 w
+10 I f
+(definition)1314 5760 w
+10 R f
+(Specify a macro or symbol definition.)5 1515 1 1500 5880 t
+10 I f
+(definition)1500 6120 w
+10 R f
+( the form \255)3 523(must be enclosed in single quotation marks. For macros, use)9 2700 2 1941 6120 t
+10 B f
+(d)5164 6120 w
+(')1500 6240 w
+10 I f
+(symbol)1533 6240 w
+10 R f
+(=)1816 6240 w
+10 I f
+(value)1872 6240 w
+10 R f
+(:)2088 6240 w
+10 I f
+(symbol)2116 6240 w
+10 R f
+(=)2399 6240 w
+10 I f
+(value)2455 6240 w
+10 R f
+( fields that define a)4 785(:'. For symbols, the definition is a series of)8 1764 2 2671 6240 t
+( are separated by commas. Use the form \255)8 2091(symbol's characteristics. The fields)3 1573 2 1500 6360 t
+10 B f
+(d)5164 6360 w
+(')1500 6480 w
+10 I f
+(context)1533 6480 w
+10 R f
+(,)1821 6480 w
+10 I f
+(code)1846 6480 w
+10 R f
+(,)2034 6480 w
+10 I f
+(type)2059 6480 w
+10 R f
+(,)2225 6480 w
+10 I f
+(granularity)2250 6480 w
+10 R f
+(,)2706 6480 w
+10 I f
+(maximum)2731 6480 w
+10 R f
+('. See)1 272 1 3119 6480 t
+10 B f
+(dhcptab)3461 6480 w
+10 R f
+( information about these)3 1106(\(4\) for)1 302 2 3812 6480 t
+(fields.)1500 6600 w
+(\255)1200 6768 w
+10 B f
+(m)1233 6768 w
+10 I f
+(macro)1341 6768 w
+10 S f
+(_)1596 6768 w
+10 I f
+(name)1646 6768 w
+10 R f
+(Specify the name of the macro to be added.)8 1732 1 1500 6888 t
+(The \255)1 221 1 1500 7128 t
+10 B f
+(d)1721 7128 w
+10 R f
+( be used with the \255)5 780(option must)1 484 2 1810 7128 t
+10 B f
+(m)3074 7128 w
+10 R f
+(option. The \255)2 537 1 3191 7128 t
+10 B f
+(s)3728 7128 w
+10 R f
+(option cannot be used with the \255)6 1336 1 3801 7128 t
+10 B f
+(m)5137 7128 w
+10 R f
+(option.)1500 7248 w
+( 8, 2018)2 325( March)1 1517( Commands)1 481( Maintenance)1 2088(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 1M \))3 211( dhtadm)1 1627( \))1 37( Mar 2001)2 396( 13)1 97( \()1 68( 5.8)1 136( SunOS)1 1597(dhtadm \( 1M \))3 511 9 540 480 t
+10 R f
+(\255)1200 960 w
+10 B f
+(s)1233 960 w
+10 I f
+(symbol)1297 960 w
+10 S f
+(_)1580 960 w
+10 I f
+(name)1630 960 w
+10 R f
+(Specify the name of the symbol to be added.)8 1778 1 1500 1080 t
+(The \255)1 224 1 1500 1320 t
+10 B f
+(d)1724 1320 w
+10 R f
+(option must be used with the \255)6 1277 1 1816 1320 t
+10 B f
+(s)3093 1320 w
+10 R f
+(option. The \255)2 541 1 3168 1320 t
+10 B f
+(m)3709 1320 w
+10 R f
+( be used with the \255)5 795(option cannot)1 558 2 3828 1320 t
+10 B f
+(s)5181 1320 w
+10 R f
+(option.)1500 1440 w
+(\255)900 1728 w
+10 B f
+(B)933 1728 w
+10 R f
+(Batch process)1 560 1 1200 1728 t
+10 B f
+(dhtadm)1789 1728 w
+10 R f
+(commands.)2152 1728 w
+10 B f
+(dhtadm)2639 1728 w
+10 R f
+(will read from the specified file or from standard input)9 2218 1 3002 1728 t
+(a series of)2 406 1 1200 1848 t
+10 B f
+(dhtadm)1632 1848 w
+10 R f
+( execute them within the same process. Processing many)8 2266(commands and)1 603 2 1992 1848 t
+10 B f
+(dhtadm)4886 1848 w
+10 R f
+( executable batchfile itself. Batch mode)5 1595(commands using this method is much faster than running an)9 2425 2 1200 1968 t
+(is recommended for using)3 1040 1 1200 2088 t
+10 B f
+(dhtadm)2265 2088 w
+10 R f
+(in scripts.)1 389 1 2624 2088 t
+(The following sub\255option is optional:)4 1495 1 1200 2328 t
+(\255)1200 2496 w
+10 B f
+(v)1233 2496 w
+10 R f
+(Display commands to standard output as they are processed.)8 2410 1 1500 2496 t
+(\255)900 2784 w
+10 B f
+(C)933 2784 w
+10 R f
+(Create the)1 407 1 1200 2784 t
+10 B f
+(DHCP)1632 2784 w
+10 R f
+(service configuration table,)2 1089 1 1940 2784 t
+10 B f
+(dhcptab)3054 2784 w
+10 R f
+(.)3405 2784 w
+(\255)900 2952 w
+10 B f
+(D)933 2952 w
+10 R f
+(Delete a symbol or macro definition.)5 1470 1 1200 2952 t
+(The following sub\255options are required:)4 1592 1 1200 3192 t
+(\255)1200 3360 w
+10 B f
+(m)1233 3360 w
+10 I f
+(macro)1341 3360 w
+10 S f
+(_)1596 3360 w
+10 I f
+(name)1646 3360 w
+10 R f
+(Delete the specified macro.)3 1091 1 1500 3480 t
+(\255)1200 3648 w
+10 B f
+(s)1233 3648 w
+10 I f
+(symbol)1297 3648 w
+10 S f
+(_)1580 3648 w
+10 I f
+(name)1630 3648 w
+10 R f
+(Delete the specified symbol.)3 1137 1 1500 3768 t
+(\255)900 4056 w
+10 B f
+(M)933 4056 w
+10 R f
+(Modify an existing symbol or macro definition.)6 1902 1 1200 4056 t
+(The following sub\255options are required:)4 1592 1 1200 4296 t
+(\255)1200 4464 w
+10 B f
+(d)1233 4464 w
+10 I f
+(definition)1314 4464 w
+10 R f
+(Specify a macro or symbol definition to modify.)7 1932 1 1500 4584 t
+( in single quotation marks. For macros, use the form \255)10 2318(The definition must be enclosed)4 1346 2 1500 4824 t
+10 B f
+(d)5164 4824 w
+(')1500 4944 w
+10 I f
+(symbol)1533 4944 w
+10 R f
+(=)1816 4944 w
+10 I f
+(value)1872 4944 w
+10 R f
+(:)2088 4944 w
+10 I f
+(symbol)2116 4944 w
+10 R f
+(=)2399 4944 w
+10 I f
+(value)2455 4944 w
+10 R f
+( fields that define a)4 785(:'. For symbols, the definition is a series of)8 1764 2 2671 4944 t
+( are separated by commas. Use the form \255)8 2091(symbol's characteristics. The fields)3 1573 2 1500 5064 t
+10 B f
+(d)5164 5064 w
+(')1500 5184 w
+10 I f
+(context)1533 5184 w
+10 R f
+(,)1821 5184 w
+10 I f
+(code)1846 5184 w
+10 R f
+(,)2034 5184 w
+10 I f
+(type)2059 5184 w
+10 R f
+(,)2225 5184 w
+10 I f
+(granularity)2250 5184 w
+10 R f
+(,)2706 5184 w
+10 I f
+(maximum)2731 5184 w
+10 R f
+('. See)1 272 1 3119 5184 t
+10 B f
+(dhcptab)3461 5184 w
+10 R f
+( information about these)3 1106(\(4\) for)1 302 2 3812 5184 t
+(fields.)1500 5304 w
+(\255)1200 5472 w
+10 B f
+(e)1233 5472 w
+10 R f
+(This sub\255option uses the)3 978 1 1500 5472 t
+10 I f
+(symbol)2504 5472 w
+10 B f
+(=)2813 5472 w
+10 I f
+(value)2870 5472 w
+10 R f
+( to edit a)3 353(argument. Use it)2 665 2 3112 5472 t
+10 I f
+(symbol)4157 5472 w
+10 R f
+(/)4440 5472 w
+10 I f
+(value)4468 5472 w
+10 R f
+(pair within a)2 509 1 4711 5472 t
+(macro. To add a symbol which does not have an associate value, enter:)12 2833 1 1500 5592 t
+10 I f
+(symbol)1500 5952 w
+10 B f
+(=NULL)1783 5952 w
+10 S f
+(_)2118 5952 w
+10 B f
+(VALUE)2168 5952 w
+10 S f
+(_)2518 5952 w
+10 R f
+(To delete a symbol definition from a macro, enter:)8 2016 1 1500 6312 t
+10 I f
+(symbol)1500 6672 w
+10 B f
+(=)1783 6672 w
+10 R f
+(\255)1200 7080 w
+10 B f
+(m)1233 7080 w
+10 R f
+(This sub\255option uses the)3 978 1 1500 7080 t
+10 I f
+(macro)2504 7080 w
+10 S f
+(_)2759 7080 w
+10 I f
+(name)2809 7080 w
+10 R f
+(argument. The \255)2 642 1 3051 7080 t
+10 B f
+(n)3693 7080 w
+10 R f
+(, \255)1 84 1 3749 7080 t
+10 B f
+(d)3833 7080 w
+10 R f
+(, or \255)2 193 1 3889 7080 t
+10 B f
+(e)4082 7080 w
+10 R f
+(sub\255options are legal com\255)3 1068 1 4152 7080 t
+(panions for this sub\255option..)3 1125 1 1500 7200 t
+( 2)1 75( Page)1 1767( Commands)1 481( Maintenance)1 1772(March 8, 2018)2 585 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Page: 3 3
+DpostDict begin
+/saveobj save def
+mark
+3 pagesetup
+9 B f
+( \( 1M \))3 211( dhtadm)1 1627( \))1 37( Mar 2001)2 396( 13)1 97( \()1 68( 5.8)1 136( SunOS)1 1597(dhtadm \( 1M \))3 511 9 540 480 t
+10 R f
+(\255)1200 960 w
+10 B f
+(n)1233 960 w
+10 R f
+( the)1 151(This sub\255option uses)2 834 2 1500 960 t
+10 I f
+(new)2514 960 w
+10 S f
+(_)2675 960 w
+10 I f
+(name)2725 960 w
+10 R f
+(argument and modifies the name of the object specified)8 2250 1 2970 960 t
+(by the \255)2 313 1 1500 1080 t
+10 B f
+(m)1813 1080 w
+10 R f
+(or \255)1 145 1 1925 1080 t
+10 B f
+(s)2070 1080 w
+10 R f
+( is not limited to macros. . Use it to specify a new macro name)14 2539(sub\255option. It)1 543 2 2138 1080 t
+(or symbol name.)2 669 1 1500 1200 t
+(\255)1200 1368 w
+10 B f
+(s)1233 1368 w
+10 R f
+(This sub\255option uses the)3 1008 1 1500 1368 t
+10 I f
+(symbol)2544 1368 w
+10 S f
+(_)2827 1368 w
+10 I f
+(name)2877 1368 w
+10 R f
+( it to specify a symbol. The \255)7 1233(argument. Use)1 593 2 3129 1368 t
+10 B f
+(d)4955 1368 w
+10 R f
+(sub\255)5048 1368 w
+(option is a legal companion.)4 1130 1 1500 1488 t
+(\255)900 1776 w
+10 B f
+(p)933 1776 w
+10 I f
+(path)1014 1776 w
+10 R f
+(Override the)1 508 1 1200 1896 t
+10 B f
+(dhcpsvc.conf)1740 1896 w
+10 R f
+( value for)2 398(\(4\) configuration)1 686 2 2293 1896 t
+10 B f
+(PATH=)3410 1896 w
+10 R f
+(with)3778 1896 w
+10 I f
+(path)3989 1896 w
+10 R f
+(. See)1 202 1 4167 1896 t
+10 B f
+(dhcpsvc.conf)4402 1896 w
+10 R f
+(\(4\) for)1 265 1 4955 1896 t
+(more details regarding)2 908 1 1200 2016 t
+10 I f
+(path)2138 2016 w
+10 R f
+(. See)1 199 1 2316 2016 t
+10 B f
+(dhcp)2545 2016 w
+10 S f
+(_)2757 2016 w
+10 B f
+(modules)2807 2016 w
+10 R f
+( storage modules)2 685(\(5\) for information regarding data)4 1372 2 3163 2016 t
+(for the)1 263 1 1200 2136 t
+10 B f
+(DHCP)1488 2136 w
+10 R f
+(service.)1796 2136 w
+(\255)900 2304 w
+10 B f
+(P)933 2304 w
+10 R f
+(Print \(display\) the)2 722 1 1200 2304 t
+10 B f
+(dhcptab)1947 2304 w
+10 R f
+(table.)2323 2304 w
+(\255)900 2472 w
+10 B f
+(r)933 2472 w
+10 I f
+(data)1002 2472 w
+10 S f
+(_)1180 2472 w
+10 I f
+(store)1230 2472 w
+10 S f
+(_)1430 2472 w
+10 I f
+(resource)1480 2472 w
+10 R f
+(Override the)1 505 1 1200 2592 t
+10 B f
+(dhcpsvc.conf)1734 2592 w
+10 R f
+(\(4\) configuration value for)3 1073 1 2287 2592 t
+10 B f
+(RESOURCE=)3390 2592 w
+10 R f
+(with the)1 330 1 4033 2592 t
+10 I f
+(data)4393 2592 w
+10 S f
+(_)4571 2592 w
+10 I f
+(store)4621 2592 w
+10 S f
+(_)4821 2592 w
+10 I f
+(resource)4871 2592 w
+10 R f
+(specified. See)1 585 1 1200 2712 t
+10 B f
+(dhcpsvc.conf)1841 2712 w
+10 R f
+( See)1 199(\(4\) for more details on resource type.)6 1668 2 2394 2712 t
+10 I f
+(Solaris DHCP Service)2 959 1 4261 2712 t
+(Developer's Guide)1 798 1 1200 2832 t
+10 R f
+( information about adding support for other data stores. See)9 2767(for more)1 388 2 2065 2832 t
+10 B f
+(dhcp)1200 2952 w
+10 S f
+(_)1412 2952 w
+10 B f
+(modules)1462 2952 w
+10 R f
+(\(5\) for information regarding data storage modules for the)8 2317 1 1818 2952 t
+10 B f
+(DHCP)4160 2952 w
+10 R f
+(service.)4468 2952 w
+(\255)900 3120 w
+10 B f
+(R)933 3120 w
+10 R f
+(Remove the)1 480 1 1200 3120 t
+10 B f
+(dhcptab)1705 3120 w
+10 R f
+(table.)2081 3120 w
+(\255)900 3288 w
+10 B f
+(u)933 3288 w
+10 I f
+(uninterpreted)1014 3288 w
+10 R f
+(Data which will be ignored by)5 1272 1 1200 3408 t
+10 B f
+(dhtadm)2509 3408 w
+10 R f
+( passed to currently configured public module, to be)8 2187(, but)1 190 2 2843 3408 t
+( a database account name or other authentication)7 1942(interpreted by the data store. This might be used for)9 2078 2 1200 3528 t
+( within)1 291(or authorization parameters required by a particular data store. Uninterpreted data is stored)12 3729 2 1200 3648 t
+10 B f
+(RESOURCE)1200 3768 w
+10 S f
+(_)1756 3768 w
+10 B f
+(CONFIG)1806 3768 w
+10 R f
+(keyword of)1 489 1 2263 3768 t
+10 B f
+(dhcpsvc.conf)2809 3768 w
+10 R f
+(\(4\). See)1 367 1 3362 3768 t
+10 B f
+(dhcp)3786 3768 w
+10 S f
+(_)3998 3768 w
+10 B f
+(modules)4048 3768 w
+10 R f
+(\(5\) for information)2 816 1 4404 3768 t
+(regarding data storage modules for the)5 1538 1 1200 3888 t
+10 B f
+(DHCP)2763 3888 w
+10 R f
+(service.)3071 3888 w
+9 B f
+(EXAMPLES)540 4056 w
+10 B f
+(Example 1: Creating the DHCP)4 1354 1 900 4176 t
+10 R f
+(Service Configuration Table)2 1137 1 2279 4176 t
+(The following command creates the)4 1436 1 900 4344 t
+10 B f
+(DHCP)2361 4344 w
+10 R f
+(service configuration table,)2 1089 1 2669 4344 t
+10 B f
+(dhcptab)3783 4344 w
+10 R f
+(:)4134 4344 w
+(# dhtadm \255)2 433 1 900 4512 t
+10 B f
+(C)1333 4512 w
+(Example 2: Adding a Symbol Definition)5 1705 1 900 4680 t
+10 R f
+(The following command adds a)4 1289 1 900 4848 t
+10 B f
+(Vendor)2220 4848 w
+10 R f
+( symbol called)2 597(option symbol definition for a new)5 1421 2 2573 4848 t
+10 B f
+(MySym)4623 4848 w
+10 R f
+(to the)1 232 1 4988 4848 t
+10 B f
+(dhcptab)900 4968 w
+10 R f
+(table in the)2 444 1 1276 4968 t
+10 B f
+(SUNWfiles)1745 4968 w
+10 R f
+(resource in the)2 587 1 2242 4968 t
+10 B f
+(/var/mydhcp)2854 4968 w
+10 R f
+(directory:)3424 4968 w
+(# dhtadm \255)2 433 1 900 5136 t
+10 B f
+(A)1333 5136 w
+10 R f
+(\255)1430 5136 w
+10 B f
+(s)1463 5136 w
+10 R f
+(MySym)1527 5136 w
+(\255)1025 5256 w
+10 B f
+(d)1058 5256 w
+10 R f
+('Vendor=SUNW.PCW.LAN,20,IP,1,0')1139 5256 w
+(\255)1670 5376 w
+10 B f
+(r)1703 5376 w
+10 R f
+(SUNWfiles \255)1 524 1 1772 5376 t
+10 B f
+(p)2296 5376 w
+10 R f
+(/var/mydhcp)2377 5376 w
+10 B f
+(Example 3: Adding a Macro Definition)5 1664 1 900 5544 t
+10 R f
+( adds the)2 381(The following command)2 1012 2 900 5712 t
+10 B f
+(aruba)2331 5712 w
+10 R f
+(macro definition to the)3 952 1 2625 5712 t
+10 B f
+(dhcptab)3615 5712 w
+10 R f
+(table. Note that symbol/value)3 1216 1 4004 5712 t
+(pairs are bracketed with colons \()5 1299 1 900 5832 t
+10 B f
+(:)2199 5832 w
+10 R f
+(\).)2232 5832 w
+(# dhtadm \255)2 433 1 900 6000 t
+10 B f
+(A)1333 6000 w
+10 R f
+(\255)1430 6000 w
+10 B f
+(m)1463 6000 w
+10 R f
+(aruba)1571 6000 w
+(\255)1025 6120 w
+10 B f
+(d)1058 6120 w
+10 R f
+(':Timeserv=10.0.0.10 10.0.0.11:DNSserv=10.0.0.1:')1 2105 1 1139 6120 t
+10 B f
+(Example 4: Modifying a Macro Definition)5 1791 1 900 6288 t
+10 R f
+( modifies the)2 534(The following command)2 998 2 900 6456 t
+10 B f
+(Locale)2463 6456 w
+10 R f
+(macro definition, setting the value of the)6 1659 1 2777 6456 t
+10 B f
+(UTCOffst)4467 6456 w
+10 R f
+(symbol)4925 6456 w
+(to 18000 seconds. Note that any macro definition which includes the definition of the)13 3530 1 900 6576 t
+10 B f
+(Locale)4464 6576 w
+10 R f
+(macro will)1 439 1 4781 6576 t
+(inherit this change.)2 763 1 900 6696 t
+(# dhtadm \255)2 433 1 900 6864 t
+10 B f
+(M)1333 6864 w
+10 R f
+(\255)1452 6864 w
+10 B f
+(m)1485 6864 w
+10 R f
+(Locale \255)1 329 1 1593 6864 t
+10 B f
+(e)1922 6864 w
+10 R f
+('UTCOffst=18000')1991 6864 w
+10 B f
+(Example 5: Deleting a Symbol)4 1289 1 900 7032 t
+10 R f
+( 8, 2018)2 325( March)1 1517( Commands)1 481( Maintenance)1 2088(Page 3)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 3 3
+%%Page: 4 4
+DpostDict begin
+/saveobj save def
+mark
+4 pagesetup
+9 B f
+( \( 1M \))3 211( dhtadm)1 1627( \))1 37( Mar 2001)2 396( 13)1 97( \()1 68( 5.8)1 136( SunOS)1 1597(dhtadm \( 1M \))3 511 9 540 480 t
+10 R f
+(The following command deletes the)4 1453 1 900 960 t
+10 B f
+(Timeserv)2382 960 w
+10 R f
+(symbol from the)2 669 1 2810 960 t
+10 B f
+(aruba)3508 960 w
+10 R f
+(macro. Note that any macro defini\255)5 1427 1 3793 960 t
+(tion which includes the definition of the)6 1599 1 900 1080 t
+10 B f
+(aruba)2524 1080 w
+10 R f
+(macro will inherit this change.)4 1218 1 2805 1080 t
+(# dhtadm \255)2 433 1 900 1248 t
+10 B f
+(M)1333 1248 w
+10 R f
+(\255)1452 1248 w
+10 B f
+(m)1485 1248 w
+10 R f
+(aruba \255)1 279 1 1593 1248 t
+10 B f
+(e)1872 1248 w
+10 R f
+('Timeserv=')1941 1248 w
+10 B f
+(Example 6: Adding a Symbol to a Macro)7 1742 1 900 1416 t
+10 R f
+(The following command adds the)4 1355 1 900 1584 t
+10 B f
+(Hostname)2283 1584 w
+10 R f
+(symbol to the)2 551 1 2744 1584 t
+10 B f
+(aruba)3323 1584 w
+10 R f
+(macro. Note that the)3 827 1 3607 1584 t
+10 B f
+(Hostname)4463 1584 w
+10 R f
+(symbol)4925 1584 w
+( and thus requires the special value)6 1421(takes no value,)2 606 2 900 1704 t
+10 S f
+(_)2956 1704 w
+10 B f
+(NULL)3006 1704 w
+10 S f
+(_)3284 1704 w
+10 B f
+(VALUE)3334 1704 w
+10 S f
+(_)3684 1704 w
+10 R f
+(. Note also that any macro definition)6 1486 1 3734 1704 t
+(which includes the definition of the)5 1418 1 900 1824 t
+10 B f
+(aruba)2343 1824 w
+10 R f
+(macro will inherit this change.)4 1218 1 2624 1824 t
+(# dhtadm \255)2 433 1 900 1992 t
+10 B f
+(M)1333 1992 w
+10 R f
+(\255)1452 1992 w
+10 B f
+(m)1485 1992 w
+10 R f
+(aruba \255)1 279 1 1593 1992 t
+10 B f
+(e)1872 1992 w
+10 R f
+('Hostname=)1941 1992 w
+10 S f
+(_)2435 1992 w
+10 R f
+(NULL)2485 1992 w
+10 S f
+(_)2751 1992 w
+10 R f
+(VALUE)2801 1992 w
+10 S f
+(_)3139 1992 w
+10 R f
+(')3189 1992 w
+10 B f
+(Example 7: Renaming a Macro)4 1332 1 900 2160 t
+10 R f
+(The following command renames the)4 1548 1 900 2328 t
+10 B f
+(Locale)2487 2328 w
+10 R f
+(macro to)1 367 1 2810 2328 t
+10 B f
+(MyLocale)3217 2328 w
+10 R f
+(. Note that any)3 633 1 3644 2328 t
+10 B f
+(Include)4317 2328 w
+10 R f
+(statements in)1 540 1 4680 2328 t
+(macro definitions which include the)4 1437 1 900 2448 t
+10 B f
+(Locale)2362 2448 w
+10 R f
+(macro will also need to be changed.)6 1433 1 2670 2448 t
+(# dhtadm \255)2 433 1 900 2616 t
+10 B f
+(M)1333 2616 w
+10 R f
+(\255)1452 2616 w
+10 B f
+(m)1485 2616 w
+10 R f
+(Locale \255)1 329 1 1593 2616 t
+10 B f
+(n)1922 2616 w
+10 R f
+(MyLocale)2003 2616 w
+10 B f
+(Example 8: Deleting a Symbol Definition)5 1742 1 900 2784 t
+10 R f
+(The following command deletes the)4 1449 1 900 2952 t
+10 B f
+(MySym)2377 2952 w
+10 R f
+( Note that any macro definitions which use)7 1745(symbol definition.)1 737 2 2738 2952 t
+10 B f
+(MySym)900 3072 w
+10 R f
+(will need to be modified.)4 1002 1 1258 3072 t
+(# dhtadm \255)2 433 1 900 3240 t
+10 B f
+(D)1333 3240 w
+10 R f
+(\255)1430 3240 w
+10 B f
+(s)1463 3240 w
+10 R f
+(MySym)1527 3240 w
+10 B f
+(Example 9: Removing a dhcptab)4 1395 1 900 3408 t
+10 R f
+(The following command removes the)4 1498 1 900 3576 t
+10 B f
+(dhcptab)2423 3576 w
+10 R f
+(table in the NIS+ directory specified.)5 1481 1 2799 3576 t
+(# dhtadm \255)2 433 1 900 3744 t
+10 B f
+(R)1333 3744 w
+10 R f
+(\255)1430 3744 w
+10 B f
+(r)1463 3744 w
+10 R f
+(SUNWnisplus \255)1 636 1 1532 3744 t
+10 B f
+(p)2168 3744 w
+10 R f
+(Test.Nis.Plus.)2249 3744 w
+10 B f
+(Example 10: Printing a dhcptab)4 1368 1 900 3912 t
+10 R f
+(The following command prints to standard output the contents of the)10 2848 1 900 4080 t
+10 B f
+(dhcptab)3783 4080 w
+10 R f
+(that is located in the data)5 1051 1 4169 4080 t
+(store and path indicated in the)5 1201 1 900 4200 t
+10 B f
+(dhcpsvc.conf)2126 4200 w
+10 R f
+(file:.)2704 4200 w
+(# dhtadm \255)2 433 1 900 4368 t
+10 B f
+(P)1333 4368 w
+(Example 11: Executing dhtadm in Batch Mode)6 2001 1 900 4536 t
+10 R f
+(The following command runs a series of)6 1614 1 900 4704 t
+10 B f
+(dhtadm)2539 4704 w
+10 R f
+(commands contained in a batch file:)5 1445 1 2898 4704 t
+(#)900 4872 w
+10 B f
+(dhtadm \255B addmacros)2 956 1 975 4872 t
+9 B f
+(EXIT STATUS)1 593 1 540 5040 t
+10 B f
+(0)900 5160 w
+10 R f
+(Successful completion.)1 927 1 1200 5160 t
+10 B f
+(1)900 5328 w
+10 R f
+(Object already exists.)2 862 1 1200 5328 t
+10 B f
+(2)900 5496 w
+10 R f
+(Object does not exist.)3 866 1 1200 5496 t
+10 B f
+(3)900 5664 w
+10 R f
+(Non\255critical error.)1 725 1 1200 5664 t
+10 B f
+(4)900 5832 w
+10 R f
+(Critical error.)1 543 1 1200 5832 t
+9 B f
+(FILES)540 6000 w
+10 B f
+(/etc/inet/dhcpsvc.conf)900 6120 w
+9 B f
+(ATTRIBUTES)540 6408 w
+10 R f
+(See)900 6528 w
+10 B f
+(attributes)1069 6528 w
+10 R f
+(\(5\) for descriptions of the following attributes:)6 1859 1 1485 6528 t
+10 S f
+(_ ____________________________________________________________________________________)1 4210 1 900 6668 t
+10 B f
+( VALUE)1 375( ATTRIBUTE)1 1796(ATTRIBUTE TYPE)1 882 3 1499 6788 t
+10 S f
+(_ ____________________________________________________________________________________)1 4210 1 900 6808 t
+10 R f
+(Availability SUNWdhcsu)1 2657 1 950 6928 t
+10 S f
+(_ ____________________________________________________________________________________)1 4210 1 900 6948 t
+10 R f
+( Evolving)1 1779(Interface Stability)1 718 2 950 7068 t
+10 S f
+( \347)1 -4210(_ ____________________________________________________________________________________)1 4210 2 900 7088 t
+(\347)900 7068 w
+(\347)900 6968 w
+(\347)900 6868 w
+(\347)900 6768 w
+(\347)3005 7088 w
+(\347)3005 7068 w
+(\347)3005 6968 w
+(\347)3005 6868 w
+(\347)3005 6768 w
+(\347)5110 7088 w
+(\347)5110 7068 w
+(\347)5110 6968 w
+(\347)5110 6868 w
+(\347)5110 6768 w
+10 R f
+( 4)1 75( Page)1 1767( Commands)1 481( Maintenance)1 1772(March 8, 2018)2 585 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 4 4
+%%Page: 5 5
+DpostDict begin
+/saveobj save def
+mark
+5 pagesetup
+9 B f
+( \( 1M \))3 211( dhtadm)1 1627( \))1 37( Mar 2001)2 396( 13)1 97( \()1 68( 5.8)1 136( SunOS)1 1597(dhtadm \( 1M \))3 511 9 540 480 t
+(SEE ALSO)1 438 1 540 960 t
+10 B f
+(dhcpconfig)900 1080 w
+10 R f
+(\(1M\),)1373 1080 w
+10 B f
+(dhcpmgr)1692 1080 w
+10 R f
+(\(1M\),)2081 1080 w
+10 B f
+(in.dhcpd)2400 1080 w
+10 R f
+(\(1M\),)2777 1080 w
+10 B f
+(dhcpsvc.conf)3096 1080 w
+10 R f
+(\(4\),)3649 1080 w
+10 B f
+(dhcp)3880 1080 w
+10 S f
+(_)4092 1080 w
+10 B f
+(network)4142 1080 w
+10 R f
+(\(4\),)4497 1080 w
+10 B f
+(dhcptab)4728 1080 w
+10 R f
+(\(4\),)5079 1080 w
+10 B f
+(hosts)900 1200 w
+10 R f
+(\(4\),)1117 1200 w
+10 B f
+(user)1283 1200 w
+10 S f
+(_)1466 1200 w
+10 B f
+(attr)1516 1200 w
+10 R f
+(\(4\),)1676 1200 w
+10 B f
+(attributes)1842 1200 w
+10 R f
+(\(5\),)2258 1200 w
+10 B f
+(dhcp)2424 1200 w
+10 R f
+(\(5\),)2636 1200 w
+10 B f
+(dhcp)2802 1200 w
+10 S f
+(_)3014 1200 w
+10 B f
+(modules)3064 1200 w
+10 R f
+(\(5\))3420 1200 w
+10 B f
+(rbac)3536 1200 w
+10 R f
+(\(5\))3730 1200 w
+10 I f
+(Solaris DHCP Service Developer's Guide)4 1680 1 900 1368 t
+(System Administration Guide, Volume 3)4 1602 1 900 1536 t
+10 R f
+(Alexander, S., and R. Droms,)4 1195 1 900 1704 t
+10 I f
+(DHCP Options and BOOTP Vendor Extensions)5 1933 1 2124 1704 t
+10 R f
+(, RFC 1533, Lachman Tech\255)4 1163 1 4057 1704 t
+(nology, Inc., Bucknell University, October 1993.)5 1959 1 900 1824 t
+(Droms, R.,)1 439 1 900 1992 t
+10 I f
+(Interoperation Between DHCP and BOOTP)4 1765 1 1364 1992 t
+10 R f
+(, RFC 1534, Bucknell University, October 1993.)6 1944 1 3129 1992 t
+(Droms, R.,)1 439 1 900 2160 t
+10 I f
+(Dynamic Host Configuration Protocol)3 1542 1 1364 2160 t
+10 R f
+(, RFC 1541, Bucknell University, October 1993.)6 1944 1 2906 2160 t
+(Wimer, W.,)1 473 1 900 2328 t
+10 I f
+(Clarifications and Extensions for the Bootstrap Protocol)6 2286 1 1400 2328 t
+10 R f
+(, RFC 1542, Carnegie Mellon Univer\255)5 1534 1 3686 2328 t
+(sity, October 1993.)2 766 1 900 2448 t
+( 8, 2018)2 325( March)1 1517( Commands)1 481( Maintenance)1 2088(Page 5)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 5 5
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 5
+%%DocumentFonts: Times-Roman Times-Bold Times-Italic Times-Roman Symbol

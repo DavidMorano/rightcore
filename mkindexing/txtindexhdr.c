@@ -25,7 +25,7 @@
 	Synopsis:
 
 	int txtindexhdr(ep,f,hbuf,hlen)
-	TXTINDEXFU	*ep ;
+	TXTINDEXHDR	*ep ;
 	int		f ;
 	char		hbuf[] ;
 	int		hlen ;
@@ -111,14 +111,14 @@ enum his {
 /* exported subroutines */
 
 
-int txtindexhdr(TXTINDEXFU *ep,int f,char *hbuf,int hlen)
+int txtindexhdr(TXTINDEXHDR *ep,int f,char *hbuf,int hlen)
 {
 	uint		*header ;
 	const int	headsize = hi_overlast * sizeof(uint) ;
-	const int	magicsize = TXTINDEXFU_MAGICSIZE ;
+	const int	magicsize = TXTINDEXHDR_MAGICSIZE ;
 	int		rs = SR_OK ;
 	int		bl = hlen ;
-	const char	*magicstr = TXTINDEXFU_MAGICSTR ;
+	const char	*magicstr = TXTINDEXHDR_MAGICSTR ;
 	char		*bp = hbuf ;
 
 	if (ep == NULL) return SR_FAULT ;
@@ -135,7 +135,7 @@ int txtindexhdr(TXTINDEXFU *ep,int f,char *hbuf,int hlen)
 
 	        memcpy(ep->vetu,bp,4) ;
 
-	        if (ep->vetu[0] != TXTINDEXFU_VERSION) {
+	        if (ep->vetu[0] != TXTINDEXHDR_VERSION) {
 	            rs = SR_PROTONOSUPPORT ;
 		}
 
@@ -189,7 +189,7 @@ int txtindexhdr(TXTINDEXFU *ep,int f,char *hbuf,int hlen)
 	            bp += magicsize ;
 	            bl -= magicsize ;
 	    	    memcpy(bp,ep->vetu,4) ;
-	    	    bp[0] = TXTINDEXFU_VERSION ;
+	    	    bp[0] = TXTINDEXHDR_VERSION ;
 	    	    bp[1] = ENDIAN ;
 	    	    bp += 4 ;
 	    	    bl -= 4 ;

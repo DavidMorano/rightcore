@@ -1,10 +1,12 @@
 '\" t
-.nr X
 .TH mkdirs 3 "1998-01-10" LOCAL
 .SH NAME
 mkdirs \- create directories in a path
 .\"_
 .SH "SYNOPSIS"
+.\"_
+.so tmac.att
+.\"_
 .LP
 .BI "int mkdirs(const char *" "path" ,
 .BI "mode_t " "mode" );
@@ -41,4 +43,8 @@ created, or existed to begin with, it returns zero.
 .BR mkdir (2),
 .BR rmdir (2),
 .BR mkdirp (3G)
+.\"_
+.SH AUTHOR
+David A.D. Morano
+.\"_
 .\"_

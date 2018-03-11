@@ -119,20 +119,24 @@ int proginfo_setpiv(PROGINFO *pip,cchar *pr,struct pivars *vars)
 {
 	IDS		id ;
 	int		rs ;
+	int		rs1 ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	debugprintf("proginfo_setpiv: ent\n") ;
+	    debugprintf("proginfo_setpiv: ent\n") ;
 #endif
 
 	if ((rs = ids_load(&id)) >= 0) {
-	    rs = proginfo_setpiver(pip,&id,pr,vars) ;
-	    ids_release(&id) ;
+	    {
+	        rs = proginfo_setpiver(pip,&id,pr,vars) ;
+	    }
+	    rs1 = ids_release(&id) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (ids) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
-	debugprintf("proginfo_setpiv: ret rs=%d\n",rs) ;
+	    debugprintf("proginfo_setpiv: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
@@ -167,7 +171,7 @@ int proginfo_setpiver(PROGINFO *pip,IDS *idp,cchar *pr,struct pivars *vars)
 #endif /* CF_DEBUG */
 
 	if (pr == NULL) {
-	    int	i ;
+	    int		i ;
 
 	    pl = -1 ;
 	    rs1 = SR_NOTFOUND ;

@@ -80,6 +80,7 @@ int getproto_name(cchar *protop,int protol)
 {
 	NULSTR		n ;
 	int		rs ;
+	int		rs1 ;
 	int		proto = 0 ;
 	cchar		*pname ;
 	if ((rs = nulstr_start(&n,protop,protol,&pname)) >= 0) {
@@ -90,9 +91,11 @@ int getproto_name(cchar *protop,int protol)
 	        if ((rs = uc_getprotobyname(pname,&pe,pebuf,pelen)) >= 0) {
 	            proto = pe.p_proto ;
 	        }
-	        uc_free(pebuf) ;
+	        rs1 = uc_free(pebuf) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (m-a) */
-	    nulstr_finish(&n) ;
+	    rs1 = nulstr_finish(&n) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (nulstr) */
 	return (rs >= 0) ? proto : rs ;
 }

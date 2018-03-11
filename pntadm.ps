@@ -1,0 +1,2150 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 1M \))3 211( pntadm)1 1627( \))1 37( Mar 2001)2 396( 13)1 97( \()1 68( 5.8)1 136( SunOS)1 1597(pntadm \( 1M \))3 511 9 540 480 t
+(NAME)540 960 w
+10 R f
+(pntadm)900 1080 w
+10 S1 f
+(\261)1225 1080 w
+10 R f
+(DHCP network table management utility)4 1638 1 1315 1080 t
+9 B f
+(SYNOPSIS)540 1248 w
+10 B f
+(pntadm)900 1368 w
+10 R f
+(\255)1259 1368 w
+10 B f
+(C)1292 1368 w
+10 R f
+([ \255)1 91 1 1414 1368 t
+10 B f
+(r)1505 1368 w
+10 I f
+(resource)1574 1368 w
+10 R f
+( \255)1 58(] [)1 116 2 1948 1368 t
+10 B f
+(p)2122 1368 w
+10 I f
+(path)2203 1368 w
+10 R f
+( \255)1 58(] [)1 116 2 2406 1368 t
+10 B f
+(u)2580 1368 w
+10 I f
+(uninterpreted)2661 1368 w
+10 R f
+(])3230 1368 w
+10 I f
+(network)3313 1368 w
+10 B f
+(pntadm)900 1536 w
+10 R f
+(\255)1306 1536 w
+10 B f
+(A)1339 1536 w
+10 I f
+(name)1436 1536 w
+10 S f
+(_)1652 1536 w
+10 I f
+(IP)1702 1536 w
+10 S f
+(_)1796 1536 w
+10 I f
+(address)1846 1536 w
+10 R f
+([ \255)1 138 1 2254 1536 t
+10 B f
+(c)2392 1536 w
+10 I f
+(comment)2461 1536 w
+10 R f
+( \255)1 106(] [)1 163 2 2893 1536 t
+10 B f
+(e)3162 1536 w
+10 I f
+(mm/dd/yyyy)3231 1536 w
+10 R f
+( \255)1 106(] [)1 164 2 3780 1536 t
+10 B f
+(f)4050 1536 w
+10 I f
+(num)4108 1536 w
+10 S f
+(\357)4353 1536 w
+10 I f
+(keywords)4475 1536 w
+10 R f
+(] [ \255)2 295 1 4925 1536 t
+10 B f
+(h)900 1656 w
+10 I f
+(client)981 1656 w
+10 S f
+(_)1203 1656 w
+10 I f
+(hostname)1253 1656 w
+10 R f
+(] [ \255)2 207 1 1690 1656 t
+10 B f
+(i)1897 1656 w
+10 R f
+([ \255)1 94 1 1978 1656 t
+10 B f
+(a)2072 1656 w
+10 R f
+(])2150 1656 w
+10 I f
+(client)2236 1656 w
+10 S f
+(_)2458 1656 w
+10 I f
+(ID)2508 1656 w
+10 R f
+(] [ \255)2 205 1 2666 1656 t
+10 B f
+(m)2871 1656 w
+10 R f
+([ \255)1 94 1 3007 1656 t
+10 B f
+(y)3101 1656 w
+10 R f
+(])3179 1656 w
+10 I f
+(macro)3265 1656 w
+10 R f
+( \255)1 61(] [)1 119 2 3573 1656 t
+10 B f
+(s)3753 1656 w
+10 I f
+(server)3817 1656 w
+10 R f
+( \255)1 61(] [)1 119 2 4094 1656 t
+10 B f
+(r)4274 1656 w
+10 I f
+(resource)4343 1656 w
+10 R f
+( \255)1 61(] [)1 119 2 4720 1656 t
+10 B f
+(p)4900 1656 w
+10 I f
+(path)4981 1656 w
+10 R f
+(])5187 1656 w
+([ \255)1 91 1 900 1776 t
+10 B f
+(u)991 1776 w
+10 I f
+(uninterpreted)1072 1776 w
+10 R f
+(])1641 1776 w
+10 I f
+(network)1724 1776 w
+10 B f
+(pntadm)900 1944 w
+10 R f
+(\255)1305 1944 w
+10 B f
+(M)1338 1944 w
+10 I f
+(name)1457 1944 w
+10 S f
+(_)1673 1944 w
+10 I f
+(IP)1723 1944 w
+10 S f
+(_)1817 1944 w
+10 I f
+(address)1867 1944 w
+10 R f
+([ \255)1 137 1 2274 1944 t
+10 B f
+(c)2411 1944 w
+10 I f
+(comment)2480 1944 w
+10 R f
+( \255)1 104(] [)1 162 2 2911 1944 t
+10 B f
+(e)3177 1944 w
+10 I f
+(mm/dd/yyyy)3246 1944 w
+10 R f
+( \255)1 104(] [)1 162 2 3793 1944 t
+10 B f
+(f)4059 1944 w
+10 I f
+(num)4117 1944 w
+10 S f
+(\357)4360 1944 w
+10 I f
+(keywords)4480 1944 w
+10 R f
+( \255)1 130(] [)1 162 2 4928 1944 t
+10 B f
+(h)900 2064 w
+10 I f
+(client)981 2064 w
+10 S f
+(_)1203 2064 w
+10 I f
+(hostname)1253 2064 w
+10 R f
+(] [ \255)2 233 1 1703 2064 t
+10 B f
+(i)1936 2064 w
+10 R f
+([ \255)1 108 1 2031 2064 t
+10 B f
+(a)2139 2064 w
+10 R f
+(])2231 2064 w
+10 I f
+(client ID)1 419 1 2331 2064 t
+10 R f
+(] [ \255)2 233 1 2817 2064 t
+10 B f
+(m)3050 2064 w
+10 R f
+([ \255)1 108 1 3200 2064 t
+10 B f
+(y)3308 2064 w
+10 R f
+(])3400 2064 w
+10 I f
+(macro)3500 2064 w
+10 R f
+( \255)1 74(] [)1 132 2 3822 2064 t
+10 B f
+(n)4028 2064 w
+10 I f
+(new)4109 2064 w
+10 S f
+(_)4270 2064 w
+10 I f
+(client)4320 2064 w
+10 S f
+(_)4542 2064 w
+10 I f
+(IP)4592 2064 w
+10 S f
+(_)4686 2064 w
+10 I f
+(address)4736 2064 w
+10 R f
+(] [)1 132 1 5088 2064 t
+(\255)900 2184 w
+10 B f
+(s)933 2184 w
+10 I f
+(server)997 2184 w
+10 R f
+( \255)1 58(] [)1 116 2 1271 2184 t
+10 B f
+(r)1445 2184 w
+10 I f
+(resource)1514 2184 w
+10 R f
+( \255)1 58(] [)1 116 2 1888 2184 t
+10 B f
+(p)2062 2184 w
+10 I f
+(path)2143 2184 w
+10 R f
+( \255)1 58(] [)1 116 2 2346 2184 t
+10 B f
+(u)2520 2184 w
+10 R f
+(uninterpreted ])1 590 1 2601 2184 t
+10 I f
+(network)3241 2184 w
+10 B f
+(pntadm)900 2352 w
+10 R f
+(\255)1259 2352 w
+10 B f
+(D)1292 2352 w
+10 I f
+(name)1389 2352 w
+10 S f
+(_)1605 2352 w
+10 I f
+(IP)1655 2352 w
+10 S f
+(_)1749 2352 w
+10 I f
+(address)1799 2352 w
+10 R f
+([ \255)1 91 1 2160 2352 t
+10 B f
+(y)2251 2352 w
+10 R f
+( \255)1 58(] [)1 116 2 2326 2352 t
+10 B f
+(r)2500 2352 w
+10 I f
+(resource)2569 2352 w
+10 R f
+( \255)1 58(] [)1 116 2 2943 2352 t
+10 B f
+(p)3117 2352 w
+10 I f
+(path)3198 2352 w
+10 R f
+( \255)1 58(] [)1 116 2 3401 2352 t
+10 B f
+(u)3575 2352 w
+10 R f
+(uninterpreted ])1 590 1 3656 2352 t
+10 I f
+(network)4296 2352 w
+10 B f
+(pntadm)900 2520 w
+10 R f
+(\255)1259 2520 w
+10 B f
+(P)1292 2520 w
+10 R f
+([ \255)1 91 1 1403 2520 t
+10 B f
+(v)1494 2520 w
+10 R f
+( \255)1 58(] [)1 116 2 1569 2520 t
+10 B f
+(x)1743 2520 w
+10 R f
+( \255)1 58(] [)1 116 2 1818 2520 t
+10 B f
+(r)1992 2520 w
+10 I f
+(resource)2061 2520 w
+10 R f
+( \255)1 58(] [)1 116 2 2435 2520 t
+10 B f
+(p)2609 2520 w
+10 I f
+(path)2690 2520 w
+10 R f
+( \255)1 58(] [)1 116 2 2893 2520 t
+10 B f
+(u)3067 2520 w
+10 R f
+(uninterpreted ])1 590 1 3148 2520 t
+10 I f
+(network)3788 2520 w
+10 B f
+(pntadm)900 2688 w
+10 R f
+(\255)1259 2688 w
+10 B f
+(R)1292 2688 w
+10 R f
+([ \255)1 91 1 1414 2688 t
+10 B f
+(r)1505 2688 w
+10 I f
+(resource)1574 2688 w
+10 R f
+( \255)1 58(] [)1 116 2 1948 2688 t
+10 B f
+(p)2122 2688 w
+10 I f
+(path)2203 2688 w
+10 R f
+( \255)1 58(] [)1 116 2 2406 2688 t
+10 B f
+(u)2580 2688 w
+10 R f
+(uninterpreted ])1 590 1 2661 2688 t
+10 I f
+(network)3301 2688 w
+10 B f
+(pntadm)900 2856 w
+10 R f
+(\255)1259 2856 w
+10 B f
+(L)1292 2856 w
+10 R f
+([ \255)1 91 1 1409 2856 t
+10 B f
+(r)1500 2856 w
+10 I f
+(resource)1569 2856 w
+10 R f
+( \255)1 58(] [)1 116 2 1943 2856 t
+10 B f
+(p)2117 2856 w
+10 I f
+(path)2198 2856 w
+10 R f
+( \255)1 58(] [)1 116 2 2401 2856 t
+10 B f
+(u)2575 2856 w
+10 R f
+(uninterpreted ])1 590 1 2656 2856 t
+10 B f
+(pntadm)900 3024 w
+10 R f
+(\255)1259 3024 w
+10 B f
+(B)1292 3024 w
+10 R f
+([ \255)1 91 1 1409 3024 t
+10 B f
+(v)1500 3024 w
+10 R f
+(] [)1 116 1 1575 3024 t
+10 I f
+(batchfile)1716 3024 w
+10 R f
+(])2091 3024 w
+9 B f
+(DESCRIPTION)540 3192 w
+10 R f
+(The)900 3312 w
+10 B f
+(pntadm)1097 3312 w
+10 R f
+(command is used to manage the Dynamic Host Configuration Protocol \()10 3062 1 1473 3312 t
+10 B f
+(DHCP)4535 3312 w
+10 R f
+(\) network)1 402 1 4818 3312 t
+(tables. It is used to add and remove networks under)9 2169 1 900 3432 t
+10 B f
+(DHCP)3106 3432 w
+10 R f
+(management, and add, delete, or modify IP)6 1794 1 3426 3432 t
+( description of the format of)5 1143(address records within network tables, or to view tables. For a)10 2509 2 900 3552 t
+10 B f
+(DHCP)4581 3552 w
+10 R f
+(network)4893 3552 w
+(tables, see)1 410 1 900 3672 t
+10 B f
+(dhcp)1335 3672 w
+10 S f
+(_)1547 3672 w
+10 B f
+(network)1597 3672 w
+10 R f
+(\(4\).)1952 3672 w
+10 B f
+(pntadm)900 3840 w
+10 R f
+( the)1 153(can be run as root or by other users assigned to)10 1924 2 1264 3840 t
+10 B f
+(DHCP)3372 3840 w
+10 R f
+(Management profile. See)2 1018 1 3686 3840 t
+10 B f
+(rbac)4735 3840 w
+10 R f
+(\(5\) and)1 291 1 4929 3840 t
+10 B f
+(user)900 3960 w
+10 S f
+(_)1083 3960 w
+10 B f
+(attr)1133 3960 w
+10 R f
+(\(4\).)1293 3960 w
+(If the networks you want to add are subnetted, you need to update the)13 2778 1 900 4128 t
+10 B f
+(netmasks)3703 4128 w
+10 R f
+(\(4\) table.)1 360 1 4103 4128 t
+( be specified with the)4 862(One of the following options \(function flags\) must)7 2025 2 900 4296 t
+10 B f
+(pntadm)3814 4296 w
+10 R f
+(command: \255)1 482 1 4175 4296 t
+10 B f
+(A)4657 4296 w
+10 R f
+(, \255)1 85 1 4729 4296 t
+10 B f
+(B)4814 4296 w
+10 R f
+(, \255)1 85 1 4881 4296 t
+10 B f
+(C)4966 4296 w
+10 R f
+(, \255)1 85 1 5038 4296 t
+10 B f
+(D)5123 4296 w
+10 R f
+(,)5195 4296 w
+(\255)900 4416 w
+10 B f
+(L)933 4416 w
+10 R f
+(, \255)1 83 1 1000 4416 t
+10 B f
+(M)1083 4416 w
+10 R f
+(, \255)1 83 1 1177 4416 t
+10 B f
+(P)1260 4416 w
+10 R f
+(, or\255)1 166 1 1321 4416 t
+10 B f
+(R)1487 4416 w
+10 R f
+(.)1559 4416 w
+9 B f
+(OPTIONS)540 4584 w
+10 R f
+(The following options are supported:)4 1482 1 900 4704 t
+(\255)1260 4872 w
+10 B f
+(A)1293 4872 w
+10 I f
+(name)1390 4872 w
+10 S f
+(_)1606 4872 w
+10 I f
+(IP)1656 4872 w
+10 S f
+(_)1750 4872 w
+10 I f
+(address)1800 4872 w
+10 R f
+( IP address,)2 495(Add a client entry with hostname or client)7 1789 2 1560 4992 t
+10 I f
+(name)3885 4992 w
+10 S f
+(_)4101 4992 w
+10 I f
+(IP)4151 4992 w
+10 S f
+(_)4245 4992 w
+10 I f
+(address)4295 4992 w
+10 R f
+(, to the named)3 614 1 4606 4992 t
+10 B f
+(DHCP)1560 5112 w
+10 R f
+(network table.)1 571 1 1868 5112 t
+(The following sub\255options are optional:)4 1588 1 1560 5352 t
+(\255)1560 5520 w
+10 B f
+(c)1593 5520 w
+10 I f
+(comment)1662 5520 w
+10 R f
+(Comment text. The default is)4 1169 1 1860 5640 t
+10 I f
+(NULL)3054 5640 w
+10 R f
+(.)3305 5640 w
+(\255)1560 5808 w
+10 B f
+(e)1593 5808 w
+10 I f
+(mm/dd/yyyy)1662 5808 w
+10 R f
+(Absolute lease. The default is)4 1184 1 1860 5928 t
+10 B f
+(0)3069 5928 w
+10 R f
+(.)3119 5928 w
+(\255)1560 6096 w
+10 B f
+(f)1593 6096 w
+10 I f
+(num)1651 6096 w
+10 S f
+(\357)1848 6096 w
+10 I f
+(keywords)1922 6096 w
+10 R f
+(Flag value. The default is)4 1018 1 1860 6216 t
+10 B f
+(00)2903 6216 w
+10 R f
+(.)3003 6216 w
+(The flag \(\255)2 426 1 1860 6456 t
+10 B f
+(f)2286 6456 w
+10 R f
+( a single number denoting the intended)6 1560(\) option can be specified either as)6 1341 2 2319 6456 t
+( following keywords, combined using the plus \()7 1980(flag value, or as a series of the)7 1290 2 1860 6576 t
+10 B f
+(+)5130 6576 w
+10 R f
+(\))5187 6576 w
+(symbol:)1860 6696 w
+10 B f
+(DYNAMIC)1860 6984 w
+10 R f
+(or)2378 6984 w
+10 B f
+(00)2486 6984 w
+10 R f
+(Server manager's assignment.)2 1200 1 2160 7104 t
+( 8, 2018)2 325( March)1 1517( Commands)1 481( Maintenance)1 2088(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 1M \))3 211( pntadm)1 1627( \))1 37( Mar 2001)2 396( 13)1 97( \()1 68( 5.8)1 136( SunOS)1 1597(pntadm \( 1M \))3 511 9 540 480 t
+10 B f
+(PERMANENT)1860 960 w
+10 R f
+(or)2529 960 w
+10 B f
+(01)2637 960 w
+10 R f
+(Lease on entry is permanent.)4 1150 1 2160 1080 t
+10 B f
+(MANUAL)1860 1248 w
+10 R f
+(or)2334 1248 w
+10 B f
+(02)2442 1248 w
+10 R f
+(Administrator managed assignment.)2 1446 1 2160 1368 t
+10 B f
+(UNUSABLE)1860 1536 w
+10 R f
+(or)2430 1536 w
+10 B f
+(04)2538 1536 w
+10 R f
+(Entry is not valid.)3 717 1 2160 1656 t
+10 B f
+(BOOTP)1860 1824 w
+10 R f
+(or)2236 1824 w
+10 B f
+(08)2344 1824 w
+10 R f
+(Entry reserved for)2 725 1 2160 1944 t
+10 B f
+(BOOTP)2910 1944 w
+10 R f
+(clients.)3286 1944 w
+(For a more detailed description of the flag values, see)9 2140 1 1860 2184 t
+10 B f
+(dhcp)4025 2184 w
+10 S f
+(_)4237 2184 w
+10 B f
+(network)4287 2184 w
+10 R f
+(\(4\).)4642 2184 w
+(\255)1560 2352 w
+10 B f
+(h)1593 2352 w
+10 I f
+(client)1674 2352 w
+10 S f
+(_)1896 2352 w
+10 I f
+(hostname)1946 2352 w
+10 R f
+(Client hostname. The default is NULL.)5 1568 1 1860 2472 t
+(When the \255)2 451 1 1860 2712 t
+10 B f
+(h)2311 2712 w
+10 R f
+(option is used in this mode, the)6 1278 1 2396 2712 t
+10 I f
+(client)3704 2712 w
+10 S f
+(_)3926 2712 w
+10 I f
+(hostname)3976 2712 w
+10 R f
+(is added to the hosts)4 831 1 4389 2712 t
+( resource used for storing host names \(files, NIS+ or DNS\). The)11 2708(table within the)2 652 2 1860 2832 t
+(command will fail if this)4 989 1 1860 2952 t
+10 I f
+(client)2874 2952 w
+10 S f
+(_)3096 2952 w
+10 I f
+(hostname)3146 2952 w
+10 R f
+(is already present in the hosts table.)6 1423 1 3554 2952 t
+(\255)1560 3120 w
+10 B f
+(i)1593 3120 w
+10 I f
+(client)1646 3120 w
+10 S f
+(_)1868 3120 w
+10 I f
+(ID)1918 3120 w
+10 R f
+([\255)2048 3120 w
+10 B f
+(a)2114 3120 w
+10 R f
+(])2164 3120 w
+(Client identifier [\255)2 727 1 1860 3240 t
+10 B f
+(a)2587 3240 w
+10 R f
+(]. The default is)3 632 1 2637 3240 t
+10 B f
+(00)3294 3240 w
+10 R f
+(.)3394 3240 w
+(The \255)1 222 1 1860 3480 t
+10 B f
+(i)2082 3480 w
+10 R f
+(option modified with \255)3 930 1 2144 3480 t
+10 B f
+(a)3074 3480 w
+10 R f
+(specifies that the client identifier is in)6 1564 1 3159 3480 t
+10 B f
+(ASCII)4758 3480 w
+10 R f
+(for\255)5071 3480 w
+( thus needs to be converted to hexadecimal format before insertion into the)12 3013(mat, and)1 347 2 1860 3600 t
+(table.)1860 3720 w
+(\255)1560 3888 w
+10 B f
+(m)1593 3888 w
+10 I f
+(macro)1701 3888 w
+10 R f
+([\255)1981 3888 w
+10 B f
+(y)2047 3888 w
+10 R f
+(])2097 3888 w
+(Macro name. Default is UNKNOWN.)4 1518 1 1860 4008 t
+(The \255)1 223 1 1860 4248 t
+10 B f
+(m)2083 4248 w
+10 R f
+(option modified with \255)3 933 1 2201 4248 t
+10 B f
+(y)3134 4248 w
+10 R f
+(verifies the existence of the named macro in the)8 2000 1 3220 4248 t
+10 B f
+(dhcptab)1860 4368 w
+10 R f
+(table before adding the entry.)4 1172 1 2236 4368 t
+(\255)1560 4536 w
+10 B f
+(s)1593 4536 w
+10 I f
+(server)1657 4536 w
+10 R f
+(Server IP or name. Default is system name \()8 1766 1 1860 4656 t
+10 B f
+(uname)3626 4656 w
+10 R f
+(\255)3940 4656 w
+10 B f
+(n)3973 4656 w
+10 R f
+(\).)4029 4656 w
+(\255)1260 4944 w
+10 B f
+(B)1293 4944 w
+10 R f
+(Activate batch mode.)2 875 1 1560 4944 t
+10 B f
+(pntadm)2472 4944 w
+10 R f
+( file or from standard input a)6 1226(will read from the specified)4 1151 2 2843 4944 t
+(series of)1 342 1 1560 5064 t
+10 B f
+(pntadm)1933 5064 w
+10 R f
+(commands and execute them within the same process. Processing many)9 2922 1 2298 5064 t
+10 B f
+(pntadm)1560 5184 w
+10 R f
+( method is much faster than running an executable batchfile)9 2441(commands using this)2 855 2 1924 5184 t
+(itself. Batch mode is recommended for using)6 1795 1 1560 5304 t
+10 B f
+(pntadm)3380 5304 w
+10 R f
+(in scripts.)1 389 1 3739 5304 t
+(The following sub\255option is optional:)4 1495 1 1560 5544 t
+(\255)1560 5712 w
+10 B f
+(v)1593 5712 w
+10 R f
+(Display commands to standard output as they are processed.)8 2410 1 1860 5712 t
+(\255)1260 6000 w
+10 B f
+(C)1293 6000 w
+10 R f
+(Create the)1 417 1 1560 6000 t
+10 B f
+(DHCP)2012 6000 w
+10 R f
+( for the network specified by)5 1205(network table)1 556 2 2330 6000 t
+10 I f
+(network)4127 6000 w
+10 R f
+(. See)1 205 1 4449 6000 t
+10 I f
+(OPERANDS)4690 6000 w
+10 R f
+(.)5195 6000 w
+(For details, see)2 602 1 1560 6120 t
+10 B f
+(dhcp)2187 6120 w
+10 S f
+(_)2399 6120 w
+10 B f
+(network)2449 6120 w
+10 R f
+(\(4\) and)1 285 1 2804 6120 t
+10 B f
+(networks)3114 6120 w
+10 R f
+(\(4\).)3508 6120 w
+(\255)1260 6288 w
+10 B f
+(D)1293 6288 w
+10 I f
+(name)1415 6288 w
+10 S f
+(_)1631 6288 w
+10 I f
+(IP)1681 6288 w
+10 S f
+(_)1775 6288 w
+10 I f
+(address)1825 6288 w
+10 R f
+( IP address,)2 479(Delete the specified client entry with hostname or client)8 2291 2 1560 6408 t
+10 I f
+(name)4363 6408 w
+10 S f
+(_)4579 6408 w
+10 I f
+(IP)4629 6408 w
+10 S f
+(_)4723 6408 w
+10 I f
+(address)4773 6408 w
+10 R f
+(, in)1 136 1 5084 6408 t
+(the named)1 413 1 1560 6528 t
+10 B f
+(DHCP)1998 6528 w
+10 R f
+(network table. \(See)2 773 1 2306 6528 t
+10 B f
+(dhcp)3104 6528 w
+10 S f
+(_)3316 6528 w
+10 B f
+(network)3366 6528 w
+10 R f
+(\(4\).\))3721 6528 w
+(The following sub\255option is optional:)4 1495 1 1560 6768 t
+(\255)1560 6936 w
+10 B f
+(y)1593 6936 w
+10 R f
+(Remove associated host table entry. The \255)6 1684 1 1860 6936 t
+10 B f
+(y)3544 6936 w
+10 R f
+( that all hostnames asso\255)4 989(option requests)1 610 2 3621 6936 t
+(ciated with the)2 588 1 1860 7056 t
+10 B f
+(IP)2473 7056 w
+10 R f
+(address in the hosts table in the resource be removed.)9 2129 1 2598 7056 t
+( 2)1 75( Page)1 1767( Commands)1 481( Maintenance)1 1772(March 8, 2018)2 585 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Page: 3 3
+DpostDict begin
+/saveobj save def
+mark
+3 pagesetup
+9 B f
+( \( 1M \))3 211( pntadm)1 1627( \))1 37( Mar 2001)2 396( 13)1 97( \()1 68( 5.8)1 136( SunOS)1 1597(pntadm \( 1M \))3 511 9 540 480 t
+10 R f
+(\255)1260 960 w
+10 B f
+(L)1293 960 w
+10 R f
+(List the)1 315 1 1560 960 t
+10 B f
+(DHCP)1912 960 w
+10 R f
+( on standard output. If)4 937(network tables presently configured, one per line,)6 2051 2 2232 960 t
+(none are found, no output is printed and an exit status of)11 2253 1 1560 1080 t
+10 B f
+(0)3838 1080 w
+10 R f
+(is returned.)1 449 1 3913 1080 t
+(\255)1260 1248 w
+10 B f
+(M)1293 1248 w
+10 I f
+(name)1437 1248 w
+10 S f
+(_)1653 1248 w
+10 I f
+(IP)1703 1248 w
+10 S f
+(_)1797 1248 w
+10 I f
+(address)1847 1248 w
+10 R f
+(Modify the specified client entry with hostname or client IP address,)10 2778 1 1560 1368 t
+10 I f
+(name)4367 1368 w
+10 S f
+(_)4583 1368 w
+10 I f
+(IP)4633 1368 w
+10 S f
+(_)4727 1368 w
+10 I f
+(address)4777 1368 w
+10 R f
+(, in)1 132 1 5088 1368 t
+(the named)1 417 1 1560 1488 t
+10 B f
+(DHCP)2005 1488 w
+10 R f
+(network table. See)2 746 1 2316 1488 t
+10 B f
+(dhcp)3090 1488 w
+10 S f
+(_)3302 1488 w
+10 B f
+(network)3352 1488 w
+10 R f
+(\(4\). The default for the sub\255options is)6 1513 1 3707 1488 t
+(what they currently are set to.)5 1186 1 1560 1608 t
+(The following sub\255options are optional.)4 1585 1 1560 1848 t
+(\255)1560 2136 w
+10 B f
+(c)1593 2136 w
+10 I f
+(comment)1662 2136 w
+10 R f
+(New comment text.)2 785 1 1860 2256 t
+(\255)1560 2424 w
+10 B f
+(e)1593 2424 w
+10 I f
+(mm/dd/yy)1662 2424 w
+10 R f
+( defaults to 12:00 AM of the day speci\255)8 1658(New absolute lease expiration date. Time)5 1702 2 1860 2544 t
+(fied.)1860 2664 w
+(\255)1560 2832 w
+10 B f
+(f)1593 2832 w
+10 I f
+(num)1651 2832 w
+10 S f
+(\357)1848 2832 w
+10 I f
+(keyboard)1922 2832 w
+10 R f
+( the description of the \255)5 929( following)1 439(New flag value, see explanation)4 1277 3 1860 2952 t
+10 B f
+(A)4505 2952 w
+10 R f
+(option.)4602 2952 w
+(\255)1560 3120 w
+10 B f
+(h)1593 3120 w
+10 I f
+(host)1674 3120 w
+10 S f
+(_)1841 3120 w
+10 I f
+(name)1891 3120 w
+10 R f
+(New client hostname.)2 868 1 1860 3240 t
+(The \255)1 225 1 1860 3480 t
+10 B f
+(h)2085 3480 w
+10 R f
+(option allows you to change the current)6 1659 1 2178 3480 t
+10 I f
+(hostname)3875 3480 w
+10 R f
+(associated with the)2 786 1 4296 3480 t
+10 B f
+(IP)5120 3480 w
+10 R f
+(address or to add a new)5 964 1 1860 3600 t
+10 I f
+(hostname)2854 3600 w
+10 R f
+(to the hosts table if an entry associated with this)9 1954 1 3266 3600 t
+10 B f
+(IP)1860 3720 w
+10 R f
+(address does not exist.)3 899 1 1985 3720 t
+(\255)1560 3888 w
+10 B f
+(i)1593 3888 w
+10 I f
+(client)1646 3888 w
+10 S f
+(_)1868 3888 w
+10 I f
+(ID)1918 3888 w
+10 R f
+(New client identifier [\255)3 917 1 1860 4008 t
+10 B f
+(a)2777 4008 w
+10 R f
+(].)2827 4008 w
+(\255)1560 4176 w
+10 B f
+(m)1593 4176 w
+10 I f
+(macro)1701 4176 w
+10 R f
+([\255)1981 4176 w
+10 B f
+(y)2047 4176 w
+10 R f
+(])2097 4176 w
+(Macro name defined in)3 928 1 1860 4296 t
+10 B f
+(dhcptab)2813 4296 w
+10 R f
+(.)3164 4296 w
+(\255)1560 4464 w
+10 B f
+(n)1593 4464 w
+10 I f
+(new)1699 4464 w
+10 S f
+(_)1860 4464 w
+10 I f
+(client)1910 4464 w
+10 S f
+(_)2132 4464 w
+10 I f
+(IP)2182 4464 w
+10 S f
+(_)2276 4464 w
+10 I f
+(address)2326 4464 w
+10 R f
+(New)1860 4584 w
+10 B f
+(IP)2073 4584 w
+10 R f
+(address.)2198 4584 w
+(\255)1560 4752 w
+10 B f
+(s)1593 4752 w
+10 I f
+(server)1657 4752 w
+10 R f
+(New server)1 456 1 1860 4872 t
+10 B f
+(IP)2341 4872 w
+10 R f
+(or name.)1 349 1 2466 4872 t
+(For more detailed description of the sub\255options and flag values, see)10 2732 1 1585 5112 t
+10 B f
+(dhcp)4342 5112 w
+10 S f
+(_)4554 5112 w
+10 B f
+(network)4604 5112 w
+10 R f
+(\(4\).)4959 5112 w
+(\255)1260 5280 w
+10 B f
+(P)1293 5280 w
+10 R f
+(Display the named)2 749 1 1560 5280 t
+10 B f
+(DHCP)2334 5280 w
+10 R f
+(network table. See)2 740 1 2642 5280 t
+10 B f
+(dhcp)3407 5280 w
+10 S f
+(_)3619 5280 w
+10 B f
+(network)3669 5280 w
+10 R f
+(\(4\).)4024 5280 w
+(The following sub\255options are optional:)4 1588 1 1560 5520 t
+(\255)1560 5688 w
+10 B f
+(v)1593 5688 w
+10 R f
+(Display lease time in full verbose format.)6 1656 1 1860 5688 t
+(\255)1560 5856 w
+10 B f
+(x)1593 5856 w
+10 R f
+(Display lease time in raw format.)5 1331 1 1860 5856 t
+(\255)1260 6144 w
+10 B f
+(p)1293 6144 w
+10 I f
+(path)1374 6144 w
+10 R f
+(Override the)1 515 1 1560 6264 t
+10 B f
+(dhcpsvc.conf)2114 6264 w
+10 R f
+(\(4\) configuration value for data store resource path,)7 2153 1 2667 6264 t
+10 I f
+(path)4859 6264 w
+10 R f
+(See)5076 6264 w
+10 B f
+(dhcpsvc.conf)1560 6384 w
+10 R f
+(\(4\))2113 6384 w
+(\255)1260 6552 w
+10 B f
+(R)1293 6552 w
+10 R f
+(Remove the named DHCP network table. See)6 1828 1 1560 6552 t
+10 B f
+(dhcp)3413 6552 w
+10 S f
+(_)3625 6552 w
+10 B f
+(network)3675 6552 w
+10 R f
+(\(4\).)4030 6552 w
+(\255)1260 6720 w
+10 B f
+(r)1293 6720 w
+10 I f
+(data)1362 6720 w
+10 S f
+(_)1540 6720 w
+10 I f
+(store)1590 6720 w
+10 S f
+(_)1790 6720 w
+10 I f
+(resource)1840 6720 w
+10 R f
+(Override the)1 536 1 1560 6840 t
+10 B f
+(/etc/inet/dhcpsvc.conf)2156 6840 w
+10 R f
+(configuration value for)2 990 1 3135 6840 t
+10 B f
+(RESOURCE=)4185 6840 w
+10 R f
+(with the)1 361 1 4859 6840 t
+10 I f
+(data)1560 6960 w
+10 S f
+(_)1738 6960 w
+10 I f
+(store)1788 6960 w
+10 S f
+(_)1988 6960 w
+10 I f
+(resource)2038 6960 w
+10 R f
+(specified. See the)2 745 1 2435 6960 t
+10 B f
+(dhcpsvc.conf)3227 6960 w
+10 R f
+(\(4\) man page for more details on)6 1440 1 3780 6960 t
+(resource type, and the)3 932 1 1560 7080 t
+10 I f
+(Solaris DHCP Service Developer's Guide)4 1756 1 2536 7080 t
+10 R f
+(for more information)2 883 1 4337 7080 t
+(about adding support for other data stores.)6 1689 1 1560 7200 t
+( 8, 2018)2 325( March)1 1517( Commands)1 481( Maintenance)1 2088(Page 3)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 3 3
+%%Page: 4 4
+DpostDict begin
+/saveobj save def
+mark
+4 pagesetup
+9 B f
+( \( 1M \))3 211( pntadm)1 1627( \))1 37( Mar 2001)2 396( 13)1 97( \()1 68( 5.8)1 136( SunOS)1 1597(pntadm \( 1M \))3 511 9 540 480 t
+10 R f
+(\255)1260 960 w
+10 B f
+(u)1293 960 w
+10 R f
+(uninterpreted)1374 960 w
+(Data which will be ignored by)5 1307 1 1560 1080 t
+10 B f
+(pntadm)2911 1080 w
+10 R f
+( passed to the currently configured public)6 1778(, but)1 197 2 3245 1080 t
+( name)1 242(module to be interpreted by the data store. This might be used for a database account)15 3418 2 1560 1200 t
+(or other authentication or authorization parameters required by a particular data store.)11 3419 1 1560 1320 t
+9 B f
+(OPERANDS)540 1608 w
+10 R f
+(The following operand is supported:)4 1454 1 900 1728 t
+10 I f
+(network)900 1896 w
+10 R f
+(The network address or network name which corresponds to the)9 2855 1 1200 2016 t
+10 B f
+(dhcp network)1 626 1 4113 2016 t
+10 R f
+(table. See)1 422 1 4798 2016 t
+10 B f
+(dhcp)1200 2136 w
+10 S f
+(_)1412 2136 w
+10 B f
+(network)1462 2136 w
+10 R f
+(\(4\).)1817 2136 w
+9 B f
+(EXAMPLES)540 2304 w
+10 B f
+(Example 1: Creating a Table for the 10.0.0.0)7 1893 1 900 2424 t
+10 R f
+(DHCP Network)1 641 1 2818 2424 t
+(The following command creates a table for the)7 1893 1 900 2592 t
+10 B f
+(10.0.0.0)2822 2592 w
+10 R f
+( C\))1 130(\(subnetted to class)2 746 2 3176 2592 t
+10 B f
+(DHCP)4107 2592 w
+10 R f
+(network table. Note)2 800 1 4420 2592 t
+( an alias for this network in your)7 1336(that if you have)3 642 2 900 2712 t
+10 B f
+(networks)2908 2712 w
+10 R f
+(\(4\) table, you can use that value rather than the)9 1918 1 3302 2712 t
+(dotted Internet Address notation.)3 1315 1 900 2832 t
+(example#)900 3000 w
+10 B f
+(pntadm \255C 10.0.0.0)2 814 1 1313 3000 t
+(Example 2: Adding an Entry to the 10.0.0.0)7 1851 1 900 3168 t
+10 R f
+(Table)2776 3168 w
+(The following command adds an entry to the)7 1823 1 900 3336 t
+10 B f
+(10.0.0.0)2752 3336 w
+10 R f
+(table in the)2 452 1 3106 3336 t
+10 B f
+(files)3587 3336 w
+10 R f
+(resource in the)2 595 1 3788 3336 t
+10 B f
+(/var/mydhcp)4413 3336 w
+10 R f
+(direc\255)4988 3336 w
+(tory:)900 3456 w
+(example#)900 3624 w
+10 B f
+(pntadm \255r SUNWfiles \255p /var/mydhcp \255A 10.0.0.1 10.0.0.0)7 2447 1 1313 3624 t
+(Example 3: Modifying the 10.0.0.1)4 1464 1 900 3792 t
+10 R f
+(Entry of the)2 477 1 2389 3792 t
+10 B f
+(10.0.0.0)2891 3792 w
+10 R f
+(Table)3241 3792 w
+(The following command modifies the)4 1570 1 900 3960 t
+10 B f
+(10.0.0.1)2510 3960 w
+10 R f
+(entry of the)2 490 1 2875 3960 t
+10 B f
+(10.0.0.0)3405 3960 w
+10 R f
+(table, changing the macro name to)5 1450 1 3770 3960 t
+10 B f
+(Green)900 4080 w
+10 R f
+(, setting the flags field to)5 994 1 1166 4080 t
+10 B f
+(MANUAL)2185 4080 w
+10 R f
+(and)2659 4080 w
+10 B f
+(PERMANENT:)2828 4080 w
+10 R f
+(example#)900 4248 w
+10 B f
+(pntadm \255M 10.0.0.1 \255m Green \255f 'PERMANENT + MANUAL' 10.0.0.0)9 3000 1 1313 4248 t
+(Example 4: Changing the 10.0.0.1)4 1437 1 900 4416 t
+10 R f
+(Entry to)1 325 1 2362 4416 t
+10 B f
+(10.0.0.2)2712 4416 w
+10 R f
+(The following command changes the)4 1485 1 900 4584 t
+10 B f
+(10.0.0.1)2411 4584 w
+10 R f
+(entry to)1 309 1 2762 4584 t
+10 B f
+(10.0.0.2)3097 4584 w
+10 R f
+(, making an entry in the)5 954 1 3422 4584 t
+10 B f
+(hosts)4402 4584 w
+10 R f
+( called)1 265(\(4\) table)1 336 2 4619 4584 t
+10 B f
+(myclient)900 4704 w
+10 R f
+(:)1266 4704 w
+(example#)900 4872 w
+10 B f
+(pntadm \255M 10.0.0.1 \255n 10.0.0.2 \255h myclient 10.0.0.0)7 2155 1 1313 4872 t
+(Example 5: Setting the Client ID)5 1391 1 900 5040 t
+10 R f
+(as)2316 5040 w
+10 B f
+(ASCII)2424 5040 w
+10 R f
+(The following command sets the client)5 1557 1 900 5208 t
+10 B f
+(ID)2482 5208 w
+10 R f
+(as)2618 5208 w
+10 B f
+(ASCII aruba.foo.com)1 919 1 2726 5208 t
+10 R f
+(for the)1 263 1 3670 5208 t
+10 B f
+(myclient)3958 5208 w
+10 R f
+(entry:)4349 5208 w
+(example#)900 5376 w
+10 B f
+(pntadm \255M myclient \255i 'aruba.foo.com' \255a 10.0.0.0)6 2128 1 1313 5376 t
+(Example 6: Deleting the myclient)4 1415 1 900 5544 t
+10 R f
+(Entry from the)2 588 1 2315 5544 t
+10 B f
+(10.0.0.0)2928 5544 w
+10 R f
+(Table)3278 5544 w
+(The following command deletes the)4 1437 1 900 5712 t
+10 B f
+(myclient)2362 5712 w
+10 R f
+(\()2753 5712 w
+10 B f
+(10.0.0.2)2786 5712 w
+10 R f
+(\) entry from the)3 629 1 3111 5712 t
+10 B f
+(10.0.0.0)3765 5712 w
+10 R f
+(table:)4115 5712 w
+(example#)900 5880 w
+10 B f
+(pntadm \255D myclient 10.0.0.0)3 1205 1 1313 5880 t
+(Example 7: Removing the Named DHCP Network Table)7 2406 1 900 6048 t
+10 R f
+(The following command removes the named)5 1789 1 900 6216 t
+10 B f
+(DHCP)2714 6216 w
+10 R f
+(network table in the NIS+ directory specified:)6 1836 1 3022 6216 t
+(example#)900 6384 w
+10 B f
+(pntadm \255r SUNWnisplus \255p Test.Nis.Plus. \255R 10.0.0.0)6 2263 1 1313 6384 t
+(Example 8: Listing the Configured DHCP Network Tables)7 2497 1 900 6552 t
+10 R f
+(The following command lists the configured DHCP network tables:)8 2709 1 900 6720 t
+(example#)900 6888 w
+10 B f
+(pntadm \255L)1 459 1 1313 6888 t
+10 CW f
+(192.168.0.0)900 7008 w
+(10.0.0.0)900 7128 w
+10 R f
+( 4)1 75( Page)1 1767( Commands)1 481( Maintenance)1 1772(March 8, 2018)2 585 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 4 4
+%%Page: 5 5
+DpostDict begin
+/saveobj save def
+mark
+5 pagesetup
+9 B f
+( \( 1M \))3 211( pntadm)1 1627( \))1 37( Mar 2001)2 396( 13)1 97( \()1 68( 5.8)1 136( SunOS)1 1597(pntadm \( 1M \))3 511 9 540 480 t
+10 B f
+(Example 9: Executing pntadm Commands in Batch Mode)7 2465 1 900 960 t
+10 R f
+(The following command runs a series of)6 1614 1 900 1128 t
+10 B f
+(pntadm)2539 1128 w
+10 R f
+(commands contained in a batch file:)5 1445 1 2898 1128 t
+(example#)900 1296 w
+10 B f
+(pntadm \255B addclients)2 918 1 1313 1296 t
+9 B f
+(EXIT STATUS)1 593 1 540 1464 t
+10 B f
+(0)900 1584 w
+10 R f
+(Successful completion.)1 927 1 1200 1584 t
+10 B f
+(1)900 1752 w
+10 R f
+(Object already exists.)2 862 1 1200 1752 t
+10 B f
+(2)900 1920 w
+10 R f
+(Object does not exist.)3 866 1 1200 1920 t
+10 B f
+(3)900 2088 w
+10 R f
+(Non\255critical error.)1 725 1 1200 2088 t
+10 B f
+(4)900 2256 w
+10 R f
+(Critical error.)1 543 1 1200 2256 t
+9 B f
+(FILES)540 2424 w
+10 B f
+(/etc/inet/dhcpsvc.conf)900 2544 w
+(/etc/inet/hosts)900 2832 w
+9 B f
+(ATTRIBUTES)540 3120 w
+10 R f
+(See)900 3240 w
+10 B f
+(attributes)1069 3240 w
+10 R f
+(\(5\) for descriptions of the following attributes:)6 1859 1 1485 3240 t
+10 S f
+(_ ____________________________________________________________________________________)1 4210 1 900 3380 t
+10 R f
+( VALUE)1 363( ATTRIBUTE)1 1811(ATTRIBUTE TYPE)1 830 3 1525 3500 t
+10 S f
+(_ ____________________________________________________________________________________)1 4210 1 900 3520 t
+10 R f
+(Availability SUNWdhcsu)1 2657 1 950 3640 t
+10 S f
+(_ ____________________________________________________________________________________)1 4210 1 900 3660 t
+10 R f
+( Evolving)1 1779(Interface Stability)1 718 2 950 3780 t
+10 S f
+( \347)1 -4210(_ ____________________________________________________________________________________)1 4210 2 900 3800 t
+(\347)900 3780 w
+(\347)900 3680 w
+(\347)900 3580 w
+(\347)900 3480 w
+(\347)3005 3800 w
+(\347)3005 3780 w
+(\347)3005 3680 w
+(\347)3005 3580 w
+(\347)3005 3480 w
+(\347)5110 3800 w
+(\347)5110 3780 w
+(\347)5110 3680 w
+(\347)5110 3580 w
+(\347)5110 3480 w
+9 B f
+(SEE ALSO)1 438 1 540 4088 t
+10 B f
+(dhcpconfig)900 4208 w
+10 R f
+(\(1M\),)1373 4208 w
+10 B f
+(dhcpmgr)1675 4208 w
+10 R f
+(\(1M\),)2064 4208 w
+10 B f
+(dhcp)2366 4208 w
+10 S f
+(_)2578 4208 w
+10 B f
+(network)2628 4208 w
+10 R f
+(\(4\), ,)1 238 1 2983 4208 t
+10 B f
+(dhcpsvc.conf)3293 4208 w
+10 R f
+(\(4\),)3846 4208 w
+10 B f
+(dhcptab)4059 4208 w
+10 R f
+(\(4\),)4410 4208 w
+10 B f
+(hosts)4623 4208 w
+10 R f
+(\(4\),)4840 4208 w
+10 B f
+(net\255)5054 4208 w
+(masks)900 4328 w
+10 R f
+(\(4\),)1167 4328 w
+10 B f
+(networks)1333 4328 w
+10 R f
+(\(4\),)1727 4328 w
+10 B f
+(user)1893 4328 w
+10 S f
+(_)2076 4328 w
+10 B f
+(attr)2126 4328 w
+10 R f
+(\(4\),)2286 4328 w
+10 B f
+(attributes)2452 4328 w
+10 R f
+(\(5\),)2868 4328 w
+10 B f
+(dhcp)3034 4328 w
+10 R f
+(\(5\),)3246 4328 w
+10 B f
+(dhcp)3412 4328 w
+10 S f
+(_)3624 4328 w
+10 B f
+(modules)3674 4328 w
+10 R f
+(\(5\),)4030 4328 w
+10 B f
+(rbac)4196 4328 w
+10 R f
+(\(5\))4390 4328 w
+10 I f
+(Solaris DHCP Service Developer's Guide)4 1680 1 900 4496 t
+(System Administration Guide, Volume 3)4 1602 1 900 4664 t
+10 R f
+(Alexander, S., and R. Droms,)4 1195 1 900 4832 t
+10 I f
+(DHCP Options and BOOTP Vendor Extensions)5 1933 1 2124 4832 t
+10 R f
+(, RFC 1533, Lachman Tech\255)4 1163 1 4057 4832 t
+(nology, Inc., Bucknell University, October 1993.)5 1959 1 900 4952 t
+(Droms, R.,)1 439 1 900 5120 t
+10 I f
+(Interoperation Between DHCP and BOOTP)4 1765 1 1364 5120 t
+10 R f
+(, RFC 1534, Bucknell University, October 1993.)6 1944 1 3129 5120 t
+(Droms, R.,)1 439 1 900 5288 t
+10 I f
+(Dynamic Host Configuration Protocol)3 1542 1 1364 5288 t
+10 R f
+(, RFC 1541, Bucknell University, October 1993.)6 1944 1 2906 5288 t
+(Wimer, W.,)1 473 1 900 5456 t
+10 I f
+(Clarifications and Extensions for the Bootstrap Protocol)6 2286 1 1400 5456 t
+10 R f
+(, RFC 1542, Carnegie Mellon Univer\255)5 1534 1 3686 5456 t
+(sity, October 1993.)2 766 1 900 5576 t
+( 8, 2018)2 325( March)1 1517( Commands)1 481( Maintenance)1 2088(Page 5)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 5 5
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 5
+%%DocumentFonts: Courier Times-Roman Times-Bold Times-Italic Times-Roman Symbol

@@ -750,14 +750,14 @@ static int getxusername_lookup(GETXUSERNAME *xup,cchar *np)
 static int logpop(uid_t uid)
 {
 	time_t		daytime = time(NULL) ;
+	uid_t		pid = ugetpid() ;
 	int		rs ;
-	const char	*pp = getexecname() ;
+	cchar		*pp = getexecname() ;
+	cchar		*fmt ;
 	char		timebuf[TIMEBUFLEN + 1] ;
-	rs = nprintf(DEBFNAME,"%-23s p=%d u=%u ef=%s\n",
-	    timestr_logz(daytime,timebuf),
-	    ugetpid(),
-	    uid,
-	    pp) ;
+	timestr_logz(daytime,timebuf),
+	fmt = "%-23s p=%d u=%u ef=%s\n" ;
+	rs = nprintf(DEBFNAME,fmt,timebuf,pid,uid,pp) ;
 	return rs ;
 }
 /* end subroutine (logpop) */

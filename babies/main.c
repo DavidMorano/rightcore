@@ -31,7 +31,6 @@
 
 #include	<sys/types.h>
 #include	<sys/param.h>
-#include	<sys/mman.h>
 #include	<limits.h>
 #include	<unistd.h>
 #include	<signal.h>
@@ -54,7 +53,7 @@
 /* local defines */
 
 #if	defined(KSHBUILTIN) && (KSHBUILTIN > 0)
-#define	CF_LOCKMEMALLOC		1
+#define	CF_LOCKMEMALLOC		0	/* formerly =1 */
 #else
 #define	CF_LOCKMEMALLOC		0
 #endif
@@ -228,10 +227,12 @@ int main(int argc,cchar *argv[],cchar *envv[])
 	        } /* end if (maininfo-sig) */
 	        rs1 = maininfo_finish(mip) ;
 	        if (rs >= 0) rs = rs1 ;
-	    } else
+	    } else {
 	        ex = EX_OSERR ;
-	} else
+	    }
+	} else {
 	    ex = EX_OSERR ;
+	}
 
 	if ((rs < 0) && (ex == EX_OK)) {
 	    ex = mapex(mapexs,rs) ;
@@ -337,7 +338,7 @@ static const char *strsigcode(const struct sigcode *scp,int code)
 {
 	int		i ;
 	int		f = FALSE ;
-	const char	*sn = "UNKNOWN" ;
+	cchar		*sn = "UNKNOWN" ;
 	for (i = 0 ; scp[i].code != 0 ; i += 1) {
 	    f = (scp[i].code == code) ;
 	    if (f) break ;

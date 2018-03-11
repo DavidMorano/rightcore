@@ -1,0 +1,1541 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+(dhcp)540 480 w
+9 S f
+(_)730 480 w
+9 B f
+( dhcp)1 1412( \))1 37( Mar 2001)2 396( 21)1 97( \()1 68( 5.8)1 136( SunOS)1 1492(inittab \( 4 \))3 381 8 775 480 t
+9 S f
+(_)4794 480 w
+9 B f
+(inittab \( 4 \))3 381 1 4839 480 t
+(NAME)540 960 w
+10 R f
+(dhcp)900 1080 w
+10 S f
+(_)1094 1080 w
+10 R f
+(inittab)1144 1080 w
+10 S1 f
+(\261)1425 1080 w
+10 R f
+(information repository for DHCP options)4 1655 1 1515 1080 t
+9 B f
+(DESCRIPTION)540 1248 w
+10 R f
+(The)900 1368 w
+10 B f
+(/etc/dhcp/inittab)1089 1368 w
+10 R f
+( Host Configuration Protocol \()4 1262(file contains information about the Dynamic)5 1818 2 1824 1368 t
+10 B f
+(DHCP)4904 1368 w
+10 R f
+(\))5187 1368 w
+( from)1 224(options, which are network configuration parameters passed)6 2439 2 900 1488 t
+10 B f
+(DHCP)3593 1488 w
+10 R f
+(servers to)1 390 1 3906 1488 t
+10 B f
+(DHCP)4326 1488 w
+10 R f
+(clients when a)2 581 1 4639 1488 t
+(client machine uses)2 784 1 900 1608 t
+10 B f
+(DHCP)1710 1608 w
+10 R f
+(. Since many)2 521 1 1993 1608 t
+10 B f
+(DHCP)2540 1608 w
+10 R f
+( understand these)2 697(\255related commands must parse and)4 1390 2 2823 1608 t
+10 B f
+(DHCP)4937 1608 w
+10 R f
+(options, this file serves as a central location where information about these options may be obtained.)15 4014 1 900 1728 t
+(The)900 1896 w
+10 B f
+(DHCP inittab)1 592 1 1080 1896 t
+10 R f
+(file provides three general pieces of information:)6 1951 1 1697 1896 t
+10 S f
+(\267)975 2064 w
+10 R f
+( aliased to)2 425(A mnemonic alias, or symbol name, for each option number. For instance, option 12 is)14 3595 2 1200 2064 t
+(the name)1 380 1 1200 2184 t
+10 B f
+(Hostname)1622 2184 w
+10 R f
+(. This is useful for)4 798 1 2055 2184 t
+10 B f
+(DHCP)2895 2184 w
+10 R f
+(\255related programs that require human interaction,)5 2042 1 3178 2184 t
+(such as)1 291 1 1200 2304 t
+10 B f
+(dhcpinfo)1516 2304 w
+10 R f
+(\(1\).)1895 2304 w
+10 S f
+(\267)975 2472 w
+10 R f
+( each option. This includes information such as the type of the)11 2662(Information about the syntax for)4 1358 2 1200 2472 t
+(value, for example, whether it is a 16\255bit integer or an)10 2151 1 1200 2592 t
+10 B f
+(IP)3376 2592 w
+10 R f
+(address.)3501 2592 w
+10 S f
+(\267)975 2760 w
+10 R f
+(The policy for what options are visible to which)8 1920 1 1200 2760 t
+10 B f
+(DHCP)3145 2760 w
+10 R f
+(\255related programs.)1 731 1 3428 2760 t
+(The)925 2928 w
+10 B f
+(dhcp)1120 2928 w
+10 S f
+(_)1332 2928 w
+10 B f
+(inittab)1382 2928 w
+10 R f
+( additions of)2 532(file can only be changed upon system upgrade. Only)8 2219 2 1706 2928 t
+10 B f
+(SITE)4498 2928 w
+10 R f
+(options \(or)1 452 1 4768 2928 t
+(changes to same\) will be preserved during upgrade.)7 2056 1 900 3048 t
+(The)900 3216 w
+10 B f
+(VENDOR)1084 3216 w
+10 R f
+(options defined here are intended for use by the Solaris)9 2249 1 1546 3216 t
+10 B f
+(DHCP)3825 3216 w
+10 R f
+(client and)1 396 1 4138 3216 t
+10 B f
+(DHCP)4564 3216 w
+10 R f
+(manage\255)4877 3216 w
+(ment tools. The)2 633 1 900 3336 t
+10 B f
+(SUNW)1562 3336 w
+10 R f
+(vendor space is owned by Sun, and changes are likely during upgrade. If you need)14 3329 1 1891 3336 t
+( Solaris)1 307(to configure the)2 638 2 900 3456 t
+10 B f
+(DHCP)1874 3456 w
+10 R f
+(server to support the vendor options of a different client, see)10 2449 1 2186 3456 t
+10 B f
+(dhctab)4664 3456 w
+10 R f
+(\(4\) for)1 261 1 4959 3456 t
+(details.)900 3576 w
+(Each)900 3744 w
+10 B f
+(DHCP)1143 3744 w
+10 R f
+( which roughly defines the scope of the option; for)9 2202(option belongs to a certain category,)5 1548 2 1470 3744 t
+( it may be globally)4 810(instance, an option may only be understood by certain hosts within a given site, or)14 3510 2 900 3864 t
+(understood by all)2 702 1 900 3984 t
+10 B f
+(DHCP)1631 3984 w
+10 R f
+( The following categories are defined; the category names are)9 2507(clients and servers.)2 770 2 1943 3984 t
+(not case\255sensitive:)1 735 1 900 4104 t
+10 B f
+(STANDARD)1260 4272 w
+10 R f
+(All client and server)3 854 1 1560 4392 t
+10 B f
+(DHCP)2453 4392 w
+10 R f
+(implementations agree on the semantics. These are admin\255)7 2445 1 2775 4392 t
+( \()1 63(istered by the Internet Assigned Numbers Authority)6 2111 2 1560 4512 t
+10 B f
+(IANA)3734 4512 w
+10 R f
+(\). These options are numbered)4 1231 1 3989 4512 t
+(from)1560 4632 w
+10 B f
+(1)1779 4632 w
+10 R f
+(to)1854 4632 w
+10 B f
+(127)1957 4632 w
+10 R f
+(.)2107 4632 w
+10 B f
+(SITE)1260 4800 w
+10 R f
+( semantics. How\255)2 710(Within a specific site, all client and server implementations agree on the)11 2950 2 1560 4800 t
+( option may be quite different. These)6 1580(ever, at another site the type and meaning of the)9 2080 2 1560 4920 t
+(options are numbered from 128 to 254.)6 1562 1 1560 5040 t
+10 B f
+(VENDOR)1260 5208 w
+10 R f
+(Each vendor may define 254 options unique to that vendor. The vendor is identified within)14 3660 1 1560 5328 t
+(a)1560 5448 w
+10 B f
+(DHCP)1650 5448 w
+10 R f
+(packet by the "Vendor Class" option, number 60. An option with a specific)12 3241 1 1979 5448 t
+( belonging to one vendor will, in general, have a type and semantics dif\255)13 2939(numeric identifier)1 721 2 1560 5568 t
+( vendor. Vendor options are "super\255encapsulated" into the)7 2414(ferent from that of a different)5 1246 2 1560 5688 t
+(vendor field number 43, as defined in)6 1506 1 1560 5808 t
+10 I f
+(RFC 2132)1 415 1 3092 5808 t
+10 R f
+(. The)1 207 1 3507 5808 t
+10 B f
+(dhcp)3741 5808 w
+10 S f
+(_)3953 5808 w
+10 B f
+(inittab)4003 5808 w
+10 R f
+( Sun)1 208(file only contains)2 698 2 4314 5808 t
+(vendor options. Define non\255Sun vendor options in the)7 2154 1 1560 5928 t
+10 B f
+(dhcptab)3739 5928 w
+10 R f
+(file.)4115 5928 w
+10 B f
+(FIELD)1260 6096 w
+10 R f
+( the fixed fields within a)5 1014(This category allows)2 846 2 1560 6216 t
+10 B f
+(DHCP)3453 6216 w
+10 R f
+(packet to be aliased to a mnemonic)6 1451 1 3769 6216 t
+(name for use with)3 718 1 1560 6336 t
+10 B f
+(dhcpinfo)2303 6336 w
+10 R f
+(\(1\).)2682 6336 w
+10 B f
+(INTERNAL)1260 6504 w
+10 R f
+(This category is internal to the Solaris)6 1641 1 1560 6624 t
+10 B f
+(DHCP)3246 6624 w
+10 R f
+(implementation and will not be further)5 1646 1 3574 6624 t
+(defined.)1560 6744 w
+9 B f
+(DHCP inittab Format)2 846 1 690 7032 t
+10 R f
+( line and have seven fields; each entry provides information for one option.)12 3051(Data entries are written one per)5 1269 2 900 7152 t
+( comma, except for the first and second, which are separated by whitespace \(as)13 3201(Each field is separated by a)5 1119 2 900 7272 t
+( 8, 2018)2 325( March)1 1761( Formats)1 353( File)1 1972(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+(dhcp)540 480 w
+9 S f
+(_)730 480 w
+9 B f
+( dhcp)1 1412( \))1 37( Mar 2001)2 396( 21)1 97( \()1 68( 5.8)1 136( SunOS)1 1492(inittab \( 4 \))3 381 8 775 480 t
+9 S f
+(_)4794 480 w
+9 B f
+(inittab \( 4 \))3 381 1 4839 480 t
+10 R f
+(defined in)1 406 1 900 960 t
+10 B f
+(isspace)1335 960 w
+10 R f
+( Blank lines and those whose first)6 1379(\(3C\)\). An entry cannot be continued onto another line.)8 2206 2 1635 960 t
+(non\255whitespace character is '#' are ignored.)5 1749 1 900 1080 t
+(The fields, in order, are:)4 964 1 900 1248 t
+10 S f
+(\267)975 1416 w
+10 R f
+(Mnemonic Identifier)1 829 1 1200 1416 t
+( is not case sensitive. This field)6 1306(The Mnemonic Identifier is a user\255friendly alias for the option number; it)11 3014 2 900 1704 t
+( across all categories. The option names in the)8 1908(must be per\255category unique and should be unique)7 2079 2 900 1824 t
+10 B f
+(STAN\255)4920 1824 w
+(DARD)900 1944 w
+10 R f
+(,)1188 1944 w
+10 B f
+(SITE)1271 1944 w
+10 R f
+(, and)1 228 1 1500 1944 t
+10 B f
+(VENDOR)1787 1944 w
+10 R f
+(spaces should not overlap, or the behavior will be undefined. See)10 2941 1 2279 1944 t
+10 B f
+(Mnemonic Identifiers for Options)3 1441 1 900 2064 t
+10 R f
+(section of this man page for descriptions of the option names.)10 2461 1 2366 2064 t
+10 S f
+(\267)975 2232 w
+10 R f
+(Category \(scope\))1 684 1 1200 2232 t
+(The Category field is one of)5 1158 1 900 2520 t
+10 B f
+(STANDARD)2090 2520 w
+10 R f
+(,)2645 2520 w
+10 B f
+(SITE)2702 2520 w
+10 R f
+(,)2931 2520 w
+10 B f
+(VENDOR)2988 2520 w
+10 R f
+(,)3421 2520 w
+10 B f
+(FIELD)3478 2520 w
+10 R f
+(, or)1 140 1 3784 2520 t
+10 B f
+(INTERNAL)3956 2520 w
+10 R f
+(and identifies the)2 704 1 4516 2520 t
+(scope in which the option falls.)5 1249 1 900 2640 t
+10 S f
+(\267)975 2808 w
+10 R f
+(Option Number)1 630 1 1200 2808 t
+( it is in a)4 381(The Option Number is the number of this option when)9 2251 2 900 3096 t
+10 B f
+(DHCP)3566 3096 w
+10 R f
+(packet. This field should be per\255)5 1337 1 3883 3096 t
+(category unique and the)3 1004 1 900 3216 t
+10 B f
+(STANDARD)1945 3216 w
+10 R f
+(and)2541 3216 w
+10 B f
+(SITE)2726 3216 w
+10 R f
+( the)1 162(fields should not have overlapping code fields or)7 2062 2 2996 3216 t
+(behavior is undefined.)2 890 1 900 3336 t
+10 S f
+(\267)975 3504 w
+10 R f
+(Data Type)1 418 1 1200 3504 t
+(Data Type is one of the following values, which are not case sensitive:)12 2820 1 1200 3744 t
+10 B f
+(Ascii)1200 3912 w
+10 R f
+(A printable character string)3 1094 1 1500 3912 t
+10 B f
+(Octet)1200 4080 w
+10 R f
+(An array of bytes)3 695 1 1500 4080 t
+10 B f
+(Unumber8)1200 4248 w
+10 R f
+(An 8\255bit unsigned integer)3 1024 1 1500 4368 t
+10 B f
+(Snumber8)1200 4536 w
+10 R f
+(An 8\255bit signed integer)3 924 1 1500 4656 t
+10 B f
+(Unumber16)1200 4824 w
+10 R f
+(A 16\255bit unsigned integer)3 1024 1 1500 4944 t
+10 B f
+(Snumber16)1200 5112 w
+10 R f
+(A 16\255bit signed integer)3 924 1 1500 5232 t
+10 B f
+(Unumber32)1200 5400 w
+10 R f
+(A 32\255bit unsigned integer)3 1024 1 1500 5520 t
+10 B f
+(Snumber32)1200 5688 w
+10 R f
+(A 32\255bit signed integer)3 924 1 1500 5808 t
+10 B f
+(Unumber64)1200 5976 w
+10 R f
+(A 64\255bit unsigned integer)3 1024 1 1500 6096 t
+10 B f
+(Snumber64)1200 6264 w
+10 R f
+(A 64\255bit signed integer)3 924 1 1500 6384 t
+10 B f
+(Ip)1200 6552 w
+10 R f
+(An)1500 6552 w
+10 B f
+(IP)1647 6552 w
+10 R f
+(address)1772 6552 w
+(The data type field describes an indivisible unit of the option payload, using one of the values listed above.)18 4273 1 900 6960 t
+10 S f
+(\267)975 7128 w
+10 R f
+(Granularity)1200 7128 w
+( 2)1 75( Page)1 2011( Formats)1 353( File)1 1656(March 8, 2018)2 585 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Page: 3 3
+DpostDict begin
+/saveobj save def
+mark
+3 pagesetup
+9 B f
+(dhcp)540 480 w
+9 S f
+(_)730 480 w
+9 B f
+( dhcp)1 1412( \))1 37( Mar 2001)2 396( 21)1 97( \()1 68( 5.8)1 136( SunOS)1 1492(inittab \( 4 \))3 381 8 775 480 t
+9 S f
+(_)4794 480 w
+9 B f
+(inittab \( 4 \))3 381 1 4839 480 t
+10 R f
+( value)1 246(The Granularity field describes how many "indivisible units" in the option payload make up a whole)15 4074 2 900 960 t
+(or item for this option.)4 903 1 900 1080 t
+10 S f
+(\267)975 1248 w
+10 R f
+(Maximum Number Of Items)3 1146 1 1200 1248 t
+10 S f
+(\267)975 1416 w
+10 R f
+(Visibility)1200 1416 w
+(The Visibility field specifies which)4 1482 1 900 1704 t
+10 B f
+(DHCP)2425 1704 w
+10 R f
+( and should)2 499(\255related programs make use of this information,)6 2013 2 2708 1704 t
+(always be defined as ")4 894 1 900 1824 t
+10 B f
+(sdmi)1794 1824 w
+10 R f
+(" for newly added options.)4 1059 1 2000 1824 t
+9 B f
+(Mnemonic Identifiers for Options)3 1299 1 690 1992 t
+10 R f
+(The following table maps the mnemonic identifiers used in Solaris DHCP to RFC\2552132 options:)13 3853 1 900 2112 t
+10 I f
+( Description)1 1198(Symbol Code)1 1365 2 900 2352 t
+10 B f
+(Subnet 1)1 1204 1 900 2472 t
+10 R f
+(Subnet Mask, dotted Internet address \(IP\).)5 1689 1 2991 2472 t
+10 B f
+(UTCoffst 2)1 1204 1 900 2592 t
+10 R f
+(Coordinated Universal time offset \(seconds\).)4 1794 1 2991 2592 t
+10 B f
+(Router 3)1 1204 1 900 2712 t
+10 R f
+(List of Routers, IP.)3 764 1 2991 2712 t
+10 B f
+(Timeserv 4)1 1204 1 900 2832 t
+10 R f
+(List of RFC\255868 servers, IP.)4 1133 1 2991 2832 t
+10 B f
+(IEN116ns 5)1 1204 1 900 2952 t
+10 R f
+(List of IEN 116 name servers, IP.)6 1342 1 2991 2952 t
+10 B f
+(DNSserv 6)1 1204 1 900 3072 t
+10 R f
+(List of DNS name servers, IP.)5 1201 1 2991 3072 t
+10 B f
+(Logserv 7)1 1204 1 900 3192 t
+10 R f
+(List of MIT\255LCS UDP log servers, IP.)6 1538 1 2991 3192 t
+10 B f
+(Cookie 8)1 1204 1 900 3312 t
+10 R f
+(List of RFC\255865 cookie servers, IP.)5 1424 1 2991 3312 t
+10 B f
+(Lprserv 9)1 1204 1 900 3432 t
+10 R f
+(List of RFC\2551179 line printer servers, IP.)6 1649 1 2991 3432 t
+10 B f
+(Impress 10)1 1254 1 900 3552 t
+10 R f
+(List of Imagen Impress servers, IP.)5 1400 1 2991 3552 t
+10 B f
+(Resource 11)1 1254 1 900 3672 t
+10 R f
+(List of RFC\255887 resource location servers, IP.)6 1842 1 2991 3672 t
+10 B f
+(Hostname 12)1 1254 1 900 3792 t
+10 R f
+(Client's hostname, value from hosts database.)5 1834 1 2991 3792 t
+10 B f
+(Bootsize 13)1 1254 1 900 3912 t
+10 R f
+( octet blocks in boot image,)5 1430(Number of 512)2 738 2 2991 3912 t
+(NUMBER.)2991 4032 w
+10 B f
+(Dumpfile 14)1 1254 1 900 4152 t
+10 R f
+(Path where core image should be dumped, ASCII.)7 2005 1 2991 4152 t
+10 B f
+(DNSdmain 15)1 1254 1 900 4272 t
+10 R f
+(DNS domain name, ASCII.)3 1102 1 2991 4272 t
+10 B f
+(Swapserv 16)1 1254 1 900 4392 t
+10 R f
+(Client's swap server, IP.)3 979 1 2991 4392 t
+10 B f
+(Rootpath 17)1 1254 1 900 4512 t
+10 R f
+(Client's Root path, ASCII.)3 1070 1 2991 4512 t
+10 B f
+(ExtendP 18)1 1254 1 900 4632 t
+10 R f
+(Extensions path, ASCII.)2 972 1 2991 4632 t
+10 B f
+(IpFwdF 19)1 1254 1 900 4752 t
+10 R f
+(IP Forwarding Enable/Disable, NUMBER.)3 1718 1 2991 4752 t
+10 B f
+(NLrouteF 20)1 1254 1 900 4872 t
+10 R f
+(Non\255local Source Routing, NUMBER.)3 1552 1 2991 4872 t
+10 B f
+(PFilter 21)1 1254 1 900 4992 t
+10 R f
+(Policy Filter, IP.)2 662 1 2991 4992 t
+10 B f
+(MaxIpSiz 22)1 1254 1 900 5112 t
+10 R f
+(Maximum datagram Reassembly Size, NUMBER.)4 2021 1 2991 5112 t
+10 B f
+(IpTTL 23)1 1254 1 900 5232 t
+10 R f
+(Default IP Time to Live, \(1=)5 1149 1 2991 5232 t
+10 S f
+(<)4140 5232 w
+10 R f
+(x)4195 5232 w
+10 S f
+(<)4245 5232 w
+10 R f
+(=255\), NUMBER.)1 742 1 4300 5232 t
+10 B f
+(PathTO 24)1 1254 1 900 5352 t
+10 R f
+(RFC\2551191 Path MTU Aging Timeout, NUMBER.)5 2015 1 2991 5352 t
+10 B f
+(PathTbl 25)1 1254 1 900 5472 t
+10 R f
+(RFC\2551191 Path MTU Plateau Table, NUMBER.)5 1947 1 2991 5472 t
+10 B f
+(MTU 26)1 1254 1 900 5592 t
+10 R f
+(Interface MTU, x)2 700 1 2991 5592 t
+10 S f
+(>)3691 5592 w
+10 R f
+(=68, NUMBER.)1 659 1 3746 5592 t
+10 B f
+(SameMtuF 27)1 1254 1 900 5712 t
+10 R f
+(All Subnets are Local, NUMBER.)4 1371 1 2991 5712 t
+10 B f
+(Broadcst 28)1 1254 1 900 5832 t
+10 R f
+(Broadcast Address, IP.)2 915 1 2991 5832 t
+10 B f
+(MaskDscF 29)1 1254 1 900 5952 t
+10 R f
+(Perform Mask Discovery, NUMBER.)3 1512 1 2991 5952 t
+10 B f
+(MaskSupF 30)1 1254 1 900 6072 t
+10 R f
+(Mask Supplier, NUMBER.)2 1089 1 2991 6072 t
+10 B f
+(RDiscvyF 31)1 1254 1 900 6192 t
+10 R f
+(Perform Router Discovery, NUMBER.)3 1562 1 2991 6192 t
+10 B f
+(RSolictS 32)1 1254 1 900 6312 t
+10 R f
+(Router Solicitation Address, IP.)3 1275 1 2991 6312 t
+10 B f
+(StaticRt 33)1 1254 1 900 6432 t
+10 R f
+(Static Route, Double IP \(network router\).)5 1656 1 2991 6432 t
+10 B f
+(TrailerF 34)1 1254 1 900 6552 t
+10 R f
+(Trailer Encapsulation, NUMBER.)2 1365 1 2991 6552 t
+10 B f
+(ArpTimeO 35)1 1254 1 900 6672 t
+10 R f
+(ARP Cache Time out, NUMBER.)4 1361 1 2991 6672 t
+10 B f
+(EthEncap 36)1 1254 1 900 6792 t
+10 R f
+(Ethernet Encapsulation, NUMBER.)2 1432 1 2991 6792 t
+10 B f
+(TcpTTL 37)1 1254 1 900 6912 t
+10 R f
+(TCP Default Time to Live, NUMBER.)5 1558 1 2991 6912 t
+10 B f
+(TcpKaInt 38)1 1254 1 900 7032 t
+10 R f
+(TCP Keepalive Interval, NUMBER.)3 1451 1 2991 7032 t
+10 B f
+(TcpKaGbF 39)1 1254 1 900 7152 t
+10 R f
+(TCP Keepalive Garbage, NUMBER.)3 1478 1 2991 7152 t
+10 B f
+(NISdmain 40)1 1254 1 900 7272 t
+10 R f
+(NIS Domain name, ASCII.)3 1085 1 2991 7272 t
+( 8, 2018)2 325( March)1 1761( Formats)1 353( File)1 1972(Page 3)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 3 3
+%%Page: 4 4
+DpostDict begin
+/saveobj save def
+mark
+4 pagesetup
+9 B f
+(dhcp)540 480 w
+9 S f
+(_)730 480 w
+9 B f
+( dhcp)1 1412( \))1 37( Mar 2001)2 396( 21)1 97( \()1 68( 5.8)1 136( SunOS)1 1492(inittab \( 4 \))3 381 8 775 480 t
+9 S f
+(_)4794 480 w
+9 B f
+(inittab \( 4 \))3 381 1 4839 480 t
+10 B f
+(NISservs 41)1 1254 1 900 960 t
+10 R f
+(List of NIS servers, IP.)4 921 1 2991 960 t
+10 B f
+(NTPservs 42)1 1254 1 900 1080 t
+10 R f
+(List of NTP servers, IP.)4 949 1 2991 1080 t
+10 B f
+(NetBNms 44)1 1254 1 900 1200 t
+10 R f
+(List of NetBIOS Name servers, IP.)5 1395 1 2991 1200 t
+10 B f
+(NetBDsts 45)1 1254 1 900 1320 t
+10 R f
+(List of NetBIOS Distribution servers, IP.)5 1641 1 2991 1320 t
+10 B f
+(NetBNdT 46)1 1254 1 900 1440 t
+10 R f
+(NetBIOS Node type \(1=B\255node, 2=P, 4=M, 8=H\))6 1986 1 2991 1440 t
+10 B f
+(NetBScop 47)1 1254 1 900 1560 t
+10 R f
+(NetBIOS scope, ASCII.)2 960 1 2991 1560 t
+10 B f
+(XFontSrv 48)1 1254 1 900 1680 t
+10 R f
+(List of X Window Font servers, IP.)6 1410 1 2991 1680 t
+10 B f
+(XDispMgr 49)1 1254 1 900 1800 t
+10 R f
+(List of X Window Display managers, IP.)6 1637 1 2991 1800 t
+10 B f
+(LeaseTim 51)1 1254 1 900 1920 t
+10 R f
+(Lease Time Policy, \(\2551 = PERM\), NUMBER.)6 1830 1 2991 1920 t
+10 B f
+(Message 56)1 1254 1 900 2040 t
+10 R f
+(Message to be displayed on client, ASCII.)6 1687 1 2991 2040 t
+10 B f
+(T1Time 58)1 1254 1 900 2160 t
+10 R f
+(Renewal \(T1\) time, NUMBER.)3 1257 1 2991 2160 t
+10 B f
+(T2Time 59)1 1254 1 900 2280 t
+10 R f
+(Rebinding \(T2\) time, NUMBER.)3 1325 1 2991 2280 t
+10 B f
+(NW)900 2400 w
+10 S f
+(_)1072 2400 w
+10 B f
+(dmain 62)1 1032 1 1122 2400 t
+10 R f
+(NetWare/IP Domain Name, ASCII.)3 1422 1 2991 2400 t
+10 B f
+(NWIPOpts 63)1 1254 1 900 2520 t
+10 R f
+(NetWare/IP Options, OCTET \(unknown type\).)4 1875 1 2991 2520 t
+10 B f
+(NIS+dom 64)1 1254 1 900 2640 t
+10 R f
+(NIS+ Domain name, ASCII.)3 1141 1 2991 2640 t
+10 B f
+(NIS+serv 65)1 1254 1 900 2760 t
+10 R f
+(NIS+ servers, IP.)2 688 1 2991 2760 t
+10 B f
+(TFTPsrvN 66)1 1254 1 900 2880 t
+10 R f
+(TFTP server hostname, ASCII.)3 1246 1 2991 2880 t
+10 B f
+(OptBootF 67)1 1254 1 900 3000 t
+10 R f
+(Optional Bootfile path, ASCII.)3 1236 1 2991 3000 t
+10 B f
+(MblIPAgt 68)1 1254 1 900 3120 t
+10 R f
+(Mobile IP Home Agent, IP.)4 1105 1 2991 3120 t
+10 B f
+(SMTPserv 69)1 1254 1 900 3240 t
+10 R f
+(Simple Mail Transport Protocol Server, IP.)5 1724 1 2991 3240 t
+10 B f
+(POP3serv 70)1 1254 1 900 3360 t
+10 R f
+(Post Office Protocol \(POP3\) Server, IP.)5 1590 1 2991 3360 t
+10 B f
+(NNTPserv 71)1 1254 1 900 3480 t
+10 R f
+(Network News Transport Proto. \(NNTP\) Server, IP.)6 2082 1 2991 3480 t
+10 B f
+(WWWservs 72)1 1254 1 900 3600 t
+10 R f
+(Default WorldWideWeb Server, IP.)3 1432 1 2991 3600 t
+10 B f
+(Fingersv 73)1 1254 1 900 3720 t
+10 R f
+(Default Finger Server, IP.)3 1034 1 2991 3720 t
+10 B f
+(IRCservs 74)1 1254 1 900 3840 t
+10 R f
+(Internet Relay Chat Server, IP.)4 1231 1 2991 3840 t
+10 B f
+(STservs 75)1 1254 1 900 3960 t
+10 R f
+(StreetTalk Server, IP.)2 865 1 2991 3960 t
+10 B f
+(STDAservs 76)1 1254 1 900 4080 t
+10 R f
+(StreetTalk Directory Assist. Server, IP.)4 1567 1 2991 4080 t
+10 B f
+(UserClas 77)1 1254 1 900 4200 t
+10 R f
+(User class information, ASCII.)3 1240 1 2991 4200 t
+10 B f
+(SLP)900 4320 w
+10 S f
+(_)1084 4320 w
+10 B f
+(DA 78)1 1020 1 1134 4320 t
+10 R f
+(Directory agent, OCTET.)2 1020 1 2991 4320 t
+10 B f
+(SLP)900 4440 w
+10 S f
+(_)1084 4440 w
+10 B f
+(SS 79)1 1020 1 1134 4440 t
+10 R f
+(Service scope, OCTET.)2 948 1 2991 4440 t
+10 B f
+(AgentOpt 82)1 1254 1 900 4560 t
+10 R f
+(Agent circuit ID, OCTET.)3 1051 1 2991 4560 t
+10 B f
+(FQDN 89)1 1254 1 900 4680 t
+10 R f
+(Fully Qualified Domain Name, OCTET.)4 1621 1 2991 4680 t
+10 B f
+(PXEarch 93)1 1254 1 900 4800 t
+10 R f
+(Client system architecture, NUMBER.)3 1546 1 2991 4800 t
+10 B f
+(PXEnii 94)1 1254 1 900 4920 t
+10 R f
+(Client Network Device Interface, OCTET.)4 1701 1 2991 4920 t
+10 B f
+(PXEcid 97)1 1254 1 900 5040 t
+10 R f
+(UUID/GUID\255based client indentifier, OCTET.)3 1871 1 2991 5040 t
+10 B f
+(BootFile N/A)1 1326 1 900 5160 t
+10 R f
+(File to Boot, ASCII.)3 815 1 2991 5160 t
+10 B f
+(BootPath N/A)1 1326 1 900 5280 t
+10 R f
+( client's requested boot)3 980(Boot path prefix to apply to)5 1188 2 2991 5280 t
+(file, ASCII.)1 469 1 2991 5400 t
+10 B f
+(BootSrvA N/A)1 1326 1 900 5520 t
+10 R f
+(Boot Server, IP.)2 644 1 2991 5520 t
+10 B f
+(BootSrvN N/A)1 1326 1 900 5640 t
+10 R f
+(Boot Server Hostname, ASCII.)3 1246 1 2991 5640 t
+10 B f
+(EchoVC N/A)1 1326 1 900 5760 t
+10 R f
+(Echo Vendor Class Identifier Flag, \(Present=)5 1803 1 2991 5760 t
+10 B f
+(TRUE)4794 5760 w
+10 R f
+(\))5072 5760 w
+10 B f
+(LeaseNeg N/A)1 1326 1 900 5880 t
+10 R f
+(Lease is Negotiable Flag, \(Present=)4 1423 1 2991 5880 t
+10 B f
+(TRUE)4414 5880 w
+10 R f
+(\))4692 5880 w
+10 B f
+(Include N/A)1 1326 1 900 6000 t
+10 R f
+(Include listed macro values in this macro.)6 1667 1 2991 6000 t
+9 B f
+(EXAMPLES)540 6288 w
+10 B f
+(Example 1: Altering the DHCP inittab)5 1641 1 900 6408 t
+10 R f
+(File)2566 6408 w
+(In general, the)2 585 1 900 6576 t
+10 B f
+(DHCP inittab)1 598 1 1516 6576 t
+10 R f
+( add)1 176(file should only be altered to)5 1176 2 2145 6576 t
+10 B f
+(SITE)3529 6576 w
+10 R f
+(options. If other options are added,)5 1430 1 3790 6576 t
+(they will not be automatically carried forward when the system is upgraded. For instance:)13 3583 1 900 6696 t
+10 CW f
+( 132, IP, 2, 0, sdmi)5 1200(ipPairs SITE,)1 960 2 900 6864 t
+10 R f
+(describes an option named)3 1083 1 900 7032 t
+10 B f
+(ipPairs)2015 7032 w
+10 R f
+(, that is in the)4 570 1 2321 7032 t
+10 B f
+(SITE)2923 7032 w
+10 R f
+( each individual)2 654(category. That is, it is defined by)6 1357 2 3209 7032 t
+( type)1 206( code 132, which is of)5 932( option)1 316(site, and is)2 445 4 900 7152 t
+10 B f
+(IP)2833 7152 w
+10 R f
+( a potentially infinite number of)5 1319( of)1 142(Address, consisting)1 792 3 2967 7152 t
+(pairs of)1 302 1 900 7272 t
+10 B f
+(IP)1227 7272 w
+10 R f
+(addresses.)1352 7272 w
+( 4)1 75( Page)1 2011( Formats)1 353( File)1 1656(March 8, 2018)2 585 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 4 4
+%%Page: 5 5
+DpostDict begin
+/saveobj save def
+mark
+5 pagesetup
+9 B f
+(dhcp)540 480 w
+9 S f
+(_)730 480 w
+9 B f
+( dhcp)1 1412( \))1 37( Mar 2001)2 396( 21)1 97( \()1 68( 5.8)1 136( SunOS)1 1492(inittab \( 4 \))3 381 8 775 480 t
+9 S f
+(_)4794 480 w
+9 B f
+(inittab \( 4 \))3 381 1 4839 480 t
+(FILES)540 960 w
+10 B f
+(/etc/dhcp/inittab)1400 1080 w
+9 B f
+(ATTRIBUTES)540 1248 w
+10 R f
+(See)900 1368 w
+10 B f
+(attributes)1069 1368 w
+10 R f
+( descriptions of the following attributes:)5 1602(\(5\) for)1 282 2 1485 1368 t
+10 S f
+(_ ____________________________________________________________________________________)1 4210 1 900 1508 t
+10 R f
+( VALUE)1 363( ATTRIBUTE)1 1811(ATTRIBUTE TYPE)1 830 3 1525 1628 t
+10 S f
+(_ ____________________________________________________________________________________)1 4210 1 900 1648 t
+10 R f
+(Availability SUNWcsr)1 2540 1 950 1768 t
+10 S f
+(_ ____________________________________________________________________________________)1 4210 1 900 1788 t
+10 R f
+( Evolving)1 1779(Interface Stability)1 718 2 950 1908 t
+10 S f
+( \347)1 -4210(_ ____________________________________________________________________________________)1 4210 2 900 1928 t
+(\347)900 1908 w
+(\347)900 1808 w
+(\347)900 1708 w
+(\347)900 1608 w
+(\347)3005 1928 w
+(\347)3005 1908 w
+(\347)3005 1808 w
+(\347)3005 1708 w
+(\347)3005 1608 w
+(\347)5110 1928 w
+(\347)5110 1908 w
+(\347)5110 1808 w
+(\347)5110 1708 w
+(\347)5110 1608 w
+9 B f
+(SEE ALSO)1 438 1 540 2216 t
+10 B f
+(dhcpinfo)900 2336 w
+10 R f
+(\(1\),)1279 2336 w
+10 B f
+(dhcpagent)1420 2336 w
+10 R f
+(\(1M\),)1865 2336 w
+10 B f
+(isspace)2120 2336 w
+10 R f
+(\(3C\),)2420 2336 w
+10 B f
+(dhctab)2653 2336 w
+10 R f
+(\(4\),)2948 2336 w
+10 B f
+(attributes)3114 2336 w
+10 R f
+(\(5\),)3530 2336 w
+10 B f
+(dhcp)3696 2336 w
+10 R f
+(\(5\),)3908 2336 w
+10 B f
+(dhcp)4074 2336 w
+10 S f
+(_)4286 2336 w
+10 B f
+(modules)4336 2336 w
+10 R f
+(\(5\))4692 2336 w
+10 I f
+(System Administration Guide, Volume 3)4 1602 1 900 2504 t
+10 R f
+( R. Droms,)2 447(Alexander, S., and)2 746 2 900 2672 t
+10 I f
+(DHCP Options and BOOTP Vendor Extensions)5 1933 1 2122 2672 t
+10 R f
+(, RFC 2132, Network Work\255)4 1165 1 4055 2672 t
+(ing Group, March 1997.)3 968 1 900 2792 t
+(Droms, R.,)1 439 1 900 2960 t
+10 I f
+(Dynamic Host Configuration Protocol)3 1542 1 1364 2960 t
+10 R f
+(, RFC 2131, Network Working Group, March 1997.)7 2084 1 2906 2960 t
+( 8, 2018)2 325( March)1 1761( Formats)1 353( File)1 1972(Page 5)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 5 5
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 5
+%%DocumentFonts: Courier Times-Roman Times-Bold Times-Italic Times-Roman Symbol

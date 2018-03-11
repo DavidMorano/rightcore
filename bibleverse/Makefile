@@ -97,7 +97,7 @@ LIBDIRS= -L$(LIBDIR) -L$(CGS_LIBDIR)
 
 LIB0=
 LIB1= -ldam -lb
-LIB2=
+LIB2= -ldebug
 LIB3= -luc -lu
 LIB4= $(CGS_LIBS)
 LIB5= 

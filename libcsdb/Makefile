@@ -106,7 +106,7 @@ OBJ02= bibleverse.o
 OBJ03= bvs.o bvsmk.o bvsbook.o bvshdr.o
 OBJ04= bibleq.o
 OBJ05= biblepara.o
-OBJ06= txtindex.o txtindexmk.o txtindexfu.o
+OBJ06= txtindex.o txtindexmk.o txtindexhdr.o
 OBJ07= cyi.o cyimk.o cyihdr.o
 OBJ08= manstr.o
 OBJ09= outema.o
@@ -623,11 +623,11 @@ txtindexmk.o:		txtindexmk.c txtindexmk.h txtindexmks.h
 
 bibleqs.o:		bibleqs.c bibleqs.h
 
-txtindexes.o:		txtindexes.c txtindexes.h txtindexfu.h
+txtindexes.o:		txtindexes.c txtindexes.h txtindexhdr.h
 
-txtindexmks.o:		txtindexmks.c txtindexmks.h txtindexfu.h
+txtindexmks.o:		txtindexmks.c txtindexmks.h txtindexhdr.h
 
-txtindexfu.o:		txtindexfu.c txtindexfu.h
+txtindexhdr.o:		txtindexhdr.c txtindexhdr.h
 
 searchkeys.o:		searchkeys.c searchkeys.h
 

@@ -1,0 +1,1236 @@
+%!PS-Adobe-2.0
+%%Copyright: Copyright (c) 1993 AT&T, All Rights Reserved
+%%Version: 3.4.1
+%%DocumentFonts: (atend)
+%%Pages: (atend)
+%%EndComments
+/DpostDict 200 dict def
+DpostDict begin
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% Version 3.4 prologue for troff files.
+%
+
+/#copies 1 store
+/Prologue (dpost.ps) def
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/linewidth .3 def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/resolution 720 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/R  /Times-Roman def
+/I  /Times-Italic def
+/B  /Times-Bold def
+/BI /Times-BoldItalic def
+/H  /Helvetica def
+/HI /Helvetica-Oblique def
+/HB /Helvetica-Bold def
+/HX /Helvetica-BoldOblique def
+/CW /Courier def
+/CO /Courier def
+/CI /Courier-Oblique def
+/CB /Courier-Bold def
+/CX /Courier-BoldOblique def
+/PA /Palatino-Roman def
+/PI /Palatino-Italic def
+/PB /Palatino-Bold def
+/PX /Palatino-BoldItalic def
+/Hr /Helvetica-Narrow def
+/Hi /Helvetica-Narrow-Oblique def
+/Hb /Helvetica-Narrow-Bold def
+/Hx /Helvetica-Narrow-BoldOblique def
+/KR /Bookman-Light def
+/KI /Bookman-LightItalic def
+/KB /Bookman-Demi def
+/KX /Bookman-DemiItalic def
+/AR /AvantGarde-Book def
+/AI /AvantGarde-BookOblique def
+/AB /AvantGarde-Demi def
+/AX /AvantGarde-DemiOblique def
+/NR /NewCenturySchlbk-Roman def
+/NI /NewCenturySchlbk-Italic def
+/NB /NewCenturySchlbk-Bold def
+/NX /NewCenturySchlbk-BoldItalic def
+/ZD /ZapfDingbats def
+/ZI /ZapfChancery-MediumItalic def
+/S  /S def
+/S1 /S1 def
+/GR /Symbol def
+/A1 /Arial def
+/A2 /Arial-Italic def
+/A3 /Arial-Bold def
+/A4 /Arial-BoldItalic def
+/T1 /TimesNewRomanPSMT def
+/T2 /TimesNewRomanPS-ItalicMT def
+/T3 /TimesNewRomanPS-BoldMT def
+/T4 /TimesNewRomanPS-BoldItalicMT def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+	/scaling 72 resolution div def
+	linewidth setlinewidth
+	1 setlinecap
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin 2 div dup neg translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+
+	addmetrics
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath userdict /gotpagebbox known not and {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/landscapepage {
+	landscape not {
+		0 height scaling div neg translate	% not quite
+		90 rotate
+	} if
+} bind def
+
+/portraitpage {
+	landscape {
+		width scaling div 0 translate	% not quite
+		-90 rotate
+	} if
+} bind def
+
+/addmetrics {
+	/Symbol /S null Sdefs cf
+	/Times-Roman /S1 StandardEncoding dup length array copy S1defs cf
+} def
+
+/pagesetup {
+	/page exch def
+	currentdict /pagedict known currentdict page known and {
+		page load pagedict exch get cvx exec
+	} if
+} def
+
+/decodingdefs [
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg /y exch def counttomark 2 idiv {y moveto show} repeat}
+	{neg moveto {2 index stringwidth pop sub exch div 0 32 4 -1 roll widthshow} repeat}
+	{neg moveto {spacewidth sub 0.0 32 4 -1 roll widthshow} repeat}
+	{counttomark 2 idiv {y moveto show} repeat}
+	{neg setfunnytext}
+] def
+
+/setdecoding {/t decodingdefs 3 -1 roll get bind def} bind def
+
+/w {neg moveto show} bind def
+/m {neg dup /y exch def moveto} bind def
+/done {/lastpage where {pop lastpage} if} def
+
+/f {
+	dup /font exch def findfont exch
+	dup /ptsize exch def scaling div dup /size exch def scalefont setfont
+	linewidth ptsize mul scaling 10 mul div setlinewidth
+	/spacewidth ( ) stringwidth pop def
+} bind def
+
+/changefont {
+	/fontheight exch def
+	/fontslant exch def
+	currentfont [
+		1 0
+		fontheight ptsize div fontslant sin mul fontslant cos div
+		fontheight ptsize div
+		0 0
+	] makefont setfont
+} bind def
+
+/sf {f} bind def
+
+/cf {
+	dup length 2 idiv
+	/entries exch def
+	/chtab exch def
+	/newencoding exch def
+	/newfont exch def
+
+	findfont dup length 1 add dict
+	/newdict exch def
+	{1 index /FID ne {newdict 3 1 roll put}{pop pop} ifelse} forall
+
+	newencoding type /arraytype eq {newdict /Encoding newencoding put} if
+
+	newdict /Metrics entries dict put
+	newdict /Metrics get
+	begin
+		chtab aload pop
+		1 1 entries {pop def} for
+		newfont newdict definefont pop
+	end
+} bind def
+
+%
+% A few arrays used to adjust reference points and character widths in some
+% of the printer resident fonts. If square roots are too high try changing
+% the lines describing /radical and /radicalex to,
+%
+%	/radical	[0 -75 550 0]
+%	/radicalex	[-50 -75 500 0]
+%
+% Move braceleftbt a bit - default PostScript character is off a bit.
+%
+
+/Sdefs [
+	/bracketlefttp		[201 500]
+	/bracketleftbt		[201 500]
+	/bracketrighttp		[-81 380]
+	/bracketrightbt		[-83 380]
+	/braceleftbt		[203 490]
+	/bracketrightex		[220 -125 500 0]
+	/radical		[0 0 550 0]
+	/radicalex		[-50 0 500 0]
+	/parenleftex		[-20 -170 0 0]
+	/integral		[100 -50 500 0]
+	/infinity		[10 -75 730 0]
+] def
+
+/S1defs [
+	/underscore		[0 80 500 0]
+	/endash			[7 90 650 0]
+] def
+%
+% Copyright (c) 1993 AT&T, All Rights Reserved
+%
+% A first cut at a company wide version of postcommon.ps.
+% Includes Matthijs Melchior's version of roundpagebbox,
+% but disables adjustments for postprint. This is just an
+% example - it should not be considered final or official.
+%
+
+/roundpagebbox {
+	Prologue (postprint.ps) ne {
+		pagebbox dup 0 get pagebbox 2 get add 2 exch put
+		pagebbox dup 1 get pagebbox 3 get add 3 exch put
+		pagebbox 0 0 put
+		pagebbox 1 0 put
+		userdict /origin-at-paper-edge true put
+	} if
+} bind def
+
+end
+%%EndProlog
+%%BeginSetup
+DpostDict begin
+mark
+/xoffset 0.25 def
+/resolution 720 def
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+setup
+2 setdecoding
+end
+%%EndSetup
+%%Page: 1 1
+DpostDict begin
+/saveobj save def
+mark
+1 pagesetup
+9 B f
+( \( 4 \))3 126( dhcptab)1 1712( \))1 37( Mar 2001)2 396( 13)1 97( \()1 68( 5.8)1 136( SunOS)1 1667(dhcptab \( 4 \))3 441 9 540 480 t
+(NAME)540 960 w
+10 R f
+(dhcptab)900 1080 w
+10 S1 f
+(\261)1241 1080 w
+10 R f
+(DHCP configuration parameter table)3 1472 1 1331 1080 t
+9 B f
+(DESCRIPTION)540 1248 w
+10 R f
+(The)900 1368 w
+10 B f
+(dhcptab)1082 1368 w
+10 R f
+( configuration param\255)2 876(configuration table allows network administrators to organize groups of)8 2884 2 1460 1368 t
+(eters as macro definitions, which can then be referenced in the definition of other useful macros. These)16 4320 1 900 1488 t
+(macros are then used by the)5 1111 1 900 1608 t
+10 B f
+(DHCP)2036 1608 w
+10 R f
+(server to return their values to)5 1200 1 2344 1608 t
+10 B f
+(DHCP)3569 1608 w
+10 R f
+(and)3877 1608 w
+10 B f
+(BOOTP)4046 1608 w
+10 R f
+(clients.)4422 1608 w
+(The preferred method of managing the)5 1573 1 900 1776 t
+10 B f
+(dhcptab)2504 1776 w
+10 R f
+( of the)2 269( use)1 190( the)1 154(is through)1 409 4 2886 1776 t
+10 B f
+(dhcpmgr)3940 1776 w
+10 R f
+(\(1M\) or)1 320 1 4329 1776 t
+10 B f
+(dhtadm)4681 1776 w
+10 R f
+(\(1M\))5015 1776 w
+(utility. The description of)3 1043 1 900 1896 t
+10 B f
+(dhcptab)1975 1896 w
+10 R f
+(entries included in this manual page is intended for informational pur\255)10 2862 1 2358 1896 t
+(poses only, and should not be used to manually edit entries.)10 2382 1 900 2016 t
+(You can view the contents of the)6 1386 1 900 2184 t
+10 B f
+(dhcptab)2323 2184 w
+10 R f
+(using the DHCP manager's tabs for Macros and Options, or)9 2508 1 2712 2184 t
+(using the)1 364 1 900 2304 t
+10 B f
+(dhtadm \255P)1 453 1 1289 2304 t
+10 R f
+(command.)1767 2304 w
+9 B f
+(Syntax of dhcptab Entries)3 1004 1 690 2472 t
+10 R f
+(The format of a)3 638 1 900 2592 t
+10 B f
+(dhcptab)1568 2592 w
+10 R f
+( maintain it. However, any)4 1089(table depends on the data store used to)7 1574 2 1949 2592 t
+10 B f
+(dhcptab)4643 2592 w
+10 R f
+(must)5025 2592 w
+(contain the following fields in each record:)6 1719 1 900 2712 t
+10 B f
+(Name)900 2880 w
+10 R f
+( symbol record and is used as a search key into the)11 2065(This field identifies the macro or)5 1327 2 1200 2880 t
+10 B f
+(dhcptab)4621 2880 w
+10 R f
+(table.)5001 2880 w
+(The name of a macro or symbol must consist of)9 1987 1 1200 3000 t
+10 B f
+(ASCII)3221 3000 w
+10 R f
+(characters, with the length limited to 128)6 1688 1 3532 3000 t
+(characters. Names can include spaces, except at the end of the name. The name is not case\255sensitive.)16 4011 1 1200 3120 t
+10 B f
+(Type)900 3288 w
+10 R f
+( record and is used as a search key into the)10 1731(This field specifies the type of)5 1222 2 1200 3288 t
+10 B f
+(dhcptab)4181 3288 w
+10 R f
+(. Currently, there)2 688 1 4532 3288 t
+(are only two legal values for)5 1139 1 1200 3408 t
+10 B f
+(Type)2364 3408 w
+10 R f
+(:)2581 3408 w
+10 B f
+(m)1200 3576 w
+10 R f
+(This record is a)3 618 1 1500 3576 t
+10 B f
+(DHCP)2143 3576 w
+10 R f
+(macro definition.)1 688 1 2451 3576 t
+10 B f
+(s)1200 3744 w
+10 R f
+(This record is a)3 681 1 1500 3744 t
+10 B f
+(DHCP)2227 3744 w
+10 R f
+(symbol definition. It is used to define vendor and site\255specific)9 2664 1 2556 3744 t
+(options.)1500 3864 w
+10 B f
+(Value)900 4152 w
+10 R f
+(This field contains the value for the specified type of record. For the)12 2785 1 1200 4152 t
+10 B f
+(m)4015 4152 w
+10 R f
+( value will consist)3 743(type, the)1 349 2 4128 4152 t
+(of a series of symbol=value pairs, separated by the colon \()10 2356 1 1200 4272 t
+10 B f
+(:)3556 4272 w
+10 R f
+( the)1 149(\) character. For)2 617 2 3589 4272 t
+10 B f
+(s)4382 4272 w
+10 R f
+(type, the value will)3 772 1 4448 4272 t
+(consist of a series of fields, separated by a comma \()10 2069 1 1200 4392 t
+10 B f
+(,)3269 4392 w
+10 R f
+( symbol's characteristics. Once)3 1253(\), which define a)3 673 2 3294 4392 t
+(defined, a symbol can be used in macro definitions.)8 2058 1 1200 4512 t
+9 B f
+(Symbol Characteristics)1 898 1 690 4680 t
+10 R f
+(The Value field of a symbols definition contain the following fields describing the characteristics of a sym\255)16 4320 1 900 4800 t
+(bol:)900 4920 w
+10 B f
+(Context)900 5088 w
+10 R f
+(This field defines the context in which the symbol definition is to be used. It can have one of the fol\255)20 4020 1 1200 5208 t
+(lowing values:)1 586 1 1200 5328 t
+10 B f
+(Site)1200 5496 w
+10 R f
+(This symbol defines a site\255specific option, codes 128\255254.)7 2328 1 1500 5496 t
+10 B f
+(Vendor=Client Class ...)2 993 1 1200 5664 t
+10 R f
+( The Vendor context takes)4 1165(This symbol defines a vendor\255specific option, codes 1\255254.)7 2555 2 1500 5784 t
+10 B f
+(ASCII)1500 5904 w
+10 R f
+( option is associated)3 823(string arguments which identify the client class that this vendor)9 2588 2 1809 5904 t
+( can be specified, separated by white space. Only those)9 2341(with. Multiple client class names)4 1379 2 1500 6024 t
+(clients whose client class matches one of these values will see this option. For Sun)14 3720 1 1500 6144 t
+( client class matches the value returned by the command)9 2299(machines, the Vendor)2 881 2 1500 6264 t
+10 B f
+(uname \255i)1 380 1 4710 6264 t
+10 R f
+(on)5120 6264 w
+(the client, with periods replacing commas.)5 1695 1 1500 6384 t
+10 B f
+(Code)900 6672 w
+10 R f
+( with this symbol. Valid values are 128\255254)7 1805(This field specifies the option code number associated)7 2215 2 1200 6672 t
+(for site\255specific options, and 1\255254 for vendor\255specific options.)7 2526 1 1200 6792 t
+10 B f
+(Type)900 6960 w
+10 R f
+( is not case\255sensitive.)3 888(This field defines the type of data expected as a value for this symbol, and)14 3132 2 1200 6960 t
+(Legal values are:)2 681 1 1200 7080 t
+( 8, 2018)2 325( March)1 1761( Formats)1 353( File)1 1972(Page 1)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 1 1
+%%Page: 2 2
+DpostDict begin
+/saveobj save def
+mark
+2 pagesetup
+9 B f
+( \( 4 \))3 126( dhcptab)1 1712( \))1 37( Mar 2001)2 396( 13)1 97( \()1 68( 5.8)1 136( SunOS)1 1667(dhcptab \( 4 \))3 441 9 540 480 t
+10 B f
+(ASCII)1200 960 w
+(NVT ASCII)1 521 1 1500 1080 t
+10 R f
+( enclosed in double\255quotes \()4 1158(text. Value is)2 544 2 2053 1080 t
+10 B f
+(")3755 1080 w
+10 R f
+(\). Granularity setting has no effect)5 1409 1 3811 1080 t
+(on symbols of this type, since)5 1189 1 1500 1200 t
+10 B f
+(ASCII)2714 1200 w
+10 R f
+(strings have a natural granularity of one \(1\).)7 1757 1 3017 1200 t
+10 B f
+(BOOLEAN)1200 1368 w
+10 R f
+( boolean)1 348(No value is associated with this data type. Presence of symbols of this type denote)14 3372 2 1500 1488 t
+10 B f
+(TRUE,)1500 1608 w
+10 R f
+(whereas absence denotes)2 1002 1 1831 1608 t
+10 B f
+(FALSE.)2861 1608 w
+10 R f
+(Granularity and Miximum values have no mean\255)6 1959 1 3261 1608 t
+(ing for symbols of this type.)5 1128 1 1500 1728 t
+10 B f
+(IP)1200 1896 w
+10 R f
+(Dotted decimal form of an Internet address. Multi\255IP address granularity is supported.)11 3436 1 1500 1896 t
+10 B f
+(NUMBER)1200 2064 w
+10 R f
+(An unsigned number with a supported granularity of)7 2100 1 1500 2184 t
+10 B f
+(1)3625 2184 w
+10 R f
+(,)3675 2184 w
+10 B f
+(2)3725 2184 w
+10 R f
+(,)3775 2184 w
+10 B f
+(4)3825 2184 w
+10 R f
+(, and)1 194 1 3875 2184 t
+10 B f
+(8)4094 2184 w
+10 R f
+(octets.)4169 2184 w
+(Valid)1500 2424 w
+10 B f
+(NUMBER)1759 2424 w
+10 R f
+(types are:)1 397 1 2240 2424 t
+10 B f
+(UNUMBER8)2674 2424 w
+10 R f
+(,)3240 2424 w
+10 B f
+(SNUMBER8)3303 2424 w
+10 R f
+(,)3853 2424 w
+10 B f
+(UNUMBER16)3916 2424 w
+10 R f
+(,)4532 2424 w
+10 B f
+(SNUMBER16)4595 2424 w
+10 R f
+(,)5195 2424 w
+10 B f
+(UNUMBER32)1500 2544 w
+10 R f
+(,)2116 2544 w
+10 B f
+(SNUMBER32)2181 2544 w
+10 R f
+(,)2781 2544 w
+10 B f
+(UNUMBER64)2846 2544 w
+10 R f
+(, and)1 209 1 3462 2544 t
+10 B f
+(SNUMBER64)3711 2544 w
+10 R f
+(. See)1 208 1 4311 2544 t
+10 B f
+(dhcp)4558 2544 w
+10 S f
+(_)4770 2544 w
+10 B f
+(inittab)4820 2544 w
+10 R f
+(\(4\))5104 2544 w
+(for details.)1 427 1 1500 2664 t
+10 B f
+(OCTET)1200 2832 w
+10 R f
+(Uninterpreted)1500 2952 w
+10 B f
+(ASCII)2079 2952 w
+10 R f
+(representation of binary data. The client identifier is one example of an)11 2838 1 2382 2952 t
+10 B f
+(OCTET)1500 3072 w
+10 R f
+(string. Valid characters are 0\2559, [a\255f] [A\255F]. One)7 2003 1 1887 3072 t
+10 B f
+(ASCII)3925 3072 w
+10 R f
+(character represents one)2 982 1 4238 3072 t
+( two)1 189(nibble \(4 bits\), thus)3 817 2 1500 3192 t
+10 B f
+(ASCII)2545 3192 w
+10 R f
+(characters are needed to represent an 8 bit quantity. The)9 2358 1 2862 3192 t
+(granularity setting has no effect on symbols of this type, since)10 2688 1 1500 3312 t
+10 B f
+(OCTET)4234 3312 w
+10 R f
+(strings have a)2 589 1 4631 3312 t
+(natural granularity of one \(1\).)4 1183 1 1500 3432 t
+10 B f
+(Granularity)900 3720 w
+10 R f
+(This value specifies how many objects of)6 1701 1 1200 3840 t
+10 B f
+(Type)2935 3840 w
+10 R f
+(define a single)2 600 1 3186 3840 t
+10 B f
+(instance)3820 3840 w
+10 R f
+(of the symbol value. For)4 1016 1 4204 3840 t
+( variable list of routes. Each route consists of two)9 2011(example, the static route option is defined to be a)9 2009 2 1200 3960 t
+10 B f
+(IP)1200 4080 w
+10 R f
+(addresses, so the)2 700 1 1341 4080 t
+10 B f
+(Type)2082 4080 w
+10 R f
+( to be)2 256(is defined)1 407 2 2340 4080 t
+10 B f
+(IP)3045 4080 w
+10 R f
+(, and the data's granularity is defined to be)8 1841 1 3145 4080 t
+10 B f
+(2 IP)1 192 1 5028 4080 t
+10 R f
+(addresses. The granularity field affects the)5 1695 1 1200 4200 t
+10 B f
+(IP)2920 4200 w
+10 R f
+(and)3045 4200 w
+10 B f
+(NUMBER)3214 4200 w
+10 R f
+(data types.)1 427 1 3683 4200 t
+10 B f
+(Maximum)900 4368 w
+10 R f
+(This value specifies the maximum items of)6 1733 1 1200 4488 t
+10 B f
+(Granularity)2960 4488 w
+10 R f
+(which are permissible in a definition using)6 1716 1 3504 4488 t
+(this symbol. For example, there can only be one)8 2040 1 1200 4608 t
+10 B f
+(IP)3280 4608 w
+10 R f
+(address specified for a subnet mask, so the)7 1800 1 3420 4608 t
+10 B f
+(Maximum)1200 4728 w
+10 R f
+(number of items in this case is one \()8 1531 1 1680 4728 t
+10 B f
+(1)3211 4728 w
+10 R f
+(\). A)1 166 1 3261 4728 t
+10 B f
+(Maximum)3488 4728 w
+10 R f
+(value of zero \()3 611 1 3968 4728 t
+10 B f
+(0)4579 4728 w
+10 R f
+( a)1 81(\) means that)2 510 2 4629 4728 t
+(variable number of items is permitted.)5 1526 1 1200 4848 t
+(The following example defines a site\255specific option \(symbol\) called)8 2791 1 900 5016 t
+10 B f
+(MystatRt)3721 5016 w
+10 R f
+(, of code)2 356 1 4125 5016 t
+10 B f
+(130)4511 5016 w
+10 R f
+(, type)1 228 1 4661 5016 t
+10 B f
+(IP,)4920 5016 w
+10 R f
+(and)5076 5016 w
+(granularity)900 5136 w
+10 B f
+(2)1365 5136 w
+10 R f
+(, and a)2 267 1 1415 5136 t
+10 B f
+(Maximum)1709 5136 w
+10 R f
+(of)2180 5136 w
+10 B f
+(0)2290 5136 w
+10 R f
+( internal definition of the static route)6 1471(. This definition corresponds to the)5 1409 2 2340 5136 t
+(option \()1 314 1 900 5256 t
+10 B f
+(StaticRt)1214 5256 w
+10 R f
+(\).)1563 5256 w
+10 CW f
+(MystatRt s Site,130,IP,2,0)2 1560 1 900 5544 t
+9 B f
+(Macro Definitions)1 698 1 690 5712 t
+10 R f
+(The following example illustrates a macro defined using the)8 2402 1 900 5832 t
+10 B f
+(MystatRt)3327 5832 w
+10 R f
+(site option symbol just defined:)4 1262 1 3756 5832 t
+10 CW f
+(10netnis m :MystatRt=3.0.0.0 10.0.0.30:)3 2340 1 900 6120 t
+10 R f
+( in the)2 266(Macros can be specified)3 987 2 900 6288 t
+10 B f
+(Macro)2186 6288 w
+10 R f
+(field in)1 294 1 2501 6288 t
+10 B f
+(DHCP)2828 6288 w
+10 R f
+(network tables \(see)2 786 1 3144 6288 t
+10 B f
+(dhcp)3963 6288 w
+10 S f
+(_)4175 6288 w
+10 B f
+(network)4225 6288 w
+10 R f
+(\(4\)\), which will)2 640 1 4580 6288 t
+(bind particular macro definitions to specific)5 1750 1 900 6408 t
+10 B f
+(IP addresses.)1 561 1 2675 6408 t
+10 R f
+(Up to four macro definitions are consulted by the)8 1969 1 900 6576 t
+10 B f
+(DHCP)2894 6576 w
+10 R f
+(server to determine the options that are returned to)8 2018 1 3202 6576 t
+(the requesting client.)2 835 1 900 6696 t
+(These macros are processed in the following order:)7 2042 1 900 6864 t
+10 B f
+(Client Class)1 514 1 900 7032 t
+10 R f
+(A macro named using the)4 1130 1 1200 7152 t
+10 B f
+(ASCII)2381 7152 w
+10 R f
+( client class \(e.g.)3 749(representation of the)2 872 2 2710 7152 t
+10 B f
+(SUNW.Ultra\25530)4383 7152 w
+10 R f
+(\) is)1 152 1 5068 7152 t
+(searched for in the)3 775 1 1200 7272 t
+10 B f
+(dhcptab)2012 7272 w
+10 R f
+( delivery to the)3 635( found, its symbol/value pairs will be selected for)8 2069(. If)1 153 3 2363 7272 t
+( 2)1 75( Page)1 2011( Formats)1 353( File)1 1656(March 8, 2018)2 585 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 2 2
+%%Page: 3 3
+DpostDict begin
+/saveobj save def
+mark
+3 pagesetup
+9 B f
+( \( 4 \))3 126( dhcptab)1 1712( \))1 37( Mar 2001)2 396( 13)1 97( \()1 68( 5.8)1 136( SunOS)1 1667(dhcptab \( 4 \))3 441 9 540 480 t
+10 R f
+( permits the network administrator to select configuration parameters to be)10 3074(client. This mechanism)2 946 2 1200 960 t
+(returned to all clients of the same class.)7 1575 1 1200 1080 t
+10 B f
+(Network)900 1248 w
+10 R f
+( Internet form of the network address of the client's network \(for)11 2761(A macro named by the dotted)5 1259 2 1200 1368 t
+(example,)1200 1488 w
+10 B f
+(10.0.0.0)1590 1488 w
+10 R f
+(\) is searched for in the)5 899 1 1915 1488 t
+10 B f
+(dhcptab)2840 1488 w
+10 R f
+(. If found, its symbol/value pairs will be combined)8 2029 1 3191 1488 t
+(with those of the)3 690 1 1200 1608 t
+10 B f
+(Client Class)1 521 1 1922 1608 t
+10 R f
+( the)1 155(macro. If a symbol exists in both macros, then)8 1904 2 2475 1608 t
+10 B f
+(Network)4567 1608 w
+10 R f
+(macro)4971 1608 w
+( defined in the)3 595(value overrides the value)3 1024 2 1200 1728 t
+10 B f
+(Client Class)1 521 1 2851 1728 t
+10 R f
+(macro. This mechanism permits the network)5 1816 1 3404 1728 t
+(administrator to select configuration parameters to be returned to all clients on the same network.)14 3885 1 1200 1848 t
+10 B f
+(IP Address)1 475 1 900 2016 t
+10 R f
+(This macro may be named anything, but must be specified in the)11 2685 1 1200 2136 t
+10 B f
+(DHCP)3919 2136 w
+10 R f
+(network table for the IP)4 984 1 4236 2136 t
+( assigned to the requesting client. If this macro is found in the)12 2659(address record)1 595 2 1200 2256 t
+10 B f
+(dhcptab)4495 2256 w
+10 R f
+(, then its)2 374 1 4846 2256 t
+( those of the)3 497(symbol/value pairs will be combined with)5 1685 2 1200 2376 t
+10 B f
+(Client Class)1 516 1 3409 2376 t
+10 R f
+(macro and the)2 569 1 3952 2376 t
+10 B f
+(Network)4548 2376 w
+10 R f
+(macro.)4946 2376 w
+( to be returned)3 582(This mechanism permits the network administrator to select configuration parameters)9 3438 2 1200 2496 t
+(to clients using a particular)4 1126 1 1200 2616 t
+10 B f
+(IP)2362 2616 w
+10 R f
+( also be used to deliver a macro defined to include)10 2127(address. It can)2 595 2 2498 2616 t
+("server\255specific" information by including this macro definition in all)8 2827 1 1200 2736 t
+10 B f
+(DHCP)4058 2736 w
+10 R f
+( entries)1 296(network table)1 552 2 4372 2736 t
+(owned by a specific server.)4 1088 1 1200 2856 t
+10 B f
+(Client Identifier)1 691 1 900 3024 t
+10 R f
+(A macro named by the)4 909 1 1200 3144 t
+10 B f
+(ASCII)2134 3144 w
+10 R f
+( shown in the)3 539(representation of the client's unique identifier as)6 1935 2 2437 3144 t
+10 B f
+(DHCP)4937 3144 w
+10 R f
+(network table \(see)2 743 1 1200 3264 t
+10 B f
+(dhcp)1974 3264 w
+10 S f
+(_)2186 3264 w
+10 B f
+(network)2236 3264 w
+10 R f
+( the sum of)3 462(\(4\)\). If found, its symbol/value pairs are combined to)8 2167 2 2591 3264 t
+(the)1200 3384 w
+10 B f
+(Client Class)1 516 1 1349 3384 t
+10 R f
+(,)1865 3384 w
+10 B f
+(Network)1917 3384 w
+10 R f
+(, and)1 196 1 2288 3384 t
+10 B f
+(IP Address)1 477 1 2511 3384 t
+10 R f
+( collisions are replaced with those)5 1371(macros. Any symbol)2 834 2 3015 3384 t
+( identifier macro. The client mechanism permits the network administrator to)10 3142(specified in the client)3 878 2 1200 3504 t
+( parameters to be returned to a particular client, regardless of what network that)13 3227(select configuration)1 793 2 1200 3624 t
+(client is connected to.)3 871 1 1200 3744 t
+(Refer to)1 324 1 900 3912 t
+10 I f
+(System Administration Guide, Volume 3)4 1602 1 1249 3912 t
+10 R f
+(for more information about macro processing.)5 1841 1 2876 3912 t
+(Refer to the)2 471 1 900 4080 t
+10 B f
+(dhcp)1396 4080 w
+10 S f
+(_)1608 4080 w
+10 B f
+(inittab)1658 4080 w
+10 R f
+(\(4\) man page for more information about symbols used in Solaris DHCP.)11 2931 1 1942 4080 t
+9 B f
+(SEE ALSO)1 438 1 540 4248 t
+10 B f
+(dhcpmgr)900 4368 w
+10 R f
+(\(1M\),)1289 4368 w
+10 B f
+(dhtadm)1544 4368 w
+10 R f
+(\(1M\),)1878 4368 w
+10 B f
+(in.dhcpd)2133 4368 w
+10 R f
+(\(1M\),)2510 4368 w
+10 B f
+(dhcp)2765 4368 w
+10 S f
+(_)2977 4368 w
+10 B f
+(inittab)3027 4368 w
+10 R f
+(\(4\),)3311 4368 w
+10 B f
+(dhcp)3477 4368 w
+10 S f
+(_)3689 4368 w
+10 B f
+(network)3739 4368 w
+10 R f
+(\(4\),)4094 4368 w
+10 B f
+(dhcp)4260 4368 w
+10 R f
+(\(5\))4472 4368 w
+10 I f
+(System Administration Guide, Volume 3)4 1602 1 900 4536 t
+10 R f
+( and R. Droms,)3 629(Alexander, S.,)1 577 2 900 4704 t
+10 I f
+(DHCP Options and BOOTP Vendor Extensions)5 1948 1 2138 4704 t
+10 R f
+(, RFC 2132, Silicon Graph\255)4 1134 1 4086 4704 t
+(ics, Inc., Bucknell University, March 1997.)5 1731 1 900 4824 t
+(Droms, R.,)1 439 1 900 4992 t
+10 I f
+(Interoperation Between DHCP and BOOTP)4 1765 1 1364 4992 t
+10 R f
+(, RFC 1534, Bucknell University, October 1993.)6 1944 1 3129 4992 t
+(Droms, R.,)1 439 1 900 5160 t
+10 I f
+(Dynamic Host Configuration Protocol)3 1542 1 1364 5160 t
+10 R f
+(, RFC 2131, Bucknell University, March 1997.)6 1883 1 2906 5160 t
+(Wimer, W.,)1 473 1 900 5328 t
+10 I f
+(Clarifications and Extensions for the Bootstrap Protocol)6 2286 1 1400 5328 t
+10 R f
+(, RFC 1542, Carnegie Mellon Univer\255)5 1534 1 3686 5328 t
+(sity, October 1993.)2 766 1 900 5448 t
+( 8, 2018)2 325( March)1 1761( Formats)1 353( File)1 1972(Page 3)1 269 5 540 7680 t
+cleartomark
+showpage
+saveobj restore
+end
+%%EndPage: 3 3
+%%Trailer
+DpostDict begin
+done
+end
+%%Pages: 3
+%%DocumentFonts: Courier Times-Roman Times-Bold Times-Italic Times-Roman Symbol
