@@ -669,7 +669,7 @@ static int mailmsgattent_startct(MAILMSGATTENT *op,cchar *sp,int sl)
 	if ((si = sisub(sp,sl,"/")) >= 0) {
 	    if ((rs = mailmsgattent_startctpri(op,sp,si)) >= 0) {
 	        const int	cl = (sl-(si+1)) ;
-		cchar		*cp = (sp+(si+1)) ;
+		const char	*cp = (sp+(si+1)) ;
 	        rs = mailmsgattent_startctsub(op,cp,cl) ;
 	    }
 	} else {

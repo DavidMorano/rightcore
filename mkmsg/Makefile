@@ -163,7 +163,7 @@ OBJ13= dater_setkey.o
 OBJ14=
 OBJ15= sbuf.o
 
-OBJ16= sntmtime.o timestr_date.o md5calc.o 
+OBJ16= timestr_date.o md5calc.o 
 OBJ17= pcsgetnames.o pcsgetorg.o pcsuserfile.o pcsgetfacility.o
 OBJ18=
 OBJ19=
@@ -372,8 +372,5 @@ sbuf.o:			sbuf.c sbuf.h
 
 
 md5calc.o:		md5calc.c md5calc.h
-
-# testing
-sntmtime.o:		sntmtime.c
 
 

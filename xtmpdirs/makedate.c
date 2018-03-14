@@ -1,2 +1,2 @@
 const char xtmpdirs_makedate[] =
-"@(#)xtmpdirs                180120_0317:03_USEST Rightcore Network Services" ;
+"@(#)xtmpdirs                180313_0949:28_EDT Rightcore Network Services" ;

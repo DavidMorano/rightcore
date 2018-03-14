@@ -24,8 +24,8 @@
 extern "C" {
 #endif
 
-extern cchar	*months[] ;
-extern cchar	*days[] ;
+extern cchar	*calstrs_months[] ;
+extern cchar	*calstrs_days[] ;
 
 #ifdef	__cplusplus
 }

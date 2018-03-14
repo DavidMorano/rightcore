@@ -71,6 +71,7 @@
 
 #include	<vsystem.h>
 #include	<estrings.h>
+#include	<calstrs.h>
 #include	<sbuf.h>
 #include	<getdefzinfo.h>
 #include	<tmtime.h>
@@ -186,21 +187,6 @@ static int	findtzcomment(char *,int,cchar *) ;
 
 
 /* local variables */
-
-#if	CF_SNTMTIME
-
-#else /* CF_SNTMTIME */
-
-static cchar	*months[] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-} ;
-
-static cchar	*days[] = {
-	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
-} ;
-
-#endif /* CF_SNTMTIME */
 
 #if	CF_DEBUGS
 static cchar	*types[] = {
@@ -1049,8 +1035,8 @@ int dater_mkdatestr(DATER *dp,int type,char *dbuf,int dlen)
 	        }
 	        sl = bufprintf(dbuf,dlen,
 	            "%3s %3s %02u %02u:%02u:%02u %s %04u %s",
-	            days[tmt.wday],
-	            months[tmt.mon],
+	            calstrs_days[tmt.wday],
+	            calstrs_months[tmt.mon],
 	            tmt.mday,
 	            tmt.hour,
 	            tmt.min,
@@ -1081,7 +1067,7 @@ int dater_mkdatestr(DATER *dp,int type,char *dbuf,int dlen)
 	        }
 	        sl = bufprintf(dbuf,dlen,fmt,
 	            tmt.mday,
-	            months[tmt.mon],
+	            calstrs_months[tmt.mon],
 	            (tmt.year + TM_YEAR_BASE),
 	            tmt.hour,
 	            tmt.min,

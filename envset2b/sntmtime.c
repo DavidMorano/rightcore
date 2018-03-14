@@ -4,7 +4,6 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
-#define	CF_LOCSTRS	0		/* use local calendar strings */
 
 
 /* revision history:
@@ -151,19 +150,6 @@ static int	sbuf_datex(SBUF *,TMTIME *) ;
 
 /* local variables */
 
-#if	CF_LOCSTRS
-static const char	*months[] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-} ;
-#endif /* CF_LOCSTRS */
-
-#if	CF_LOCSTRS
-static const char	*days[] = {
-	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
-} ;
-#endif /* CF_LOCSTRS */
-
 static const char	blinker[] = "\033[5m:\033[0m" ;
 
 
@@ -199,9 +185,11 @@ int sntmtime(char *dbuf,int dlen,TMTIME *tmp,cchar *fmt)
 static int sbuf_fmtstrs(SBUF *ssp,TMTIME *tmp,const char *fmt)
 {
 	int		rs = SR_OK ;
+	cchar		**m = calstrs_months ;
+	cchar		**d = calstrs_days ;
 
 	while ((rs >= 0) && *fmt) {
-	    int	ch = *fmt++ ;
+	    int		ch = *fmt++ ;
 	    if (ch == '%') {
 	        ch = MKCHAR(*fmt++) ;
 	        switch (ch) {
@@ -209,11 +197,11 @@ static int sbuf_fmtstrs(SBUF *ssp,TMTIME *tmp,const char *fmt)
 	            rs = sbuf_char(ssp,ch) ;
 	            break ;
 	        case 'a':
-	            rs = sbuf_strw(ssp,days[tmp->wday],3) ;
+	            rs = sbuf_strw(ssp,d[tmp->wday],3) ;
 	            break ;
 	        case 'b':
 	        case 'h':
-	            rs = sbuf_strw(ssp,months[tmp->mon],3) ;
+	            rs = sbuf_strw(ssp,m[tmp->mon],3) ;
 	            break ;
 	        case 'C':
 	            {
@@ -512,7 +500,8 @@ static int sbuf_datex(SBUF *ssp,TMTIME *tmp)
 
 	if ((rs = sbuf_twodig(ssp,tmp->mday)) >= 0) {
 	    if ((rs = sbuf_char(ssp,' ')) >= 0) {
-	        if ((rs = sbuf_strw(ssp,months[tmp->mon],3)) >= 0) {
+		cchar	**m = calstrs_months ;
+	        if ((rs = sbuf_strw(ssp,m[tmp->mon],3)) >= 0) {
 	    	    if ((rs = sbuf_char(ssp,' ')) >= 0) {
 	        	rs = sbuf_year(ssp,tmp) ;
 		    }

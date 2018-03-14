@@ -10,9 +10,7 @@
 /* revision history:
 
 	= 2013-02-07, David A­D­ Morano
-
 	This subroutine was originally written.  
-
 
 */
 
@@ -63,6 +61,7 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<calstrs.h>
 #include	<char.h>
 #include	<estrings.h>
 #include	<localmisc.h>
@@ -96,8 +95,8 @@ extern int	isalnumlatin(int) ;
 extern int	isdigitlatin(int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+extern int	debugprintf(cchar *,...) ;
+extern int	strlinelen(cchar *,int,int) ;
 #endif
 
 extern char	*strwcpy(char *,const char *,int) ;
@@ -120,11 +119,6 @@ static int	parsemonth(const char *,int) ;
 
 
 /* local variables */
-
-static const char	*months[] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec", NULL
-} ;
 
 
 /* exported subroutines */
@@ -235,6 +229,7 @@ static int dayspec_parse(DAYSPEC *op,const char *sp,int sl)
 
 	        sl -= ti ;
 	        sp += ti ;
+
 		if (sl > 0) {
 		    if ((si = sialnum(sp,sl)) > 0) {
 			sp += si ;
@@ -254,6 +249,7 @@ static int dayspec_parse(DAYSPEC *op,const char *sp,int sl)
 
 	            dp = (sp+ti) ;
 	            dl = (sl-ti) ;
+
 		if (sl > 0) {
 		    if ((si = sialnum(dp,dl)) > 0) {
 			dp += si ;
@@ -328,12 +324,12 @@ static int parsemonth(cchar *mp,int ml)
 	int		rs = SR_OK ;
 	int		cl ;
 	int		mi = -1 ;
-	cchar		*cp ;
+	const char	*cp ;
 
 	if ((cl = sfshrink(mp,ml,&cp)) > 0) {
 	    const int	ch = MKCHAR(cp[0]) ;
 	    if (isalphalatin(ch)) {
-	        mi = matpcasestr(months,2,cp,cl) ;
+	        mi = matpcasestr(calstrs_months,2,cp,cl) ;
 	        rs = (mi >= 0) ? mi : SR_INVALID ;
 	    } else {
 	        rs = cfdeci(cp,cl,&mi) ;
@@ -350,9 +346,9 @@ static int parsemonth(cchar *mp,int ml)
 
 static int siourbrk(cchar *sp,int sl,int f_dig)
 {
-	register int	i = -1 ;
-	register int	ch ;
-	register int	f = FALSE ;
+	int		i = -1 ;
+	int		ch ;
+	int		f = FALSE ;
 
 	for (i = 0 ; i < sl ; i += 1) {
 	    ch = MKCHAR(sp[i]) ;

@@ -1,6 +1,6 @@
 # MAKEFILE
 
-T= troff-file
+T= mkmansrc
 
 ALL= $(T)
 
@@ -15,8 +15,8 @@ all:		$(ALL)
 $(T):		$(T).ksh
 	cp -p $(T).ksh $(T)
 
-install:	$(ALL)
-	bsdinstall $(ALL) $(BINDIR)
+install:	$(T).ksh
+	makenewer -r -o rmsuf $(T).ksh $(BINDIR)
 
 clean:
 	rm -f $(T)

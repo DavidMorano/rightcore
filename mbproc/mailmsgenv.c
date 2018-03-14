@@ -46,6 +46,7 @@
 
 #include	<vsystem.h>
 #include	<estrings.h>
+#include	<calstrs.h>
 #include	<char.h>
 #include	<sbuf.h>
 #include	<localmisc.h>
@@ -93,16 +94,6 @@ static int	freeit(const char **) ;
 
 
 /* local variables */
-
-static const char	*months[] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-	NULL
-} ;
-
-static const char	*days[] = {
-	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", NULL
-} ;
 
 
 /* exported subroutines */
@@ -238,7 +229,7 @@ int mailmsgenv_start(MAILMSGENV *mep,cchar *sbuf,int slen)
 	slen -= (pd_day + ll - cp) ;
 
 	cp = pd_day + ll ;
-	if (matcasestr(days,pd_day,3) < 0) {
+	if (matcasestr(calstrs_days,pd_day,3) < 0) {
 	    rs = SR_INVALID ;
 	    goto bad0 ;
 	}
@@ -252,7 +243,7 @@ int mailmsgenv_start(MAILMSGENV *mep,cchar *sbuf,int slen)
 
 	slen -= (pd_month + ll - cp) ;
 	cp = pd_month + ll ;
-	if (matcasestr(months,pd_month,3) < 0) {
+	if (matcasestr(calstrs_months,pd_month,3) < 0) {
 	    rs = SR_INVALID ;
 	    goto bad0 ;
 	}

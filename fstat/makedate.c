@@ -1,2 +1,2 @@
 const char fstat_makedate[] =
-"@(#)fstat                   170507_1828:23_USEDT Rightcore Network Services" ;
+"@(#)fstat                   180313_0944:29_EDT Rightcore Network Services" ;

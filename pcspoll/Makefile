@@ -174,7 +174,7 @@ OBJ25=
 OBJ26= isBadSend.o isBadRecv.o isBadMsg.o
 OBJ27=
 OBJ28=
-OBJ29= uc_waitwritable.o
+OBJ29=
 #OBJ30= authfile.o onckeyalready.o onckeygetset.o checkonc.o havenis.o
 #OBJ31= debug.o debugprintf.o debugfork.o
 

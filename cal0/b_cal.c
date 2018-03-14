@@ -59,6 +59,7 @@
 #include	<tzfile.h>		/* for TM_YEAR_BASE */
 
 #include	<vsystem.h>
+#include	<calstrs.h>
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<spawnproc.h>
@@ -207,12 +208,6 @@ static const MAPEX	mapexs[] = {
 	{ SR_INTR, EX_INTR },
 	{ SR_EXIT, EX_TERM },
 	{ 0, 0 }
-} ;
-
-static const char	*months[] = {
-	"january", "february", "march", "april", "may", "june", 
-	"july", "august", "september", "october", "november", "december",
-	NULL
 } ;
 
 static const char	blanks[] = "        " ;
@@ -1361,7 +1356,7 @@ static int whichmonth(cchar sp[],int sl)
 	cchar		*cp ;
 
 	if ((cl = sfshrink(sp,sl,&cp)) > 0) {
-	    i = matocasestr(months,2,cp,cl) ;
+	    i = matocasestr(calstrs_months,2,cp,cl) ;
 	}
 
 	return ((i >= 0) ? (i + 1) : -1) ;

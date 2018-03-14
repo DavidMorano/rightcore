@@ -1,2 +1,2 @@
 const char consoletime_makedate[] =
-"@(#)consoletime             171214_0204:20_USEST Rightcore Network Services" ;
+"@(#)consoletime             180313_0932:39_EDT Rightcore Network Services" ;

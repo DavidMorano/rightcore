@@ -159,6 +159,7 @@ ASTMFSCFLAGS= $(CCOPTS)
 #LD= $(CC)
 #LD= ld
 
+
 LDRPATH= $(EXTRA)/lib:/usr/lib/lwp
 
 LDFLAGS= -m -z ignore $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH):$(LDRPATH)

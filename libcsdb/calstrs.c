@@ -4,12 +4,16 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
+#define	CF_LEGACY	0		/* compile in legacy symbols */
 
 
 /* revision history:
 
 	= 1998-02-01, David A­D­ Morano
 	This subroutine was originally written.
+
+	= 2018-03-13, David A­D­ Morano
+	I prefixed the exported symbos w/ 'calstrs_'.
 
 */
 
@@ -44,6 +48,18 @@
 
 /* local variables */
 
+cchar	*calstrs_months[] = {
+	"January", "February", "March", "April", "May", "June", "July", 
+	"August", "September", "October", "November", "December", NULL
+} ;
+
+cchar	*calstrs_days[] = {
+	"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", 
+	"Friday", "Saturday", NULL
+} ;
+
+#if	CF_LEGACY
+
 cchar	*months[] = {
 	"January", "February", "March", "April", "May", "June", "July", 
 	"August", "September", "October", "November", "December", NULL
@@ -53,6 +69,8 @@ cchar	*days[] = {
 	"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", 
 	"Friday", "Saturday", NULL
 } ;
+
+#endif /* CF_LEGACY */
 
 
 /* exported subroutines */

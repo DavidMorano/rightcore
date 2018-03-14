@@ -192,7 +192,7 @@ int		opts ;
 
 	    if (rs >= 0) {
 	        const int	ulen = URLBUFLEN ;
-	        char	ubuf[URLBUFLEN + 1] ;
+	        char		ubuf[URLBUFLEN + 1] ;
 	        if ((rs = mkurl(ubuf,ulen,hname,pspec,svcname,svcargv)) >= 0) {
 	            cchar	*pn = PROG_WGET ;
 	            char	execfname[MAXPATHLEN + 1] ;
@@ -323,7 +323,7 @@ static int runprog(cchar *execfname,cchar *ubuf,cchar *tobuf,cchar *pn)
 	nsh.sa_flags = 0 ;
 
 	if ((rs = u_sigaction(sig,&nsh,&osh)) >= 0) {
-	    int	i = 0 ;
+	    int		i = 0 ;
 	    cchar	*av[10] ;
 
 	    av[i++] = pn ;

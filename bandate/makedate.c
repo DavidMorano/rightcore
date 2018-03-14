@@ -1,2 +1,2 @@
 const char bandate_makedate[] =
-"@(#)bandate                 171029_0107:49_USEDT Rightcore Network Services" ;
+"@(#)bandate                 180313_0923:42_EDT Rightcore Network Services" ;

@@ -56,6 +56,7 @@
 #include	<tzfile.h>		/* for TM_YEAR_BASE */
 
 #include	<vsystem.h>
+#include	<calstrs.h>
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<paramopt.h>
@@ -322,11 +323,6 @@ static const uchar	aterms[] = {
 	0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00
-} ;
-
-static const char	*months[] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec", NULL
 } ;
 
 
@@ -1402,7 +1398,7 @@ const char	*afn ;
 	} /* end if */
 
 	if ((rs >= 0) && (pan == 0) && lip->f.defnull) {
-	    int	ndays = 1 ;
+	    int		ndays = 1 ;
 
 	    pan += 1 ;
 	    if (lip->nitems > 1) ndays = lip->nitems ;
@@ -1883,7 +1879,7 @@ static int procoutenters(PROGINFO *pip,HOLIDAYER_CITE *qp,cchar *sp,int sl)
 	    cbl = MIN((lip->linelen - lip->indent),clen) ;
 
 	    if (lip->f.monthname) {
-	        const char	*mon = months[qp->m] ;
+	        const char	*mon = calstrs_months[qp->m] ;
 	        rs = bufprintf(citebuf,CITEBUFLEN,"%t-%02u",mon,3,qp->d) ;
 	        cl = rs ;
 	    } else {

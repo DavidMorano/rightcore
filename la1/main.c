@@ -35,7 +35,6 @@
 #include	<unistd.h>
 #include	<signal.h>
 #include	<ucontext.h>
-#include	<fcntl.h>
 #include	<dlfcn.h>
 #include	<stdlib.h>
 #include	<string.h>

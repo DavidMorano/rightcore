@@ -61,6 +61,7 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<calstrs.h>
 #include	<char.h>
 #include	<estrings.h>
 #include	<localmisc.h>
@@ -118,11 +119,6 @@ static int	parsemonth(const char *,int) ;
 
 
 /* local variables */
-
-static const char	*months[] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec", NULL
-} ;
 
 
 /* exported subroutines */
@@ -333,7 +329,7 @@ static int parsemonth(cchar *mp,int ml)
 	if ((cl = sfshrink(mp,ml,&cp)) > 0) {
 	    const int	ch = MKCHAR(cp[0]) ;
 	    if (isalphalatin(ch)) {
-	        mi = matpcasestr(months,2,cp,cl) ;
+	        mi = matpcasestr(calstrs_months,2,cp,cl) ;
 	        rs = (mi >= 0) ? mi : SR_INVALID ;
 	    } else {
 	        rs = cfdeci(cp,cl,&mi) ;

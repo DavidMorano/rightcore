@@ -20,6 +20,13 @@
 
 #define	NISDOMAINNAME	"/etc/defaultdomain"
 
+#define	PROGINFO	struct proginfo
+#define	PROGINFO_FL	struct proginfo_flags
+
+#define	PIVARS		struct pivars
+
+#define	ARGINFO		struct arginfo
+
 
 struct proginfo_flags {
 	uint	no : 1 ;		/* NOOP */
@@ -28,7 +35,7 @@ struct proginfo_flags {
 } ;
 
 struct proginfo {
-	struct proginfo_flags	f ;
+	PROGINFO_FL	f ;
 	bfile		*efp ;
 	bfile		*ofp ;
 	char		*progname ;

@@ -212,8 +212,8 @@ OBJ080= fsdir.o pmq.o sigblock.o userattr.o filemap.o uname.o
 OBJ081= vechand.o vecsorthand.o vecobj.o vecelem.o recarr.o
 OBJ082= envlist.o hdb.o lookaside.o ciq.o pq.o ids.o linefold.o nulstr.o 
 OBJ083= dirseen.o dirseen_not.o
-OBJ084= strpack.o
-OBJ085= varray.o dirlist.o randomvar.o strmgr.o sigign.o ucsem.o
+OBJ084= strpack.o strmgr.o
+OBJ085= varray.o dirlist.o randomvar.o sigign.o ucsem.o
 OBJ086= sbuf.o sbuf_loadstrs.o sbuf_addquoted.o 
 OBJ087= hostinfo.o hostaddr.o hostent.o inetaddr.o sockaddress.o upwcache.o
 
@@ -249,8 +249,8 @@ OBJ113=
 OBJ114= 
 OBJ115= upt.o uptspawn.o tmtime.o spawnproc.o dupup.o nlsdialassist.o
 OBJ116= mkcleanline.o tabcols.o checkbase.o ncolchar.o ncolstr.o
-OBJ117= mapex.o
-OBJ118= calstrs.o
+OBJ117= mapex.o calstrs.o
+OBJ118=
 OBJ119= toxc.o base64.o 
 
 OBJ120= uinfo.o umask.o ugetpw.o utmpacc.o uproguser.o uprogdata.o ugetpid.o
@@ -725,8 +725,6 @@ envlist.o:		envlist.c envlist.h
 
 lookaside.o:		lookaside.c lookaside.h
 
-strpack.o:		strpack.c strpack.h
-
 ciq.o:			ciq.c ciq.h
 
 pq.o:			pq.c pq.h
@@ -762,7 +760,13 @@ varray.o:		varray.c varray.h
 
 randomvar.o:		randomvar.c randomvar.h
 
+strpack.o:		strpack.c strpack.h
+
 strmgr.o:		strmgr.c strmgr.h
+
+serialbuf.o:		serialbuf.c serialbuf.h
+
+stdorder.o:		stdorder.c stdorder.h
 
 
 sigevent.o:		sigevent.c sigevent.h

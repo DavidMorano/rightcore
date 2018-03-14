@@ -60,6 +60,7 @@
 #include	<tzfile.h>		/* for TM_YEAR_BASE */
 
 #include	<vsystem.h>
+#include	<calstrs.h>
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<paramopt.h>
@@ -250,11 +251,6 @@ struct config {
 	PARAMFILE	params ;
 	EXPCOOK		cooks ;
 	CONFIG_FL	f ;
-} ;
-
-static cchar	*months[] = {
-	    "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-	    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", NULL
 } ;
 
 
@@ -2040,8 +2036,8 @@ static int procoutcite(PROGINFO *pip,CALYEAR_CITE *qp,cchar vbuf[],int vlen)
 	if ((rs = wordfill_start(&w,NULL,0)) >= 0) {
 
 	    if (lip->f.monthname) {
-	        const char	*mon = months[qp->m] ;
-	        rs = bufprintf(citebuf,CITEBUFLEN,"%s-%02u",mon,qp->d) ;
+	        const char	*mon = calstrs_months[qp->m] ;
+	        rs = bufprintf(citebuf,CITEBUFLEN,"%t-%02u",mon,3,qp->d) ;
 	        cl = rs ;
 	    } else {
 	        const int	m = (qp->m + 1) ;
@@ -2051,12 +2047,12 @@ static int procoutcite(PROGINFO *pip,CALYEAR_CITE *qp,cchar vbuf[],int vlen)
 
 	    if (rs >= 0) {
 	        if (lip->f.citebreak) {
-	            cbl = MIN((lip->linelen - lip->indent),COLBUFLEN) ;
+	            cbl = MIN((lip->linelen - lip->indent),clen) ;
 	            rs = shio_printf(lip->ofp,"%t\n",citebuf,cl) ;
 	            wlen += rs ;
 	            line += 1 ;
 	        } else {
-	            cbl = MIN(lip->linelen,COLBUFLEN) ;
+	            cbl = MIN(lip->linelen,clen) ;
 	            rs = wordfill_addword(&w,citebuf,cl) ;
 	        } /* end if (monthname requested) */
 	    }

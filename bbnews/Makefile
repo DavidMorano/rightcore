@@ -89,7 +89,7 @@ LD= ld
 LDRPATH= $(EXTRA)/lib:/usr/lib/lwp
 
 # regular
-LDFLAGS= $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH):$(LDRPATH)
+LDFLAGS= -m $(LF_LDFLAGS) -R$(LIBDIR):$(CGS_RPATH):$(LDRPATH)
 # for profiling
 #LDFLAGS= $(LF_LDFLAGS) -L/usr/lib/libp # -R$(LIBDIR)
 

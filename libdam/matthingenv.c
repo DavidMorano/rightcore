@@ -72,6 +72,7 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<calstrs.h>
 #include	<mailmsgmatenv.h>
 #include	<char.h>
 #include	<localmisc.h>
@@ -110,16 +111,6 @@ static int	nexttoken(const char *,int,const char **) ;
 
 
 /* local variables */
-
-static const char	*months[] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-	NULL
-} ;
-
-static const char	*days[] = {
-	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", NULL
-} ;
 
 
 /* exported subroutines */
@@ -236,7 +227,7 @@ int matthingenv(cchar *s,int slen)
 
 	slen -= (day + ll - cp) ;
 	cp = day + ll ;
-	if (matcasestr(days,day,3) < 0)
+	if (matcasestr(calstrs_days,day,3) < 0)
 	    return 0 ;
 
 /* get the field that is supposed to have the month in it */
@@ -246,7 +237,7 @@ int matthingenv(cchar *s,int slen)
 
 	slen -= (month + ll - cp) ;
 	cp = month + ll ;
-	if (matcasestr(months,month,3) < 0)
+	if (matcasestr(calstrs_months,month,3) < 0)
 	    return 0 ;
 
 /* does the next field contain only digits? */

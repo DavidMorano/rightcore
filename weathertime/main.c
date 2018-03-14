@@ -12,10 +12,7 @@
 /* revision history:
 
 	= 1999-08-17, David A­D­ Morano
-
-	Some of the source for this program was grabbed from
-	elsewhere.
-
+	Some of the source for this program was grabbed from elsewhere.
 
 */
 
@@ -62,10 +59,6 @@
 #define	MAXARGINDEX	100
 #define	MAXARGGROUPS	(MAXARGINDEX/8 + 1)
 
-#ifndef	DEBUGLEVEL
-#define	DEBUGLEVEL(n)	(pip->debuglevel >= (n))
-#endif
-
 #ifndef	LINELEN
 #define	LINELEN		100
 #endif
@@ -101,9 +94,9 @@ struct obdate {
 
 /* forward references */
 
-static int	out_open(struct proginfo *), out_close(struct proginfo *) ;
-static int	getobdate(struct proginfo *,
-			const char *,int,struct obdate *) ;
+static int	out_open(PROGINFO *) ;
+static int	out_close(PROGINFO *) ;
+static int	getobdate(PROGINFO *,cchar *,int,struct obdate *) ;
 
 static int	ismonthok(int,int) ;
 
@@ -113,7 +106,7 @@ static int	ismonthok(int,int) ;
 
 /* local variables */
 
-static const char *argopts[] = {
+static const char	*argopts[] = {
 	    "VERSION",
 	    "VERBOSE",
 	    NULL
@@ -129,13 +122,9 @@ enum argopts {
 /* exported subroutines */
 
 
-int main(argc,argv,envv)
-int		argc ;
-const char	*argv[] ;
-const char	*envv[] ;
+int main(int argc,cchar **argv,cchar **envv)
 {
-	struct proginfo	pi, *pip = &pi ;
-
+	PROGINFO	pi, *pip = &pi ;
 	bfile		errfile, *efp = &errfile ;
 	bfile		outfile, *ofp = &outfile ;
 	bfile		infile ;
@@ -172,7 +161,7 @@ const char	*envv[] ;
 
 
 #ifdef	COMMENT
-	(void) memset(pip,0,sizeof(struct proginfo)) ;
+	(void) memset(pip,0,sizeof(PROGINFO)) ;
 #endif
 
 	pip->progname = strbasename(argv[0]) ;
@@ -564,15 +553,10 @@ const char	*envv[] ;
 
 	        if ((sl > 0) && 
 	            (getobdate(pip,of.fp,of.flen,&hm) >= 0)) {
-
 	            struct utimbuf	ut ;
-
 	            struct tm	ts ;
-
-			DATE		moddate ;
-
+			DATER		moddate ;
 	            time_t		modtime ;
-
 
 			dater_start(&moddate,&pip->now,pip->zname,-1) ;
 
@@ -715,7 +699,7 @@ badnofile:
 
 
 static int out_open(pip)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 {
 	int	rs = SR_OK ;
 
@@ -737,7 +721,7 @@ struct proginfo	*pip ;
 
 
 static int out_close(pip)
-struct proginfo	*pip ;
+PROGINFO	*pip ;
 {
 	int	rs = SR_OK ;
 
@@ -756,17 +740,11 @@ struct proginfo	*pip ;
 
 
 /* get the hour and minutes from the METAR time field */
-static int getobdate(pip,sp,sl,hmp)
-struct proginfo	*pip ;
-const char	*sp ;
-int		sl ;
-struct obdate	*hmp ;
+static int getobdate(PROGINFO *pip,cchar *sp,int sl,struct obdate *hmp)
 {
 	struct tm	ts ;
-
 	int		rs ;
 	int		iw ;
-
 
 	if (sl < 7)
 	    return SR_INVALID ;
@@ -825,10 +803,8 @@ struct obdate	*hmp ;
 /* end subroutine (getobdate) */
 
 
-static int ismonthok(today,otherday)
-int	today, otherday ;
+static int ismonthok(int today,int otherday)
 {
-
 
 	if (today == otherday)
 	    return TRUE ;
@@ -839,6 +815,5 @@ int	today, otherday ;
 	return FALSE ;
 }
 /* end subroutine (ismonthok) */
-
 
 
