@@ -497,27 +497,31 @@ static int pmqdircheck(cchar *pp)
 
 static int getpmquid(void)
 {
-	struct passwd	pw ;
-	const int	pwlen = getbufsize(getbufsize_pw) ;
-	char		*pwbuf ;
 	int		rs ;
+	int		rs1 ;
 	int		uid = -1 ;
-	if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	    const int	nrs = SR_NOTFOUND ;
-	    cchar	*un = PMQ_USERNAME1 ;
-	    if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,un)) == nrs) {
-	    	un = PMQ_USERNAME2 ;
+	if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	    struct passwd	pw ;
+	    const int		pwlen = rs ;
+	    char		*pwbuf ;
+	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	        const int	nrs = SR_NOTFOUND ;
+	        cchar		*un = PMQ_USERNAME1 ;
 	        if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,un)) == nrs) {
-		    rs = SR_OK ;
-		    uid = PMQ_UID ;
-		} else {
-	    	    uid = pw.pw_uid ;
-		}
-	    } else {
-	        uid = pw.pw_uid ;
-	    }
-	    uc_free(pwbuf) ;
-	} /* end if (memory-allocation) */
+	    	    un = PMQ_USERNAME2 ;
+	            if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,un)) == nrs) {
+		        rs = SR_OK ;
+		        uid = PMQ_UID ;
+		    } else {
+	    	        uid = pw.pw_uid ;
+		    }
+	        } else {
+	            uid = pw.pw_uid ;
+	        }
+	        rs1 = uc_free(pwbuf) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (memory-allocation) */
+	} /* end if (getbufsize) */
 	return (rs >= 0) ? uid : rs ;
 }
 /* end subroutine (getpmquid) */

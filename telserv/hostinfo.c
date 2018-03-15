@@ -818,12 +818,10 @@ static int hostinfo_findcanonical(HOSTINFO *op)
 
 static int hostinfo_getname(HOSTINFO *op,int af,cchar *name)
 {
-	HOSTENT		he, *hep = NULL ;
-	const int	helen = getbufsize(getbufsize_he) ;
 	int		rs ;
+	int		rs1 ;
 	int		f_inet4 ;
 	int		c = 0 ;
-	char		*hebuf ;
 
 #if	CF_DEBUGS
 	debugprintf("hostinfo_getname: ent af=%u n=>%s<\n",af,name) ;
@@ -835,68 +833,56 @@ static int hostinfo_getname(HOSTINFO *op,int af,cchar *name)
 	f_inet4 = FALSE ;
 #endif /* CF_HOSTBYNAME */
 
-	if ((rs = uc_malloc((helen+1),&hebuf)) >= 0) {
-	    int		flags ;
-	    int		f_alloc = FALSE ;
+	if ((rs = getbufsize(getbufsize_he)) >= 0) {
+	    HOSTENT	he, *hep = NULL ;
+	    const int	helen = rs ;
+	    char	*hebuf ;
+	    if ((rs = uc_malloc((helen+1),&hebuf)) >= 0) {
+	        int	flags ;
+	        int	f_alloc = FALSE ;
 
-	    if (f_inet4) {
+	        if (f_inet4) {
+	            f_alloc = FALSE ;
+	            hep = &he ;
+	            rs = uc_gethostbyname(name,hep,hebuf,helen) ;
+	        } else {
+	            f_alloc = TRUE ;
+	            flags = 0 ;
+	            rs = uc_getipnodebyname(name,af,flags,&hep) ;
+	        } /* end if */
 
-	        f_alloc = FALSE ;
-	        hep = &he ;
-	        rs = uc_gethostbyname(name,hep,hebuf,helen) ;
-
-#if	CF_DEBUGS
-	        debugprintf("hostinfo_getname: uc_gethostbyname() rs=%d\n",rs) ;
-	        if (rs >= 0)
-	            debugprintaliases("hostinfo_getname",hep) ;
 	        if (rs >= 0) {
-	            rs = heaudit(hep,hebuf,helen) ;
-	            debugprintf("hostinfo_getname: heaudit() rs=%d\n",rs) ;
-	        }
-#endif /* CF_DEBUGS */
-
-	    } else {
-
-	        f_alloc = TRUE ;
-	        flags = 0 ;
-	        rs = uc_getipnodebyname(name,af,flags,&hep) ;
-
-	    } /* end if */
+	            int		nl ;
+	            cchar	*np ;
 
 #if	CF_DEBUGS
-	    debugprintf("hostinfo_getname: af=%u n=>%s< rs=%d\n",af,name,rs) ;
-#endif
-
-	    if (rs >= 0) {
-	        int		nl ;
-	        const char	*np ;
-
-#if	CF_DEBUGS
-	        debugprintaliases("hostinfo_getname2",hep) ;
+	            debugprintaliases("hostinfo_getname2",hep) ;
 #endif /* CF_DEBUGS */
 
-	        if ((rs = hostinfo_loadnames(op,af,hep)) >= 0) {
-	            c = rs ;
-	            rs = hostinfo_loadaddrs(op,af,hep) ;
-	        }
-
-	        if ((rs >= 0) && (op->ehostname[0] == '\0')) {
-	            if ((rs = hostent_getofficial(hep,&np)) >= 0) {
-	                const int	hlen = MAXHOSTNAMELEN ;
-	                nl = rs ;
-	                rs = snwcpy(op->ehostname,hlen,np,nl) ;
+	            if ((rs = hostinfo_loadnames(op,af,hep)) >= 0) {
+	                c = rs ;
+	                rs = hostinfo_loadaddrs(op,af,hep) ;
 	            }
-	        }
 
-	        if (f_alloc && (hep != NULL)) {
-	            uc_freehostent(hep) ;
-	        }
-	    } else if (isNotPresent(rs)) {
-	        rs = SR_OK ;
-	    } /* end if (got host-entry) */
+	            if ((rs >= 0) && (op->ehostname[0] == '\0')) {
+	                if ((rs = hostent_getofficial(hep,&np)) >= 0) {
+	                    const int	hlen = MAXHOSTNAMELEN ;
+	                    nl = rs ;
+	                    rs = snwcpy(op->ehostname,hlen,np,nl) ;
+	                }
+	            }
 
-	    uc_free(hebuf) ;
-	} /* end if (m-a) */
+	            if (f_alloc && (hep != NULL)) {
+	                uc_freehostent(hep) ;
+	            }
+	        } else if (isNotPresent(rs)) {
+	            rs = SR_OK ;
+	        } /* end if (got host-entry) */
+
+	        rs = uc_free(hebuf) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (m-a) */
+	} /* end if (getbufsize) */
 
 #if	CF_DEBUGS
 	debugprintf("hostinfo_getname: ret rs=%d c=%u\n",rs,c) ;
@@ -910,17 +896,13 @@ static int hostinfo_getname(HOSTINFO *op,int af,cchar *name)
 static int hostinfo_getaddr(HOSTINFO *op,int af)
 {
 	int		rs = SR_NOTFOUND ;
+	int		rs1 ;
+	int		f_inet4 ;
 	int		c = 0 ;
 
 #if	CF_DEBUGS
-	debugprintf("hostinfo_getaddr: af=%u \n",af) ;
+	debugprintf("hostinfo_getaddr: ent af=%u \n",af) ;
 #endif
-
-	if (op->f.addr && (af == op->addr.af)) {
-	    HOSTENT	he, *hep ;
-	    const int	helen = getbufsize(getbufsize_he) ;
-	    int		f_inet4 ;
-	    char	*hebuf ;
 
 #if	CF_HOSTBYNAME
 	    f_inet4 = (af == AF_INET4) ;
@@ -928,54 +910,56 @@ static int hostinfo_getaddr(HOSTINFO *op,int af)
 	    f_inet4 = FALSE ;
 #endif /* CF_HOSTBYNAME */
 
-	    if ((rs = uc_malloc((helen+1),&hebuf)) >= 0) {
-	        int	flags ;
-	        cchar	*name = op->arg.hostname ;
+	if (op->f.addr && (af == op->addr.af)) {
+	    if ((rs = getbufsize(getbufsize_he)) >= 0) {
+	        HOSTENT		he, *hep ;
+	        const int	helen = rs ;
+	        char		*hebuf ;
+	        if ((rs = uc_malloc((helen+1),&hebuf)) >= 0) {
+	            int		flags ;
+	            cchar	*name = op->arg.hostname ;
 
-	        if (f_inet4) {
-	            const int	alen = op->addr.addrlen ;
-	            const int	type = op->addr.af ;
-	            cchar	*abuf = op->addr.addr ;
-
-	            hep = &he ;
-	            rs = uc_gethostbyaddr(abuf,alen,type,hep,hebuf,helen) ;
-
-	        } else {
-
-	            flags = 0 ;
-	            rs = uc_getipnodebyname(name,af,flags,&hep) ;
-
-	        } /* end if */
+	            if (f_inet4) {
+	                const int	alen = op->addr.addrlen ;
+	                const int	type = op->addr.af ;
+	                cchar		*abuf = op->addr.addr ;
+	                hep = &he ;
+	                rs = uc_gethostbyaddr(abuf,alen,type,hep,hebuf,helen) ;
+	            } else {
+	                flags = 0 ;
+	                rs = uc_getipnodebyname(name,af,flags,&hep) ;
+	            } /* end if */
 
 #if	CF_DEBUGS
 	        debugprintf("hostinfo_getaddr: af=%u n=%s rs=%d\n",af,name,rs) ;
 #endif
 
-	        if (rs >= 0) {
-	            int		nl ;
-	            const char	*np ;
+	            if (rs >= 0) {
+	                int	nl ;
+	                cchar	*np ;
 
-	            if ((rs = hostinfo_loadnames(op,af,hep)) >= 0) {
-	                c = rs ;
-	                rs = hostinfo_loadaddrs(op,af,hep) ;
-	            }
-
-	            if ((rs >= 0) && (op->ehostname[0] == '\0')) {
-	                if ((rs = hostent_getofficial(hep,&np)) >= 0) {
-			    const int	hlen = MAXHOSTNAMELEN ;
-	                    nl = rs ;
-	                    rs = snwcpy(op->ehostname,hlen,np,nl) ;
+	                if ((rs = hostinfo_loadnames(op,af,hep)) >= 0) {
+	                    c = rs ;
+	                    rs = hostinfo_loadaddrs(op,af,hep) ;
 	                }
-	            }
 
-	            if (! f_inet4) {
-	                uc_freehostent(hep) ;
-	            }
-	        } /* end if (got host-entry) */
+	                if ((rs >= 0) && (op->ehostname[0] == '\0')) {
+	                    if ((rs = hostent_getofficial(hep,&np)) >= 0) {
+			        const int	hlen = MAXHOSTNAMELEN ;
+	                        nl = rs ;
+	                        rs = snwcpy(op->ehostname,hlen,np,nl) ;
+	                    }
+	                }
 
-	        uc_free(hebuf) ;
-	    } /* end if (m-a) */
+	                if (! f_inet4) {
+	                    uc_freehostent(hep) ;
+	                }
+	            } /* end if (got host-entry) */
 
+	            rs1 = uc_free(hebuf) ;
+		    if (rs >= 0) rs = rs1 ;
+	        } /* end if (m-a) */
+	    } /* end if (getbufsize) */
 	} /* end if (enabled) */
 
 #if	CF_DEBUGS

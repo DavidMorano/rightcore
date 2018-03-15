@@ -38,7 +38,6 @@
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<getbufsize.h>
 #include	<passwdent.h>
 #include	<getax.h>
 #include	<ugetpw.h>

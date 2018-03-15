@@ -44,15 +44,11 @@
 /* exported subroutines */
 
 
-int uc_gettimeofday(tvp,dp)
-struct timeval	*tvp ;
-void		*dp ;
+int uc_gettimeofday(struct timeval *tvp,void *dp)
 {
-	int	rs = SR_OK ;
+	int		rs = SR_OK ;
 
-
-	if (tvp == NULL)
-	    return SR_FAULT ;
+	if (tvp == NULL) return SR_FAULT ;
 
 	if (gettimeofday(tvp,dp) == -1) rs = (- errno) ;
 

@@ -530,18 +530,11 @@ static int pwcache_record(PWCACHE *op,int ct,int rs)
 /* end subroutine (pwcache_record) */
 
 
-static int record_start(ep,dt,wc,un)
-PWCACHE_REC	*ep ;
-time_t		dt ;
-int		wc ;
-const char	un[] ;
+static int record_start(PWCACHE_REC *ep,time_t dt,int wc,cchar *un)
 {
-	struct passwd	pw ;
-	const int	pwlen = getbufsize(getbufsize_pw) ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		rs1 ;
 	int		pwl = 0 ;
-	char		*pwbuf ;
 
 	if (ep == NULL) return SR_FAULT ;
 	if (un == NULL) return SR_FAULT ;
@@ -552,28 +545,34 @@ const char	un[] ;
 
 	strwcpy(ep->un,un,USERNAMELEN) ;
 
-	if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	if ((rs1 = GETPW_NAME(&pw,pwbuf,pwlen,un)) >= 0) {
-	    void	*p ;
-	    pwl = rs1 ;
+	if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	    struct passwd	pw ;
+	    const int		pwlen = rs ;
+	    char		*pwbuf ;
+	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	        if ((rs1 = GETPW_NAME(&pw,pwbuf,pwlen,un)) >= 0) {
+	            void	*p ;
+	            pwl = rs1 ;
 
-	    if ((rs = uc_malloc((pwl+1),&p)) >= 0) {
-		char	*pwbuf = (char *) p ;
-		if ((rs = passwdent_load(&ep->pw,pwbuf,pwl,&pw)) >= 0) {
-	            ep->pwbuf = pwbuf ;
-	    	    ep->pwl = pwl ;
-		}
-		if (rs < 0) uc_free(p) ;
-	    } /* end if (memory-allocation) */
+	            if ((rs = uc_malloc((pwl+1),&p)) >= 0) {
+		        char	*pwbuf = (char *) p ;
+		        if ((rs = passwdent_load(&ep->pw,pwbuf,pwl,&pw)) >= 0) {
+	                    ep->pwbuf = pwbuf ;
+	    	            ep->pwl = pwl ;
+		        }
+		        if (rs < 0) uc_free(p) ;
+	            } /* end if (memory-allocation) */
 
-	} else if (rs1 == SR_NOTFOUND) {
-	    ep->pwl = 0 ; /* optional */
-	    pwl = 0 ; /* indicates an empty (not-found) entry */
-	} else {
-	    rs = rs1 ;
-	}
-	    uc_free(pwbuf) ;
-	} /* end if (m-a) */
+	        } else if (rs1 == SR_NOTFOUND) {
+	            ep->pwl = 0 ; /* optional */
+	            pwl = 0 ; /* indicates an empty (not-found) entry */
+	        } else {
+	            rs = rs1 ;
+	        }
+	        rs1 = uc_free(pwbuf) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (m-a) */
+	} /* end if (getbufsize) */
 
 	if (rs >= 0) {
 	    ep->ti_create = dt ;
@@ -586,8 +585,7 @@ const char	un[] ;
 /* end subroutine (record_start) */
 
 
-static int record_finish(ep)
-PWCACHE_REC	*ep ;
+static int record_finish(PWCACHE_REC *ep)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -607,9 +605,7 @@ PWCACHE_REC	*ep ;
 /* end subroutine (record_finish) */
 
 
-static int record_access(ep,dt)
-PWCACHE_REC	*ep ;
-time_t		dt ;
+static int record_access(PWCACHE_REC *ep,time_t dt)
 {
 	int		rs = SR_OK ;
 	int		pwl = 0 ;
@@ -623,50 +619,51 @@ time_t		dt ;
 /* end subroutine (record_access) */
 
 
-static int record_refresh(ep,dt,wc)
-PWCACHE_REC	*ep ;
-time_t		dt ;
-int		wc ;
+static int record_refresh(PWCACHE_REC *ep,time_t dt,int wc)
 {
-	struct passwd	pw ;
-	const int	pwlen = getbufsize(getbufsize_pw) ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		rs1 ;
 	int		pwl = 0 ;
-	char		*pwbuf ;
 
 	if (ep == NULL) return SR_FAULT ;
 
-	if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	if ((rs1 = GETPW_NAME(&pw,pwbuf,pwlen,ep->un)) >= 0) {
-	    void	*p ;
-	    pwl = rs1 ;
+	if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	    struct passwd	pw ;
+	    const int		pwlen = rs ;
+	    char		*pwbuf ;
+	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	        if ((rs1 = GETPW_NAME(&pw,pwbuf,pwlen,ep->un)) >= 0) {
+	            void	*p ;
+	            pwl = rs1 ;
 
-	    ep->pwl = pwl ;
-	    if (ep->pwbuf != NULL) {
-	        rs = uc_realloc(ep->pwbuf,(pwl+1),&p) ;
-	    } else
-	        rs = uc_malloc((pwl+1),&p) ;
+	            ep->pwl = pwl ;
+	            if (ep->pwbuf != NULL) {
+	                rs = uc_realloc(ep->pwbuf,(pwl+1),&p) ;
+	            } else {
+	                rs = uc_malloc((pwl+1),&p) ;
+	            }
 
-	    if (rs >= 0) {
-		char	*pwbuf = (char *) p ;
-	        ep->pwbuf = (char *) p ;
-		rs = passwdent_load(&ep->pw,pwbuf,pwl,&pw) ;
-		if (rs < 0) uc_free(p) ;
-	    }
+	            if (rs >= 0) {
+		        char	*pwbuf = (char *) p ;
+	                ep->pwbuf = (char *) p ;
+		        rs = passwdent_load(&ep->pw,pwbuf,pwl,&pw) ;
+		        if (rs < 0) uc_free(p) ;
+	            }
 
-	} else if (rs1 == SR_NOTFOUND) {
-	    if (ep->pwbuf != NULL) {
-		uc_free(ep->pwbuf) ;
-		ep->pwbuf = NULL ;
-	    }
-	    ep->pwl = 0 ;
-	    pwl = 0 ; /* indicates an empty (not-found) entry */
-	} else {
-	    rs = rs1 ;
-	}
-	    uc_free(pwbuf) ;
-	} /* end if (m-a) */
+	        } else if (rs1 == SR_NOTFOUND) {
+	            if (ep->pwbuf != NULL) {
+			uc_free(ep->pwbuf) ;
+		        ep->pwbuf = NULL ;
+	            }
+	            ep->pwl = 0 ;
+	            pwl = 0 ; /* indicates an empty (not-found) entry */
+	        } else {
+	            rs = rs1 ;
+	        }
+	        rs1 = uc_free(pwbuf) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (m-a) */
+	} /* end if (getbufsize) */
 
 	if (rs >= 0) {
 	    ep->ti_create = dt ;

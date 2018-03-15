@@ -74,30 +74,34 @@ static int	vecpstr_loadpjnent(vecpstr *,userattr_t *,cchar *) ;
 
 int vecpstr_loadpjusers(VECPSTR *ulp,cchar *pjn)
 {
-	const int	ualen = getbufsize(getbufsize_ua) ;
 	int		rs ;
 	int		rs1 ;
 	int		c = 0 ;
-	char		*uabuf ;
 
 	if (ulp == NULL) return SR_FAULT ;
 	if (pjn == NULL) return SR_FAULT ;
+
 	if (pjn[0] == '\0') return SR_INVALID ;
 
-	if ((rs = uc_malloc((ualen+1),&uabuf)) >= 0) {
-	    SYSUSERATTR		su, *sup = &su ;
-	    if ((rs = sysuserattr_open(sup,NULL)) >= 0) {
-	        userattr_t	ua ;
-	        while ((rs = sysuserattr_readent(sup,&ua,uabuf,ualen)) > 0) {
-	            rs = vecpstr_loadpjnent(ulp,&ua,pjn) ;
-	            c += rs ;
-	            if (rs < 0) break ;
-	        } /* end while */
-	        rs1 = sysuserattr_close(sup) ;
-	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (sysuserattr) */
-	    uc_free(uabuf) ;
-	} /* end if (memory-allocation) */
+	if ((rs = getbufsize(getbufsize_ua)) >= 0) {
+	    const int	ual = rs ;
+	    char	*uab ;
+	    if ((rs = uc_malloc((ual+1),&uab)) >= 0) {
+	        SYSUSERATTR	su, *sup = &su ;
+	        if ((rs = sysuserattr_open(sup,NULL)) >= 0) {
+	            userattr_t	ua ;
+	            while ((rs = sysuserattr_readent(sup,&ua,uab,ual)) > 0) {
+	                rs = vecpstr_loadpjnent(ulp,&ua,pjn) ;
+	                c += rs ;
+	                if (rs < 0) break ;
+	            } /* end while */
+	            rs1 = sysuserattr_close(sup) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (sysuserattr) */
+	        rs1 = uc_free(uab) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (memory-allocation) */
+	} /* end if (getbufsize) */
 
 	return (rs >= 0) ? c : rs ;
 }

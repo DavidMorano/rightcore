@@ -84,16 +84,18 @@ int getproto_name(cchar *protop,int protol)
 	int		proto = 0 ;
 	cchar		*pname ;
 	if ((rs = nulstr_start(&n,protop,protol,&pname)) >= 0) {
-	    struct protoent	pe ;
-	    const int		pelen = getbufsize(getbufsize_pe) ;
-	    char		*pebuf ;
-	    if ((rs = uc_malloc((pelen+1),&pebuf)) >= 0) {
-	        if ((rs = uc_getprotobyname(pname,&pe,pebuf,pelen)) >= 0) {
-	            proto = pe.p_proto ;
-	        }
-	        rs1 = uc_free(pebuf) ;
-		if (rs >= 0) rs = rs1 ;
-	    } /* end if (m-a) */
+	    if ((rs = getbufsize(getbufsize_pe)) >= 0) {
+	        struct protoent	pe ;
+	        const int	pelen = rs ;
+	        char		*pebuf ;
+	        if ((rs = uc_malloc((pelen+1),&pebuf)) >= 0) {
+	            if ((rs = uc_getprotobyname(pname,&pe,pebuf,pelen)) >= 0) {
+	                proto = pe.p_proto ;
+	            }
+	            rs1 = uc_free(pebuf) ;
+		    if (rs >= 0) rs = rs1 ;
+	        } /* end if (m-a) */
+	    } /* end if (getbufsize) */
 	    rs1 = nulstr_finish(&n) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (nulstr) */

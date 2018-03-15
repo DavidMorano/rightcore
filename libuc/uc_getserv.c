@@ -137,6 +137,8 @@ int uc_getservent(struct servent *sep,char *rbuf,int rlen)
 	if (sep == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
 
+	if (rlen <= 0) return SR_OVERFLOW ;
+
 /* note (carefully) that there is NO POSIX® standard version of this funtion */
 
 	repeat {
@@ -199,9 +201,12 @@ int uc_getservbyname(cchar *name,cchar *proto,
 	    name,proto) ;
 #endif
 
+	if (name == NULL) return SR_FAULT ;
+	if (proto == NULL) return SR_FAULT ;
 	if (sep == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
-	if (name == NULL) return SR_FAULT ;
+
+	if (rlen <= 0) return SR_OVERFLOW ;
 
 	repeat {
 
@@ -267,8 +272,11 @@ int uc_getservbyport(int port,cchar *proto,struct servent *sep,
 	    name,proto) ;
 #endif
 
+	if (proto == NULL) return SR_FAULT ;
 	if (sep == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
+
+	if (rlen <= 0) return SR_OVERFLOW ;
 
 	repeat {
 

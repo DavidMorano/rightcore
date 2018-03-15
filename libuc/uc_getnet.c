@@ -194,6 +194,8 @@ int uc_getnetent(struct netent *nep,char *rbuf,int rlen)
 	if (nep == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
 
+	if (rlen <= 0) return SR_OVERFLOW ;
+
 /* note (carefully) that there is NO POSIX standard version of this funtion */
 
 	repeat {
@@ -261,9 +263,11 @@ int uc_getnetbyname(cchar *name,struct netent *nep,char *rbuf,int rlen)
 	debugprintf("uc_getnetbyname: ent name=%s\n",name) ;
 #endif
 
+	if (name == NULL) return SR_FAULT ;
 	if (nep == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
-	if (name == NULL) return SR_FAULT ;
+
+	if (rlen <= 0) return SR_OVERFLOW ;
 
 /* do the real work */
 
@@ -332,6 +336,8 @@ int uc_getnetbyaddr(long addr,int type,struct netent *nep,char *rbuf,int rlen)
 
 	if (nep == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
+
+	if (rlen <= 0) return SR_OVERFLOW ;
 
 /* do the real work */
 
@@ -410,10 +416,7 @@ static int netsize(struct netent *nep)
 
 #if	RF_NETCOPY
 
-static int netcopy(nep,rbuf,rlen,rp)
-struct netent	*nep, *rp ;
-char		rbuf[] ;
-int		rlen ;
+static int netcopy(struct netent *nep,char *rbuf,int rlen,struct netent *rp)
 {
 	STOREITEM	ib ;
 	int		rs ;
@@ -454,10 +457,7 @@ int		rlen ;
 }
 /* end subroutine (netcopy) */
 
-static int si_copystr(ibp,pp,p1)
-STOREITEM	*ibp ;
-const char	*p1 ;
-char		**pp ;
+static int si_copystr(STOREITEM *ibp,char **pp,cchar *p1)
 {
 	int		rs = SR_OK ;
 	const char	**cpp = (const char **) pp ;

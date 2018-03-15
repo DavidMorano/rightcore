@@ -211,6 +211,8 @@ int uc_getus(char *rbuf,int rlen)
 
 	if (rbuf == NULL) return SR_FAULT ;
 
+	if (rlen <= 0) return SR_OVERFLOW ;
+
 	if ((rs = getus_init()) >= 0) {
 	    if ((rs = uc_forklockbegin(-1)) >= 0) { /* multi */
 	 	if ((rs = ptm_lock(&uip->m)) >= 0) { /* single */

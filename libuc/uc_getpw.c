@@ -102,7 +102,7 @@ int uc_endpwent()
 }
 /* end subroutine (uc_endpwent) */
 
-int uc_getpwent(struct passwd *pwp,char rbuf[],int rlen)
+int uc_getpwent(struct passwd *pwp,char *rbuf,int rlen)
 {
 	struct passwd	*rp ;
 	int		rs = SR_OK ;
@@ -117,6 +117,8 @@ int uc_getpwent(struct passwd *pwp,char rbuf[],int rlen)
 
 	if (pwp == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
+
+	if (rlen <= 0) return SR_OVERFLOW ;
 
 /* note (carefully) that there is NO POSIX® standard version of this funtion */
 
@@ -174,7 +176,7 @@ int uc_getpwent(struct passwd *pwp,char rbuf[],int rlen)
 }
 /* end subroutine (uc_getpwent) */
 
-int uc_getpwnam(cchar name[],struct passwd *pp,char rbuf[],int rlen)
+int uc_getpwnam(cchar *name,struct passwd *pp,char *rbuf,int rlen)
 {
 	struct passwd	*rp ;
 	int		rs = SR_OK ;
@@ -184,6 +186,8 @@ int uc_getpwnam(cchar name[],struct passwd *pp,char rbuf[],int rlen)
 #if	CF_DEBUGS
 	debugprintf("uc_getpwnam: ent name=%s\n",name) ;
 #endif
+
+	if (rlen <= 0) return SR_OVERFLOW ;
 
 	repeat {
 
@@ -244,12 +248,14 @@ int uc_getpwnam(cchar name[],struct passwd *pp,char rbuf[],int rlen)
 }
 /* end subroutine (uc_getpwnam) */
 
-int uc_getpwuid(uid_t uid,struct passwd *pp,char rbuf[],int rlen)
+int uc_getpwuid(uid_t uid,struct passwd *pp,char *rbuf,int rlen)
 {
 	struct passwd	*rp ;
 	int		rs = SR_OK ;
 	int		to_again = TO_AGAIN ;
 	int		f_exit = FALSE ;
+
+	if (rlen <= 0) return SR_OVERFLOW ;
 
 	repeat {
 

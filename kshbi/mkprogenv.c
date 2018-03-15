@@ -818,20 +818,24 @@ static int mkprogenv_cspath(MKPROGENV *op,ENVLIST *etp)
 static int mkprogenv_userinfo(MKPROGENV *op)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
 	if (op->un[0] == '\0') {
-	    struct passwd	pw ;
-	    const int		pwlen = getbufsize(getbufsize_pw) ;
-	    char		*pwbuf ;
-	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	        if ((rs = getpwusername(&pw,pwbuf,pwlen,-1)) >= 0) {
-	            cchar	*cp ;
-	            strwcpy(op->un,pw.pw_name,USERNAMELEN) ;
-	            if ((rs = uc_mallocstrw(pw.pw_dir,-1,&cp)) >= 0) {
-	                op->uh = cp ;
-	            }
-	        } /* end if (getpwusername) */
-	        uc_free(pwbuf) ;
-	    } /* end if (m-a) */
+	    if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	        struct passwd	pw ;
+	        const int	pwlen = rs ;
+	        char		*pwbuf ;
+	        if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	            if ((rs = getpwusername(&pw,pwbuf,pwlen,-1)) >= 0) {
+	                cchar	*cp ;
+	                strwcpy(op->un,pw.pw_name,USERNAMELEN) ;
+	                if ((rs = uc_mallocstrw(pw.pw_dir,-1,&cp)) >= 0) {
+	                    op->uh = cp ;
+	                }
+	            } /* end if (getpwusername) */
+	            rs1 = uc_free(pwbuf) ;
+		    if (rs >= 0) rs = rs1 ;
+	        } /* end if (m-a) */
+	    } /* end if (getbufsize) */
 	} /* end if (needed) */
 	return rs ;
 }

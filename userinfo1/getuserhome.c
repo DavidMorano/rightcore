@@ -235,18 +235,20 @@ int getuserhome(char *rbuf,int rlen,cchar *un)
 
 static int subinfo_start(SUBINFO *sip,cchar *un)
 {
-	const int	pwlen = getbufsize(getbufsize_pw) ;
 	int		rs ;
-	char		*pwbuf ;
 
 	memset(sip,0,sizeof(SUBINFO)) ;
 	sip->un = un ;
 	sip->uid = -1 ;
 
-	if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	    sip->pwbuf = pwbuf ;
-	    sip->pwlen = pwlen ;
-	}
+	if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	    const int	pwlen = rs ;
+	    char	*pwbuf ;
+	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	        sip->pwbuf = pwbuf ;
+	        sip->pwlen = pwlen ;
+	    }
+	} /* end if (getbufsize) */
 
 	return rs ;
 }

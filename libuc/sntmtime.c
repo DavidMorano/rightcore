@@ -137,7 +137,7 @@ extern int	ctdecpi(char *,int,int,int) ; /* provides leading zeros */
 
 /* forward references */
 
-static int	sbuf_fmtstrs(SBUF *,TMTIME *,const char *) ;
+static int	sbuf_fmtstrs(SBUF *,TMTIME *,cchar *) ;
 static int	sbuf_twodig(SBUF *,int) ;
 static int	sbuf_digs(SBUF *,int,int,int) ;
 static int	sbuf_coder(SBUF *,TMTIME *,int) ;
@@ -182,7 +182,7 @@ int sntmtime(char *dbuf,int dlen,TMTIME *tmp,cchar *fmt)
 /* local subroutines */
 
 
-static int sbuf_fmtstrs(SBUF *ssp,TMTIME *tmp,const char *fmt)
+static int sbuf_fmtstrs(SBUF *ssp,TMTIME *tmp,cchar *fmt)
 {
 	int		rs = SR_OK ;
 	cchar		**m = calstrs_months ;
@@ -257,7 +257,7 @@ static int sbuf_fmtstrs(SBUF *ssp,TMTIME *tmp,const char *fmt)
 /* FALLTHROUGH */
 	        case 'p':
 	            if (rs >= 0) {
-	                const char	*cp = (tmp->hour < 12) ? "am" : "pm" ;
+	                cchar	*cp = (tmp->hour < 12) ? "am" : "pm" ;
 	                rs = sbuf_strw(ssp,cp,2) ;
 	            }
 	            break ;

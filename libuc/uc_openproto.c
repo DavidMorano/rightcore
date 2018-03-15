@@ -101,7 +101,6 @@
 #include	<netdb.h>
 
 #include	<vsystem.h>
-#include	<getbufsize.h>
 #include	<ascii.h>
 #include	<vecstr.h>
 #include	<hostent.h>

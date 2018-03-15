@@ -72,44 +72,46 @@ int	uc_openuserpath(struct ucopeninfo *oip) ;
 /* exported subroutines */
 
 
-int uc_openuser(username,upath,oflags,operms,to)
-const char	username[] ;
-const char	upath[] ;
-int		oflags ;
-mode_t		operms ;
-int		to ;
+int uc_openuser(cchar *un,cchar *upath,int oflags,mode_t operms,int to)
 {
-	struct passwd	pw ;
-	const int	pwlen = getbufsize(getbufsize_pw) ;
 	int		rs ;
-	char		*pwbuf ;
-	char		fname[MAXPATHLEN+1] ;
+	int		rs1 ;
+	int		fd = -1 ;
 
-	if (username == NULL) return SR_FAULT ;
+	if (un == NULL) return SR_FAULT ;
 	if (upath == NULL) return SR_FAULT ;
-	if (username[0] == '\0') return SR_INVALID ;
+	if (un[0] == '\0') return SR_INVALID ;
 
-	if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	    if (username[0] == '-') {
-	        rs = getpwusername(&pw,pwbuf,pwlen,-1) ;
-	    } else {
-	        rs = GETPW_NAME(&pw,pwbuf,pwlen,username) ;
-	    }
-	    if (rs >= 0) {
-	        if ((rs = mkpath2(fname,pw.pw_dir,upath)) >= 0) {
-	            struct ucopeninfo	oi ;
-	            memset(&oi,0,sizeof(struct ucopeninfo)) ;
-	            oi.fname = fname ;
-	            oi.oflags = oflags ;
-	            oi.operms = operms ;
-	            oi.to = to ;
-	            rs = uc_openinfo(&oi) ;
-	        } /* end if (mkpath) */
-	    } /* end if (ok) */
-	    uc_free(pwbuf) ;
-	} /* end if (memory-allocation) */
+	if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	    struct passwd	pw ;
+	    const int		pwlen = rs ;
+	    char		*pwbuf ;
+	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	        if (un[0] == '-') {
+	            rs = getpwusername(&pw,pwbuf,pwlen,-1) ;
+	        } else {
+	            rs = GETPW_NAME(&pw,pwbuf,pwlen,un) ;
+	        }
+	        if (rs >= 0) {
+		    char	fname[MAXPATHLEN+1] ;
+	            if ((rs = mkpath2(fname,pw.pw_dir,upath)) >= 0) {
+	                struct ucopeninfo	oi ;
+	                memset(&oi,0,sizeof(struct ucopeninfo)) ;
+	                oi.fname = fname ;
+	                oi.oflags = oflags ;
+	                oi.operms = operms ;
+	                oi.to = to ;
+	                rs = uc_openinfo(&oi) ;
+			fd = rs ;
+	            } /* end if (mkpath) */
+	        } /* end if (ok) */
+	        rs1 = uc_free(pwbuf) ;
+		if (rs >= 0) rs = rs1 ;
+		if ((rs < 0) && (fd >= 0)) u_close(fd) ;
+	    } /* end if (memory-allocation) */
+	} /* end if (getbufsize) */
 
-	return rs ;
+	return (rs >= 0) ? fd : rs ;
 }
 /* end subroutine (uc_openuser) */
 
@@ -117,7 +119,7 @@ int		to ;
 int uc_openuserinfo(struct ucopeninfo *oip)
 {
 	int		rs ;
-	const char	*fp = oip->fname ;
+	cchar		*fp = oip->fname ;
 
 	while (fp[0] == '/') fp += 1 ;
 
@@ -158,12 +160,12 @@ int uc_openuserpath(struct ucopeninfo *oip)
 {
 	const int	ulen = USERNAMELEN ;
 	int		rs = SR_NOENT ;
+	int		rs1 ;
 	int		ul = -1 ;
+	int		fd = -1 ;
 	const char	*fp = oip->fname ;
 	const char	*tp ;
 	const char	*un = NULL ;
-	char		ubuf[USERNAMELEN + 1] ;
-	char		tmpfname[MAXPATHLEN + 1] ;
 
 #if	CF_DEBUGS
 	debugprintf("uc_openuserpath: fname=%s\n",oip->fname) ;
@@ -187,39 +189,48 @@ int uc_openuserpath(struct ucopeninfo *oip)
 #endif
 
 	if (un[0] != '\0') {
+	    char	ubuf[USERNAMELEN + 1] ;
 	    if ((rs = snwcpy(ubuf,ulen,un,ul)) >= 0) {
-		struct passwd	pw ;
-		const int	pwlen = getbufsize(getbufsize_pw) ;
-		char		*pwbuf ;
-		if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	            if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,ubuf)) >= 0) {
-	                cchar	*ud = pw.pw_dir ;
+		if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+		    struct passwd	pw ;
+		    const int		pwlen = rs ;
+		    char		*pwbuf ;
+		    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	                if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,ubuf)) >= 0) {
+	                    cchar	*ud = pw.pw_dir ;
 #if	CF_DEBUGS
-	                debugprintf("uc_openuserpath: ud=%s\n",ud) ;
-	                debugprintf("uc_openuserpath: fp=%s\n",fp) ;
+	                    debugprintf("uc_openuserpath: ud=%s\n",ud) ;
+	                    debugprintf("uc_openuserpath: fp=%s\n",fp) ;
 #endif
-	                if (ud[0] != '\0') {
-	                    while (fp[0] == '/') fp += 1 ;
-	                    if (fp[0] != '\0') {
-	                        if ((rs = mkpath2(tmpfname,ud,fp)) >= 0) {
-	                            oip->fname = tmpfname ;
-	                            rs = uc_openinfo(oip) ;
+	                    if (ud[0] != '\0') {
+				char	tbuf[MAXPATHLEN + 1] ;
+	                        while (fp[0] == '/') fp += 1 ;
+	                        if (fp[0] != '\0') {
+	                            if ((rs = mkpath2(tbuf,ud,fp)) >= 0) {
+	                                oip->fname = tbuf ;
+	                                rs = uc_openinfo(oip) ;
+					fd = rs ;
+	                            }
+	                        } else {
+	                            const int	of = oip->oflags ;
+	                            rs = u_open(ud,of,0666) ;
+				    fd = rs ;
 	                        }
 	                    } else {
-	                        const int	of = oip->oflags ;
-	                        rs = u_open(ud,of,0666) ;
-	                    }
-	                } else {
-	                    rs = SR_NOENT ;
-			}
-	            } /* end if (getpw-name) */
-		    uc_free(pwbuf) ;
-		} /* end if (memory-allocation) */
+	                        rs = SR_NOENT ;
+			    }
+	                } /* end if (getpw-name) */
+		        rs1 = uc_free(pwbuf) ;
+			if (rs >= 0) rs = rs1 ;
+			if ((rs < 0) && (fd >= 0)) u_close(fd) ;
+		    } /* end if (memory-allocation) */
+	        } /* end if (getbufsize) */
 	    } /* end if (cpy) */
-	} else
+	} else {
 	    rs = SR_NOENT ;
+	}
 
-	return rs ;
+	return (rs >= 0) ? fd : rs ;
 }
 /* end subroutine (uc_openuserpath) */
 

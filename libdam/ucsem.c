@@ -473,57 +473,63 @@ static int ucsemdirrm(cchar *name)
 
 static int ucsemdircheck(cchar *pp)
 {
-	struct ustat	sb ;
-	struct passwd	pe ;
-	uid_t		euid, uid ;
-	long		cv ;
-	const int	pwlen = getbufsize(getbufsize_pw) ;
 	int		rs ;
-	char		*pwbuf ;
+	int		rs1 ;
 
-	if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	    struct passwd	pe ;
+	    const int		pwlen = getbufsize(getbufsize_pw) ;
+	    char		*pwbuf ;
+	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	        struct ustat	sb ;
+	        uid_t		euid, uid ;
+	        long		cv ;
 
-	rs = u_stat(pp,&sb) ;
+	        rs = u_stat(pp,&sb) ;
 
-	if ((rs < 0) || (! S_ISDIR(sb.st_mode))) {
+	        if ((rs < 0) || (! S_ISDIR(sb.st_mode))) {
 
-	    rs = u_mkdir(pp,0777) ;
+	    	    rs = u_mkdir(pp,0777) ;
 
-	    if (rs >= 0)
-	        rs = u_chmod(pp,(0777 | S_ISVTX)) ;
+	            if (rs >= 0)
+	                rs = u_chmod(pp,(0777 | S_ISVTX)) ;
 
-	    if (rs >= 0) {
+	            if (rs >= 0) {
 
-	        rs = u_pathconf(pp,UCSEM_CHOWNVAR,&cv) ;
+	                rs = u_pathconf(pp,UCSEM_CHOWNVAR,&cv) ;
 
-	        if ((rs < 0) || cv) {
+	                if ((rs < 0) || cv) {
 
-	            euid = geteuid() ;
+	                    euid = geteuid() ;
 
 /* get a UID */
 
-	            rs = uc_getpwnam(UCSEM_USERNAME1,&pe,pwbuf,pwlen) ;
+	                    rs = uc_getpwnam(UCSEM_USERNAME1,&pe,pwbuf,pwlen) ;
 
-	            if (rs < 0)
-	                rs = uc_getpwnam(UCSEM_USERNAME2,&pe,pwbuf,pwlen) ;
+	                    if (rs < 0) {
+			        cchar	*u = UCSEM_USERNAME2 ;
+	                        rs = uc_getpwnam(u,&pe,pwbuf,pwlen) ;
+			    }
 
-	            uid = (rs >= 0) ? pe.pw_uid : UCSEM_UID ;
+	                    uid = (rs >= 0) ? pe.pw_uid : UCSEM_UID ;
+    
+	                    if (euid != uid) {
+			        if ((rs = getucsemgid()) >= 0) {
+			            const gid_t	gid = rs ;
+	              	            rs = u_chown(pp,uid,gid) ;
+			        }
+	                    } /* end if (UIDs different) */
 
-	            if (euid != uid) {
-			if ((rs = getucsemgid()) >= 0) {
-			    const gid_t		gid = rs ;
-	              	    rs = u_chown(pp,uid,gid) ;
-			}
-	            } /* end if (UIDs different) */
+	                } /* end if (CHOWN possibly allowed) */
 
-	        } /* end if (CHOWN possibly allowed) */
+	            } /* end if (was able to CHMOD) */
 
-	    } /* end if (was able to CHMOD) */
+	        } /* end if (directory did not exist) */
 
-	} /* end if (directory did not exist) */
-
-	    uc_free(pwbuf) ;
-	} /* end if (memory-allocation) */
+	        rs1 = uc_free(pwbuf) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (memory-allocation) */
+	} /* end if (getbufsize) */
 
 	return rs ;
 }

@@ -82,7 +82,7 @@ int getpw_end()
 /* end subroutine (getpw_end) */
 
 
-int getpw_ent(struct passwd *pwp,char pwbuf[],int pwlen)
+int getpw_ent(struct passwd *pwp,char *pwbuf,int pwlen)
 {
 	int		rs ;
 	if ((rs = uc_getpwent(pwp,pwbuf,pwlen)) == SR_NOTFOUND) rs = SR_OK ;
@@ -94,14 +94,14 @@ int getpw_ent(struct passwd *pwp,char pwbuf[],int pwlen)
 /* end subroutine (getpw_ent) */
 
 
-int getpw_name(struct passwd *pwp,char pwbuf[],int pwlen,cchar name[])
+int getpw_name(struct passwd *pwp,char *pwbuf,int pwlen,cchar *name)
 {
 	return uc_getpwnam(name,pwp,pwbuf,pwlen) ;
 }
 /* end subroutine (getpw_name) */
 
 
-int getpw_uid(struct passwd *pwp,char pwbuf[],int pwlen,uid_t uid)
+int getpw_uid(struct passwd *pwp,char *pwbuf,int pwlen,uid_t uid)
 {
 	return uc_getpwuid(uid,pwp,pwbuf,pwlen) ;
 }
@@ -122,7 +122,7 @@ int getsp_end()
 /* end subroutine (getsp_end) */
 
 
-int getsp_ent(struct spwd *sp,char rbuf[],int rlen)
+int getsp_ent(struct spwd *sp,char *rbuf,int rlen)
 {
 	int		rs ;
 	if ((rs = uc_getspent(sp,rbuf,rlen)) == SR_NOTFOUND) rs = SR_OK ;
@@ -134,7 +134,7 @@ int getsp_ent(struct spwd *sp,char rbuf[],int rlen)
 /* end subroutine (getsp_ent) */
 
 
-int getsp_name(struct spwd *sp,char rbuf[],int rlen,cchar name[])
+int getsp_name(struct spwd *sp,char *rbuf,int rlen,cchar *name)
 {
 	int		rs ;
 #if	CF_DEBUGS
@@ -163,7 +163,7 @@ int getgr_end()
 /* end subroutine (getgr_end) */
 
 
-int getgr_ent(struct group *grp,char grbuf[],int grlen)
+int getgr_ent(struct group *grp,char *grbuf,int grlen)
 {
 	int		rs ;
 	if ((rs = uc_getgrent(grp,grbuf,grlen)) == SR_NOTFOUND) rs = SR_OK ;
@@ -172,14 +172,14 @@ int getgr_ent(struct group *grp,char grbuf[],int grlen)
 /* end subroutine (getgr_ent) */
 
 
-int getgr_name(struct group *grp,char rbuf[],int rlen,cchar name[])
+int getgr_name(struct group *grp,char *rbuf,int rlen,cchar *name)
 {
 	return uc_getgrnam(name,grp,rbuf,rlen) ;
 }
 /* end subroutine (getgr_name) */
 
 
-int getgr_gid(struct group *grp,char rbuf[],int rlen,gid_t gid)
+int getgr_gid(struct group *grp,char *rbuf,int rlen,gid_t gid)
 {
 	return uc_getgrgid(gid,grp,rbuf,rlen) ;
 }
@@ -200,7 +200,7 @@ int getpj_end()
 /* end subroutine (getpj_end) */
 
 
-int getpj_ent(struct project *pjp,char rbuf[],int rlen)
+int getpj_ent(struct project *pjp,char *rbuf,int rlen)
 {
 	int		rs ;
 	if ((rs = uc_getpjent(pjp,rbuf,rlen)) == SR_NOTFOUND) rs = SR_OK ;
@@ -209,14 +209,14 @@ int getpj_ent(struct project *pjp,char rbuf[],int rlen)
 /* end subroutine (getpj_ent) */
 
 
-int getpj_name(struct project *pjp,char rbuf[],int rlen,cchar name[])
+int getpj_name(struct project *pjp,char *rbuf,int rlen,cchar *name)
 {
 	return uc_getpjbyname(name,pjp,rbuf,rlen) ;
 }
 /* end subroutine (getpj_name) */
 
 
-int getpj_pjid(struct project *pjp,char rbuf[],int rlen,projid_t pjid)
+int getpj_pjid(struct project *pjp,char *rbuf,int rlen,projid_t pjid)
 {
 	return uc_getpjbyid(pjid,pjp,rbuf,rlen) ;
 }

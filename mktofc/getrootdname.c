@@ -176,6 +176,7 @@ static int	subinfo_finish(SUBINFO *) ;
 static int	subinfo_env(SUBINFO *,char *,int) ;
 static int	subinfo_domain(SUBINFO *,char *,int) ;
 static int	subinfo_user(SUBINFO *,char *,int) ;
+static int	subinfo_userx(SUBINFO *,char *,int,struct passwd *) ;
 static int	subinfo_prmap(SUBINFO *,char *,int) ;
 static int	subinfo_home(SUBINFO *,char *,int) ;
 static int	subinfo_bases(SUBINFO *,char *,int) ;
@@ -501,16 +502,37 @@ static int subinfo_domain(SUBINFO *sip,char *rbuf,int rlen)
 
 static int subinfo_user(SUBINFO *sip,char *rbuf,int rlen)
 {
-	struct passwd	pw ;
-	const int	pwlen = getbufsize(getbufsize_pw) ;
+	int		rs ;
+	int		rs1 ;
+	int		len = 0 ;
+
+	if ((rs = rs = getbufsize(getbufsize_pw)) >= 0) {
+	    struct passwd	pw ;
+	    const int		pwlen = rs ;
+	    char		*pwbuf ;
+	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	        if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,sip->dname)) >= 0) {
+		    rs = subinfo_userx(sip,rbuf,rlen,&pw) ;
+		    len = rs ;
+	        } else if (isNotPresent(rs)) {
+		    rs = SR_OK ;
+	        } /* end if (GETPW_NAME) */
+	        rs1 = uc_free(pwbuf) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (memory-allocation) */
+	} /* end if (getbufsize) */
+
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (subinfo_user) */
+
+
+static int subinfo_userx(SUBINFO *sip,char *rbuf,int rlen,struct passwd *pwp)
+{
 	int		rs ;
 	int		len = 0 ;
-	char		*pwbuf ;
-
-	if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	    if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,sip->dname)) >= 0) {
 	        char	tbuf[MAXPATHLEN + 1] ;
-	        if ((rs = mkpath2(tbuf,pw.pw_dir,SWDFNAME)) >= 0) {
+	        if ((rs = mkpath2(tbuf,pwp->pw_dir,SWDFNAME)) >= 0) {
 		    struct ustat	sb ;
 		    if ((rs = u_lstat(tbuf,&sb)) >= 0) {
 	                if (S_ISLNK(sb.st_mode)) {
@@ -520,12 +542,11 @@ static int subinfo_user(SUBINFO *sip,char *rbuf,int rlen)
 
 		                rbuf[bl] = '\0' ;
 	                        if ((bl == 1) && (rbuf[0] == '.')) {
-	                            rs = mknpath1(rbuf,rlen,pw.pw_dir) ;
+	                            rs = mknpath1(rbuf,rlen,pwp->pw_dir) ;
 		                    len = rs ;
 		                } else if ((bl > 0) && (rbuf[0] != '/')) {
-			            char	tbuf[MAXPATHLEN + 1] ;
 			            mkpath1(tbuf,rbuf) ;
-	                            rs = mknpath2(rbuf,rlen,pw.pw_dir,tbuf) ;
+	                            rs = mknpath2(rbuf,rlen,pwp->pw_dir,tbuf) ;
 		                    len = rs ;
 		                } /* end if */
 
@@ -542,15 +563,9 @@ static int subinfo_user(SUBINFO *sip,char *rbuf,int rlen)
 			rs = SR_OK ;
 	            } /* end if (have SWD directory entry) */
 	        } /* end if (mkpath) */
-	    } else if (isNotPresent(rs)) {
-		rs = SR_OK ;
-	    } /* end if (GETPW_NAME) */
-	    uc_free(pwbuf) ;
-	} /* end if (memory-allocation) */
-
 	return (rs >= 0) ? len : rs ;
 }
-/* end subroutine (subinfo_user) */
+/* end subroutine (subinfo_userx) */
 
 
 static int subinfo_prmap(SUBINFO *sip,char *rbuf,int rlen)

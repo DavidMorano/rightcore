@@ -57,29 +57,34 @@ int main(int argc,const char **argv,const char **envv)
 #endif
 
 	if (argv != NULL) {
-	    struct passwd	pw ;
-	    const int		pwlen = getbufsize(getbufsize_pw) ;
-	    char		*pwbuf ;
-	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	        int	ai ;
-	        for (ai = 1 ; (ai < argc) && (argv[ai] != NULL) ; ai += 1) {
-	            cchar	*un = argv[ai] ;
+	    if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	        struct passwd	pw ;
+	        const int	pwlen = rs ;
+	        char		*pwbuf ;
+	        if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	            int	ai ;
+	            for (ai = 1 ; (ai < argc) && (argv[ai] != NULL) ; ai += 1) {
+	                cchar	*un = argv[ai] ;
 #if	CF_DEBUGS
-	        debugprintf("main: u=%s\n",un) ;
+	                debugprintf("main: u=%s\n",un) ;
 #endif
-	        if ((rs1 = ugetpw_name(&pw,pwbuf,pwlen,un)) >= 0) {
-	            printf("u=%s uid=%d home=%s\n",un,pw.pw_uid,pw.pw_dir) ;
-	        } else if (rs1 == SR_NOTFOUND) {
-	            rs = SR_OK ;
-	            printf("u=%s not_found (%d)\n",un,rs1) ;
-	        }
+	                if ((rs1 = ugetpw_name(&pw,pwbuf,pwlen,un)) >= 0) {
+			    const uid_t	uid = pw.pw_uid ;
+			    cchar	*dir = pw.pw_dir ;
+	                    printf("u=%s uid=%d home=%s\n",un,uid,dir) ;
+	                } else if (rs1 == SR_NOTFOUND) {
+	                    rs = SR_OK ;
+	                    printf("u=%s not_found (%d)\n",un,rs1) ;
+	                }
 #if	CF_DEBUGS
-	        debugprintf("main: ugetpw_name() rs=%d\n",rs1) ;
+	                debugprintf("main: ugetpw_name() rs=%d\n",rs1) ;
 #endif
-	        if (rs < 0) break ;
-	    } /* end for */
-		uc_free(pwbuf) ;
-	    } /* end if (memory-allocation) */
+	                if (rs < 0) break ;
+	            } /* end for */
+		    rs1 = uc_free(pwbuf) ;
+		    if (rs >= 0) rs = rs1 ;
+	        } /* end if (memory-allocation) */
+	    } /* end if (getbufsize) */
 	} /* end if (ugetpw) */
 
 #if	CF_DEBUGS

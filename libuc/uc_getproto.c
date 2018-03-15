@@ -179,6 +179,8 @@ int uc_getprotoent(struct protoent *pep,char *rbuf,int rlen)
 	if (pep == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
 
+	if (rlen <= 0) return SR_OVERFLOW ;
+
 /* note (carefully) that there is NO POSIX® standard version of this funtion */
 
 	repeat {
@@ -244,6 +246,8 @@ int uc_getprotobyname(cchar *name,struct protoent *pep,char *rbuf,int rlen)
 	if (rbuf == NULL) return SR_FAULT ;
 	if (name == NULL) return SR_FAULT ;
 
+	if (rlen <= 0) return SR_OVERFLOW ;
+
 	repeat {
 
 #if	defined(SYSHAS_GETPROTOXXXR) && (SYSHAS_GETPROTOXXXR > 0)
@@ -308,6 +312,8 @@ int uc_getprotobynumber(int proto,struct protoent *pep,char *rbuf,int rlen)
 
 	if (pep == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
+
+	if (rlen <= 0) return SR_OVERFLOW ;
 
 	repeat {
 

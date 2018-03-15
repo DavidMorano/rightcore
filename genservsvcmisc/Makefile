@@ -98,22 +98,22 @@ LIBINFO= $(LIBDIRS) $(LIBS)
 
 SLIBDIRS= -L$(LIBDIR) -L$(CGS_RPATH)
 
-#SOLIB0= -llkcmd
-SOLIB0=
-SOLIB1= -ldam -lb
-SOLIB2=
-SOLIB3=
-SOLIB4= -L$(GNU)/lib -lstdc++ -lgcc_eh -lgcc
-SOLIB5= 
-SOLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
-SOLIB7=
+#SLIB0= -llkcmd
+SLIB0=
+SLIB1= -ldam -lb
+SLIB2=
+SLIB3=
+SLIB4= $(CGS_LIBS)
+SLIB5= 
+SLIB6= -lsecdb -lproject -lpthread -lrt -lxnet -lsocket -lnsl
+SLIB7=
 
-SOLIBA= $(SOLIB0) $(SOLIB1) $(SOLIB2) $(SOLIB3) 
-SOLIBB= $(SOLIB4) $(SOLIB5) $(SOLIB6) $(SOLIB7)
+SLIBA= $(SLIB0) $(SLIB1) $(SLIB2) $(SLIB3) 
+SLIBB= $(SLIB4) $(SLIB5) $(SLIB6) $(SLIB7)
 
-SOLIBS= $(SOLIBA) $(SOLIBB)
+SLIBS= $(SLIBA) $(SLIBB)
 
-SLIBINFO= $(SLIBDIRS) $(SLIBS)
+SOLININFO= $(SLIBDIRS) $(SLIBS)
 
 
 VALUES= $(VALDIR)/$(CGS_VALUES)
@@ -221,7 +221,7 @@ $(T):			$(T).ee
 	cp -p $(T).ee $(T)
 
 $(T).so:		$(OBJ) Makefile $(T).map
-	$(LD) -G -o $@ $(SLDFLAGS) $(SOBJS) $(SLIBINFO) > $(T).lm
+	$(LD) -G -o $@ $(SLDFLAGS) $(SOBJS) $(SOLININFO) > $(T).lm
 
 $(T).$(OFF) $(OFF):	$(T).x
 	cp -p $(T).x $(T).$(OFF)
@@ -248,7 +248,7 @@ strip:			$(T).so
 	rm -f $(T).$(OFF)
 
 again:
-	rm -f $(ALL) $(T).x $(T).$(OFF)
+	rm -f $(ALL) $(T).so $(T).lm $(T).x $(T).$(OFF)
 
 clean:			again
 	makeclean

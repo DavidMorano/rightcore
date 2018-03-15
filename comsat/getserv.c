@@ -81,19 +81,21 @@ extern int	strlinelen(const char *,int,int) ;
 
 int getserv_name(cchar *pn,cchar *svc)
 {
-	struct servent	se ;
-	const int	selen = getbufsize(getbufsize_se) ;
 	int		rs ;
 	int		rs1 ;
 	int		port = 0 ;
-	char		*sebuf ;
-	if ((rs = uc_malloc((selen+1),&sebuf)) >= 0) {
-	    if ((rs = uc_getservbyname(svc,pn,&se,sebuf,selen)) >= 0) {
-	        port = (int) ntohs(se.s_port) ;
-	    }
-	    rs1 = uc_free(sebuf) ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (memory-allocation) */
+	if ((rs = getbufsize(getbufsize_se)) >= 0) {
+	    struct servent	se ;
+	    const int		selen = rs ;
+	    char		*sebuf ;
+	    if ((rs = uc_malloc((selen+1),&sebuf)) >= 0) {
+	        if ((rs = uc_getservbyname(svc,pn,&se,sebuf,selen)) >= 0) {
+	            port = (int) ntohs(se.s_port) ;
+	        }
+	        rs1 = uc_free(sebuf) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (memory-allocation) */
+	} /* end if (getbufsize) */
 	return (rs >= 0) ? port : rs ;
 }
 /* end subroutine (getserv_name) */

@@ -769,6 +769,10 @@ serialbuf.o:		serialbuf.c serialbuf.h
 stdorder.o:		stdorder.c stdorder.h
 
 
+mapex.o:		mapex.c mapex.h
+
+calstrs.o:		calstrs.c calstrs.h
+
 sigevent.o:		sigevent.c sigevent.h
 
 timeval.o:		timeval.c timeval.h

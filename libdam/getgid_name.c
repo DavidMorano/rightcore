@@ -68,17 +68,19 @@ int getgid_name(cchar *np,int nl)
 	if (np == NULL) return SR_FAULT ;
 	if (np[0] == '\0') return SR_INVALID ;
 	if ((rs = nulstr_start(&n,np,nl,&name)) >= 0) {
-	    struct group	gr ;
-	    const int		grlen = getbufsize(getbufsize_gr) ;
-	    char		*grbuf ;
-	    if ((rs = uc_malloc((grlen+1),&grbuf)) >= 0) {
-		{
-	            rs = getgr_name(&gr,grbuf,grlen,name) ;
-	            gid = gr.gr_gid ;
-		}
-	        rs1 = uc_free(grbuf) ;
-	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (memory-allocation) */
+	    if ((rs = getbufsize(getbufsize_gr)) >= 0) {
+	        struct group	gr ;
+	        const int	grlen = rs ;
+	        char		*grbuf ;
+	        if ((rs = uc_malloc((grlen+1),&grbuf)) >= 0) {
+		    {
+	                rs = getgr_name(&gr,grbuf,grlen,name) ;
+	                gid = gr.gr_gid ;
+		    }
+	            rs1 = uc_free(grbuf) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (memory-allocation) */
+	    } /* end if (getbufsize) */
 	    rs1 = nulstr_finish(&n) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (nulstr) */

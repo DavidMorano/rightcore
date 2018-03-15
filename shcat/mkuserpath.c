@@ -234,6 +234,7 @@ static int mkpathusername(char *rbuf,cchar *up,int ul,cchar *sp,int sl)
 {
 	const int	ulen = USERNAMELEN ;
 	int		rs = SR_OK ;
+	int		rs1 ;
 	cchar		*un = up ;
 	char		ubuf[USERNAMELEN+1] ;
 
@@ -251,25 +252,28 @@ static int mkpathusername(char *rbuf,cchar *up,int ul,cchar *sp,int sl)
 #endif
 
 	if (rs >= 0) {
-	    struct passwd	pw ;
-	    const int		pwlen = getbufsize(getbufsize_pw) ;
-	    char		*pwbuf ;
-	    if ((rs = uc_libmalloc((pwlen+1),&pwbuf)) >= 0) {
-	        if ((un[0] == '\0') || (un[0] == '-')) {
-	            rs = getpwusername(&pw,pwbuf,pwlen,-1) ;
-	        } else {
-	            rs = GETPW_NAME(&pw,pwbuf,pwlen,un) ;
-	        }
-	        if (rs >= 0) {
-		    cchar	*dir = pw.pw_dir ;
-	            if (sl > 0) {
-	                rs = mkpath2w(rbuf,dir,sp,sl) ;
+	    if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	        struct passwd	pw ;
+	        const int	pwlen = rs ;
+	        char		*pwbuf ;
+	        if ((rs = uc_libmalloc((pwlen+1),&pwbuf)) >= 0) {
+	            if ((un[0] == '\0') || (un[0] == '-')) {
+	                rs = getpwusername(&pw,pwbuf,pwlen,-1) ;
 	            } else {
-	                rs = mkpath1(rbuf,dir) ;
+	                rs = GETPW_NAME(&pw,pwbuf,pwlen,un) ;
 	            }
-	        }
-	        uc_libfree(pwbuf) ;
-	    } /* end if (memory-allocation) */
+	            if (rs >= 0) {
+		        cchar	*dir = pw.pw_dir ;
+	                if (sl > 0) {
+	                    rs = mkpath2w(rbuf,dir,sp,sl) ;
+	                } else {
+	                    rs = mkpath1(rbuf,dir) ;
+	                }
+	            }
+	            rs1 = uc_libfree(pwbuf) ;
+		    if (rs >= 0) rs = rs1 ;
+	        } /* end if (memory-allocation) */
+	    } /* end if (getbufsize) */
 	} /* end if (ok) */
 
 #if	CF_DEBUGS

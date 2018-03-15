@@ -1307,14 +1307,11 @@ static int mapdir_expander(ISSUE_MAPDIR *ep)
 #endif
 
 	if ((ep->dirname != NULL) && (ep->dirname[0] == '~')) {
-	    struct passwd	pw ;
-	    const int		pwlen = getbufsize(getbufsize_pw) ;
-	    int			unl = -1 ;
-	    cchar		*un = (ep->dirname+1) ;
-	    cchar		*tp ;
-	    cchar		*pp = NULL ;
-	    char		ubuf[USERNAMELEN + 1] ;
-	    char		*pwbuf ;
+	    int		unl = -1 ;
+	    cchar	*un = (ep->dirname+1) ;
+	    cchar	*tp ;
+	    cchar	*pp = NULL ;
+	    char	ubuf[USERNAMELEN + 1] ;
 	    if ((tp = strchr(un,'/')) != NULL) {
 	        unl = (tp - un) ;
 	        pp = tp ;
@@ -1323,33 +1320,40 @@ static int mapdir_expander(ISSUE_MAPDIR *ep)
 	        un = ep->admin ;
 	        unl = -1 ;
 	    }
-	            if (unl >= 0) {
-	                strwcpy(ubuf,un,MIN(unl,USERNAMELEN)) ;
-	                un = ubuf ;
-	            }
-	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-		if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,un)) >= 0) {
-		    cchar	*uh = pw.pw_dir ;
-	    	    char	hbuf[MAXPATHLEN + 1] ;
-	            if (pp != NULL) {
-	                rs = mkpath2(hbuf,uh,pp) ;
-	                fl = rs ;
-	            } else {
-	                rs = mkpath1(hbuf,uh) ;
-	                fl = rs ;
-	            }
-	            if (rs >= 0) {
-	                cchar	*cp ;
-	                rs = uc_mallocstrw(hbuf,fl,&cp) ;
-	                if (rs >= 0) ep->dname = cp ;
-	            }
-		} else if (isNotPresent(rs)) {
-		    rs = SR_OK ;
-	        } /* end if (getpw_name) */
-		uc_free(pwbuf) ;
-	    } /* end if (m-a-f) */
-	} else
+	    if (unl >= 0) {
+		strwcpy(ubuf,un,MIN(unl,USERNAMELEN)) ;
+		un = ubuf ;
+	    }
+	    if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	        struct passwd	pw ;
+	        const int	pwlen = rs ;
+	        char		*pwbuf ;
+	        if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+		    if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,un)) >= 0) {
+		        cchar	*uh = pw.pw_dir ;
+	    	        char	hbuf[MAXPATHLEN + 1] ;
+	                if (pp != NULL) {
+	                    rs = mkpath2(hbuf,uh,pp) ;
+	                    fl = rs ;
+	                } else {
+	                    rs = mkpath1(hbuf,uh) ;
+	                    fl = rs ;
+	                }
+	                if (rs >= 0) {
+	                    cchar	*cp ;
+	                    rs = uc_mallocstrw(hbuf,fl,&cp) ;
+	                    if (rs >= 0) ep->dname = cp ;
+	                }
+		    } else if (isNotPresent(rs)) {
+		        rs = SR_OK ;
+	            } /* end if (getpw_name) */
+		    rs1 = uc_free(pwbuf) ;
+		    if (rs >= 0) rs = rs1 ;
+	        } /* end if (m-a-f) */
+	    } /* end if (getbufsize) */
+	} else {
 	    rs = SR_INVALID ;
+	}
 
 	return (rs >= 0) ? fl : rs ;
 }

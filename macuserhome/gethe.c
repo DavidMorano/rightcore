@@ -125,7 +125,7 @@ int gethe_ent(struct hostent *hep,char *hebuf,int helen)
 /* end subroutine (gethe_ent) */
 
 
-int gethe_name(struct hostent *hep,char hebuf[],int helen,cchar name[])
+int gethe_name(struct hostent *hep,char *hebuf,int helen,cchar *name)
 {
 	const int	nlen = NODENAMELEN ;
 	int		rs = SR_OK ;
@@ -140,7 +140,7 @@ int gethe_name(struct hostent *hep,char hebuf[],int helen,cchar name[])
 /* end subroutine (gethe_name) */
 
 
-int gethe_addr(struct hostent *hep,char hebuf[],int helen,int type,
+int gethe_addr(struct hostent *hep,char *hebuf,int helen,int type,
 		const void *ap,int al)
 {
 	return uc_gethostbyaddr(ap,al,type,hep,hebuf,helen) ;

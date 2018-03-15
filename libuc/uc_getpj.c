@@ -82,7 +82,7 @@ int uc_endpjent()
 	return SR_OK ;
 }
 
-int uc_getpjent(struct project *pjp,char rbuf[],int rlen)
+int uc_getpjent(struct project *pjp,char *rbuf,int rlen)
 {
 	struct project	*rp ;
 	int		rs = SR_OK ;
@@ -95,6 +95,8 @@ int uc_getpjent(struct project *pjp,char rbuf[],int rlen)
 
 	if (pjp == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
+
+	if (rlen <= 0) return SR_OVERFLOW ;
 
 	repeat {
 	    {
@@ -137,7 +139,7 @@ int uc_getpjent(struct project *pjp,char rbuf[],int rlen)
 }
 /* end subroutine (uc_getpjent) */
 
-int uc_getpjbyid(projid_t projid,struct project *pjp, char rbuf[],int rlen)
+int uc_getpjbyid(projid_t projid,struct project *pjp,char *rbuf,int rlen)
 {
 	struct project	*rp ;
 	int		rs = SR_OK ;
@@ -150,6 +152,8 @@ int uc_getpjbyid(projid_t projid,struct project *pjp, char rbuf[],int rlen)
 
 	if (pjp == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
+
+	if (rlen <= 0) return SR_OVERFLOW ;
 
 	repeat {
 	    {
@@ -193,7 +197,7 @@ int uc_getpjbyid(projid_t projid,struct project *pjp, char rbuf[],int rlen)
 }
 /* end subroutine (uc_getpjbyid) */
 
-int uc_getpjbyname(cchar name[],struct project *pjp,char rbuf[],int rlen)
+int uc_getpjbyname(cchar *name,struct project *pjp,char *rbuf,int rlen)
 {
 	struct project	*rp ;
 	int		rs = SR_OK ;
@@ -207,6 +211,8 @@ int uc_getpjbyname(cchar name[],struct project *pjp,char rbuf[],int rlen)
 	if (name == NULL) return SR_FAULT ;
 	if (pjp == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
+
+	if (rlen <= 0) return SR_OVERFLOW ;
 
 	repeat {
 	    {
@@ -263,21 +269,21 @@ int uc_endpjent()
 	return SR_NOSYS ;
 }
 
-int uc_getpjent(struct project *pjp,char rbuf[],int rlen)
+int uc_getpjent(struct project *pjp,char *rbuf,int rlen)
 {
 	if (pjp == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
 	return SR_NOSYS ;
 }
 
-int uc_getpjbyid(projid_t projid,struct project *pjp,char rbuf[],int rlen)
+int uc_getpjbyid(projid_t projid,struct project *pjp,char *rbuf,int rlen)
 {
 	if (pjp == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
 	return SR_NOSYS ;
 }
 
-int uc_getpjbyname(cchar name[],struct project *pjp,char rbuf[],int rlen)
+int uc_getpjbyname(cchar *name,struct project *pjp,char *rbuf,int rlen)
 {
 	if (name == NULL) return SR_FAULT ;
 	if (pjp == NULL) return SR_FAULT ;

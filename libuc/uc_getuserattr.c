@@ -58,7 +58,7 @@
 
 int uc_setuserattr()
 {
-	int	rs ;
+	int		rs ;
 
 #if	defined(SYSHAS_USERATTR) && (SYSHAS_USERATTR > 0)
 	{
@@ -78,7 +78,7 @@ int uc_setuserattr()
 
 int uc_enduserattr()
 {
-	int	rs ;
+	int		rs ;
 
 #if	defined(SYSHAS_USERATTR) && (SYSHAS_USERATTR > 0)
 	{

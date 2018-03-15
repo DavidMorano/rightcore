@@ -81,7 +81,7 @@ int uc_endgrent()
 	return SR_OK ;
 }
 
-int uc_getgrent(struct group *grp,char rbuf[],int rlen)
+int uc_getgrent(struct group *grp,char *rbuf,int rlen)
 {
 	struct group	*rp ;
 	int		rs = SR_OK ;
@@ -91,6 +91,11 @@ int uc_getgrent(struct group *grp,char rbuf[],int rlen)
 #if	CF_DEBUGS
 	debugprintf("uc_getgrent: ent\n") ;
 #endif
+
+	if (grp == NULL) return SR_FAULT ;
+	if (rbuf == NULL) return SR_FAULT ;
+
+	if (rlen <= 0) return SR_OVERFLOW ;
 
 	repeat {
 
@@ -148,6 +153,12 @@ int uc_getgrnam(cchar *name,struct group *grp,char *rbuf,int rlen)
 	int		to_again = TO_AGAIN ;
 	int		f_exit = FALSE ;
 
+	if (name == NULL) return SR_FAULT ;
+	if (grp == NULL) return SR_FAULT ;
+	if (rbuf == NULL) return SR_FAULT ;
+
+	if (rlen <= 0) return SR_OVERFLOW ;
+
 	repeat {
 
 #if	defined(SYSHAS_GETGRXXXR) && (SYSHAS_GETGRXXXR > 0)
@@ -198,12 +209,17 @@ int uc_getgrnam(cchar *name,struct group *grp,char *rbuf,int rlen)
 }
 /* end subroutine (uc_getgrnam) */
 
-int uc_getgrgid(gid_t gid,struct group *grp,char rbuf[],int rlen)
+int uc_getgrgid(gid_t gid,struct group *grp,char *rbuf,int rlen)
 {
 	struct group	*rp ;
 	int		rs = SR_OK ;
 	int		to_again = TO_AGAIN ;
 	int		f_exit = FALSE ;
+
+	if (grp == NULL) return SR_FAULT ;
+	if (rbuf == NULL) return SR_FAULT ;
+
+	if (rlen <= 0) return SR_OVERFLOW ;
 
 	repeat {
 

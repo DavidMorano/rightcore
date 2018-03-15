@@ -149,6 +149,10 @@
 #define	KEYSYM_PF3		0x1013
 #define	KEYSYM_PF4		0x1014
 
+/* not all keyboards have these */
+#define	KEYSYM_PageDown		0x1015
+#define	KEYSYM_PageUp		0x1016
+
 #define	KEYSYM_F1		0x2001
 #define	KEYSYM_F2		0x2002
 #define	KEYSYM_F3		0x2003

@@ -68,7 +68,6 @@
 #include	<netdb.h>
 
 #include	<vsystem.h>
-#include	<getbufsize.h>
 #include	<hostaddr.h>
 #include	<localmisc.h>
 

@@ -65,17 +65,19 @@ int getpjid_name(cchar *np,int nl)
 	if (np == NULL) return SR_FAULT ;
 	if (np[0] == '\0') return SR_INVALID ;
 	if ((rs = nulstr_start(&n,np,nl,&name)) >= 0) {
-	    struct project	pj ;
-	    const int		pjlen = getbufsize(getbufsize_pj) ;
-	    char		*pjbuf ;
-	    if ((rs = uc_malloc((pjlen+1),&pjbuf)) >= 0) {
-		{
-	            rs = getpj_name(&pj,pjbuf,pjlen,name) ;
-	            pjid = pj.pj_projid ;
-		}
-	        rs1 = uc_free(pjbuf) ;
-	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (memory-allocation) */
+	    if ((rs = getbufsize(getbufsize_pj)) >= 0) {
+	        struct project	pj ;
+	        const int	pjlen = rs ;
+	        char		*pjbuf ;
+	        if ((rs = uc_malloc((pjlen+1),&pjbuf)) >= 0) {
+		    {
+	                rs = getpj_name(&pj,pjbuf,pjlen,name) ;
+	                pjid = pj.pj_projid ;
+		    }
+	            rs1 = uc_free(pjbuf) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (memory-allocation) */
+	    } /* end if (getbufsize) */
 	    rs1 = nulstr_finish(&n) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (nulstr) */

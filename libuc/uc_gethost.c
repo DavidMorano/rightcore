@@ -27,8 +27,8 @@
 
 	Description:
 
-	This subroutine is a platform independent subroutine to get an
-	INET host address entry, but does it dumbly on purpose.
+        This subroutine is a platform independent subroutine to get an INET host
+        address entry, but does it dumbly on purpose.
 
 	Synopsis:
 
@@ -59,8 +59,8 @@
 
 	Description:
 
-	This subroutine is a platform independent subroutine to
-	get an INET host address entry, but does it dumbly on purpose.
+        This subroutine is a platform independent subroutine to get an INET host
+        address entry, but does it dumbly on purpose.
 
 	Synopsis:
 
@@ -202,10 +202,7 @@ int uc_endhostent()
 
 
 #if	CF_GETHOSTENT
-int uc_gethostent(hep,hebuf,helen)
-struct hostent	*hep ;
-char		hebuf[] ;
-int		helen ;
+int uc_gethostent(struct hostent *hep,char *hebuf,int helen)
 {
 	struct hostent	*lp ;
 	int		rs = SR_OK ;
@@ -218,7 +215,7 @@ int		helen ;
 	if (hep == NULL) return SR_FAULT ;
 	if (hebuf == NULL) return SR_FAULT ;
 
-	if (helen < 0) return SR_INVALID ;
+	if (helen <= 0) return SR_OVERFLOW ;
 
 /* do the real work */
 
@@ -313,11 +310,7 @@ int		helen ;
 #endif /* CF_GETHOSTENT */
 
 
-int uc_gethostbyname(name,hep,hebuf,helen)
-const char	name[] ;
-struct hostent	*hep ;
-char		hebuf[] ;
-int		helen ;
+int uc_gethostbyname(cchar *name,struct hostent *hep,char *hebuf,int helen)
 {
 	struct hostent	*lp ;
 	int		rs = SR_OK ;
@@ -332,7 +325,7 @@ int		helen ;
 	if (hep == NULL) return SR_FAULT ;
 	if (hebuf == NULL) return SR_FAULT ;
 
-	if (helen < 0) return SR_INVALID ;
+	if (helen <= 0) return SR_OVERFLOW ;
 
 /* do the real work */
 
@@ -370,8 +363,9 @@ int		helen ;
 
 	    if (rs >= 0) {
 	        rs = hostent_size(hep) ;
-	    } else if (rs == SR_AGAIN)
+	    } else if (rs == SR_AGAIN) {
 	        rs = SR_TIMEDOUT ;
+	    }
 
 	}
 #else /* CF_USEREENT */
@@ -435,13 +429,8 @@ int		helen ;
 /* end subroutine (uc_gethostbyname) */
 
 
-int uc_gethostbyaddr(addr,addrlen,type,hep,hebuf,helen)
-const char	*addr ;
-int		addrlen ;
-int		type ;
-struct hostent	*hep ;
-char		hebuf[] ;
-int		helen ;
+int uc_gethostbyaddr(cchar *addr,int addrlen,int type,struct hostent *hep,
+		char *hebuf,int helen)
 {
 	struct hostent	*lp ;
 	int		rs = SR_OK ;
@@ -455,7 +444,7 @@ int		helen ;
 	if (hep == NULL) return SR_FAULT ;
 	if (hebuf == NULL) return SR_FAULT ;
 
-	if (helen < 0) return SR_INVALID ;
+	if (helen <= 0) return SR_OVERFLOW ;
 
 /* do the real work */
 

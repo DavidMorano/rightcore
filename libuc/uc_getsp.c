@@ -115,7 +115,7 @@ int uc_endspent()
 	return SR_OK ;
 }
 
-int uc_getspent(struct spwd *spp,char rbuf[],int rlen)
+int uc_getspent(struct spwd *spp,char *rbuf,int rlen)
 {
 	struct spwd	*rp ;
 	int		rs = SR_OK ;
@@ -124,6 +124,8 @@ int uc_getspent(struct spwd *spp,char rbuf[],int rlen)
 
 	if (spp == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
+
+	if (rlen <= 0) return SR_OVERFLOW ;
 
 	repeat {
 
@@ -174,7 +176,7 @@ int uc_getspent(struct spwd *spp,char rbuf[],int rlen)
 }
 /* end subroutine (uc_getspent) */
 
-int uc_getspnam(cchar name[],struct spwd *spp,char rbuf[],int rlen)
+int uc_getspnam(cchar *name,struct spwd *spp,char *rbuf,int rlen)
 {
 	struct spwd	*rp ;
 	int		rs = SR_OK ;
@@ -191,6 +193,8 @@ int uc_getspnam(cchar name[],struct spwd *spp,char rbuf[],int rlen)
 	if (name == NULL) return SR_FAULT ;
 	if (spp == NULL) return SR_FAULT ;
 	if (rbuf == NULL) return SR_FAULT ;
+
+	if (rlen <= 0) return SR_OVERFLOW ;
 
 	repeat {
 
@@ -328,11 +332,7 @@ static int spsize(struct spwd *sp,cchar *buf)
 
 #if	RF_SPCOPY
 
-static int spcopy(rp,rbuf,rlen,sp)
-struct spwd	*rp ;
-char		rbuf[] ;
-int		rlen ;
-struct spwd	*sp ;
+static int spcopy(struct spwd *rp,char *rbuf,int rlen,struct spwd *sp)
 {
 	STOREITEM	ib ;
 	int		rs ;
@@ -362,10 +362,7 @@ struct spwd	*sp ;
 }
 /* end subroutine (spcopy) */
 
-static int si_copystr(ibp,pp,p1)
-STOREITEM	*ibp ;
-char		**pp ;
-const char	*p1 ;
+static int si_copystr(STOREITEM *ibp,char **pp,cchar *p1)
 {
 	int		rs = SR_OK ;
 	const char	**cpp = (const char **) pp ;

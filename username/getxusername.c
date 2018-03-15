@@ -449,13 +449,10 @@ int getxusername(GETXUSERNAME *xup)
 /* local subroutines */
 
 
-static int getusernamer(char ubuf[],int ulen,uid_t uid)
+static int getusernamer(char *ubuf,int ulen,uid_t uid)
 {
-	GETXUSERNAME	xu ;
-	struct passwd	pw ;
-	const int	pwlen = getbufsize(getbufsize_pw) ;
 	int		rs ;
-	char		*pwbuf ;
+	int		rs1 ;
 
 #if	CF_DEBUGS
 	debugprintf("getusernamer: ent uid=%d\n",uid) ;
@@ -465,29 +462,36 @@ static int getusernamer(char ubuf[],int ulen,uid_t uid)
 	memset(&pw,0,sizeof(struct passwd)) ;
 #endif
 
-	if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	    memset(&xu,0,sizeof(struct getxusername)) ;
-	    xu.pwp = &pw ;
-	    xu.pwbuf = pwbuf ;
-	    xu.pwlen = pwlen ;
-	    xu.ubuf = ubuf ;
-	    xu.ulen = ulen ;
-	    xu.uid = uid ;
-	    xu.f_tried = TRUE ;
-	    if ((rs = getxusername(&xu)) >= 0) {
-	        rs = xu.unl ;
-	        if (xu.unl <= 0) {
-	            rs = sncpy1(ubuf,ulen,pw.pw_name) ;
-	        }
-	    } else if (rs == SR_NOTFOUND) {
-	        uint	v = xu.uid ;
+	if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	    struct passwd	pw ;
+	    const int		pwlen = rs ;
+	    char		*pwbuf ;
+	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	        GETXUSERNAME	xu ;
+	        memset(&xu,0,sizeof(struct getxusername)) ;
+	        xu.pwp = &pw ;
+	        xu.pwbuf = pwbuf ;
+	        xu.pwlen = pwlen ;
+	        xu.ubuf = ubuf ;
+	        xu.ulen = ulen ;
+	        xu.uid = uid ;
+	        xu.f_tried = TRUE ;
+	        if ((rs = getxusername(&xu)) >= 0) {
+	            rs = xu.unl ;
+	            if (xu.unl <= 0) {
+	                rs = sncpy1(ubuf,ulen,pw.pw_name) ;
+	            }
+	        } else if (rs == SR_NOTFOUND) {
+	            uint	v = xu.uid ;
 #if	CF_DEBUGUID
-	        logpop(xu.uid) ;
+	            logpop(xu.uid) ;
 #endif /* CF_DEBUGUID */
-	        rs = snsd(ubuf,ulen,"U",v) ;
-	    }
-	    uc_free(pwbuf) ;
-	} /* end if (m-a) */
+	            rs = snsd(ubuf,ulen,"U",v) ;
+	        }
+	        rs1 = uc_free(pwbuf) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (m-a) */
+	} /* end if (getbufsize) */
 
 #if	CF_DEBUGS
 	debugprintf("getusernamer: ret rs=%d\n",rs) ;
