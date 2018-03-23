@@ -52,7 +52,6 @@
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<getbufsize.h>
 #include	<estrings.h>
 #include	<ids.h>
 #include	<vecstr.h>

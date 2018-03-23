@@ -34,7 +34,7 @@
 #define	MAININFO_FL	struct maininfo_flags
 
 
-typedef void (*maininfohand_t)(int,siginfo_t *,void *) ;
+typedef void		(*maininfohand_t)(int,siginfo_t *,void *) ;
 
 
 struct maininfo_flags {

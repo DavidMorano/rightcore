@@ -1072,16 +1072,18 @@ static int locinfo_outend(LOCINFO *lip)
 
 static int locinfo_pjbuf(LOCINFO *lip)
 {
-	const int	pjlen = getbufsize(getbufsize_pj) ;
 	int		rs = SR_OK ;
 	if (lip->pjbuf == NULL) {
-	    char	*pjbuf ;
-	    if ((rs = uc_malloc((pjlen+1),&pjbuf)) >= 0) {
-	        lip->pjbuf = pjbuf ;
-	        lip->pjlen = pjlen ;
-	    } /* end if (m-a) */
-	}
-	return (rs >= 0) ? pjlen : rs ;
+	    if ((rs = getbufsize(getbufsize_pj)) >= 0) {
+	        const int	pjlen = rs ;
+	        char		*pjbuf ;
+	        if ((rs = uc_malloc((pjlen+1),&pjbuf)) >= 0) {
+	            lip->pjbuf = pjbuf ;
+	            lip->pjlen = pjlen ;
+	        } /* end if (m-a) */
+	    } /* end if (getbufsize) */
+	} /* end if (needed) */
+	return rs ;
 }
 /* end subroutine (locinfo_pjbuf) */
 

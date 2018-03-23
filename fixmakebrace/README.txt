@@ -1,6 +1,6 @@
 FIXMAKEBRACE
 
-This program fixes up variable referneces that are made with braces instead of
+This program fixes up variable references that are made with braces instead of
 the correct parenthesis.
 
 Synopsis:

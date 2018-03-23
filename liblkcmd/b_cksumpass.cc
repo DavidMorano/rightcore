@@ -1489,7 +1489,7 @@ static int locinfo_bytesall(LOCINFO *lip,ulonglong *bytep)
 
 
 #if	CF_LOCSETENT
-int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar vp[],int vl)
+static int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
 	int		rs = SR_OK ;
 	int		len = 0 ;

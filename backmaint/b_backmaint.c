@@ -53,7 +53,6 @@
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<getbufsize.h>
 #include	<bits.h>
 #include	<keyopt.h>
 #include	<paramopt.h>

@@ -45,6 +45,11 @@
 #endif
 
 
+/* external subroutines */
+
+extern int	isNotPresent(int) ;
+
+
 /* external variables */
 
 
@@ -53,9 +58,15 @@
 
 int isinteractive()
 {
-	int		rs = u_open(TTYFNAME,O_RDONLY,0666) ;
-	if (rs >= 0) u_close(rs) ;
-	return rs ;
+	int		rs ;
+	int		f = FALSE ;
+	if ((rs = u_open(TTYFNAME,O_RDONLY,0666)) >= 0) {
+	    f = TRUE ;
+	    u_close(rs) ;
+	} else if (isNotPresent(rs)) {
+	    rs = SR_OK ;
+	}
+	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (isinteractive) */
 

@@ -1548,11 +1548,9 @@ static int procall(PROGINFO *pip,ARGINFO *aip,BITS *bop,void *ofp)
 /* process a name */
 static int procquery(PROGINFO *pip,SHIO *ofp,cchar name[])
 {
-	struct passwd	pw ;
-	const int	pwlen = getbufsize(getbufsize_pw) ;
 	int		rs ;
+	int		rs1 ;
 	int		wlen = 0 ;
-	char		*pwbuf ;
 
 	if (name == NULL) return SR_FAULT ;
 
@@ -1561,29 +1559,35 @@ static int procquery(PROGINFO *pip,SHIO *ofp,cchar name[])
 	    debugprintf("b_userxxx/procquery: q=>%s<\n",name) ;
 #endif
 
-	if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	    if ((rs = getname(pip,&pw,pwbuf,pwlen,name)) >= 0) {
-	        cchar	*pp = NULL ;
-	        if ((rs = procselect(pip,&pw)) > 0) {
-	            switch (pip->progmode) {
-	            case progmode_username:
-	            default:
-	                pp = pw.pw_name ;
-	                break ;
-	            case progmode_userhome:
-	            case progmode_userdir:
-	            case progmode_logdir:
-	                pp = pw.pw_dir ;
-	                break ;
-	            } /* end switch */
-	            if ((rs >= 0) && (pip->verboselevel > 0)) {
-		        rs = procout(pip,ofp,&pw,pp) ;
-		        wlen += rs ;
-	            } /* end if (printing) */
-	        } /* end if (procselect) */
-	    } /* end if (getname) */
-	    uc_free(pwbuf) ;
-	} /* end if (m-a) */
+	if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	    struct passwd	pw ;
+	    const int		pwlen = rs ;
+	    char		*pwbuf ;
+	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	        if ((rs = getname(pip,&pw,pwbuf,pwlen,name)) >= 0) {
+	            cchar	*pp = NULL ;
+	            if ((rs = procselect(pip,&pw)) > 0) {
+	                switch (pip->progmode) {
+	                case progmode_username:
+	                default:
+	                    pp = pw.pw_name ;
+	                    break ;
+	                case progmode_userhome:
+	                case progmode_userdir:
+	                case progmode_logdir:
+	                    pp = pw.pw_dir ;
+	                    break ;
+	                } /* end switch */
+	                if ((rs >= 0) && (pip->verboselevel > 0)) {
+		            rs = procout(pip,ofp,&pw,pp) ;
+		            wlen += rs ;
+	                } /* end if (printing) */
+	            } /* end if (procselect) */
+	        } /* end if (getname) */
+	        rs1 = uc_free(pwbuf) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (m-a) */
+	} /* end if (getbufsize) */
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(3))
@@ -1770,7 +1774,7 @@ static int locinfo_finish(LOCINFO *lip)
 
 
 #if	CF_LOCSETENT
-int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
+static int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
 	VECSTR		*slp ;
 	int		rs = SR_OK ;

@@ -81,4 +81,6 @@
 
 #define	PO_OPTION	"option"
 
+#define	PROMPTLEN	100
+
 

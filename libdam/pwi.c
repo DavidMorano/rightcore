@@ -486,20 +486,27 @@ static int subinfo_midname(SUBINFO *sip)
 	int		rs = SR_OK ;
 	int		rs1 ;
 	int		dblen = -1 ;
-	const char	*dbname = sip->dbname ;
+	cchar		*dbname = sip->dbname ;
 	char		namebuf[MAXNAMELEN + 1] ;
 
 	if ((dbname == NULL) || (dbname[0] == '\0')) {
-	    const int	nnl = NODENAMELEN ;
-	    const char	*nn ;
-	    char	nodename[NODENAMELEN + 1] ;
-	    char	clustername[NODENAMELEN + 1] ;
-	    if ((rs = getnodename(nodename,nnl)) >= 0) {
-	        rs1 = getclustername(sip->pr,clustername,nnl,nodename) ;
-	        nn = (rs1 >= 0) ? clustername : nodename ;
-	        dbname = namebuf ;
-	        rs = mkpath3(namebuf,sip->pr,DBDNAME,nn) ;
-	        dblen = rs ;
+	    const int	nlen = NODENAMELEN ;
+	    char	nbuf[NODENAMELEN + 1] ;
+	    char	cbuf[NODENAMELEN + 1] ;
+	    if ((rs = getnodename(nbuf,nlen)) >= 0) {
+	        const int	rsn = SR_NOTFOUND ;
+	        cchar		*nn ;
+	        if ((rs = getclustername(sip->pr,cbuf,nlen,nbuf)) >= 0) {
+	            nn = cbuf ;
+		} else if (rs == rsn) {
+		    rs = SR_OK ;
+		    nn = nbuf ;
+		}
+		if (rs >= 0) {
+	            rs = mkpath3(namebuf,sip->pr,DBDNAME,nn) ;
+	            dbname = namebuf ;
+	            dblen = rs ;
+		}
 	    }
 	} /* end if (empty specification) */
 
@@ -508,7 +515,7 @@ static int subinfo_midname(SUBINFO *sip)
 #endif
 
 	if (rs >= 0) {
-	    const char	*cp ;
+	    cchar	*cp ;
 	    if ((rs = uc_mallocstrw(dbname,dblen,&cp)) >= 0) {
 	        sip->midname = cp ;
 	    }

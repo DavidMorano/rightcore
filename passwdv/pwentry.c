@@ -25,6 +25,8 @@
 
 	Arguments:
 
+	-
+
 	Returns:
 
 	>=0		size of necessary buffer to hold the data for 
@@ -39,10 +41,11 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 #include	<sys/types.h>
-#include	<sys/param.h>		/* for MAXPATHLEN */
+#include	<sys/param.h>		/* for MAXNAMELEN */
 #include	<vsystem.h>
 #include	<getbufsize.h>
 #include	<localmisc.h>
+
 #include	"pwentry.h"
 
 
@@ -69,9 +72,10 @@
 
 int pwentry_bufsize()
 {
-	const int	pwlen = getbufsize(getbufsize_pw) ;
 	int		rs ;
-	rs = (pwlen+MAXPATHLEN) ;
+	if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	    rs += MAXNAMELEN ;
+	}
 	return rs ;
 }
 /* end subroutine (pwentry_bufsize) */

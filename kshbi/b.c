@@ -51,7 +51,6 @@
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<getbufsize.h>
 #include	<estrings.h>
 #include	<bits.h>
 #include	<keyopt.h>
@@ -1634,7 +1633,7 @@ static int locinfo_finish(LOCINFO *lip)
 /* end subroutine (locinfo_finish) */
 
 
-int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
+static int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
 	VECSTR		*slp ;
 	int		rs = SR_OK ;

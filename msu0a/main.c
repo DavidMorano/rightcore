@@ -42,6 +42,7 @@
 #include	<vsystem.h>
 #include	<intceil.h>
 #include	<sighand.h>
+#include	<mapex.h>
 #include	<exitcodes.h>
 #include	<localmisc.h>
 
@@ -56,6 +57,8 @@
 #else
 #define	CF_LOCKMEMALLOC		0
 #endif
+
+#define	SIGCODE		struct sigcode
 
 #define	NDF		"main.deb"
 
@@ -83,11 +86,11 @@ extern int	haslc(cchar *,int) ;
 extern int	hasuc(cchar *,int) ;
 
 #if	CF_DEBUGN
-extern int	nprintf(const char *,const char *,...) ;
+extern int	nprintf(cchar *,cchar *,...) ;
 extern int	strlinelen(cchar *,int,int) ;
 #endif
 
-extern cchar	*getourenv(const char **,const char *) ;
+extern cchar	*getourenv(cchar **,cchar *) ;
 extern cchar	*strsigabbr(int) ;
 
 
@@ -97,8 +100,8 @@ extern cchar	*strsigabbr(int) ;
 /* local structures */
 
 struct sigcode {
-	int		code ;
-	const char	*name ;
+	int	code ;
+	cchar	*name ;
 } ;
 
 
@@ -107,12 +110,12 @@ struct sigcode {
 static void	main_sighand(int,siginfo_t *,void *) ;
 static int	main_sigdump(siginfo_t *) ;
 
-static cchar	*strsigcode(const struct sigcode *,int) ;
+static cchar	*strsigcode(const SIGCODE *,int) ;
 
 
 /* local variables */
 
-static const struct mapex	mapexs[] = {
+static const MAPEX	mapexs[] = {
 	{ SR_NOENT, EX_NOUSER },
 	{ SR_AGAIN, EX_TEMPFAIL },
 	{ SR_DEADLK, EX_TEMPFAIL },
@@ -136,7 +139,7 @@ static const int	sigcatches[] = {
 	0
 } ;
 
-static const struct sigcode	sigcode_ill[] = {
+static const SIGCODE	sigcode_ill[] = {
 	{ ILL_ILLOPC, "ILLOPC" },
 	{ ILL_ILLOPN, "ILLOPN" },
 	{ ILL_ILLADR, "ILLADR" },
@@ -148,13 +151,13 @@ static const struct sigcode	sigcode_ill[] = {
 	{ 0, NULL }
 } ;
 
-static const struct sigcode	sigcode_segv[] = {
+static const SIGCODE	sigcode_segv[] = {
 	{ SEGV_MAPERR, "MAPERR" },
 	{ SEGV_ACCERR, "ACCERR" },
 	{ 0, NULL }
 } ;
 
-static const struct sigcode	sigcode_bus[] = {
+static const SIGCODE	sigcode_bus[] = {
 	{ BUS_ADRALN, "ADRALN" },
 	{ BUS_ADRERR, "ADRERR" },
 	{ BUS_OBJERR, "OBJERR" },
@@ -333,7 +336,7 @@ static int main_sigdump(siginfo_t *sip)
 /* end subroutine (main_sigdump) */
 
 
-static const char *strsigcode(const struct sigcode *scp,int code)
+static cchar *strsigcode(const SIGCODE *scp,int code)
 {
 	int		i ;
 	int		f = FALSE ;

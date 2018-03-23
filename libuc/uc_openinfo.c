@@ -344,8 +344,8 @@ int uc_openinfo(UCOPENINFO *oip)
 	} /* end if (accmode) */
 
 #if	CF_DEBUGS
-	debugprintf("uc_openinfo: ret rs=%d fd=%u\n",rs,fd) ;
 	debugprintf("uc_openinfo: ret fname=%s\n",oip->fname) ;
+	debugprintf("uc_openinfo: ret rs=%d fd=%u\n",rs,fd) ;
 #endif
 
 	return (rs >= 0) ? fd : rs ;
@@ -675,6 +675,10 @@ static int open_otherlink(UCOPENINFO *oip,int *fdp,char *ofname)
 
 	if ((rs >= 0) && (fd >= 0)) *fdp = fd ;
 
+#if	CF_DEBUGS
+	debugprintf("uc_openinfo/open_otherlink: ret rs=%d fd=%d\n",rs,fd) ;
+#endif
+
 	return rs ;
 }
 /* end subroutine (open_otherlink) */
@@ -972,6 +976,11 @@ static int openproger(cchar *fname,int oflags,cchar **ev)
 	    char	progfname[MAXPATHLEN + 1] ;
 
 	    if (rs > 0) fnp = expfname ;
+
+#if	CF_DEBUGS
+	debugprintf("uc_openinfo/openproger: mkuserpath() rs=%d\n",rs) ;
+	debugprintf("uc_openinfo/openproger: fnp=%s\n",fnp) ;
+#endif
 
 	    if ((rs = vecstr_start(&args,4,0)) >= 0) {
 

@@ -2214,7 +2214,7 @@ static int locinfo_deflinelen(LOCINFO *lip)
 
 
 #if	CF_LOCSETENT
-int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
+static int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
 	vecstr		*vsp = &lip->stores ;
 	int		rs = SR_OK ;

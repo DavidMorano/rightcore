@@ -83,7 +83,6 @@
 
 #define	PRINTBUFLEN	512
 #define	FBUFLEN		512
-#define	TO_LOCK		2		/* lock timeout */
 
 #define	SUBINFO		struct subinfo
 

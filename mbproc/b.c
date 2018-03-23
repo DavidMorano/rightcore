@@ -2218,7 +2218,7 @@ static int locinfo_yearfins(LOCINFO *lip)
 /* end subroutine (locinfo_yearfins) */
 
 
-int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
+static int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
 	VECSTR		*slp ;
 	int		rs = SR_OK ;

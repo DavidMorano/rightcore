@@ -4798,7 +4798,7 @@ static int locinfo_finish(LOCINFO *lip)
 /* end subroutine (locinfo_finish) */
 
 
-int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
+static int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
 	VECSTR		*slp ;
 	int		rs = SR_OK ;
@@ -5699,32 +5699,36 @@ int locinfo_tmpourdname(LOCINFO *lip)
 static int locinfo_tmpgroup(LOCINFO *lip,cchar *tmpourdname)
 {
 	PROGINFO	*pip = lip->pip ;
-	struct passwd	pw ;
-	const int	pwlen = getbufsize(getbufsize_pw) ;
 	int		rs ;
-	char		*pwbuf ;
-	if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	    cchar	*rn = pip->rootname ;
-	    cchar	*un = pip->username ;
-	    if ((rs = locinfo_gidrootname(lip,&pw,pwbuf,pwlen)) >= 0) {
-	        const gid_t	gid_prn = lip->gid_rootname ;
-	        const int	f_runasprn = (strcmp(un,rn) == 0) ;
-	        if (! f_runasprn) {
-	            uid_t	uid_prn = pip->euid ;
-	            if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,rn)) >= 0) {
-	                uid_prn = pw.pw_uid ;
-	            } else if (isNotPresent(rs)) {
-	                rs = SR_OK ;
+	int		rs1 ;
+	if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	    struct passwd	pw ;
+	    const int		pwlen = rs ;
+	    char		*pwbuf ;
+	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	        cchar	*rn = pip->rootname ;
+	        cchar	*un = pip->username ;
+	        if ((rs = locinfo_gidrootname(lip,&pw,pwbuf,pwlen)) >= 0) {
+	            const gid_t	gid_prn = lip->gid_rootname ;
+	            const int	f_runasprn = (strcmp(un,rn) == 0) ;
+	            if (! f_runasprn) {
+	                uid_t	uid_prn = pip->euid ;
+	                if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,rn)) >= 0) {
+	                    uid_prn = pw.pw_uid ;
+	                } else if (isNotPresent(rs)) {
+	                    rs = SR_OK ;
+	                }
+	                if (rs >= 0) {
+	                    rs = u_chown(tmpourdname,uid_prn,gid_prn) ;
+	                }
+	            } else {
+	                rs = u_chown(tmpourdname,-1,gid_prn) ;
 	            }
-	            if (rs >= 0) {
-	                rs = u_chown(tmpourdname,uid_prn,gid_prn) ;
-	            }
-	        } else {
-	            rs = u_chown(tmpourdname,-1,gid_prn) ;
-	        }
-	    } /* end if (locinfo_gidrootname) */
-	    uc_free(pwbuf) ;
-	} /* end if (m-a-f) */
+	        } /* end if (locinfo_gidrootname) */
+	        rs1 = uc_free(pwbuf) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (m-a-f) */
+	} /* end if (getbufsize) */
 	return rs ;
 }
 /* end subroutine (locinfo_tmpgroup) */

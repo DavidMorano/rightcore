@@ -297,7 +297,7 @@ int pmq_unlink(PMQ *mqp)
 
 	    mqp->name[0] = '0' ;
 
-	} /* end if */
+	} /* end if (non-empty) */
 
 	return rs ;
 }
@@ -307,18 +307,25 @@ int pmq_unlink(PMQ *mqp)
 int pmq_setattr(PMQ *mqp,struct mq_attr *nattr,struct mq_attr *oattr)
 {
 	int		rs = SR_INVALID ;
+	int		f_exit = FALSE ;
 
 	if (mqp == NULL) return SR_FAULT ;
 
 	if (mqp->magic != PMQ_MAGIC) return SR_NOTOPEN ;
 
 	if (nattr != NULL) {
-	    rs = SR_OK ;
-	    while (rs != SR_INVALID) {
-	        if ((rs = mq_setattr(mqp->p,nattr,oattr)) < -1) {
-	            rs = (- errno) ;
-		}
-	    } /* end while */
+	    repeat {
+	        if ((rs = mq_setattr(mqp->p,nattr,oattr)) < -1) rs = (- errno) ;
+	        if (rs < 0) {
+		    switch (rs) {
+		    case SR_INTR:
+	    	        break ;
+		    default:
+		        f_exit = TRUE ;
+		        break ;
+		    } /* end switch */
+	        } /* end if (error) */
+	    } until ((rs >= 0) || f_exit) ;
 	} else if (oattr != NULL) {
 	    rs = pmq_getattr(mqp,oattr) ;
 	}
@@ -477,7 +484,7 @@ static int pmqdircheck(cchar *pp)
 		    const int	n = PMQ_CHOWNVAR ;
 	            if ((rs = u_pathconf(pp,n,NULL)) == 0) {
 	            	if ((rs = getpmquid()) >= 0) {
-	    		    const uid_t	uid = rs ;
+	    		    const uid_t		uid = rs ;
 	                    if (euid != uid) { /* get a GID */
 				if ((rs = getpmqgid()) >= 0) {
 				    const gid_t	gid = rs ;
@@ -505,18 +512,18 @@ static int getpmquid(void)
 	    const int		pwlen = rs ;
 	    char		*pwbuf ;
 	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	        const int	nrs = SR_NOTFOUND ;
+	        const int	rsn = SR_NOTFOUND ;
 	        cchar		*un = PMQ_USERNAME1 ;
-	        if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,un)) == nrs) {
+	        if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,un)) >= 0) {
+	            uid = pw.pw_uid ;
+	        } else if (rs == rsn) {
 	    	    un = PMQ_USERNAME2 ;
-	            if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,un)) == nrs) {
+	            if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,un)) >= 0) {
+	    	        uid = pw.pw_uid ;
+		    } else if (rs == rsn) {
 		        rs = SR_OK ;
 		        uid = PMQ_UID ;
-		    } else {
-	    	        uid = pw.pw_uid ;
 		    }
-	        } else {
-	            uid = pw.pw_uid ;
 	        }
 	        rs1 = uc_free(pwbuf) ;
 		if (rs >= 0) rs = rs1 ;
@@ -529,12 +536,12 @@ static int getpmquid(void)
 
 static int getpmqgid(void)
 {
-	const int	nrs = SR_NOTFOUND ;
+	const int	rsn = SR_NOTFOUND ;
 	int		rs ;
 	cchar		*gn = PMQ_GROUPNAME1 ;
-	if ((rs = getgid_group(gn,-1)) == nrs) {
+	if ((rs = getgid_group(gn,-1)) == rsn) {
 	    gn = PMQ_GROUPNAME2 ;
-	    if ((rs = getgid_group(gn,-1)) == nrs) {
+	    if ((rs = getgid_group(gn,-1)) == rsn) {
 		rs = PMQ_GID ;
 	    }
 	}

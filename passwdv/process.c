@@ -23,9 +23,8 @@
 
 	Synopsis:
 
-	int process(pip,pp,pfp,ofp,name)
+	int process(pip,pfp,ofp,name)
 	PROGINFO	*pip ;
-	PARAMOPT	*pp ;
 	PWFILE		*pfp ;
 	bfile		*ofp ;
 	const char	name[] ;
@@ -34,7 +33,6 @@
 
 	gp		global data pointer
 	username	username to check on
-	paramoptp	** not used **
 
 	Returns:
 
@@ -59,11 +57,12 @@
 #include	<pwd.h>
 
 #include	<vsystem.h>
+#include	<getbufsize.h>
 #include	<bfile.h>
+#include	<passwdent.h>
 #include	<pwfile.h>
 #include	<getax.h>
 #include	<getxusername.h>
-#include	<paramopt.h>
 #include	<localmisc.h>
 
 #include	"config.h"
@@ -100,27 +99,18 @@ static int	userexists(PROGINFO *,PWFILE *,const char *) ;
 /* exported subroutines */
 
 
-int process(pip,pp,pfp,ofp,name)
-PROGINFO	*pip ;
-PARAMOPT	*pp ;
-PWFILE		*pfp ;
-bfile		*ofp ;
-const char	name[] ;
+int process(PROGINFO *pip,PWFILE *pfp,bfile *ofp,cchar *name)
 {
-	int	rs = SR_OK ;
-	int	f_valid = FALSE ;
+	int		rs = SR_OK ;
+	int		f_valid = FALSE ;
+	char		ubuf[USERNAMELEN + 1] ;
+	char		prompt[PROMPTLEN + 1] ;
+	char		password[PASSWDLEN + 1] ;
+	char		*p ;
 
-	char	ubuf[USERNAMELEN + 1] ;
-	char	prompt[PROMPTLEN + 1] ;
-	char	password[PASSWDLEN + 1] ;
-	char	*p ;
+	if (name == NULL) return SR_FAULT ;
 
-
-	if (name == NULL)
-	    return SR_FAULT ;
-
-	if (name[0] == '\0')
-	    return SR_INVALID ;
+	if (name[0] == '\0') return SR_INVALID ;
 
 	if (name[0] == '-') {
 	    if (pip->username == NULL) {
@@ -177,10 +167,9 @@ const char	name[] ;
 #endif /* CF_GETPASSWORD */
 
 	if ((rs >= 0) && pip->f.sevenbit) {
-
-	    for (p = password ; *p != '\0' ; p += 1)
+	    for (p = password ; *p != '\0' ; p += 1) {
 	        *p = *p & 0x7F ;
-
+	    }
 	} /* end if (seven bit) */
 
 #if	CF_DEBUG
@@ -192,11 +181,9 @@ const char	name[] ;
 	    goto ret0 ;
 
 	if (pfp != NULL) {
-
 	    PWFILE_ENT	pw ;
-
 	    PWFILE_CUR	cur ;
-
+	    const int	pwlen = PWFILE_ENTLEN ;
 	    char	pwbuf[PWFILE_ENTLEN + 1] ;
 
 #if	CF_DEBUG
@@ -206,8 +193,7 @@ const char	name[] ;
 
 	    pwfile_curbegin(pfp,&cur) ;
 
-	    while (pwfile_fetchuser(pfp,name,&cur,
-	        &pw,pwbuf,PWFILE_ENTLEN) >= 0) {
+	    while (pwfile_fetchuser(pfp,name,&cur,&pw,pwbuf,pwlen) >= 0) {
 
 #if	CF_DEBUG
 	        if (DEBUGLEVEL(3))
@@ -255,31 +241,32 @@ ret0:
 /* local subroutines */
 
 
-/* is the username present in the password database ? */
-static int userexists(pip,pfp,name)
-PROGINFO	*pip ;
-PWFILE		*pfp ;
-const char	name[] ;
+/* is the username present in the password database? */
+static int userexists(PROGINFO *pip,PWFILE *pfp,cchar *name)
 {
-	int	rs = SR_OK ;
-	int	f = FALSE ;
+	int		rs ;
+	int		rs1 ;
+	int		f = FALSE ;
 
-	char	pwbuf[PWFILE_ENTLEN + 1] ;
+	if (pip == NULL) return SR_FAULT ;
 
+	if ((rs = pwentry_bufsize()) >= 0) {
+	    const int	pwlen = rs ;
+	    char	*pwbuf ;
+	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	        if (pfp != NULL) {
+	            PWFILE_ENT	pfe ;
+	            rs = pwfile_fetchuser(pfp,name,NULL,&pfe,pwbuf,pwlen) ;
+	        } else {
+	            PASSWDENT	spw ;
+	            rs = getpw_name(&spw,pwbuf,pwlen,name) ;
+	        }
+	        f = (rs >= 0) ;
+	        rs1 = uc_free(pwbuf) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (memory-allocation-free) */
+	} /* end if (getbufsize) */
 
-	if (pfp != NULL) {
-	    PWFILE_ENT	pfe ;
-
-	    rs = pwfile_fetchuser(pfp,name,NULL,&pfe,pwbuf,PWFILE_ENTLEN) ;
-
-	} else {
-	    struct passwd	spw ;
-
-	    rs = getpw_name(&spw,pwbuf,PWFILE_ENTLEN,name) ;
-
-	}
-
-	f = (rs >= 0) ;
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (userexists) */

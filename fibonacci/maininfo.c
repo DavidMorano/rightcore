@@ -124,7 +124,7 @@ int maininfo_start(MAININFO *mip,int argc,cchar **argv)
 	                cl -= 1 ;
 	            }
 	            if (cl > 0) {
-	                const char	*tp ;
+	                cchar	*tp ;
 	                if ((tp = strnrchr(cp,cl,'.')) != NULL) {
 	                    cl = (tp-cp) ;
 	                }
@@ -199,9 +199,9 @@ int maininfo_sigbegin(MAININFO *mip,maininfohand_t sh,const int *sigcatches)
 	size_t		ms ;
 	const int	ps = getpagesize() ;
 	const int	ss = (2*SIGSTKSZ) ;
+	const int	mp = (PROT_READ|PROT_WRITE) ;
+	const int	mf = (MAP_PRIVATE|MAP_NORESERVE|MAP_ANON) ;
 	int		rs ;
-	int		mp = (PROT_READ|PROT_WRITE) ;
-	int		mf = (MAP_PRIVATE|MAP_NORESERVE|MAP_ANON) ;
 	int		fd = -1 ;
 	void		*md ;
 	ms = iceil(ss,ps) ;
@@ -296,7 +296,7 @@ int maininfo_utilend(MAININFO *op)
 	int		rs = SR_OK ;
 
 	if (op->f.utilout) {
-	    int	trs = SR_OK ;
+	    int		trs = SR_OK ;
 	    op->f.utilout = FALSE ;
 	    if ((rs = uptjoin(op->tid,&trs)) >= 0) {
 	        rs = trs ;
@@ -308,10 +308,10 @@ int maininfo_utilend(MAININFO *op)
 /* end subroutine (maininfo_utilend) */
 
 
-int maininfo_srchname(MAININFO *mip,const char **rpp)
+int maininfo_srchname(MAININFO *mip,cchar **rpp)
 {
 	int		rs = SR_OK ;
-	const char	*srch = mip->progname ;
+	cchar		*srch = mip->progname ;
 	if (rpp == NULL) return SR_FAULT ;
 	*rpp = srch ;
 	if (hasuc(srch,-1)) {
@@ -336,12 +336,12 @@ static int maininfo_utiler(MAININFO *mip)
 	const int	of = (O_WRONLY|O_APPEND) ;
 	int		rs = SR_OK ;
 	int		rs1 ;
-	const char	*fn = "here.txt" ;
+	cchar		*fn = "here.txt" ;
 
 	if ((rs = u_open(fn,of,0664)) >= 0) {
 	    const int	wlen = LINEBUFLEN ;
-	    int		fd = rs ;
-	    const char	*fmt = "hello world!\n" ;
+	    const int	fd = rs ;
+	    cchar	*fmt = "hello world!\n" ;
 	    char	wbuf[LINEBUFLEN+1] ;
 	    if ((rs = bufprintf(wbuf,wlen,fmt)) >= 0) {
 	        rs = u_write(fd,wbuf,rs) ;

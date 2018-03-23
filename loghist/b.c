@@ -1405,6 +1405,7 @@ static int procthemout(PROGINFO *pip,void *ofp,vecobj *ulp)
 	LOCINFO		*lip = pip->lip ;
 	const int	pwlen = getbufsize(getbufsize_pw) ;
 	int		rs ;
+	int		rs1 ;
 	int		wlen = 0 ;
 	cchar		*fmt ;
 	char		*pwbuf ;
@@ -1449,11 +1450,12 @@ static int procthemout(PROGINFO *pip,void *ofp,vecobj *ulp)
 	        }
 
 	        if (rs >= 0) {
+		    const int	nl = strnlen(rp->name,8) ;
+		    cchar	*np = rp->name ;
 	            char	tbuf[TIMEBUFLEN+1] ;
+		    fmt = "%-8t %8u %-23s %s\n" ;
 	            timestr_log(rp->date,tbuf),
-	            rs = shio_printf(ofp,"%-8t %8u %-23s %s\n",
-	                rp->name,strnlen(rp->name,8),
-	                rp->count,tbuf,rbuf) ;
+	            rs = shio_printf(ofp,fmt,np,nl,rp->count,tbuf,rbuf) ;
 	            wlen += rs ;
 	        }
 
@@ -1467,7 +1469,8 @@ static int procthemout(PROGINFO *pip,void *ofp,vecobj *ulp)
 	        if (rs >= 0) rs = lib_sigintr() ;
 	        if (rs < 0) break ;
 	    } /* end for (looping through users) */
-	    uc_free(pwbuf) ;
+	    rs1 = uc_free(pwbuf) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (m-a) */
 	return (rs >= 0) ? wlen : rs ;
 }
@@ -1478,6 +1481,7 @@ static int getrealname(char *nbuf,int nlen,cchar *gecosname)
 {
 	const int	glen = GNAMELEN ;
 	int		rs ;
+	int		rs1 ;
 	int		rl = 0 ;
 	char		gbuf[GNAMELEN + 1] ;
 
@@ -1503,7 +1507,8 @@ static int getrealname(char *nbuf,int nlen,cchar *gecosname)
 	            rl = rs ;
 	        }
 
-	        realname_finish(&rn) ;
+	        rs1 = realname_finish(&rn) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (realname processing) */
 	} /* end if */
 
@@ -1515,64 +1520,61 @@ static int getrealname(char *nbuf,int nlen,cchar *gecosname)
 /* compare user names */
 static int cmpname(struct user **e1pp,struct user **e2pp)
 {
-
-	if ((*e1pp == NULL) && (*e2pp == NULL))
-	    return 0 ;
-
-	if (*e1pp == NULL)
-	    return 1 ;
-
-	if (*e2pp == NULL)
-	    return -1 ;
-
-	return strncmp((*e1pp)->name,(*e2pp)->name,TMPX_LUSER) ;
+	int		rc = 0 ;
+	if ((*e1pp != NULL) || (*e2pp != NULL)) {
+	    if (*e1pp != NULL) {
+	        if (*e2pp != NULL) {
+	            rc = strncmp((*e1pp)->name,(*e2pp)->name,TMPX_LUSER) ;
+	        } else
+	            rc = -1 ;
+	    } else
+	        rc = 1 ;
+	}
+	return rc ;
 }
 /* end subroutine (cmpname) */
 
 
 /* compare record dates */
-static int cmpdate(e1pp,e2pp)
-struct user	**e1pp, **e2pp ;
+static int cmpdate(struct user **e1pp,struct user **e2pp)
 {
-
-	if ((*e1pp == NULL) && (*e2pp == NULL))
-	    return 0 ;
-
-	if (*e1pp == NULL)
-	    return 1 ;
-
-	if (*e2pp == NULL)
-	    return -1 ;
-
-	return ((*e1pp)->date - (*e2pp)->date) ;
+	int		rc = 0 ;
+	if ((*e1pp != NULL) || (*e2pp != NULL)) {
+	    if (*e1pp != NULL) {
+		if (*e2pp != NULL) {
+		    rc = ((*e1pp)->date - (*e2pp)->date) ;
+		} else
+		    rc = -1 ;
+	    } else
+	        rc = 1 ;
+	}
+	return rc ;
 }
 /* end subroutine (cmpdate) */
 
 
 /* compare dead record entry indices */
-static int cmpei(e1pp,e2pp)
-struct dead	**e1pp, **e2pp ;
+static int cmpei(struct dead **e1pp,struct dead **e2pp)
 {
-
-	if ((*e1pp == NULL) && (*e2pp == NULL))
-	    return 0 ;
-
-	if (*e1pp == NULL)
-	    return 1 ;
-
-	if (*e2pp == NULL)
-	    return -1 ;
-
-	return ((*e1pp)->ei - (*e2pp)->ei) ;
+	int		rc = 0 ;
+	if ((*e1pp != NULL) || (*e2pp != NULL)) {
+	    if (*e1pp != NULL) {
+	        if (*e2pp != NULL) {
+	            rc = ((*e1pp)->ei - (*e2pp)->ei) ;
+	        } else
+	            rc = -1 ;
+	    } else
+	        rc = 1 ;
+	}
+	return rc ;
 }
 /* end subroutine (cmpei) */
 
 
 /* compare two records */
-static int utmatch(u1p,u2p)
-TMPX_ENT	*u1p, *u2p ;
+static int utmatch(TMPX_ENT *u1p,TMPX_ENT *u2p)
 {
-	int	f = TRUE ;
+	int		f = TRUE ;
 	f = f && (u1p->ut_pid == u2p->ut_pid) ;
 	f = f && (strncmp(u1p->ut_user,u2p->ut_user,TMPX_LUSER) == 0) ;
 	f = f && (strncmp(u1p->ut_id,u2p->ut_id,TMPX_LID) == 0) ;
@@ -1583,9 +1585,7 @@ TMPX_ENT	*u1p, *u2p ;
 
 
 #if	CF_DEBUGS || CF_DEBUG
-static int debugprintrecord(s,up)
-const char	s[] ;
-TMPX_ENT	*up ;
+static int debugprintrecord(cchar *s,TMPX_ENT *up)
 {
 	int		rs ;
 	rs = debugprintf("%s t=%u id=%-4t u=%-12t l=%-12t p=6u e=%2d\n",

@@ -1263,16 +1263,18 @@ static int procquery(PROGINFO *pip,void *ofp,cchar np[],int nl)
 
 static int locinfo_start(LOCINFO *lip,PROGINFO *pip)
 {
-	const int	grlen = getbufsize(getbufsize_gr) ;
 	int		rs ;
-	char		*bp ;
 
 	memset(lip,0,sizeof(LOCINFO)) ;
 	lip->pip = pip ;
-	if ((rs = uc_malloc((grlen+1),&bp)) >= 0) {
-	    lip->grbuf = bp ;
-	    lip->grlen = grlen ;
-	}
+	if ((rs = getbufsize(getbufsize_gr)) >= 0) {
+	    const int	grlen = rs ;
+	    char	*grbuf ;
+	    if ((rs = uc_malloc((grlen+1),&grbuf)) >= 0) {
+	        lip->grbuf = grbuf ;
+	        lip->grlen = grlen ;
+	    }
+	} /* end if (getbufsize) */
 
 	return rs ;
 }
@@ -1305,7 +1307,7 @@ static int locinfo_finish(LOCINFO *lip)
 
 
 #if	CF_LOCSETENT
-int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
+static int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
 	VECSTR		*slp ;
 	int		rs = SR_OK ;

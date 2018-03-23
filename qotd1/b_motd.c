@@ -3056,7 +3056,7 @@ static int locinfo_finish(LOCINFO *lip)
 /* end subroutine (locinfo_finish) */
 
 
-int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
+static int locinfo_setentry(LOCINFO *lip,cchar **epp,cchar *vp,int vl)
 {
 	VECSTR		*slp ;
 	int		rs = SR_OK ;
@@ -3139,6 +3139,7 @@ static int locinfo_loadids(LOCINFO *lip)
 {
 	PROGINFO	*pip = lip->pip ;
 	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (pip == NULL) return SR_FAULT ;
 	if (lip->gnbuf[0] == '\0') {
@@ -3156,16 +3157,19 @@ static int locinfo_loadids(LOCINFO *lip)
 	            lip->gid_dirs = lip->gid ;
 		}
 	    } else {
-	        struct passwd	pw ;
-	        const int	pwlen = getbufsize(getbufsize_pw) ;
-	        char		*pwbuf ;
-		if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	            if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,lip->un)) >= 0) {
-	                lip->uid_dirs = pw.pw_uid ;
-	                lip->gid_dirs = pw.pw_gid ;
-		    }
-		    uc_free(pwbuf) ;
-		} /* end if (m-a) */
+	        if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	            struct passwd	pw ;
+	            const int		pwlen = rs ;
+	            char		*pwbuf ;
+		    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	                if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,lip->un)) >= 0) {
+	                    lip->uid_dirs = pw.pw_uid ;
+	                    lip->gid_dirs = pw.pw_gid ;
+		        }
+		        rs1 = uc_free(pwbuf) ;
+			if (rs >= 0) rs = rs1 ;
+		    } /* end if (m-a) */
+		} /* end if (getbufsize) */
 	    } /* end if */
 
 	    if (rs >= 0) {
@@ -3319,40 +3323,42 @@ static int locinfo_getgid(LOCINFO *lip)
 	int		f_got = FALSE ;
 
 	if (lip->gid_prog < 0) {
-	    struct passwd	pw ;
-	    const int		pwlen = getbufsize(getbufsize_pw) ;
-	    char		*pwbuf ;
-	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	    if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	        struct passwd	pw ;
+	        const int	pwlen = rs ;
+	        char		*pwbuf ;
+	        if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
 
-	        if (lip->uid == lip->euid) { /* like we are a SHELL builtin */
-	            if ((rs = proginfo_rootname(pip)) >= 0) {
-	                const int	nrs = SR_NOTFOUND ;
-		        cchar		*rn = pip->rootname ;
-	                if ((rs1 = GETPW_NAME(&pw,pwbuf,pwlen,rn)) == nrs) {
-	                    char	ubuf[USERNAMELEN + 1] ;
-	                    strwcpylc(ubuf,VARPRNAME,USERNAMELEN) ;
-	                    if (strcmp(pip->rootname,ubuf) != 0) {
-	                        rs1 = GETPW_NAME(&pw,pwbuf,pwlen,ubuf) ;
-	                    } /* end if (trying a different username) */
-	                } /* end if (getpw_name) */
-	                if (rs1 >= 0) {
+	            if (lip->uid == lip->euid) {
+	                if ((rs = proginfo_rootname(pip)) >= 0) {
+	                    const int	nrs = SR_NOTFOUND ;
+		            cchar	*rn = pip->rootname ;
+	                    if ((rs1 = GETPW_NAME(&pw,pwbuf,pwlen,rn)) == nrs) {
+	                        char	ubuf[USERNAMELEN + 1] ;
+	                        strwcpylc(ubuf,VARPRNAME,USERNAMELEN) ;
+	                        if (strcmp(pip->rootname,ubuf) != 0) {
+	                            rs1 = GETPW_NAME(&pw,pwbuf,pwlen,ubuf) ;
+	                        } /* end if (trying a different username) */
+	                    } /* end if (getpw_name) */
+	                    if (rs1 >= 0) {
+	                        f_got = TRUE ;
+	                        lip->uid_prog = pw.pw_uid ;
+	                        lip->gid_prog = pw.pw_gid ;
+	                    }
+	                } /* end if (rootname) */
+	            } /* end if */
+
+	            if ((rs >= 0) && (! f_got)) {
+	                if ((rs = GETPW_UID(&pw,pwbuf,pwlen,lip->euid)) >= 0) {
 	                    f_got = TRUE ;
 	                    lip->uid_prog = pw.pw_uid ;
 	                    lip->gid_prog = pw.pw_gid ;
 	                }
-	            } /* end if (rootname) */
-	        } /* end if */
+	            } /* end if */
 
-	        if ((rs >= 0) && (! f_got)) {
-	            if ((rs = GETPW_UID(&pw,pwbuf,pwlen,lip->euid)) >= 0) {
-	                f_got = TRUE ;
-	                lip->uid_prog = pw.pw_uid ;
-	                lip->gid_prog = pw.pw_gid ;
-	            }
-	        } /* end if */
-
-		uc_free(pwbuf) ;
-	    } /* end if (m-a) */
+		    uc_free(pwbuf) ;
+	        } /* end if (m-a) */
+	    } /* end if (getbufsize) */
 	} /* end if (needed) */
 
 	return (rs >= 0) ? f_got : rs ;

@@ -79,8 +79,6 @@
 #define	BUFLEN		MAXPATHLEN
 #endif
 
-#define	PROMPTLEN	100
-
 #define	PROGINFO	struct proginfo
 #define	PROGINFO_FL	struct proginfo_flags
 
@@ -119,6 +117,7 @@ struct proginfo {
 	const char	*tmpdname ;
 	const char	*helpfname ;
 	void		*efp ;
+	void		*lip ;
 	PROGINFO_FL	have, f, changed, final ;
 	PROGINFO_FL	open ;
 	time_t		daytime ;
@@ -134,6 +133,13 @@ struct pivars {
 	const char	*vpr3 ;
 	const char	*pr ;
 	const char	*vprname ;
+} ;
+
+struct arginfo {
+	cchar		**argv ;
+	int		argc ;
+	int		ai, ai_max, ai_pos ;
+	int		ai_continue ;
 } ;
 
 

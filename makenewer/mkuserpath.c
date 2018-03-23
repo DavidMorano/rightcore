@@ -24,7 +24,7 @@
 
 	int mkuserpath(rbuf,pp,pl) ;
 	char		rbuf[] ;
-	cchar	*pp ;
+	cchar		*pp ;
 	int		pl ;
 
 	Arguments:
@@ -132,8 +132,8 @@ int mkuserpath(char *rbuf,cchar *un,cchar *pp,int pl)
 	} /* end if */
 
 #if	CF_DEBUGS
-	debugprintf("mkuserpath: ret rs=%d\n",rs) ;
 	debugprintf("mkuserpath: ret rbuf=%s\n",rbuf) ;
+	debugprintf("mkuserpath: ret rs=%d\n",rs) ;
 #endif
 
 	return rs ;
@@ -235,11 +235,12 @@ static int mkpathusername(char *rbuf,cchar *up,int ul,cchar *sp,int sl)
 	const int	ulen = USERNAMELEN ;
 	int		rs = SR_OK ;
 	int		rs1 ;
+	int		rl = 0 ;
 	cchar		*un = up ;
 	char		ubuf[USERNAMELEN+1] ;
 
 #if	CF_DEBUGS
-	debugprintf("mkpathusername: ul=%d u=%t s=%t\n",ul,up,ul,sp,sl) ;
+	debugprintf("mkpathusername: ent ul=%d u=%t s=%t\n",ul,up,ul,sp,sl) ;
 #endif
 
 	if (ul >= 0) {
@@ -266,8 +267,10 @@ static int mkpathusername(char *rbuf,cchar *up,int ul,cchar *sp,int sl)
 		        cchar	*dir = pw.pw_dir ;
 	                if (sl > 0) {
 	                    rs = mkpath2w(rbuf,dir,sp,sl) ;
+			    rl = rs ;
 	                } else {
 	                    rs = mkpath1(rbuf,dir) ;
+			    rl = rs ;
 	                }
 	            }
 	            rs1 = uc_libfree(pwbuf) ;
@@ -277,10 +280,10 @@ static int mkpathusername(char *rbuf,cchar *up,int ul,cchar *sp,int sl)
 	} /* end if (ok) */
 
 #if	CF_DEBUGS
-	debugprintf("mkpathusername: ret rs=%d\n",rs) ;
+	debugprintf("mkpathusername: ret rs=%d rl=%u\n",rs,rl) ;
 #endif
 
-	return rs ;
+	return (rs >= 0) ? rl : rs ;
 }
 /* end subroutine (mkpathusername) */
 

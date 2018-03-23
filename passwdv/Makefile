@@ -153,11 +153,11 @@ OBJ05=
 OBJ06= 
 OBJ07= printhelp.o
 OBJ08=
-OBJ09= paramopt.o pwfile.o storeitem.o gecos.o
+OBJ09= pwfile.o pwentry.o
 OBJ10=
 OBJ11=
 OBJ12= havenis.o
-OBJ13= 
+OBJ13= isinteractive.o
 OBJ14=
 OBJ15=
 
@@ -265,7 +265,8 @@ control:
 	date >> Control
 
 
-main.o:			main.c $(INCS)
+main.o:			main.cc $(INCS)
+	$(GPP) -c $(GPPFLAGS) $(CFLAGS) $(CPPFLAGS) main.cc
 
 whatinfo.o:		whatinfo.c config.h
 
@@ -310,7 +311,9 @@ kvsfile.o:		kvsfile.c kvsfile.h
 
 paramopt.o:		paramopt.c paramopt.h
 
-pwfile.o:		pwfile.c pwfile.h
+pwfile.o:		pwfile.c pwfile.h pwentry.h
+
+pwentry.o:		pwentry.c pwentry.h
 
 storeitem.o:		storeitem.c storeitem.h
 
