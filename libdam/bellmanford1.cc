@@ -1,4 +1,4 @@
-/* bellmanford-1 */
+/* bellmanford1 */
 /* lang=C++11 */
 
 /* Bellman-Ford algorithm for shortest path through graph */
@@ -9,21 +9,21 @@
 
 /* revision history:
 
-	= 2013-03-03, David A­D­ Morano
+	= 2013-03-03, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2013 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2013 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-        This is better than Dijjstra because this algorithm can handle negative
-        edge weights and will detect an overall negative path length.
+        This is more general than Dijkstra because this algorithm can handle 
+	negative edge weights and will detect an overall negative path length.
 
 	Complexity:
 
-	time worst	O ( |v| · |e| )
+	time worst	O ( |v| Â· |e| )
 	time best	O ( |e| )
 	space		O ( |v| )
 
