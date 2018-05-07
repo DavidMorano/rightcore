@@ -1,4 +1,4 @@
-/* dijkstra-2 */
+/* dijkstra2 */
 /* lang=C++11 */
 
 /* Dijkstra (shortest path through graph) */
@@ -9,22 +9,22 @@
 
 /* revision history:
 
-	= 2013-03-03, David A­D­ Morano
+	= 2013-03-03, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2013 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2013 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-        This executes the Dijjstra algorithm to find the sorted path through a
+        This executes the Dijkstra algorithm to find the sortest path through a
         weighted graph.
 
 
 	Fatures:
 
-	+ close to optimal speed because we used queue for future work
+	+ close to optimal speed because we used a queue for our future work
 
 
 	Complexity:
@@ -33,11 +33,9 @@
 
 	Implementation:
 
-	We assume we have an object known as |minheap|, with methods:
-	+ push()
-	+ pop()
-	+ descrease()
-	+ top()
+	We we a priority queue. We (apparently) used to use our own min-heap,
+	but it was swapped out for the standard STL |priority_queue| at some
+	point (a good idea I think).
 
 
 *******************************************************************************/
