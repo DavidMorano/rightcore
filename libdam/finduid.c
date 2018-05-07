@@ -9,16 +9,17 @@
 
 /* revision history:
 
-	= 2004-01-10, David A­D­ Morano
+	= 2004-01-10, David AÂ­DÂ­ Morano
 	This code was originally written.
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	This object is used to find a username by a given UID.
+	This object is used to find a username by a given UID. This object is
+	thread-safe (safe to use in a multi-threaded environment).
 
 
 *******************************************************************************/
@@ -85,10 +86,9 @@ int finduid_start(FINDUID *op,cchar *dbfname,int max,int ttl)
 
 	if (dbfname != NULL) {
 	    int		pl = -1 ;
-	    const char	*cp ;
-	    char	pwd[MAXPATHLEN+1] ;
 	    char	tmpfname[MAXPATHLEN+1] ;
 	    if ((dbfname[0] != '\0') && (dbfname[0] != '/')) {
+		char	pwd[MAXPATHLEN+1] ;
 		if ((rs = getpwd(pwd,MAXPATHLEN)) >= 0) {
 		    rs = mkpath2(tmpfname,pwd,dbfname) ;
 		    pl = rs ;
@@ -96,6 +96,7 @@ int finduid_start(FINDUID *op,cchar *dbfname,int max,int ttl)
 		}
 	    }
 	    if (rs >= 0) {
+		 const char	*cp ;
 	        if ((rs = uc_mallocstrw(dbfname,pl,&cp)) >= 0) {
 	            op->dbfname = cp ;
 		} /* end if (memory-allocation) */
