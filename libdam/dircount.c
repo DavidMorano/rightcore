@@ -8,16 +8,16 @@
 
 /* revision history:
 
-	= 1998-03-01, David A­D­ Morano
+	= 1998-03-01, David AÂ­DÂ­ Morano
 	This subroutine was written for Rightcore Network Services (RNS).
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	We return the count of non-overhead files in the given directory.
+	We return the count of non-overhead entries in the given directory.
 
 	Synopsis:
 
@@ -101,7 +101,6 @@ int dircount(cchar *dname)
 	       if (hasNotDots(de.name,rs) > 0) {
 		    c += 1 ;
 		} /* end (not dots) */
-		if (rs < 0) break ;
 	    } /* end while */
 	    rs1 = fsdir_close(&d) ;
 	    if (rs >= 0) rs = rs1 ;
