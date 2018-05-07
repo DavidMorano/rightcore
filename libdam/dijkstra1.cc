@@ -9,16 +9,16 @@
 
 /* revision history:
 
-	= 2013-03-03, David A­D­ Morano
+	= 2013-03-03, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2013 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2013 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-        This executes the Dijjstra algorithm to find the sorted path through a
+        This executes the Dijkstra algorithm to find the sortest path through a
         weighted graph.
 
 
