@@ -10,19 +10,18 @@
 
 /* revision history:
 
-	= 1996-03-01, David A­D­ Morano
+	= 1996-03-01, David AÂ­DÂ­ Morano
         The program was written from scratch to do what the previous program by
         the same name did.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-        This is an object but it is tied to the main program so it is really not
-        independent. I do not know what it would take to make this an
-        independent object at this point.
+        This object manages directory names in an in-memory database. Check out
+	the methods to see what operations are available.
 
 
 *******************************************************************************/
@@ -245,7 +244,7 @@ int dirdb_clean(DIRDB *dbp)
 	if ((rs = hdb_curbegin(&dbp->db,&cur)) >= 0) {
 	    DIRDB_ENT	*ep ;
 
-	    while (hdb_enum(&dbp->db,&cur,&key,&val) >= 0) {
+	    while ((rs1 = hdb_enum(&dbp->db,&cur,&key,&val)) >= 0) {
 
 	        ep = (DIRDB_ENT *) val.buf ;
 	        if ((rs = dirdb_alreadyentry(dbp,ep)) >= 0) {
@@ -264,6 +263,7 @@ int dirdb_clean(DIRDB *dbp)
 	        } /* end if */
 
 	    } /* end while */
+	    if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
 
 	    rs1 = hdb_curend(&dbp->db,&cur) ;
 	    if (rs >= 0) rs = rs1 ;
