@@ -1,4 +1,4 @@
-/* dijkstra-1 */
+/* dijkstra1 */
 /* lang=C++11 */
 
 /* Dijkstra (shortest path through graph) */
@@ -45,8 +45,6 @@
 #include	<functional>
 #include	<algorithm>
 #include	<vector>
-#include	<iostream>
-#include	<iomanip>
 #include	<vsystem.h>
 #include	<localmisc.h>
 
@@ -108,7 +106,6 @@ int dijkstra1(res_t *resp,edges_t &edges,int vertices,int vstart)
 	    for (i = 0 ; i < (vertices-1) ; i += 1) {
 	        const int	u = minvertex(visited,resp,vertices) ;
 	        if ((u >= 0) && (u < ne)) {
-		    cout << "u=go" << endl ;
 	            elit = edges[u].begin() ; /* this is 'list.begin()' */
 	            end = edges[u].end() ; /* this is 'list.end()' */
 
