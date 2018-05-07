@@ -9,11 +9,11 @@
 
 /* revision history:
 
-	= 2000-09-10, David A­D­ Morano
+	= 2000-09-10, David AÂ­DÂ­ Morano
         I created this modeled after something similar that was used for some of
         my PCS programs.
 
-	= 2017-09-11, David A­D­ Morano
+	= 2017-09-11, David AÂ­DÂ­ Morano
         Whew! Enhanced this module (subroutine |dirlist_add()| in particular) to
         make it more robust in the face of a bug in KSH. The KSH shell adds
         stuff to LD_LIBRARY_PATH to suit what it thinks are its own needs. It
@@ -23,7 +23,7 @@
 
 */
 
-/* Copyright © 2000,2017 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2000,2017 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -476,8 +476,9 @@ int dirlist_joinmk(DIRLIST *op,char *jbuf,int jlen)
 	                if (f_semi) {
 	                    f_semi = FALSE ;
 	                    *bp++ = ';' ;
-	                } else
+	                } else {
 	                    *bp++ = ':' ;
+			}
 	            }
 
 #if	CF_DEBUGS
@@ -494,8 +495,9 @@ int dirlist_joinmk(DIRLIST *op,char *jbuf,int jlen)
 	            }
 #endif
 	            c += 1 ;
-	        } else
+	        } else {
 	            f_semi = TRUE ;
+		}
 	    } /* end for */
 	    rs = (bp-jbuf) ;
 
@@ -514,12 +516,7 @@ int dirlist_joinmk(DIRLIST *op,char *jbuf,int jlen)
 /* private subroutines */
 
 
-static int entry_start(ep,np,nl,dev,ino)
-DIRLIST_ENT	*ep ;
-const char	np[] ;
-int		nl ;
-dev_t		dev ;
-uino_t		ino ;
+static int entry_start(DIRLIST_ENT *ep,cchar *np,int nl,dev_t dev,uino_t ino)
 {
 	int		rs ;
 	const char	*cp ;
