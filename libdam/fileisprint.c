@@ -9,19 +9,17 @@
 
 /* revision history:
 
-	= 1998-07-01, David A­D­ Morano
-
+	= 1998-07-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	This subroutine checks if the specified file is
-	totally printable.
+	This subroutine checks if the specified file is totally printable.
 
 	Synopsis:
 
@@ -102,13 +100,12 @@ extern char	*strnchr(const char *,int,int) ;
 /* exported subroutines */
 
 
-int fileisprint(fname)
-const char	fname[] ;
+int fileisprint(cchar *fname)
 {
 	const int	to = -1 ;
-
-	int	rs ;
-	int	f = FALSE ;
+	int		rs ;
+	int		rs1 ;
+	int		f = FALSE ;
 
 
 	if (fname == NULL) return SR_FAULT ;
@@ -138,7 +135,8 @@ const char	fname[] ;
 
 	            if (rs < 0) break ;
 	        } /* end while (reading lines) */
-	        filebuf_finish(&b) ;
+	        rs1 = filebuf_finish(&b) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (filebuf) */
 	    u_close(fd) ;
 	} /* end if (open) */
@@ -150,6 +148,4 @@ const char	fname[] ;
 	return (rs >= 0) ? (!f) : rs ;
 }
 /* end subroutine (fileisprint) */
-
-
 
