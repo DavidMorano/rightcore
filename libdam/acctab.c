@@ -9,12 +9,12 @@
 
 /* revision history:
 
-	= 1998-06-01, David A­D­ Morano
+	= 1998-06-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written (and largely forgotten).
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -686,8 +686,7 @@ static int acctab_checkfiles(ACCTAB *op,time_t dt)
 #endif
 
 	for (i = 0 ; vecobj_get(&op->files,i,&fep) >= 0 ; i += 1) {
-	    if (fep == NULL) continue ;
-
+	    if (fep != NULL) {
 	    if ((u_stat(fep->fname,&sb) >= 0) &&
 	        (sb.st_mtime > fep->mtime) &&
 	        ((dt - sb.st_mtime) >= ACCTAB_CHANGETIME)) {
@@ -713,7 +712,8 @@ static int acctab_checkfiles(ACCTAB *op,time_t dt)
 #endif
 
 	    } /* end if */
-
+	    } /end if (non-NULL) */
+`	    if (rs < 0) break ;
 	} /* end for */
 
 	if ((rs >= 0) && c_changed) {
