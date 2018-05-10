@@ -12,12 +12,12 @@
 
 /* revision history:
 
-	= 1999-07-23, David A­D­ Morano
+	= 1999-07-23, David AÂ­DÂ­ Morano
 	This module was originally written.
 
 */
 
-/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1999 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -44,6 +44,7 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<endian.h>
 #include	<stdorder.h>
 #include	<localmisc.h>
 
@@ -78,22 +79,6 @@
 
 #define	NENTRIES	100
 #define	FBUFLEN		(FMQ_TOPLEN + 9)
-
-#ifndef	ENDIAN
-#if	defined(OSNAME_SunOS) && defined(__sparc)
-#define	ENDIAN		1
-#else
-#ifdef	_BIG_ENDIAN
-#define	ENDIAN		1
-#endif
-#ifdef	_LITTLE_ENDIAN
-#define	ENDIAN		0
-#endif
-#ifndef	ENDIAN
-#error	"could not determine endianness of this machine"
-#endif
-#endif
-#endif
 
 
 /* external subroutines */
