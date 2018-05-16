@@ -1,6 +1,6 @@
 /* inetntop */
 
-/* convert strings to binary INET addresses */
+/* convert binary INET addresses to portable string representation */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -8,18 +8,18 @@
 
 /* revision history:
 
-	= 2003-11-06, David A­D­ Morano
-        This subroutine exists to make some sensible version out of the
-        combination of 'inet_addr(3n)' and 'inet_pton(3socket)'.
+	= 2003-11-06, David AÂ­DÂ­ Morano
+        This subroutine converts an INET network-order object to a portable
+	string representation.
 
 */
 
-/* Copyright © 2003 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2003 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-        This subroutines converts a string representation of an INET (either v4
-        or v6) address into its binary form.
+        This subroutines converts an INET network-order object (binary) to a 
+	portable string representation.
 
 	Synopsis:
 
