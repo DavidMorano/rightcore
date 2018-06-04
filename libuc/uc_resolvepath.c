@@ -1,17 +1,17 @@
 /* uc_resolvepath */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 /* resolve a path without symbolic components */
 
 
 /* revision history:
 
-	= 1998-04-13, David A­D­ Morano
+	= 1998-04-13, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -39,22 +39,25 @@
 /* exported subroutines */
 
 
-int uc_resolvepath(input,output,bufsize)
-const char	input[] ;
-char		output[] ;
-int		bufsize ;
+int uc_resolvepath(const char *input,char *rbuf,int rlen)
 {
-	int	rs ;
+	int		rs ;
 
-
-	if ((input == NULL) || (output == NULL))
+	if ((input == NULL) || (rbuf == NULL))
 		return SR_FAULT ;
 
-	if ((rs = resolvepath(input,output,bufsize)) < 0)
+	id (rlen <= 0) return SR_INVALID ;
+	
+	if ((rs = resolvepath(input,rbuf,rlen)) >= 0) {
+		if (rs <= rlen) {
+			rbuf[rs] = '\0' ;
+		} else {
+			rbuf[rlen] = '\0' ;
+			rs = SR_OVERFLOW ;
+		}
+	} else {
 		rs = (- errno) ;
-
-	if ((rs >= 0) && (rs < bufsize))
-		output[rs] = '\0' ;
+	}
 
 	return rs ;
 }
