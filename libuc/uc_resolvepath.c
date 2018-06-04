@@ -46,19 +46,23 @@ int uc_resolvepath(const char *input,char *rbuf,int rlen)
 	if ((input == NULL) || (rbuf == NULL))
 		return SR_FAULT ;
 
-	id (rlen <= 0) return SR_INVALID ;
-	
-	if ((rs = resolvepath(input,rbuf,rlen)) >= 0) {
+	id (rlen > 0) {
+	    if ((rs = resolvepath(input,rbuf,rlen)) >= 0) {
 		if (rs <= rlen) {
 			rbuf[rs] = '\0' ;
 		} else {
 			rbuf[rlen] = '\0' ;
 			rs = SR_OVERFLOW ;
 		}
-	} else {
+	    } else {
+		rbuf[0] = '\0' ;
 		rs = (- errno) ;
+	    }
+	} else {
+	    rbuf[0] = '\0' ;
+	    rs = SR_INVALID ;
 	}
-
+	
 	return rs ;
 }
 /* end subroutine (uc_resolvepath) */
