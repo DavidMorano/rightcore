@@ -406,7 +406,7 @@ public:
 	    }
 	    return (*this) ;
 	} ;
-	bstree &operator += (const T v) {
+	bstree &operator += (const T &v) {
 	    add(v) ;
 	    return (*this) ;
 	} ;
@@ -426,7 +426,7 @@ public:
 	    c = 0 ;
 	    return rc ;
 	} ;
-	int add(const T v) {
+	int add(const T &v) {
 	    bstree_node<T,Comp>	*nn = new bstree_node<T,Comp>(v) ;
 	    int			rc = -1 ;
 	    if (nn != NULL) {
@@ -439,13 +439,13 @@ public:
 	    }
 	    return rc ;
 	} ;
-	int add(const std::initializer_list<T> il) {
+	int add(const std::initializer_list<T> &il) {
 	    for (const T &v : il) {
 		add(v) ;
 	    }
 	    return c ;
 	} ;
-	bstree &operator = (const std::initializer_list<T> il) {
+	bstree &operator = (const std::initializer_list<T> &il) {
 	    for (const T &v : il) {
 		add(v) ;
 	    }
@@ -457,7 +457,7 @@ public:
 	    }
 	    return c ;
 	} ;
-	int del(iterator it) {
+	int del(iterator &it) {
 	    int		rc = -1 ;
 	    if (it) {
 	        nodetype	*n = it.n ; /* friend */
@@ -550,7 +550,7 @@ public:
 	operator bool() const {
 	    return (c != 0) ;
 	} ;
-	int storevec(std::vector<T> &vl) {
+	int storevec(std::vector<T> &vl) const {
 	    int	c = 0 ;
 	    if (root != NULL) {
 	        c = walk(vl,root) ;
@@ -579,13 +579,13 @@ public:
 	    }
 	    return it ;
 	} ;
-	int depth(bstree_depth *resp) {
+	int depth(bstree_depth *resp) const {
 	    int		d = 0 ;
 	    if (resp != NULL) resp->clear() ;
 	    d = depthrecurse(resp,0,root) ;
  	    return d ;
         } ; /* end method (depth) */
-	int depthrecurse(bstree_depth *resp,int i,bstree_node<T,Comp> *rp) {
+	int depthrecurse(bstree_depth *resp,int i,bstree_node<T,Comp> *rp) const {
 	    int		d = 0 ;
 #if	CF_DEBUGS
 	    debugprintf("bstree::depthrecurse: ent i=%u\n",i) ;
