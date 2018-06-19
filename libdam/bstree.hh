@@ -11,12 +11,12 @@
 
 /* revision history:
 
-	= 2013-03-03, David A­D­ Morano
+	= 2013-03-03, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2013 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2013 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -53,7 +53,7 @@
         This, so-called, "parent" scheme uses up an extra pointer-amount of
         space in each node, O(n) more space, but even though the "stack" scheme
         only uses up O(depth), we prefer the "parent" scheme since we do not
-        have to go through the trouble if instantiating a stack in the first
+        have to go through the trouble of instantiating a stack in the first
         place.
 
 	For reference, here is a stack solution (pseudo code):
