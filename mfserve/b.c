@@ -12,20 +12,20 @@
 
 /* revision history:
 
-	= 2011-01-25, David A­D­ Morano
+	= 2011-01-25, David AÂ­DÂ­ Morano
         Code was removed and placed in other files (so that they can be compiled
         differently) due to AST-code conflicts over the system socket-library
         structure definitions.
 
-	= 2014-09-25, David A­D­ Morano
+	= 2014-09-25, David AÂ­DÂ­ Morano
 	Some sort of enhancement.
 
-	= 2017-08-10, David A­D­ Morano
+	= 2017-08-10, David AÂ­DÂ­ Morano
 	This subroutine was borrowed to code MFSERVE.
 
 */
 
-/* Copyright © 2011,2014,2017 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2011,2014,2017 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -2171,7 +2171,7 @@ static int procuserinfo_logid(PROGINFO *pip)
 	if ((rs = lib_runmode()) >= 0) {
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
-	        debugprintf("procuserinfo_logid: rm=\\b%08ß\n",rs) ;
+	        debugprintf("procuserinfo_logid: rm=\\b%08ÃŸ\n",rs) ;
 #endif
 	    if (rs & KSHLIB_RMKSH) {
 	        if ((rs = lib_serial()) >= 0) {
@@ -2864,11 +2864,11 @@ static int procbackenv(PROGINFO *pip,SPAWNER *srp)
 	            break ;
 	        case 5:
 	            v = lip->intwait ;
-	            if (v > 0) np = "intwait " ;
+	            if (v > 0) np = "intwait" ;
 	            break ;
 	        case 6:
 	            v = lip->intcache ;
-	            if (v > 0) np = "intcache " ;
+	            if (v > 0) np = "intcache" ;
 	            break ;
 	        case 7:
 	            v = lip->intmaint ;
