@@ -1,7 +1,7 @@
 /* mfs-libload */
 /* lang=C++11 */
 
-/* try to load s shared-lib into the MFSERVE daemon */
+/* try to load a shared-lib into the MFSERVE daemon */
 /* last modified %G% version %I% */
 
 
@@ -11,13 +11,13 @@
 
 /* revision history:
 
-	= 2017-08-10, David A­D­ Morano
+	= 2017-08-10, David AÂ­DÂ­ Morano
 	This subroutine was borrowed or inspired from |progserve()| and
 	|progshlib()| from the TCPMUXD family of server programs.
 
 */
 
-/* Copyright © 2011,2017 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2011,2017 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
