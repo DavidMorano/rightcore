@@ -9,13 +9,13 @@
 
 /* revision history:
 
-	= 2004-03-01, David A­D­ Morano
+	= 2004-03-01, David AÂ­DÂ­ Morano
 	The object is a generalized version of what used to be pseudo-random
 	code in other programs (that did multi-thread dispatching).
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -105,7 +105,6 @@ int dispatcher_start(DISPATCHER *dop,int n,void *callsub,void *callarg)
 	if (callsub == NULL) return SR_FAULT ;
 
 	memset(dop,0,sizeof(DISPATCHER)) ;
-	dop->nthr = n ;
 	dop->callsub = callsub ;
 	dop->callarg = callarg ;
 
