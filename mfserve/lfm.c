@@ -9,12 +9,12 @@
 
 /* revision history:
 
-	= 1998-09-10, David A­D­ Morano
+	= 1998-09-10, David AÂ­DÂ­ Morano
 	This program was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -470,27 +470,25 @@ int lfm_printf(LFM *op,cchar *fmt,...)
 
 /* seek up to the proper place to start writing (for the user stuff) */
 
-	    u_seek(op->lfd,op->owrite,SEEK_SET) ;
-
+	    if ((rs = u_seek(op->lfd,op->owrite,SEEK_SET)) >= 0) {
+		va_list	ap ;
+		    
 #if	CF_DEBUGS
-	    debugprintf("lfm_printf: we seeked to %lld\n",op->owrite) ;
+	        debugprintf("lfm_printf: we seeked to %lld\n",op->owrite) ;
 #endif /* CF_DEBUGS */
 
 /* format the user's data (possibly write some out) */
-
-	    {
-	        va_list	ap ;
+	        
 	        va_begin(ap,fmt) ;
-	        rs = format(buf,BUFLEN,0,fmt,ap) ;
-	        len = rs ;
+	        if ((rs = format(buf,BUFLEN,0,fmt,ap)) >= 0) {
+	            len = rs ;
+		    if ((rs = u_write(op->lfd,buf,len)) >= 0) {
+	                op->owrite += len ;
+	            }
+		}
 	        va_end(ap) ;
-	    }
 
-	    if (rs >= 0) {
-	        if ((rs = u_write(op->lfd,buf,len)) >= 0) {
-	            op->owrite += len ;
-	        }
-	    }
+	    } /* end if (u_seek) */
 
 	} /* end if (ok) */
 
