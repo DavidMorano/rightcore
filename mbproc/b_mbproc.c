@@ -16,12 +16,12 @@
 
 /* revision history:
 
-	= 1989-03-01, David A­D­ Morano
+	= 1989-03-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.  
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -1304,8 +1304,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop,PARAMOPT *app)
 	                } /* end switch */
 
 	                c += 1 ;
-	            } else
+	            } else {
 	                rs = SR_INVALID ;
+		    }
 
 	            if (rs < 0) break ;
 	        } /* end while (looping through key options) */
@@ -1420,8 +1421,9 @@ static int procourconf_begin(PROGINFO *pip,PARAMOPT *app,cchar cfname[])
 	            rs = 1 ;
 	        }
 #endif
-	        if (rs < 0)
+	        if (rs < 0) {
 	            config_finish(csp) ;
+		}
 	    } /* end if (config) */
 	    if (rs < 0) {
 	        uc_free(p) ;
@@ -1557,7 +1559,7 @@ static int procargs(PROGINFO *pip,ARGINFO *aip,BITS *bop,cchar *afn,cchar *ofn)
 	        ut.actime = mt ;
 	        ut.modtime = mt ;
 	        if (mt > 0) {
-	            utime(ofn,&ut) ;
+	            (void) utime(ofn,&ut) ;
 		}
 	    }
 
@@ -2623,10 +2625,12 @@ static int config_start(CONFIG *csp,PROGINFO *pip,PARAMOPT *app,cchar *cfn)
 	        }
 	        if (rs < 0)
 	            paramfile_close(&csp->p) ;
-	    } else if (isNotPresent(rs))
+	    } else if (isNotPresent(rs)) {
 	        rs = SR_OK ;
-	} else if (isNotPresent(rs))
+	    }
+	} else if (isNotPresent(rs)) {
 	    rs = SR_OK ;
+	}
 
 	if (rs >= 0) csp->magic = CONFIG_MAGIC ;
 
@@ -2682,6 +2686,7 @@ static int config_findfile(CONFIG *csp,char tbuf[],cchar cfname[])
 	PROGINFO	*pip = csp->pip ;
 	VECSTR		sv ;
 	int		rs ;
+	int		rs1 ;
 	int		pl = 0 ;
 
 	tbuf[0] = '\0' ;
@@ -2697,7 +2702,8 @@ static int config_findfile(CONFIG *csp,char tbuf[],cchar cfname[])
 	    rs = permsched(csched,&sv,tbuf,tlen,cfname,R_OK) ;
 	    pl = rs ;
 
-	    vecstr_finish(&sv) ;
+	    rs1 = vecstr_finish(&sv) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (finding file) */
 
 	return (rs >= 0) ? pl : rs ;
@@ -2762,8 +2768,9 @@ static int config_cookbegin(CONFIG *csp)
 
 	    if (rs >= 0) {
 	        csp->f_cooks = TRUE ;
-	    } else
+	    } else {
 	        expcook_finish(&csp->cooks) ;
+	    }
 	} /* end if (expcook_start) */
 
 	return rs ;
@@ -2798,8 +2805,9 @@ static int config_check(CONFIG *csp)
 
 	if (csp->f_p) {
 	    time_t	dt = pip->daytime ;
-	    if ((rs = paramfile_check(&csp->p,dt)) > 0)
+	    if ((rs = paramfile_check(&csp->p,dt)) > 0) {
 	        rs = config_read(csp) ;
+	    }
 	}
 
 	return rs ;
