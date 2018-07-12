@@ -10,20 +10,20 @@
 
 /* revision history:
 
-	= 2004-05-14, David A­D­ Morano
+	= 2004-05-14, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
-	= 2005-01-25, David A­D­ Morano
+	= 2005-01-25, David AÂ­DÂ­ Morano
 	This code was separated out from the main code (in 'mfsmain.c') due to
 	conflicts over including different versions of the system socket
 	structures.
 
-	= 2017-08-10, David A­D­ Morano
+	= 2017-08-10, David AÂ­DÂ­ Morano
 	This subroutine was borrowed to code MFSERVE.
 
 */
 
-/* Copyright © 2004,2005,2017 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004,2005,2017 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -772,13 +772,14 @@ static int mfsadj_send(PROGINFO *pip,MSGDATA *mdp,uint tag)
 	LOCINFO		*lip = pip->lip ;
 	MSGHDR		*mhp = &mdp->msg ;
 	int		rs ;
+	int		len = 0 ;
 	if ((rs = u_sendmsg(lip->rfd,mhp,0)) >= 0) {
-	    rs = msghdr_size(mhp) ;
+	    len = rs ;
 	} else if (isBadSend(rs)) {
 	    logprintf(pip,"send failure t=%08x (%d)",tag,rs) ;
 	    rs = SR_OK ;
 	}
-	return rs ;
+	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (mfsadj_send) */
 
