@@ -4,17 +4,17 @@
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
-#define	CF_UCGETOPID	1		/* compile in |ungetpid(3uc)| */
+#define	CF_UCGETOPID	0		/* compile in |ucgetpid(3uc)| */
 
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
+	= 2000-05-14, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2000 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
