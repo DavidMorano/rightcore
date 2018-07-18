@@ -1,6 +1,6 @@
 /* textlook */
 
-/* text look-up manager (we use the index and verify speculative resutls) */
+/* text look-up manager (we use the index and verify tentative results) */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -11,12 +11,12 @@
 
 /* revision history:
 
-	- 2008-10-01, David A­D­ Morano
+	- 2008-10-01, David AÂ­DÂ­ Morano
 	This object module was originally written.
 
 */
 
-/* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2008 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -506,7 +506,7 @@ int textlook_lookup(TEXTLOOK *op,TEXTLOOK_CUR *curp,int qo,cchar **qsp)
 #if	CF_DEBUGS
 	{
 	    int	i ;
-	    debugprintf("textlook_lookup: qs¬\n") ;
+	    debugprintf("textlook_lookup: qsÂ¬\n") ;
 	    for (i = 0 ; qsp[i] != NULL ; i += 1) {
 	        debugprintf("textlook_lookup: q=>%s<\n",qsp[i]) ;
 	    }
@@ -532,7 +532,7 @@ int textlook_lookup(TEXTLOOK *op,TEXTLOOK_CUR *curp,int qo,cchar **qsp)
 #if	CF_DEBUGS
 	                    {
 	                        int	i ;
-	                        debugprintf("textlook_lookup: hkeys=%u¬\n",rs) ;
+	                        debugprintf("textlook_lookup: hkeys=%uÂ¬\n",rs) ;
 	                        for (i = 0 ; hkeya[i] != NULL ; i += 1) {
 	                            debugprintf("textlook_lookup: hkey=>%s<\n",
 	                                hkeya[i]) ;
@@ -922,7 +922,7 @@ int		ll ;
 	int		f = FALSE ;
 
 #if	CF_DEBUGS
-	debugprintf("textlook_havekeysline: line¬\n") ;
+	debugprintf("textlook_havekeysline: lineÂ¬\n") ;
 	debugprintf(">%t<\n",lp,ll) ;
 #endif
 
@@ -1133,7 +1133,7 @@ const char	**hkeya ;
 	debugprintf("textlook_lookup: ent\n") ;
 	{
 	    int	i ;
-	    debugprintf("textlook_lookup: keys¬\n") ;
+	    debugprintf("textlook_lookup: keysÂ¬\n") ;
 	    for (i = 0 ; hkeya[i] != NULL ; i += 1) {
 	        debugprintf("textlook_lookup: k=>%s<\n",hkeya[i]) ;
 	    }
