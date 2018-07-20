@@ -1,6 +1,6 @@
 /* umask */
 
-/* UNIX® UMASK (file-creation-mask) management */
+/* UNIXÂ® UMASK (file-creation-mask) management */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -8,16 +8,16 @@
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
+	= 2000-05-14, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2000 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-        This module serves to provide two functions that manipulate the UNIX®
+        This module serves to provide two functions that manipulate the UNIXÂ®
         UMASK.
 
 
@@ -93,11 +93,10 @@ int umask_init()
 	    if (rs < 0)
 	        uip->f_init = FALSE ;
 	} else {
-	    while ((rs >= 0) && uip->f_init && (! uip->f_initdone)) {
+	    while ((rs >= 0) && (! uip->f_initdone)) {
 		rs = msleep(1) ;
 		if (rs == SR_INTR) rs = SR_OK ;
 	    }
-	    if ((rs >= 0) && (! uip->f_init)) rs = SR_LOCKLOST ;
 	}
 	return (rs >= 0) ? f : rs ;
 }
