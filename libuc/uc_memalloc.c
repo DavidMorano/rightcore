@@ -1,7 +1,7 @@
 /* uc_memalloc (3uc) */
 /* lang=C89 */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 /* memory allocation facility */
 
 
@@ -13,16 +13,16 @@
 
 /* revision history:
 
-	= 1998-03-85, David A­D­ Morano
+	= 1998-03-85, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
-	= 2001-02-01, David A­D­ Morano
+	= 2001-02-01, David AÂ­DÂ­ Morano
 	I expanded the storage table size somewhat for larger programs.  We are
 	handling larger amounts of data now-a-days!
 
 */
 
-/* Copyright © 1998,2001 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998,2001 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -202,11 +202,10 @@ int ucmemalloc_init()
 	    if (rs < 0)
 	        uip->f_init = FALSE ;
 	} else {
-	    while ((rs >= 0) && uip->f_init && (! uip->f_initdone)) {
+	    while ((rs >= 0) && (! uip->f_initdone)) {
 	        rs = msleep(1) ;
 		if (rs == SR_INTR) break ;
 	    }
-	    if ((rs >= 0) && (! uip->f_init)) rs = SR_LOCKLOST ;
 	}
 	return (rs >= 0) ? f : rs ;
 }
