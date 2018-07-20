@@ -1,6 +1,6 @@
 /* uc_atfork */
 
-/* an enhanced UNIX®-like 'pthread_atfork(3pthread)' subroutine */
+/* an enhanced UNIXÂ®-like 'pthread_atfork(3pthread)' subroutine */
 
 
 #define	CF_DEBUGN	0		/* special compile-time debugging */
@@ -9,7 +9,7 @@
 
 /* revision history:
 
-	= 2014-05-09, David A­D­ Morano
+	= 2014-05-09, David AÂ­DÂ­ Morano
 	This is being written to add an "unregister" feature to the 'atfork'
 	capability that came with POSIX threads.  In the past we always had
 	pure reentrant subroutines without hidden locks associated with them.
@@ -21,7 +21,7 @@
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -159,11 +159,10 @@ int ucatfork_init()
 	    if (rs < 0)
 	        udp->f_init = FALSE ;
 	} else {
-	    while ((rs >= 0) && udp->f_init && (! udp->f_initdone)) {
+	    while ((rs >= 0) && (! udp->f_initdone)) {
 		rs = msleep(1) ;
 		if (rs == SR_INTR) break ;
 	    }
-	    if ((rs >= 0) && (! udp->f_init)) rs = SR_LOCKLOST ;
 	}
 #if	CF_DEBUGINIT
 	nprintf(NDF,"ucatfork_init: ret rs=%d f=%u\n",rs,f) ;
