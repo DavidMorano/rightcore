@@ -1,6 +1,6 @@
 /* getrandom */
 
-/* Get-Random-data UNIX® System interposer */
+/* Get-Random-data UNIXÂ® System interposer */
 
 
 #define	CF_DEBUGN	0		/* special debugging */
@@ -8,20 +8,20 @@
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
+	= 2000-05-14, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2000 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
         This is a version of |getrandom(2)| that is preloaded to over-ride the
-        standard UNIX® system version.
+        standard UNIXÂ® system version.
 
 	Q. Is this multi-thread safe?
-	A. Since it is a knock-off of an existing UNIX® system LIBC (3c)
+	A. Since it is a knock-off of an existing UNIXÂ® system LIBC (3c)
 	   subroutine that is already multi-thread safe -- then of course
 	   it is!
 
@@ -192,11 +192,10 @@ int getrandom_init()
 	    if (rs < 0)
 	        uip->f_init = FALSE ;
 	} else {
-	    while ((rs >= 0) && uip->f_init && (! uip->f_initdone)) {
+	    while ((rs >= 0) && (! uip->f_initdone)) {
 		rs = msleep(1) ;
 		if (rs == SR_INTR) break ;
 	    }
-	    if ((rs >= 0) && (! uip->f_init)) rs = SR_LOCKLOST ;
 	}
 	return (rs >= 0) ? f : rs ;
 }
