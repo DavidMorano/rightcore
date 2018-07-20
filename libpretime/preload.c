@@ -9,12 +9,12 @@
 
 /* revision history:
 
-	= 2004-11-22, David A­D­ Morano
+	= 2004-11-22, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -149,10 +149,9 @@ int preload_init()
 	    if (rs < 0)
 	        uip->f_init = FALSE ;
 	} else {
-	    while ((rs >= 0) && uip->f_init && (! uip->f_initdone)) {
+	    while ((rs >= 0) && (! uip->f_initdone)) {
 		rs = msleep(1) ;
 	    }
-	    if ((rs >= 0) && (! uip->f_init)) rs = SR_LOCKLOST ;
 	}
 	return rs ;
 }
