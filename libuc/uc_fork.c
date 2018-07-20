@@ -1,22 +1,22 @@
 /* uc_fork */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 /* special handling for 'fork(2)' */
 
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
+	= 2000-05-14, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2000 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
         These are fake subroutines waiting for the day that some bright-ass
-        UNIX® guru-ass-hole guy invents them!
+        UNIXÂ® guru-ass-hole guy invents them!
 
 
 *******************************************************************************/
@@ -81,11 +81,10 @@ int ucfork_init()
 	    if (rs < 0)
 	        uip->f_init = FALSE ;
 	} else {
-	    while ((rs >= 0) && uip->f_init && (! uip->f_initdone)) {
+	    while ((rs >= 0) && (! uip->f_initdone)) {
 		rs = msleep(1) ;
 		if (rs == SR_INTR) break ;
 	    }
-	    if ((rs >= 0) && (! uip->f_init)) rs = SR_LOCKLOST ;
 	}
 	return (rs >= 0) ? f : rs ;
 }
