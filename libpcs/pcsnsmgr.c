@@ -8,12 +8,12 @@
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
+	= 2000-05-14, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2000 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -26,7 +26,7 @@
 	multi-thread-safe?
 	A. What do you think?
 
-	Q. Why cannot we just use a POSIX® mutex-lock around the guts of the
+	Q. Why cannot we just use a POSIXÂ® mutex-lock around the guts of the
 	public subroutines?
 	A. Because those "guts" might do some complex operating-system-like
 	things that would lead to a deadlock (because perhaps there is a
@@ -142,11 +142,10 @@ int pcsnsmgr_init()
 	    if (rs < 0)
 	        uip->f_init = FALSE ;
 	} else {
-	    while ((rs >= 0) && uip->f_init && (! uip->f_initdone)) {
+	    while ((rs >= 0) && (! uip->f_initdone)) {
 		rs = msleep(1) ;
 		if (rs == SR_INTR) rs = SR_OK ;
 	    }
-	    if ((rs >= 0) && (! uip->f_init)) rs = SR_LOCKLOST ;
 	}
 	return (rs >= 0) ? f : rs ;
 }
