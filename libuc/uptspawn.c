@@ -1,6 +1,6 @@
 /* uptspawn */
 
-/* UNIX® POSIX Thread manipulation */
+/* UNIXÂ® POSIX Thread manipulation */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -8,18 +8,18 @@
 
 /* revision history:
 
-	= 1998-08-20, David A­D­ Morano
+	= 1998-08-20, David AÂ­DÂ­ Morano
         This is a complete rewrite of the trash that performed this function
         previously.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
         This module is an extension of the UPT (UNIX POSIX thread) code 
-	modulep.  This modeule contains the subroutine |utpspawn()|.
+	module.  This module contains the subroutine |utpspawn()|.
 
 	Name:
 
