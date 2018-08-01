@@ -1,4 +1,4 @@
-/* basallbase */
+/* checkbase */
 
 /* test whether a string is composed of all characters of a given base */
 /* last modified %G% version %I% */
@@ -9,19 +9,19 @@
 
 /* revision history:
 
-	= 1998-11-01, David A­D­ Morano
+	= 1998-11-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
 	Description:
 
         This subroutine is mostly used as a utility function to determine
-        (verify) that all of the characters in a counted string are consistent
+        (verify) that all of the characters in a counted string are valid
         to be be used as digits within the supplied numeric base.
 
 	Synopsis:
