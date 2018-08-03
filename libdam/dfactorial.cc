@@ -8,12 +8,12 @@
 
 /* revision history:
 
-	= 2004-10-09, David A­D­ Morano
+	= 2004-10-09, David AÂ­DÂ­ Morano
 	This was originally written.
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -29,7 +29,7 @@
 
 	Returns:
 
-	-	the Fibonacci number of the input
+	-	the factorial number of the input
 
 
 	Notes:
@@ -40,11 +40,6 @@
 	{
 	    return (n * dfactorial(n-1)) ;
 	}
-
-        Note that when putting the result into a 32-bit unsigned integer (which
-        is what we are doing here) the largest valued input (domain) of the
-        Factorial function that can be represented in the result is 12. An input
-        value of 13 overflows the 32-bit unsigned integer result. 
 
 	Floating-point:
 
