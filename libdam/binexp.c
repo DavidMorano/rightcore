@@ -9,12 +9,12 @@
 
 /* revision history:
 
-	= 2004-10-09, David A­D­ Morano
+	= 2004-10-09, David AÂ­DÂ­ Morano
 	This was originally written.
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -22,11 +22,12 @@
 
 	Synopsis:
 
-	double binexp(int n)
+	double binexp(double x,int n)
 
 	Arguments:
 
-	n	number to calculate the binary-exponetial for
+	x	number to calculate the binary-exponetial for
+	n	the exponent to be used
 
 	Returns:
 
@@ -65,7 +66,7 @@ double binexp(double x,int n)
 		v = x ;
 	    } else {
 		double t = (binexp(x,(n/2))*2.0) ;
-		v = (n&1) ? v = t : (x*t) ;
+		v = (n&1) ? t : (x*t) ;
 	    }
 	}
 	return v ;
