@@ -10,12 +10,12 @@
 
 /* revision history:
 
-	= 1983-03-07, David A­D­ Morano
+	= 1983-03-07, David AÂ­DÂ­ Morano
 	This subroutine was written for PPI development.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -24,12 +24,12 @@
         besides that it tries to be as simple as possible, so that it depends on
         as little other stuff as possible.
 
-	Notes about recent UNIX® deficiencies:
+	Notes about recent UNIXÂ® deficiencies:
 
-        On most more recent UNIXi® systems, writes (even |write(2)| writes) are
+        On most more recent UNIXiÂ® systems, writes (even |write(2)| writes) are
         not atomic when the file descriptor is in APPEND mode. This stupid
-        behavior that came about with more recent versions of UNIX®, like
-        F*ckSolaris® for example. This tupid behavior was first notices (long
+        behavior came about with more recent versions of UNIXÂ®, like
+        F*ckSolarisÂ® for example. This stupid behavior was first noticed (long
         ago) when writes in APPEND mode were made to files located on Network
         File System (NFS) mounted file-systems. But since those early days, this
         behavior has somehow spread to even mess up when writing to files on
@@ -45,19 +45,19 @@
         completely multi-thread-safe already?!
 
         A. We need a mutex-lock around the |write(2)| call because that call is
-        not atomic on most UNIX®i®! Specifically, the implementation does not
+        not atomic on most UNIXÂ®iÂ®! Specifically, the implementation does not
         update the file-pointer atomically along with the associated write of
-        data to the file. Yes, Virginia, many UNIX®i® are actually quite messed
+        data to the file. Yes, Virginia, many UNIXÂ®iÂ® are actually quite messed
         up when it comes to multi-thread-safety! We fix the flaws in most all
-        OSes (all OSes at this time are indeed flawed; Solaris® is aware of the
+        OSes (all OSes at this time are indeed flawed; SolarisÂ® is aware of the
         problem and may or may not fix their implementation) by using our own
         mutex-lock around the |write(2)| call.
 
-        Q. Why are all UNIXi® that exist in the world right now not
+        Q. Why are all UNIXiÂ® that exist in the world right now not
         multi-thread-safe with their own OS system calls?
 
         A. Your guess is as good as mine, but the short answer is that I did not
-        write the code for the various UNIX®i® in the world -- even though I
+        write the code for the various UNIXÂ®iÂ® in the world -- even though I
         should have! It really does seem that if I did not write a certain piece
         of code, that code is likely buggy -- regardless of how many people have
         already suffered due to those bugs.
@@ -210,6 +210,7 @@ int debugprint_init()
 	} else {
 	    while ((rs >= 0) && uip->f_init && (! uip->f_initdone)) {
 	        rs = msleep(1) ;
+		if (rs == SR_INTR) rs = SR_OK ;
 	    }
 	    if ((rs >= 0) && (! uip->f_init)) rs = SR_LOCKLOST ;
 	}
@@ -562,8 +563,9 @@ int debugprinter(cchar *sbuf,int slen)
 		    abuf = NULL ;
 		}
 	    } /* end if (memory-allocation) */
-	} else
+	} else {
 	    slen += 1 ;
+	}
 
 /* write the line-buffer out */
 
@@ -612,8 +614,9 @@ int debugprinter(cchar *sbuf,int slen)
 		slen = rs ;
 		abuf[slen++] = '\n' ;
 	    }
-	} else
+	} else {
 	    slen += 1 ;
+	}
 
 /* write the line-buffer out */
 
@@ -660,8 +663,9 @@ int debugprinter(cchar *sbuf,int slen)
 		    slen = rs ;
 		    abuf[slen++] = '\n' ;
 	        }
-	    } else
+	    } else {
 	        slen += 1 ;
+	    }
 
 /* write the line-buffer out */
 
@@ -769,9 +773,9 @@ static int snwcpyprintclean(char *dbuf,int dlen,cchar *sp,int sl)
 	    ch = MKCHAR(*sp) ;
 	    if (isprintbad(ch)) {
 	        if (ch == '\n') {
-		    ch = '¬' ;
+		    ch = 'Â¬' ;
 	        } else {
-		    ch = '¿' ;
+		    ch = 'Â¿' ;
 		}
 	    }
 	    dbuf[dl++] = (char) ch ;
