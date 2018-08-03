@@ -198,10 +198,11 @@ int uclustername_init()
 	    if (rs < 0)
 	        uip->f_init = FALSE ;
 	} else {
-	    while ((rs >= 0) && (! uip->f_initdone)) {
-		rs = msleep(1) ;
-		if (rs == SR_INTR) break ;
+	    while ((rs >= 0) && uip->f_init && (! uip->f_initdone)) {
+	        rs = msleep(1) ;
+	        if (rs == SR_INTR) rs = SR_OK ;
 	    }
+	    if ((rs >= 0) && (! uip->f_init)) rs = SR_LOCKLOST ;
 	}
 	return (rs >= 0) ? f : rs ;
 }
