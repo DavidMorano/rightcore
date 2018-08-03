@@ -18,12 +18,12 @@
 
 /* revision history:
 
-	= 2001-11-01, David A­D­ Morano
+	= 2001-11-01, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2001 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2001 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -42,7 +42,7 @@
         management facility to implement a MUTEX lock around its operations.
         This helps guard against a failure if the KSH-native version of the
         normal memory management subroutines are somehow linked in (loaded)
-        rather than the standard default UNIX® system subroutines.
+        rather than the standard default UNIXÂ® system subroutines.
 
 	Synopsis:
 
@@ -123,7 +123,7 @@
         infinite (short-sighted) wisdom of the creators of the builtin command
         interface, it was neglected to provide the capability to pass an
         arbitrary environment (like what is possible -- but not often used) with
-        regular UNIX® process calls (using 'exec(2)' and friends). Without this
+        regular UNIXÂ® process calls (using 'exec(2)' and friends). Without this
         subroutine, and having to call the command function directory, there is
         no way to pass or to create a unique environment for the function since
         it is forced to simply inherit the environment of the caller.
@@ -583,7 +583,7 @@ void lib_init(int flags,void *cxp)
 	    const pid_t	pid = getpid() ;
 	    void 	*p = dlsym(RTLD_DEFAULT,"environ") ;
 	    nprintf(NDF,"lib_init: ent pid=%u\n",pid) ;
-	    nprintf(NDF,"lib_init: flags=%16ß (%u)\n",flags,flags) ;
+	    nprintf(NDF,"lib_init: flags=%16ÃŸ (%u)\n",flags,flags) ;
 	    if (p != NULL) {
 	        cchar	***evp = (cchar ***) p ;
 	        cchar	**ev ;
@@ -1299,7 +1299,11 @@ static int kshlib_init(void)
 	    if (rs < 0)
 	        uip->f_init = FALSE ;
 	} else {
-	    while (! uip->f_initdone) msleep(1) ;
+	    while ((rs >= 0) && uip->f_init && (! uip->f_initdone)) {
+	        rs = msleep(1) ;
+	        if (rs == SR_INTR) rs = SR_OK ;
+	    }
+	    if ((rs >= 0) && (! uip->f_init)) rs = SR_LOCKLOST ;
 	}
 #if	CF_DEBUGN
 	nprintf(NDF,"kshlib_init: ret rs=%d\n",rs) ;
@@ -1999,7 +2003,7 @@ static int kshlib_reqclose(KSHLIB *uip)
 	    }
 	    if (uip->reqfname != NULL) {
 #if	CF_DEBUGN
-	        nprintf(NDF,"kshlib_reqclose: reqfname{%p}=¿\n",uip->reqfname) ;
+	        nprintf(NDF,"kshlib_reqclose: reqfname{%p}=Â¿\n",uip->reqfname) ;
 	        nprintf(NDF,"kshlib_reqclose: reqfname=%s\n",uip->reqfname) ;
 #endif
 	        if (uip->reqfname[0] != '\0') {
@@ -2610,7 +2614,7 @@ static int ndebugenv(cchar *s,cchar *ev[])
 	        cchar	*dfn = NDF ;
 		cchar	*ep ;
 	        cchar	*fmt = "%s: e%03u=>%t<\n" ;
-	        nprintf(dfn,"%s: env¬\n", s) ;
+	        nprintf(dfn,"%s: envÂ¬\n", s) ;
 	        for (i = 0 ; ev[i] != NULL ; i += 1) {
 	            ep = ev[i] ;
 	            nprintf(dfn,fmt,s,i,ep,strlinelen(ep,-1,50)) ;
