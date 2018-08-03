@@ -6,12 +6,12 @@
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
+	= 2000-05-14, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2000 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -51,7 +51,8 @@
 
 	+ Note on locking:
 
-	There is no problem using (for example) |uc_lockf(3uc)| for establishing	the lock on the file.  The problem comes in with the associated un-lock
+	There is no problem using (for example) |uc_lockf(3uc)| for establishing	
+	the lock on the file.  The problem comes in with the associated un-lock
         component. Since the file advances the file-pointer (file-offset) value,
         the assocated un-lock does not unlock the proper file section, but
         rather a section beyong what was written. So we use |uc_lockfile(3uc)|
