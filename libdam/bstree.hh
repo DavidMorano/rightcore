@@ -141,7 +141,7 @@ class bstree_iter {
 	typedef bstree_iter	bit ;
 public:
 	bstree_iter() { } ;
-	bstree_iter(bstree_node<T,Comp>* an) : n(an) { } ;
+	bstree_iter(bstree_node<T,Comp> *an) : n(an) { } ;
 	bstree_iter(const bstree_iter<T,Comp> &it) {
 	    if (this != &it) {
 	        n = it.n ;
