@@ -9,15 +9,15 @@
 
 /* revision history:
 
-	= 1998-02-01, David A­D­ Morano
+	= 1998-02-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
-	= 2018-03-13, David A­D­ Morano
-	I prefixed the exported symbos w/ 'calstrs_'.
+	= 2018-03-13, David AÂ­DÂ­ Morano
+	I prefixed the exported symbols w/ 'calstrs_'.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
