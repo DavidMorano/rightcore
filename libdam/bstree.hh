@@ -173,14 +173,14 @@ public:
 	    return (*this) ;
 	} ;
 	bstree_iter<T,Comp> &operator = (const bstree_node<T,Comp> *nn) {
-	    n = nn ;
+	    n = nn ; /* possible NULL */
 	    return (*this) ;
 	} ;
 	~bstree_iter() {
 	    n = NULL ;
 	} ;
 	void setnode(bstree_node<T,Comp> *nn) {
-	    n = nn ;
+	    n = nn ; /* possible NULL */
 	} ;
 	T &operator * () const {
 	    T &rv = defval ;
@@ -192,7 +192,7 @@ public:
 	bstree_iter<T,Comp> &operator ++ () { /* pre-increment */
 	    return findnext(1) ;
 	} ;
-	bstree_iter<T,Comp>  &operator ++ (int) { /* post-increment */
+	bstree_iter<T,Comp> operator ++ (int) { /* post-increment (returns PRVALUE) */
 	    return findnext(1) ;
 	} ;
 	bstree_iter<T,Comp> &operator += (int inc) {
