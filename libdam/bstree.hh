@@ -192,8 +192,14 @@ public:
 	bstree_iter<T,Comp> &operator ++ () { /* pre-increment */
 	    return findnext(1) ;
 	} ;
-	bstree_iter<T,Comp> operator ++ (int) { /* post-increment (returns PRVALUE) */
-	    return findnext(1) ;
+	bstree_iter<T,Comp> operator ++ (int inc) { /* post-increment */
+	    btree_iter<T.Comp>	tmp = *this ;
+	    if (inc > 0) {
+	        findnext(inc) ;
+	    } else {
+	        findnext(1) ;
+	    }
+	    return tmp ; /* returns previous PRVALUE */
 	} ;
 	bstree_iter<T,Comp> &operator += (int inc) {
 	    return findnext(inc) ;
@@ -232,11 +238,11 @@ bstree_iter<T,Comp> &bstree_iter<T,Comp>::findnext(int inc) {
         	    }
      	        } else {
 		    bstree_node<T,Comp> *p = n->parent ;
-       		    while ((p != NULL) && (n == p->right)) {
+		    while ((p != NULL) && (n == p->right)) {
            	        n = p ;
            	        p = p->parent;
          	    }
-       		    n = p ;
+		    n = p ;
 		}
 	    } /* end if (inc) */
         } /* end if (not-NULL) */
