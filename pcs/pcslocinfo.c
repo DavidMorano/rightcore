@@ -13,13 +13,13 @@
 
 /* revision history:
 
-	= 2011-01-25, David A­D­ Morano
+	= 2011-01-25, David AÂ­DÂ­ Morano
         I had to separate this code due to AST-code conflicts over the system
         socket structure definitions.
 
 */
 
-/* Copyright © 2011 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2011 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -543,18 +543,20 @@ int locinfo_rootids(LOCINFO *lip)
 
 	if (lip->gid_rootname < 0) {
 	    if ((rs = proginfo_rootname(pip)) >= 0) {
-	        struct passwd	pw ;
-	        const int	pwlen = getbufsize(getbufsize_pw) ;
-	        char		*pwbuf ;
-		if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-		    cchar	*rn = pip->rootname ;
-	            if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,rn)) >= 0) {
-			lip->uid_rootname = pw.pw_uid ;
-			lip->gid_rootname = pw.pw_gid ;
-	            } /* end if (getpw_name) */
-		    rs1 = uc_free(pwbuf) ;
-		    if (rs >= 0) rs = rs1 ;
-	        } /* end if (ma-a) */
+		if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	            struct passwd   pw ;
+	            const int	    pwlen = rs ;
+	            char	    *pwbuf ;
+		    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+		        cchar	*rn = pip->rootname ;
+	                if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,rn)) >= 0) {
+			    lip->uid_rootname = pw.pw_uid ;
+			    lip->gid_rootname = pw.pw_gid ;
+	                } /* end if (getpw_name) */
+		        rs1 = uc_free(pwbuf) ;
+		        if (rs >= 0) rs = rs1 ;
+	            } /* end if (ma-a) */
+		} /* end if (fetbufsize) */
 	    } /* end if (rootname) */
 	} /* end if (needed) */
 
@@ -724,7 +726,7 @@ int locinfo_reqexit(LOCINFO *lip,cchar *reason)
 {
 	PROGINFO	*pip = lip->pip ;
 	int		rs ;
-	cchar		*fmt = "reqexit · reason=%s" ;
+	cchar		*fmt = "reqexit Â· reason=%s" ;
 	if (reason == NULL) reason = "" ;
 	rs = logprintf(pip,fmt,reason) ;
 	lip->f.reqexit = TRUE ;
