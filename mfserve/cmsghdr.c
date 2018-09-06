@@ -1,6 +1,6 @@
 /* cmsghdr */
 
-/* Conrol-Message-Header methods */
+/* Control-Message-Header methods */
 /* last modified %G% version %I% */
 
 
@@ -9,12 +9,12 @@
 
 /* revision history:
 
-	= 2004-05-14, David A­D­ Morano
+	= 2004-05-14, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
