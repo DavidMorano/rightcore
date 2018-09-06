@@ -13,16 +13,16 @@
 
 /* revision history:
 
-	= 2011-01-25, David A­D­ Morano
+	= 2011-01-25, David AÂ­DÂ­ Morano
         I had to separate this code due to AST-code conflicts over the system
         socket structure definitions.
 
-	= 2017-08-10, David A­D­ Morano
+	= 2017-08-10, David AÂ­DÂ­ Morano
 	This subroutine was borrowed to code MFSERVE.
 
 */
 
-/* Copyright © 2011,2017 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2011,2017 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -735,27 +735,29 @@ int locinfo_rootids(LOCINFO *lip)
 
 	if (lip->gid_rootname < 0) {
 	    if ((rs = proginfo_rootname(pip)) >= 0) {
-	        struct passwd	pw ;
-	        const int	pwlen = getbufsize(getbufsize_pw) ;
-	        char		*pwbuf ;
-	        if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	            cchar	*rn = pip->rootname ;
-#if	CF_DEBUG
-	            if (DEBUGLEVEL(4))
-	                debugprintf("locinfo_rootids: rn=%s\n",rn) ;
-#endif
-	            if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,rn)) >= 0) {
-	                lip->uid_rootname = pw.pw_uid ;
-	                lip->gid_rootname = pw.pw_gid ;
+		if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	            struct passwd	pw ;
+	            const int		pwlen = rs ;
+	            char		*pwbuf ;
+	            if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	                cchar	*rn = pip->rootname ;
 #if	CF_DEBUG
 	                if (DEBUGLEVEL(4))
-	                    debugprintf("locinfo_rootids: u=%d g=%d\n",
-	                        pw.pw_uid,pw.pw_gid) ;
+	                    debugprintf("locinfo_rootids: rn=%s\n",rn) ;
 #endif
-	            } /* end if (getpw_name) */
-	            rs1 = uc_free(pwbuf) ;
-	            if (rs >= 0) rs = rs1 ;
-	        } /* end if (ma-a) */
+	                if ((rs = GETPW_NAME(&pw,pwbuf,pwlen,rn)) >= 0) {
+	                    lip->uid_rootname = pw.pw_uid ;
+	                    lip->gid_rootname = pw.pw_gid ;
+#if	CF_DEBUG
+	                    if (DEBUGLEVEL(4))
+	                        debugprintf("locinfo_rootids: u=%d g=%d\n",
+	                            pw.pw_uid,pw.pw_gid) ;
+#endif
+	                } /* end if (getpw_name) */
+	                rs1 = uc_free(pwbuf) ;
+	                if (rs >= 0) rs = rs1 ;
+	            } /* end if (ma-a) */
+		} /* end if (getbufsize) */
 	    } /* end if (rootname) */
 	} /* end if (needed) */
 
@@ -916,7 +918,7 @@ int locinfo_reqexit(LOCINFO *lip,cchar *reason)
 {
 	PROGINFO	*pip = lip->pip ;
 	int		rs ;
-	cchar		*fmt = "reqexit · reason=%s" ;
+	cchar		*fmt = "reqexit Â· reason=%s" ;
 	if (reason == NULL) reason = "" ;
 	rs = logprintf(pip,fmt,reason) ;
 	lip->f.reqexit = TRUE ;
@@ -1247,10 +1249,8 @@ static int locinfo_cookload(LOCINFO *lip)
 	int		ci ;
 	int		vl ;
 	cchar		*vp ;
-	char		tbuf[USERNAMELEN+1] = { 
-	    0 	} ;
-	char		nbuf[USERNAMELEN+1] = { 
-	    0 	} ;
+	char		tbuf[USERNAMELEN+1] = { 0 } ;
+	char		nbuf[USERNAMELEN+1] = { 0 } ;
 
 #if	CF_DEBUG
 	if (DEBUGLEVEL(4))
@@ -1467,8 +1467,7 @@ static int locinfo_svload(LOCINFO *lip)
 	int		vl ;
 	cchar		keys[] = "pen" ;
 	cchar		*vp ;
-	char		ks[2] = { 
-	    0, 0 	} ;
+	char		ks[2] = { 0, 0 } ;
 	for (i = 0 ; keys[i] != '\0' ; i += 1) {
 	    const int	kch = MKCHAR(keys[i]) ;
 	    vp = NULL ;
