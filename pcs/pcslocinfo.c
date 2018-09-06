@@ -556,7 +556,7 @@ int locinfo_rootids(LOCINFO *lip)
 		        rs1 = uc_free(pwbuf) ;
 		        if (rs >= 0) rs = rs1 ;
 	            } /* end if (ma-a) */
-		} /* end if (fetbufsize) */
+		} /* end if (getbufsize) */
 	    } /* end if (rootname) */
 	} /* end if (needed) */
 
@@ -585,15 +585,17 @@ int locinfo_nsbegin(LOCINFO *lip)
 	    if ((rs = pcsns_open(nop,pr)) >= 0) {
 	        const int	no = PCSNS_ONOSERV ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("locinfo_nsbegin: pcsns_open() rs=%d\n",rs) ;
+	        if (DEBUGLEVEL(4))
+	            debugprintf("locinfo_nsbegin: pcsns_open() rs=%d\n",
+				rs) ;
 #endif
 		if ((rs = pcsns_setopts(nop,no)) >= 0) {
 		    lip->open.ns = TRUE ;
 		}
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	    debugprintf("locinfo_nsbegin: pcsns_setopts() rs=%d\n",rs) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("locinfo_nsbegin: pcsns_setopts() rs=%d\n",
+			    rs) ;
 #endif
 		if (rs < 0) {
 		    lip->open.ns = FALSE ;
@@ -639,8 +641,8 @@ int locinfo_nslook(LOCINFO *lip,char *rbuf,int rlen,cchar *un,int w)
 	    PCSNS	*nop = &lip->ns ;
 	    rs = pcsns_get(nop,rbuf,rlen,un,w) ;
 #if	CF_DEBUG
-	if (DEBUGLEVEL(4))
-	debugprintf("locinfo_nslook: pcsns_get() rs=%d\n",rs) ;
+	    if (DEBUGLEVEL(4))
+	        debugprintf("locinfo_nslook: pcsns_get() rs=%d\n",rs) ;
 #endif
 	}
 #if	CF_DEBUG
