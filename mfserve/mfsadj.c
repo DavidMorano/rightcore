@@ -161,7 +161,7 @@ static int	mfsadj_getval(PROGINFO *,MSGDATA *) ;
 static int	mfsadj_mark(PROGINFO *,MSGDATA *) ;
 static int	mfsadj_exit(PROGINFO *,MSGDATA *) ;
 
-static int	mfsadj_send(PROGINFO *,MSGDATA *,uint) ;
+static int	mfsadj_send(PROGINFO *,MSGDATA *,int,uint) ;
 static int	mfsadj_invalid(PROGINFO *,MSGDATA *,int,int) ;
 
 
@@ -428,7 +428,7 @@ static int mfsadj_reqmsg(PROGINFO *pip,int re)
 	if ((rs = msgdata_getbuf(mdp,&mbuf)) >= 0) {
 	    if ((rs = msgdata_recv(mdp,lip->rfd)) > 0) {
 	        if ((rs = msgdata_conpass(mdp,FALSE)) >= 0) {
-	                int		mtype = MKCHAR(mbuf[0]) ;
+	                int	mtype = MKCHAR(mbuf[0]) ;
 	                lip->ti_lastreq = pip->daytime ;
 #if	CF_DEBUG
 	                if (DEBUGLEVEL(4))
@@ -493,7 +493,7 @@ static int mfsadj_getstatus(PROGINFO *pip,MSGDATA *mdp)
 	            m0.queries = nreqs ;
 	            m0.rc = mfsmsgrc_ok ;
 	            if ((rs = mfsmsg_status(&m0,0,mdp->mbuf,mdp->mlen)) >= 0) {
-	                rs = mfsadj_send(pip,mdp,m0.tag) ;
+	                rs = mfsadj_send(pip,mdp,rs,m0.tag) ;
 	            } /* end if */
 		} /* end if (locinfo_getreqs) */
 	    } else if (isBadMsg(rs)) {
@@ -540,7 +540,7 @@ static int mfsadj_gethelp(PROGINFO *pip,MSGDATA *mdp)
 	        const int	mlen = mdp->mlen ;
 	        char		*mbuf = mdp->mbuf ;
 	        if ((rs = mfsmsg_help(&mres,0,mbuf,mlen)) >= 0) {
-	            rs = mfsadj_send(pip,mdp,mreq.tag) ;
+	            rs = mfsadj_send(pip,mdp,rs,mreq.tag) ;
 	        } /* end if */
 	    } /* end if (ok) */
 	} else if (isBadMsg(rs)) {
@@ -591,7 +591,7 @@ static int mfsadj_getlistener(PROGINFO *pip,MSGDATA *mdp)
 	        const int	mlen = mdp->mlen ;
 	        char		*mbuf = mdp->mbuf ;
 	        if ((rs = mfsmsg_listener(&mres,0,mbuf,mlen)) >= 0) {
-	            rs = mfsadj_send(pip,mdp,mreq.tag) ;
+	            rs = mfsadj_send(pip,mdp,rs,mreq.tag) ;
 	        } /* end if */
 	    } /* end if (ok) */
 	} else if (isBadMsg(rs)) {
@@ -652,7 +652,7 @@ static int mfsadj_getval(PROGINFO *pip,MSGDATA *mdp)
 	        char		*mbuf = mdp->mbuf ;
 	        if ((rs = mfsmsg_val(&mres,0,mbuf,mlen)) >= 0) {
 	            char	tbuf[TIMEBUFLEN+1] ;
-	            rs = mfsadj_send(pip,mdp,mreq.tag) ;
+	            rs = mfsadj_send(pip,mdp,rs,mreq.tag) ;
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4))
 	                debugprintf("mfsadj_getval: mfsadj_send() rs=%d\n",rs) ;
@@ -695,7 +695,7 @@ static int mfsadj_mark(PROGINFO *pip,MSGDATA *mdp)
 	    mres.tag = mreq.tag ;
 	    mres.rc = 0 ;
 	    if ((rs = mfsmsg_ack(&mres,0,mdp->mbuf,mdp->mlen)) >= 0) {
-	        if ((rs = mfsadj_send(pip,mdp,mreq.tag)) > 0) {
+	        if ((rs = mfsadj_send(pip,mdp,rs,mreq.tag)) > 0) {
 	            LOCINFO		*lip = pip->lip ;
 	            const time_t	dt = pip->daytime ;
 	            long 		lw = 0 ;
@@ -731,7 +731,7 @@ static int mfsadj_exit(PROGINFO *pip,MSGDATA *mdp)
 	    mres.tag = mreq.tag ;
 	    mres.rc = 0 ;
 	    if ((rs = mfsmsg_ack(&mres,0,mdp->mbuf,mdp->mlen)) >= 0) {
-	        if ((rs = mfsadj_send(pip,mdp,mreq.tag)) > 0) {
+	        if ((rs = mfsadj_send(pip,mdp,rs,mreq.tag)) > 0) {
 	            LOCINFO	*lip = pip->lip ;
 	            rs = locinfo_reqexit(lip,mreq.reason) ;
 	        }
@@ -759,7 +759,7 @@ static int mfsadj_invalid(PROGINFO *pip,MSGDATA *mdp,int mrs,int f)
 	mres.rc = ((f) ? mfsmsgrc_invalid : mfsmsgrc_badfmt) ;
 
 	if ((rs = mfsmsg_status(&mres,0,mdp->mbuf,mdp->mlen)) >= 0) {
-	    rs = mfsadj_send(pip,mdp,mres.tag) ;
+	    rs = mfsadj_send(pip,mdp,rs,mres.tag) ;
 	} /* end if */
 
 	return rs ;
@@ -767,13 +767,12 @@ static int mfsadj_invalid(PROGINFO *pip,MSGDATA *mdp,int mrs,int f)
 /* end subroutine (mfsadj_invalid) */
 
 
-static int mfsadj_send(PROGINFO *pip,MSGDATA *mdp,uint tag)
+static int mfsadj_send(PROGINFO *pip,MSGDATA *mdp,int dl,uint tag)
 {
 	LOCINFO		*lip = pip->lip ;
-	MSGHDR		*mhp = &mdp->msg ;
 	int		rs ;
 	int		len = 0 ;
-	if ((rs = u_sendmsg(lip->rfd,mhp,0)) >= 0) {
+	if ((rs = msgdata_send(mdp,lip->rfd,dl,0)) >= 0) {
 	    len = rs ;
 	} else if (isBadSend(rs)) {
 	    logprintf(pip,"send failure t=%08x (%d)",tag,rs) ;
