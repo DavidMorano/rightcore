@@ -10,17 +10,17 @@
 
 /* revision history:
 
-	= 2004-05-14, David A­D­ Morano
+	= 2004-05-14, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
-	= 2005-01-25, David A­D­ Morano
+	= 2005-01-25, David AÂ­DÂ­ Morano
 	This code was separated out from the main code (in 'pcsmain.c') due to
 	conflicts over including different versions of the system socket
 	structures.
 
 */
 
-/* Copyright © 2004,2005 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004,2005 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -163,7 +163,7 @@ static int	pcsadj_getval(PROGINFO *,MSGDATA *) ;
 static int	pcsadj_mark(PROGINFO *,MSGDATA *) ;
 static int	pcsadj_exit(PROGINFO *,MSGDATA *) ;
 
-static int	pcsadj_send(PROGINFO *,MSGDATA *,uint) ;
+static int	pcsadj_send(PROGINFO *,MSGDATA *,int,uint) ;
 static int	pcsadj_invalid(PROGINFO *,MSGDATA *,int,int) ;
 
 
@@ -461,7 +461,7 @@ static int pcsadj_getstatus(PROGINFO *pip,MSGDATA *mdp)
 	        m0.queries = nreqs ;
 	        m0.rc = pcsmsgrc_ok ;
 	        if ((rs = pcsmsg_status(&m0,0,mdp->mbuf,mdp->mlen)) >= 0) {
-	            rs = pcsadj_send(pip,mdp,m0.tag) ;
+	            rs = pcsadj_send(pip,mdp,rs,m0.tag) ;
 	        } /* end if */
 	    } /* end if (locinfo_getreqs) */
 	} else if (isBadMsg(rs)) {
@@ -507,7 +507,7 @@ static int pcsadj_gethelp(PROGINFO *pip,MSGDATA *mdp)
 	        const int	mlen = mdp->mlen ;
 	        char		*mbuf = mdp->mbuf ;
 	        if ((rs = pcsmsg_help(&mres,0,mbuf,mlen)) >= 0) {
-	            rs = pcsadj_send(pip,mdp,mreq.tag) ;
+	            rs = pcsadj_send(pip,mdp,rs,mreq.tag) ;
 	        } /* end if */
 	    } /* end if (ok) */
 	} else if (isBadMsg(rs)) {
@@ -568,7 +568,7 @@ static int pcsadj_getval(PROGINFO *pip,MSGDATA *mdp)
 	        char		*mbuf = mdp->mbuf ;
 	        if ((rs = pcsmsg_val(&mres,0,mbuf,mlen)) >= 0) {
 	            char	tbuf[TIMEBUFLEN+1] ;
-	            rs = pcsadj_send(pip,mdp,mreq.tag) ;
+	            rs = pcsadj_send(pip,mdp,rs,mreq.tag) ;
 #if	CF_DEBUG
 	            if (DEBUGLEVEL(4))
 	                debugprintf("pcsadj_getval: pcsadj_send() rs=%d\n",rs) ;
@@ -611,7 +611,7 @@ static int pcsadj_mark(PROGINFO *pip,MSGDATA *mdp)
 	    mres.tag = mreq.tag ;
 	    mres.rc = 0 ;
 	    if ((rs = pcsmsg_ack(&mres,0,mdp->mbuf,mdp->mlen)) >= 0) {
-	        if ((rs = pcsadj_send(pip,mdp,mreq.tag)) > 0) {
+	        if ((rs = pcsadj_send(pip,mdp,rs,mreq.tag)) > 0) {
 	            LOCINFO		*lip = pip->lip ;
 	            const time_t	dt = pip->daytime ;
 	            long 		lw = 0 ;
@@ -645,7 +645,7 @@ static int pcsadj_exit(PROGINFO *pip,MSGDATA *mdp)
 	    mres.tag = mreq.tag ;
 	    mres.rc = 0 ;
 	    if ((rs = pcsmsg_ack(&mres,0,mdp->mbuf,mdp->mlen)) >= 0) {
-	        if ((rs = pcsadj_send(pip,mdp,mreq.tag)) > 0) {
+	        if ((rs = pcsadj_send(pip,mdp,rs,mreq.tag)) > 0) {
 	            LOCINFO	*lip = pip->lip ;
 	            rs = locinfo_reqexit(lip,mreq.reason) ;
 	        }
@@ -673,7 +673,7 @@ static int pcsadj_invalid(PROGINFO *pip,MSGDATA *mdp,int mrs,int f)
 	mres.rc = ((f) ? pcsmsgrc_invalid : pcsmsgrc_badfmt) ;
 
 	if ((rs = pcsmsg_status(&mres,0,mdp->mbuf,mdp->mlen)) >= 0) {
-	    rs = pcsadj_send(pip,mdp,mres.tag) ;
+	    rs = pcsadj_send(pip,mdp,rs,mres.tag) ;
 	} /* end if */
 
 	return rs ;
@@ -681,18 +681,18 @@ static int pcsadj_invalid(PROGINFO *pip,MSGDATA *mdp,int mrs,int f)
 /* end subroutine (pcsadj_invalid) */
 
 
-static int pcsadj_send(PROGINFO *pip,MSGDATA *mdp,uint tag)
+static int pcsadj_send(PROGINFO *pip,MSGDATA *mdp,int dl,uint tag)
 {
 	LOCINFO		*lip = pip->lip ;
-	MSGHDR		*mhp = &mdp->msg ;
 	int		rs ;
-	if ((rs = u_sendmsg(lip->rfd,mhp,0)) >= 0) {
-	    rs = msghdr_size(mhp) ;
+	int		len = 0 ;
+	if ((rs = msghdr_send(mdp,lip->rfd,dl,0)) >= 0) {
+	    len = rs ;
 	} else if (isBadSend(rs)) {
 	    logprintf(pip,"send failure t=%08x (%d)",tag,rs) ;
 	    rs = SR_OK ;
 	}
-	return rs ;
+	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (pcsadj_send) */
 
