@@ -6,7 +6,7 @@ default) or a specified given FD to the pass file specified as the argument.
 This can replace many of the custom "pass FD programs" that are in use but not
 all of them.  Specifically, 'rxsetup(1m)' which is part of the 'rexec(1m)'
 package cannot be replaced with this since a possible error status is expected
-on the input FD if the pass operations fails.  This progam does not do anything
-with the input FD at all whether it succeeds in passing it or not.
+on the input FD if the pass operations fails.  This program does not do anything
+with the input FD at all, whether it succeeds in passing it or not.
 
 
