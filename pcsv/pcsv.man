@@ -1,7 +1,7 @@
 .\"_
 .TH PCSV 1 "1994-02-28" PCS
 .SH NAME
-pcsv \- print out the current version of the PCS mailer subsystem
+pcsv \- print out the current version of the PCS facility
 .SH SYNOPSIS
 .\"_
 .so tmac.att
@@ -11,9 +11,8 @@ pcsv \- print out the current version of the PCS mailer subsystem
 The
 ,B PCSV
 program prints to standard output the current version of the
-mailer subsystem of PCS.
-The results is a string value.
-.sp
+Personal Communication Services (PCS) facility.
+The output is a string value.
 .\"_
 .SH FILES
 .PD 0
