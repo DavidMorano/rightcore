@@ -15,7 +15,7 @@
 	pure reentrant subroutines without hidden locks associated with them.
 	But more recently we have started to dabble with hidden locks.  The
 	problem is that there is no way to put these hidden locks into a
-	library that also get unloaded (unmapped) after it is done being used.
+	library that also gets unloaded (unmapped) after it is done being used.
 	The standard 'pthread_atfork(3pthread)' does not have an "unregister"
 	feature associated with it.  This is what we are creating here.
 
