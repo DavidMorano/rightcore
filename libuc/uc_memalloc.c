@@ -486,8 +486,9 @@ int ucmallreg_enum(UCMALLREG_CUR *curp,UCMALLREG_REG *rp)
 	                    ci += 1 ;
 	                } /* end while */
 	                if (ci >= uip->regs_total) rs = SR_NOTFOUND ;
-	            } else
+	            } else {
 	                rs = SR_NOTFOUND ;
+		    }
 
 	            rs1 = ptm_unlock(&uip->m) ;
 	            if (rs >= 0) rs = rs1 ;
