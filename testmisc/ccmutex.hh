@@ -6,12 +6,12 @@
 
 /* revision history:
 
-	= 1998-12-01, David A­D­ Morano
+	= 1998-12-01, David AÂ­DÂ­ Morano
 	This subroutine was written for Rightcore Network Services.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -19,14 +19,15 @@
 
 	Q. Why do we need this?
 	A. Because the (blank...blank) C++ committee did not realize that
-	there already was a 'struct mutex' in standard UNIX® systems (as part
-	of POSIX®) and that it gets in the way of the C++ |mutex| object!
+	there already was a 'struct mutex' in standard UNIXÂ® systems (as part
+	of POSIXÂ®) and that it gets in the way of the C++ |mutex| object!
 
 
 *******************************************************************************/
 
 #include	<envstandards.h>
 #include	<sys/types.h>
+#include	<stdlib.h>
 #include	<new>
 #include	<vsystem.h>
 #include	<ptm.h>
@@ -60,11 +61,14 @@ class ccmutex {
 	PTM		m ;
 public:
 	ccmutex() {
-	    ptm_create(&m,NULL) ;
+	    int	rs ;
+	    rs = ptm_create(&m,NULL) ;
+	    if (rs < 0) abort() ;
 	} ;
 	~ccmutex() {
 	    ptm_destroy(&m) ;
 	} ;
+	ccmutex(const ccmutex &) = delete ;
 	ccmutex &operator = (const ccmutex &) = delete ;
 	int lock() {
 	    return ptm_lock(&m) ;
@@ -77,13 +81,18 @@ public:
 
 class guardmutex {
 	ccmutex		&rm ;
-	int		rs = 0 ;
+	int		rs = -1 ;
 public:
 	guardmutex(ccmutex &m) : rm(m) { 
 	    rs = rm.lock() ;
+    	    if (rs >= 0) {
+		rs = 1 ;
+	    } else {
+		abort() ;
+	    }
 	} ;
 	~guardmutex() {
-	    if (rs >= 0) {
+	    if (rs > 0) {
 	        rm.unlock() ;
 	    }
 	} ;
