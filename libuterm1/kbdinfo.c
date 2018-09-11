@@ -8,12 +8,12 @@
 
 /* revision history:
 
-	= 2009-01-20, David A­D­ Morano
+	= 2009-01-20, David AÂ­DÂ­ Morano
 	This was written from sratch.
 
 */
 
-/* Copyright © 2009 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2009 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -581,8 +581,9 @@ static int kbdinfo_kefins(KBDINFO *op)
 	int		i ;
 
 	for (i = 0 ; i < KBDINFO_TOVERLAST ; i += 1) {
-	    int	j ;
-	    for (j = 0 ; vecobj_get(&op->types[i],j,&ep) >= 0 ; j += 1) {
+	    VECOBJ	*tlp = (op->types + i) ;
+	    int		j ;
+	    for (j = 0 ; vecobj_get(tlp,j,&ep) >= 0 ; j += 1) {
 	        if (ep != NULL) {
 	            rs1 = ke_finish(ep) ;
 	            if (rs >= 0) rs = rs1 ;
