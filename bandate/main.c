@@ -10,12 +10,12 @@
 
 /* revision history:
 
-	= 1998-11-01, David A­D­ Morano
+	= 1998-11-01, David AÂ­DÂ­ Morano
 	This subroutine was written for Rightcore Network Services (RNS).
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -251,7 +251,7 @@ static int process(cchar *ofn,cchar *ifn,cchar *dstr,int f_top)
 /* end subroutine (process) */
 
 
-static int trailprint(bfile *ofp,cchar *dstr,cchar *lbuf,int len)
+static int trailprint(bfile *ofp,cchar *dstr,cchar *lbuf,int llen)
 {
 	const int	cols = COLUMNS ;
 	const int	dl = strlen(dstr) ;
@@ -264,7 +264,7 @@ static int trailprint(bfile *ofp,cchar *dstr,cchar *lbuf,int len)
 	breaklen = (cols - dl) ;
 
 	if ((rs >= 0) && (i < breaklen)) {
-	    ml = MIN(len,breaklen) ;
+	    ml = MIN(llen,breaklen) ;
 	    rs = bwrite(ofp,(lbuf+i),ml) ;
 	    wlen += rs ;
 	    i += rs ;
@@ -318,5 +318,4 @@ static int subprint(bfile *ofp,cchar *dstr,cchar *lbuf,int len)
 	return (rs >= 0) ? wlen : rs ;
 }
 /* end subroutine (subprint) */
-
 
