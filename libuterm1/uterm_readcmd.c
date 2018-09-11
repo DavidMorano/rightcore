@@ -1,18 +1,20 @@
 /* uterm_readcmd */
 /* lang=C89 */
 
+/* UTERM object method (readcmd) */
+
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
 
 
 /* revision history:
 
-	= 1998-11-01, David A­D­ Morano
+	= 1998-11-01, David AÂ­DÂ­ Morano
 	This subroutine was written for Rightcore Network Services (RNS).
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
