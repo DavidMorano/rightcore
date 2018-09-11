@@ -1,22 +1,24 @@
 /* termcmd */
 /* langu=C89 */
 
+/* Terminal Command (TERMCMD) object methods */
+
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
 
 
 /* revision history:
 
-	= 1998-11-01, David A­D­ Morano
+	= 1998-11-01, David AÂ­DÂ­ Morano
 	This subroutine was written for Rightcore Network Services.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	This subroutine clears out the TERMCMD object.
+	This subroutine clears out (initialized) the TERMCMD object.
 
 	Synopsis:
 
