@@ -1,14 +1,16 @@
 /* termcmd */
 
+/* Terminal Command (TERMCMD) object methods */
+
 
 /* revision history:
 
-	= 1998-11-01, David A­D­ Morano
+	= 1998-11-01, David AÂ­DÂ­ Morano
 	This subroutine was written for Rightcore Network Services.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 #ifndef	TERMCMD_INCLUDE
 #define	TERMCMD_INCLUDE	1
