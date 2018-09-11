@@ -1,14 +1,16 @@
-/* readtermcmd */
+/* uterm_readtermcmd */
+
+/* UTERM object method (readcmd) */
 
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
+	= 2000-05-14, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2000 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 
 #ifndef	UTERM__INCLUDE
@@ -56,7 +58,7 @@ struct readtermcmd {
 extern "C" {
 #endif
 
-extern int uterm_readtermcmd(TERMCMD *,UTERM *,int,int) ;
+extern int uterm_readtermcmd(UTERM *,TERMCMD *,int,int) ;
 
 #ifdef	__cplusplus
 }
