@@ -5,20 +5,20 @@
 
 
 #define	CF_DEBUGS	0	/* compile-time debug print-outs */
-#define	CF_SIGNAL	1	/* 1={local handle}, 0={UNIX® handles} */
+#define	CF_SIGNAL	1	/* 1={local handle}, 0={UNIXÂ® handles} */
 #define	CF_FIRSTREAD	0	/* perform an initial 'read()'? */
 #define	CF_WRITEATOM	1	/* atomic write */
-#define	CF_SUBUNIX	1	/* allow UNIX® to handle Control-Z */
+#define	CF_SUBUNIX	1	/* allow UNIXÂ® to handle Control-Z */
 
 
 /* revision history:
 
-	= 1998-02-01, David A­D­ Morano
+	= 1998-02-01, David AÂ­DÂ­ Morano
 	This module was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -132,6 +132,7 @@ static int	tty_risr(UTERM *,const char *,int) ;
 static int	tty_wps(UTERM *,const char *,int) ;
 static int	tty_loadchar(UTERM *,const char *,int) ;
 
+/* String-Index-Not-Printable */
 static int	sinotprint(const char *,int) ;
 
 
@@ -891,22 +892,21 @@ static int uterm_controlmode(UTERM *op)
 /* end subroutine (uterm_controlmode) */
 
 
-static int uterm_writeproc(UTERM *op,cchar *buf,int buflen)
+static int uterm_writeproc(UTERM *op,cchar *wbuf,int wlen)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
-	int		sl = -1 ;
 	int		tlen = 0 ;
-	const char	*tp ;
-	const char	*sp ;
+	cchar		*tp ;
 
-	tlen = buflen ;
-	if ((tp = strnchr(buf,buflen,'\n')) != NULL) {
+	if ((tp = strnchr(wbuf,wlen,'\n')) != NULL) {
 	    BUFFER	pb ;
 
-	    if ((rs = buffer_start(&pb,(buflen + 10))) >= 0) {
-	        int		bl = buflen ;
-	        const char	*bp = buf ;
+	    if ((rs = buffer_start(&pb,(wlen + 10))) >= 0) {
+	        int	bl = wlen ;
+		int	sl ;
+	        cchar	*bp = wbuf ;
+		cchar	*sp ;
 
 	        buffer_buf(&pb,bp,(tp - bp)) ;
 
@@ -934,10 +934,10 @@ static int uterm_writeproc(UTERM *op,cchar *buf,int buflen)
 	            buffer_buf(&pb,bp,bl) ;
 	        }
 
-	        rs = buffer_get(&pb,&sp) ;
-	        sl = rs ;
-	        if ((rs >= 0) && (sl > 0)) {
+	        if ((rs = buffer_get(&pb,&sp)) > 0) {
+	            sl = rs ;
 	            rs = u_write(op->fd,sp,sl) ;
+		    tlen = rs ;
 		}
 
 	        rs1 = buffer_finish(&pb) ;
@@ -946,6 +946,7 @@ static int uterm_writeproc(UTERM *op,cchar *buf,int buflen)
 
 	} else {
 	    rs = u_write(op->fd,buf,buflen) ;
+	    tlen = rs ;
 	}
 
 	return (rs >= 0) ? tlen : rs ;
@@ -954,25 +955,23 @@ static int uterm_writeproc(UTERM *op,cchar *buf,int buflen)
 
 
 /* write out a prompt string */
-static int tty_wps(UTERM *op,cchar *buf,int buflen)
+static int tty_wps(UTERM *op,cchar *wbuf,int wlen)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
+	int		len = 0 ;
 	int		ci ;
 
-	if (buflen < 0)
-	    buflen = strlen(buf) ;
-
-	if (buflen == 0)
-	    goto ret0 ;
-
-	if ((ci = sinotprint(buf,buflen)) >= 0) {
+	if (wlen < 0) wlen = strlen(wbuf) ;
+	
+	if ((ci = sinotprint(wbuf,wlen)) >= 0) {
 	    BUFFER	pb ;
 
-	    if ((rs = buffer_start(&pb,buflen)) >= 0) {
-	        int	bl = buflen ;
+	    if ((rs = buffer_start(&pb,wlen)) >= 0) {
+	        int	bl = wlen ;
 	        int	sl = -1 ;
 	        cchar	*sp ;
-	        cchar	*bp = buf ;
+	        cchar	*bp = wbuf ;
 
 	        if (ci > 0)
 	            buffer_buf(&pb,bp,ci) ;
@@ -989,31 +988,33 @@ static int tty_wps(UTERM *op,cchar *buf,int buflen)
 	        if (bl > 0)
 	            buffer_buf(&pb,bp,bl) ;
 
-	        rs = buffer_get(&pb,&sp) ;
-	        sl = rs ;
-	        if ((rs >= 0) && (sl > 0))
+	        if ((rs = buffer_get(&pb,&sp)) > 0) {
+	            sl = rs ;
 	            rs = u_write(op->fd,sp,sl) ;
+		    len = rs ;
+		}
 
-	        buffer_finish(&pb) ;
+	        rs1 = buffer_finish(&pb) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (initialize buffer) */
 
 	} else {
 	    rs = u_write(op->fd,buf,buflen) ;
+	    len = rs ;
 	}
 
-ret0:
-	return (rs >= 0) ? buflen : rs ;
+	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (tty_wps) */
 
 
-static int tty_loadchar(UTERM *op,cchar *pbuf,int pbuflen)
+static int tty_loadchar(UTERM *op,cchar *pbuf,int plen)
 {
 	int		rs = SR_OK ;
 	int		i ;
 	int		c = 0 ;
 
-	for (i = 0 ; (rs >= 0) && (i < pbuflen) ; i += 1) {
+	for (i = 0 ; (rs >= 0) && (i < plen) ; i += 1) {
 	    const int	ch = MKCHAR(pbuf[i]) ;
 	    if (isprintlatin(ch)) {
 	        c += 1 ;
@@ -1277,29 +1278,25 @@ static int tty_risr(UTERM *op,cchar *sp,int sl)
 
 
 /* echo */
-static int tty_echo(UTERM *op,cchar *buf,int buflen)
+static int tty_echo(UTERM *op,cchar *wbuf,int wlen)
 {
 	int		rs = SR_OK ;
 
-#if	CF_DEBUGS
-	char	hexbuf[HEXBUFLEN + 1] ;
-#endif
-
-
-	if (buflen < 0)
-	    buflen = strlen(buf) ;
+	if (wlen < 0)
+	    wlen = strlen(wbuf) ;
 
 #if	CF_DEBUGS
 	{
-	    int	sl ;
-	    debugprintf("tty_echo: buflen=%d\n",buflen) ;
-	    sl = mkhexstr(hexbuf,HEXBUFLEN,buf,MIN(buflen,20)) ;
+	    char	hexbuf[HEXBUFLEN + 1] ;
+	    int		sl ;
+	    debugprintf("tty_echo: wlen=%d\n",wlen) ;
+	    sl = mkhexstr(hexbuf,HEXBUFLEN,wbuf,MIN(wlen,20)) ;
 	    debugprintf("tty_echo: buf= %t\n",hexbuf,sl) ;
 	}
 #endif
 
-	if (buflen > 0) {
-	    rs = u_write(op->fd,buf,buflen) ;
+	if (wlen > 0) {
+	    rs = u_write(op->fd,wbuf,wlen) ;
 	}
 
 	return rs ;
@@ -1307,6 +1304,7 @@ static int tty_echo(UTERM *op,cchar *buf,int buflen)
 /* end subroutine (tty_echo) */
 
 
+/* String-Index-Not-Printable */
 static int sinotprint(cchar *sp,int sl)
 {
 	int		ch ;
