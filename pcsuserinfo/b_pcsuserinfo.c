@@ -13,12 +13,12 @@
 
 /* revision history:
 
-	= 2004-03-01, David A­D­ Morano
+	= 2004-03-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.  
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -1224,8 +1224,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                } /* end switch */
 
 	                c += 1 ;
-	            } else
+	            } else {
 	                rs = SR_INVALID ;
+		    }
 
 	            if (rs < 0) break ;
 	        } /* end while (looping through key options) */
@@ -1469,7 +1470,7 @@ static int procloadname(PROGINFO *pip,OSETSTR *nlp,cchar np[],int nl)
 	            rs1 = locinfo_rncurend(lip,&rnc) ;
 	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (srncursor) */
-	    } else if (nch == MKCHAR('¡')) {
+	    } else if (nch == MKCHAR('Â¡')) {
 	        LOCINFO_GMCUR	gc ;
 	        cchar		*gnp = (np+1) ;
 	        int		gnl = (nl-1) ;
@@ -2086,5 +2087,4 @@ static int locinfo_pcsnsget(LOCINFO *lip,char *rbuf,int rlen,cchar *un,int w)
 	return rs ;
 }
 /* end subroutine (locinfo_pcsnsget) */
-
 
