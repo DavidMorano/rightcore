@@ -1,25 +1,35 @@
 /* uc_gettimeofday */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 /* get the current time of day */
 
 
 /* revision history:
 
-	= 1998-04-13, David A­D­ Morano
+	= 1998-04-13, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
 	This routine calls the system's (library) 'gettimeofday' subroutine.
 
-	Question:
-		What does this stupid function return ?
-		The documentation is not as clear as it could be!
+	Synopsis:
+	
+	int uc_gettimeofday(struct timeval *tvp,void *np)
+	
+	Arguments:
+	
+	tvp		pointer to TIMEVAL object to hold result
+	np		NULL pointer (currently required)
+
+	Returns:
+	
+	>=0		success
+	<0		failure and this is the error code
 
 
 *******************************************************************************/
@@ -55,5 +65,4 @@ int uc_gettimeofday(struct timeval *tvp,void *dp)
 	return rs ;
 }
 /* end subroutine (uc_gettimeofday) */
-
 
