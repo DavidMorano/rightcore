@@ -8,30 +8,47 @@
 
 /* revision history:
 
-	= 1999-07-21, David A­D­ Morano
+	= 1999-07-21, David AÂ­DÂ­ Morano
 	This module was originally written.
 
 */
 
-/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1999 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
 	This module contains the code to make and parse Comsat messages.
 
 	A Comsat message looks like:
-
 		<user>@<offset>[:<file>]
 
 	Where:
-
 		<user>		is the user who received the message
 		<offset>	is the file-offset to this message
 		<file>		associated filename (If present)
 
 	Example:
-
 		dam@251:bobby
+
+
+	Description:
+		This subroutine is used to create or to parse a Comsat message.
+		
+	Synopsis:
+		int comsatmsg_mo(COMSATMSG_MO *msp,int f_read,char *mbuf,int mlen)
+		
+	Arguments:
+		msp		pointer to COMSATMSG_MO object (the result)
+		f_read		flag to indicate if we are parsing (read)
+				or creating (write)
+		mbuf		string buffer (input for parseing,
+				output for creating
+		mlen		length of string buffer
+
+	Returns:
+		<0		error
+		>=0		for parsing
+		>0		lrngth of result when creating
 
 
 *******************************************************************************/
@@ -125,8 +142,9 @@ int comsatmsg_mo(COMSATMSG_MO *msp,int f_read,char *mbuf,int mlen)
 
 	        } /* end if */
 
-	    } else
+	    } else {
 	        rs = SR_BADMSG ;
+	    }
 
 	} else { /* write */
 
@@ -160,5 +178,4 @@ int comsatmsg_mo(COMSATMSG_MO *msp,int f_read,char *mbuf,int mlen)
 	return rs ;
 }
 /* end subroutine (comsatmsg_mo) */
-
 
