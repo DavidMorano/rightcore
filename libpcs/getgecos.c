@@ -1,27 +1,27 @@
 /* getgecos */
 
-/* get the (fixed up) GECOS name out of the password file ('/etc/passwd') */
+/* get the (fixed up) GECOS name out of a PASSWD entry string-record */
 
 
 /* revision history:
 
-	= 1994-01-12, David A­D­ Morano
+	= 1994-01-12, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
-	= 2008-09-03, David A­D­ Morano
+	= 2008-09-03, David AÂ­DÂ­ Morano
         This subroutine should be removed. Hopefully it is not used in any
         current code!
 
 */
 
-/* Copyright © 1994,2008 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1994,2008 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 *									
 *	FUNCTIONAL DESCRIPTION:						
 
 	GECOSNAME gets the GECOS version of a user name from the
-	fifth field of the system password file ('/etc/passwd').
+	fifth field of a PASSWD enrty string-record.
 
 *									
 *	Arguments:
@@ -69,10 +69,7 @@
 /* exported subroutines */
 
 
-int getgecos(un,gn,len)
-const char	un[] ;
-char		gn[] ;
-int		len ;
+int getgecos(cchar *un,char *gn,int len)
 {
 	struct passwd	pe, *pp ;
 
@@ -100,11 +97,10 @@ int		len ;
 	    strwcpy(gn,cp,MIN(len,cp2 - cp)) ;
 
 	} else if ((cp2 = strchr(pp->pw_gecos,CH_LPAREN)) != NULL) {
-
 		strwcpy(gn,pp->pw_gecos,MIN(len,cp2 - pp->pw_gecos)) ;
-
-	} else 
+	} else {
 		strwcpy(gn,pp->pw_gecos,len) ;
+	}
 
 	return OK ;
 }
