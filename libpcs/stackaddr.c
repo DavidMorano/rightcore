@@ -8,18 +8,18 @@
 
 /* revision history:
 
-	= 1998-03-24, David A­D­ Morano
+	= 1998-03-24, David AÂ­DÂ­ Morano
 	This object module was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
 	We manage stack-addresses.
 
-        We needed something like this because SBUF and BUFFER to not have the
+        We needed something like this because SBUF and BUFFER do not have the
         back-up facility that we need.
 
 	Synopsis:
