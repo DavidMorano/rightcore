@@ -827,9 +827,7 @@ static int uterm_attrbegin(UTERM *op)
 /* set the new attributes */
 
 	    rs = uc_tcsetattr(fd,TCSADRAIN,tp) ;
-	    if (rs < 0) {
-		uc_tcsetattr(fd,TCSADRAIN,&op->ts_old) ;
-	    }
+
 	} /* end if */
 
 	return rs ;
