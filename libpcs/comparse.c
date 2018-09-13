@@ -8,13 +8,13 @@
 
 /* revision history:
 
-	= 2004-05-29, David A­D­ Morano
+	= 2004-05-29, David AÂ­DÂ­ Morano
 	This code was adapted from the EMA (E-Mail Address) code (which has
 	code that does a similar function).
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -257,13 +257,15 @@ int comparse_bake(COMPARSE *cpp,cchar *sp,int sl)
 	                if (! f_quote) {
 	                    if (c_comment == 0) {
 	                        pc = buffer_getprev(as + state) ;
-	                        if ((pc >= 0) && (! CHAR_ISWHITE(pc)))
+	                        if ((pc >= 0) && (! CHAR_ISWHITE(pc))) {
 	                            buffer_char((as + state),' ') ;
+				}
 	                        pstate = state ;
 	                        state = COMPARSE_SCOMMENT ;
 	                        pc = buffer_getprev(as + state) ;
-	                        if ((pc >= 0) && (! CHAR_ISWHITE(pc)))
+	                        if ((pc >= 0) && (! CHAR_ISWHITE(pc))) {
 	                            buffer_char((as + state),' ') ;
+				}
 	                        sp += 1 ;
 	                        sl -= 1 ;
 	                    } else {
