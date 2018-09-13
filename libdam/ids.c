@@ -9,12 +9,12 @@
 
 /* revision history:
 
-	= 1998-09-01, David A­D­ Morano
+	= 1998-09-01, David AÂ­DÂ­ Morano
 	This program was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -114,11 +114,8 @@ int ids_load(IDS *op)
 
 	op->gids = NULL ;
 	op->uid = getuid() ;
-
 	op->euid = geteuid() ;
-
 	op->gid = getgid() ;
-
 	op->egid = getegid() ;
 
 	if ((rs = ids_init()) >= 0) {
@@ -193,6 +190,7 @@ int ids_refresh(IDS *op)
 int ids_copy(IDS *op,IDS *otherp)
 {
 	int		rs ;
+	op->gids = NULL ;
 	op->uid = otherp->uid ;
 	op->euid = otherp->euid ;
 	op->gid = otherp->gid ;
