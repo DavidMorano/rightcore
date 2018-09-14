@@ -8,17 +8,27 @@
 
 /* revision history:
 
-	= 1998-05-01, David A­D­ Morano
+	= 1998-05-01, David AÂ­DÂ­ Morano
         This subroutine is originally written. This is a minimal implementation.
+
+	= 2018-09-14, David A.D. Morano
+	I modified this to use |snabbr(3dam)| instead of a local custom thing
+	which did the same thing, only not as well. So we go with the library
+	solution instead of the local custom one. Note for future: might want to
+	refactor a bit to get a loop of attempts to find the ORGCODE rather than
+	the current (older) list-like code pattern.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
         This subroutine is used to (try to) get the LOCAL software distribution
-        organization-code (ORGCODE).
+        organization-code (ORGCODE). An (so-called) ORGCODE is normally an
+	abbreviation of an organiztion name (itself normally multiple words)
+	consisting of the first letter of each word, but capitalized.
+
 
 	Synopsis:
 
@@ -72,7 +82,8 @@
 
 /* external subroutines */
 
-extern int	sncpy1(char *,int,const char *) ;
+extern int	sncpy1(char *,int,cchar *) ;
+extern int	snabbr(char *,int,cchar *,int) ;
 extern int	mkpath2(char *,const char *,const char *) ;
 extern int	mkpath3(char *,const char *,const char *,const char *) ;
 extern int	nextfield(const char *,int,const char **) ;
@@ -91,8 +102,6 @@ extern int	isNotPresent(int) ;
 
 
 /* forward references */
-
-static int	procorg(char *,int,const char *,int) ;
 
 
 /* local variables */
@@ -169,7 +178,7 @@ int localgetorgcode(cchar *pr,char *rbuf,int rlen,cchar *un)
 	        rs = localgetorg(pr,orgbuf,orglen,un) ;
 	    }
 	    if (rs > 0) {
-		rs = procorg(rbuf,rlen,orgbuf,rs) ;
+		rs = snabbr(rbuf,rlen,orgbuf,rs) ;
 		len = rs ;
 	    }
 	}
@@ -191,30 +200,4 @@ int localgetorgcode(cchar *pr,char *rbuf,int rlen,cchar *un)
 
 
 /* local subroutines */
-
-
-static int procorg(char *rbuf,int rlen,cchar *orgbuf,int orglen)
-{
-	int		rs = SR_OK ;
-	int		cl ;
-	int		len = 0 ;
-	int		sl = orglen ;
-	const char	*sp = orgbuf ;
-	const char	*cp ;
-
-	while (sl && ((cl = nextfield(sp,sl,&cp)) > 0)) {
-
-	    if (len >= rlen) break ;
-	    rbuf[len++] = touc(cp[0]) ;
-
-	    sl -= ((cp+cl)-sp) ;
-	    sp = (cp+cl) ;
-	} /* end while */
-
-	rbuf[len] = '\0' ;
-
-	return (rs >= 0) ? len : rs ;
-}
-/* end subroutine (progorg) */
-
 
