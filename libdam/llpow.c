@@ -7,12 +7,12 @@
 
 /* revision history:
 
-	= 2013-07-11, David A­D­ Morano
+	= 2013-07-11, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2013 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2013 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -52,11 +52,10 @@ longlong_t llpow(longlong_t b,int n)
 {
 	longlong_t	v = 1 ;
 	int		i ;
-	for (i = 1 ; i < n ; i += 1) {
- 	    v += v ;
+	for (i = 0 ; i < n ; i += 1) {
+ 	    v *= b ;
 	}
 	return v ;
 }
 /* end subroutine (llpow) */
-
 
