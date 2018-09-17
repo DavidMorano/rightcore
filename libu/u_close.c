@@ -1,6 +1,6 @@
 /* u_close */
 
-/* translation layer interface for UNIX® equivalents */
+/* translation layer interface for UNIXÂ® equivalents */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -8,12 +8,12 @@
 
 /* revision history:
 
-	= 1998-11-01, David A­D­ Morano
+	= 1998-11-01, David AÂ­DÂ­ Morano
 	This subroutine was written for Rightcore Network Services (RNS).
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 
 #include	<envstandards.h>
@@ -33,6 +33,7 @@
 
 #define	TO_NOMEM	5
 #define	TO_NOSR		(5 * 60)
+#define	TO_CLOSEWAIT	5		/* seconds */
 
 
 /* external subroutines */
@@ -72,6 +73,10 @@ int u_close(int fd)
 #endif /* defined(SYSHAS_STREAMS) && (SYSHAS_STREAMS > 0) */
 	        case SR_INTR:
 	            break ;
+		case SR_INPROGRESS: /* new proposal */
+		    msleep(TO_CLOSEWAIT*1000) ;
+		    rs = SR_OK ;
+		    break ;
 		default:
 		    f_exit = TRUE ;
 		    break ;
@@ -82,5 +87,4 @@ int u_close(int fd)
 	return rs ;
 }
 /* end subroutine (u_close) */
-
 
