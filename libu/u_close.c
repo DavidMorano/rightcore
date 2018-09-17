@@ -10,6 +10,12 @@
 
 	= 1998-11-01, David A­D­ Morano
 	This subroutine was written for Rightcore Network Services (RNS).
+	
+	= 2018-09-17, David A.D. Morano
+	Added code to wait (sleep) if we receive a return from 
+	|close(2)| with a resturn-status of SR_INPROGRESS. 
+	In such a case, we wait for TO_CLOSEWAIT seconds and then
+	we outself return w/ SR_OK.
 
 */
 
