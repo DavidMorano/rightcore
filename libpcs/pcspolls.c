@@ -10,13 +10,13 @@
 
 /* revision history:
 
-	- 2008-10-07, David A­D­ Morano
+	- 2008-10-07, David AÂ­DÂ­ Morano
 	This module was originally written to allow for the main part of the
 	PCS-poll facility to be a loadable module.
 
 */
 
-/* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2008 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -436,6 +436,9 @@ static int thread_start(THREAD *tip,PCSPOLLS *op)
 		    pt_sigmask(SIG_SETMASK,&osm,NULL) ;
 		} /* end if (sigmask) */
 	    } /* end if (signal handling) */
+	    if (rs < 0) {
+		thrcomm_finish(&tip->tc) ;
+	    }
 	} /* end if (thrcomm-start) */
 
 	return rs ;
