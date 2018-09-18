@@ -1,6 +1,6 @@
 /* uc_joinus */
 
-/* join a UNIX®-Socket-Datagram */
+/* join a UNIXÂ®-Socket-Datagram */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -8,16 +8,16 @@
 
 /* revision history:
 
-	= 1999-07-21, David A­D­ Morano
+	= 1999-07-21, David AÂ­DÂ­ Morano
 	This module was originally written.
 
 */
 
-/* Copyright © 1999 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1999 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	This subroutine joins a UNIX® socket of the datagram variety.
+	This subroutine joins a UNIXÂ® socket of the datagram variety.
 
 
 *******************************************************************************/
@@ -84,8 +84,8 @@ int uc_joinus(int fd,SOCKADDR *sap,int sal,int of,mode_t om)
 		            if (rs < 0)
 			        uc_unlink(sbuf) ;
 		        } /* end if (sockaddress_getaddr) */
-		    } /* end if (UNIX® address family) */
-		} /* end if (mon-mod) */
+		    } /* end if (UNIXÂ® address family) */
+		} /* end if (min-mod) */
 	    } /* end if (u_bind) */
 	} else {
 	    rs = u_connect(fd,sap,sal) ;
