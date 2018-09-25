@@ -8,15 +8,15 @@
 
 /* revision history:
 
-	= 1998-06-01, David A­D­ Morano
+	= 1998-06-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
-	= 2008-10-97, David A­D­ Morano
+	= 2008-10-97, David AÂ­DÂ­ Morano
 	Changed somewhat to fit into the new polling structure.
 
 */
 
-/* Copyright © 1998,2008 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998,2008 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -127,7 +127,7 @@ extern int	debugprintf(const char *,...) ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
-extern const char	*getourenv(const char **,const char *) ;
+extern cchar	*getourenv(const char **,const char *) ;
 
 extern char	*strnwcpy(char *,int,const char *,int) ;
 extern char	*strdcpy1w(char *,int,const char *,int) ;
@@ -162,8 +162,7 @@ struct checker {
 
 /* forward references */
 
-static int checker_start(CHECKER *,const char *,const char *,const char **,
-			PCSCONF *) ;
+static int checker_start(CHECKER *,char *,char *,char **,PCSCONF *) ;
 static int checker_finish(CHECKER *) ;
 static int checker_setentry(CHECKER *,const char **,const char *,int) ;
 static int checker_getconf(CHECKER *) ;
@@ -223,16 +222,12 @@ static const char *envok[] = {
 /* exported subroutines */
 
 
-int pollprogcheck(pr,sn,envv,pcp)
-const char	pr[] ;
-const char	sn[] ;
-const char	*envv[] ;
-PCSCONF		*pcp ;
+int pollprogcheck(cchar *pr,cchar *sn,cchar **envv,PCSCONF *pcp)
 {
-	CHECKER	c ;
-
-	int	rs ;
-	int	n = 0 ;
+	CHECKER		c ;
+	int		rs ;
+	int		rs1 ;
+	int		n = 0 ;
 
 #if	CF_DEBUGS
 	debugprintf("pollprogcheck: pr=%s\n",pr) ;
@@ -247,14 +242,13 @@ PCSCONF		*pcp ;
 
 	    if ((rs = checker_getconf(&c)) >= 0) {
 	        if ((rs = checker_findprog(&c)) > 0) {
-	            const char	*pf = c.progpoll ;
+	            cchar	*pf = c.progpoll ;
 	            if ((pf != NULL) && (pf[0] != '-')) {
 	                struct ustat	sb ;
 	                if ((u_stat(pf,&sb) >= 0) && S_ISREG(sb.st_mode)) {
-	                    IDS	id ;
+	                    IDS		id ;
 	                    if ((rs = ids_load(&id)) >= 0) {
-	                        int	rs1 ;
-	                        if ((rs1 = sperm(&id,&sb,X_OK)) >= 0) {
+	                        if ((rs = sperm(&id,&sb,X_OK)) >= 0) {
 	                            if ((rs = checker_stampdir(&c)) > 0) {
 	                                rs = checker_stampcheck(&c) ;
 	                                n += rs ;
@@ -262,8 +256,9 @@ PCSCONF		*pcp ;
 	debugprintf("pollprogcheck: 6 rs=%d n=%u\n",rs) ;
 #endif
 	                            }
-	                        } else if (! isNotPresent(rs1))
-	                            rs = rs1 ;
+	                        } else if (isNotPresent(rs)) {
+	                            rs = SR_OK ;
+				}
 #if	CF_DEBUGS
 	debugprintf("pollprogcheck: 7 rs=%d n=%u\n",rs) ;
 #endif
@@ -273,7 +268,7 @@ PCSCONF		*pcp ;
 	debugprintf("pollprogcheck: 8 rs=%d n=%u\n",rs) ;
 #endif
 	                } /* end if (stat) */
-	            }
+	            } /* end if */
 	        } /* end if (findprog) */
 #if	CF_DEBUGS
 	debugprintf("pollprogcheck: 10 rs=%d n=%u\n",rs) ;
@@ -283,7 +278,8 @@ PCSCONF		*pcp ;
 	debugprintf("pollprogcheck: 11 rs=%d n=%u\n",rs) ;
 #endif
 
-	    checker_finish(&c) ;
+	    rs1 = checker_finish(&c) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (checker) */
 
 #if	CF_DEBUGS
@@ -298,14 +294,10 @@ PCSCONF		*pcp ;
 /* local subroutines */
 
 
-static int checker_start(chp,pr,sn,envv,pcp)
-CHECKER		*chp ;
-const char	*pr ;
-const char	*sn ;
-const char	**envv ;
-PCSCONF		*pcp ;
+static int checker_start(CHECKER *chp,cchar *pr,cchar *sn,cchar **envv,
+		PCSCONF *pcp)
 {
-	int	rs ;
+	int		rs ;
 
 	memset(chp,0,sizeof(CHECKER)) ;
 	chp->pr = pr ;
@@ -324,11 +316,10 @@ PCSCONF		*pcp ;
 /* end subroutine (checker_start) */
 
 
-static int checker_finish(chp)
-CHECKER		*chp ;
+static int checker_finish(CHECKER *chp)
 {
-	int	rs = SR_OK ;
-	int	rs1 ;
+	int		rs = SR_OK ;
+	int		rs1 ;
 
 #if	CF_DEBUGS
 	debugprintf("checker_finish: ent\n") ;
@@ -346,32 +337,30 @@ CHECKER		*chp ;
 /* end subroutine (checker_finish) */
 
 
-int checker_setentry(chp,epp,vp,vl)
-CHECKER		*chp ;
-const char	**epp ;
-const char	*vp ;
-int		vl ;
+int checker_setentry(CHECKER *chp,cchar **epp,cchar *vp,int vl)
 {
-	VECSTR	*slp = &chp->stores ;
-
-	int	rs = SR_OK ;
-	int	oi = -1 ;
-	int	len = 0 ;
+	VECSTR		*slp = &chp->stores ;
+	int		rs = SR_OK ;
+	int		oi = -1 ;
+	int		len = 0 ;
 
 	if (chp == NULL) return SR_FAULT ;
 	if (epp == NULL) return SR_INVALID ;
 
-	if (*epp != NULL)
+	if (*epp != NULL) {
 	    oi = vecstr_findaddr(slp,*epp) ;
+	}
 
 	if (vp != NULL) {
 	    len = strnlen(vp,vl) ;
 	    rs = vecstr_store(slp,vp,len,epp) ;
-	} else if (epp != NULL)
+	} else if (epp != NULL) {
 	    *epp = NULL ;
+	}
 
-	if ((rs >= 0) && (oi >= 0))
+	if ((rs >= 0) && (oi >= 0)) {
 	    vecstr_del(slp,oi) ;
+	}
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -381,14 +370,11 @@ int		vl ;
 static int checker_getconf(CHECKER *chp)
 {
 	PCSCONF		*pcp = chp->pcp ;
-
 	const int	vlen = VBUFLEN ;
-
-	int	rs ;
-	int	size ;
-	int	n = 0 ;
-
-	char	*vbuf ;
+	int		rs ;
+	int		size ;
+	int		n = 0 ;
+	char		*vbuf ;
 
 #if	CF_DEBUGS
 	debugprintf("checker_getconf: ent pcp={%p}\n",pcp) ;
@@ -456,10 +442,9 @@ static int checker_getconf(CHECKER *chp)
 
 static int checker_findprog(CHECKER *chp)
 {
-	int	rs = SR_OK ;
-	int	rl = 0 ;
-
-	char	rbuf[MAXPATHLEN+1] = { 0 } ;
+	int		rs ;
+	int		rl = 0 ;
+	char		rbuf[MAXPATHLEN+1] = { 0 } ;
 
 #if	CF_DEBUGS
 	debugprintf("checker_findprog: ent\n") ;
@@ -483,9 +468,8 @@ static int checker_findprog(CHECKER *chp)
 
 static int checker_findprogconf(CHECKER *chp,char *rbuf)
 {
-	int	rs = SR_OK ;
-	int	rl = 0 ;
-
+	int		rs = SR_OK ;
+	int		rl = 0 ;
 	const char	*vp = chp->confs.progpoll ;
 
 	rbuf[0] = '\0' ;
@@ -506,8 +490,7 @@ static int checker_findprogconf(CHECKER *chp,char *rbuf)
 
 static int checker_findprogpr(CHECKER *chp,char *rbuf)
 {
-	int	rs ;
-
+	int		rs ;
 	const char	*prog = PCS_PROGPOLL ;
 
 	rs = mkpath3(rbuf,chp->pr,"bin",prog) ;
@@ -519,10 +502,9 @@ static int checker_findprogpr(CHECKER *chp,char *rbuf)
 
 static int checker_stampdir(CHECKER *chp)
 {
-	int	rs = SR_OK ;
-	int	rl = 0 ;
-
-	char	rbuf[MAXPATHLEN+1] = { 0 } ;
+	int		rs ;
+	int		rl = 0 ;
+	char		rbuf[MAXPATHLEN+1] = { 0 } ;
 
 #if	CF_DEBUGS
 	debugprintf("checker_stampdir: ent\n") ;
@@ -548,7 +530,6 @@ static int checker_stampdirconf(CHECKER *chp,char *rbuf)
 {
 	int		rs = SR_OK ;
 	int		rl = 0 ;
-
 	const char	*vp = chp->confs.stampdname ;
 
 	rbuf[0] = '\0' ;
@@ -569,8 +550,7 @@ static int checker_stampdirconf(CHECKER *chp,char *rbuf)
 
 static int checker_stampdirpr(CHECKER *chp,char *rbuf)
 {
-	int	rs ;
-
+	int		rs ;
 	const char	*dname = PCS_STAMPDNAME ;
 
 	rs = mkpath2(rbuf,chp->pr,dname) ;
@@ -582,9 +562,8 @@ static int checker_stampdirpr(CHECKER *chp,char *rbuf)
 
 static int checker_stampcheck(CHECKER *chp)
 {
-	int	rs = SR_OK ;
-	int	n = 0 ;
-
+	int		rs = SR_OK ;
+	int		n = 0 ;
 	const char	*dn = chp->stampdname ;
 
 #if	CF_DEBUGS
@@ -607,12 +586,10 @@ static int checker_stampcheck(CHECKER *chp)
 
 static int checker_stampcheckname(CHECKER *chp)
 {
-	int	rs = SR_OK ;
-	int	n = 0 ;
-
+	int		rs ;
+	int		n = 0 ;
 	const char	*sname = chp->confs.stampname ;
-
-	char	sfname[MAXPATHLEN+1] ;
+	char		sfname[MAXPATHLEN+1] ;
 
 #if	CF_DEBUGS
 	debugprintf("checker_stampcheckname: ent\n") ;
@@ -620,12 +597,13 @@ static int checker_stampcheckname(CHECKER *chp)
 	    chp->stampdname) ;
 #endif
 
-	if ((sname == NULL) || (sname[0] == '\0'))
+	if ((sname == NULL) || (sname[0] == '\0')) {
 	    sname = PCS_STAMPNAME ;
+	}
 
 	if ((rs = mksfname(sfname,chp->pr,chp->stampdname,sname)) >= 0) {
 	    struct ustat	sb ;
-	    int		f_run = FALSE ;
+	    int			f_run = FALSE ;
 #if	CF_DEBUGS
 	    debugprintf("checker_stampcheckname: sf=%s\n",sfname) ;
 	    {
@@ -669,9 +647,9 @@ static int checker_stampcheckname(CHECKER *chp)
 
 static int checker_progrun(CHECKER *chp)
 {
-	SPAWNER	s ;
-	int	rs = SR_OK ;
-	int	n = 0 ;
+	SPAWNER		s ;
+	int		rs = SR_OK ;
+	int		n = 0 ;
 
 #if	CF_DEBUGS
 	debugprintf("checker_progrun: ent\n") ;
@@ -699,8 +677,9 @@ static int checker_progrun(CHECKER *chp)
 	            if (rs >= 0) {
 	                spawner_sigignores(&s) ;
 	                spawner_setsid(&s) ;
-	                for (i = 0 ; i < 3 ; i += 1)
+	                for (i = 0 ; i < 3 ; i += 1) {
 	                    spawner_fdclose(&s,i) ;
+			}
 	                if ((rs = spawner_run(&s)) >= 0) {
 			    n = rs ;
 	                } /* end if (run) */
@@ -715,21 +694,17 @@ static int checker_progrun(CHECKER *chp)
 /* end subroutine (checker_progrun) */
 
 
-static int mksfname(rbuf,pr,sdname,sname)
-char		rbuf[] ;
-const char	*pr ;
-const char	*sdname ;
-const char	*sname ;
+static int mksfname(char *rbuf,cchar *pr,cchar *sdname,cchar *sname)
 {
-	int	rs ;
+	int		rs ;
 
 	if (sdname[0] != '/') {
 	    rs = mkpath3(rbuf,pr,sdname,sname) ;
-	} else
+	} else {
 	    rs = mkpath2(rbuf,sdname,sname) ;
+	}
 
 	return rs ;
 }
 /* end subroutine (mksfname) */
-
 
