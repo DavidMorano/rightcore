@@ -10,7 +10,7 @@
 
 /* revision history:
 
-	= 1998-03-01, David A­D­ Morano
+	= 1998-03-01, David AÂ­DÂ­ Morano
         This subroutine was adapted from an old version that was used in the old
         days at AT&T Bell Laboratores (known as Bell Telephone Laboratories back
         then). In those days, processors did not have native hardware support
@@ -19,7 +19,7 @@
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -62,16 +62,16 @@
         in C language (a high-level language) we do not have this luxury, unless
         a compiler is super smart and can somehow figure out that a single
         devision-modulus instruction can provide both results at different
-        points in a a loop but each using the same operands. Some compilers have
-        claimed to be able to do this, but in general we do not want to rely on
-        that (rather remote) possibility here.
+        points in a loop when each operation is using the same operands. Some 
+	compilers have claimed to be able to do this, but in general we do not 
+	want to rely on that (rather remote) possibility here.
 
         Of course, we assume that doing both a single division and a
-        multiplication operation per loop iteration is over all faster than
+        multiplication operation per loop iteration is over-all faster than
         doing both a division and a modulus operation per loop iteration. This
         seems to be a reasonable assumption. On platform architectures that do
-        not have a good hardware division instruction (performance), this can be
-        a huge win.
+        *not* have a good hardware division instruction (performance), this can 
+	be a huge win.
 
 
 *******************************************************************************/
@@ -176,8 +176,9 @@ char *convdecu(ULONG lval,char *endptr)
 	        } /* end while */
 	    }
 
-	} else
+	} else {
 	    *--bp = '0' ;
+	}
 
 	return bp ;
 }
