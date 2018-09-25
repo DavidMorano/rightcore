@@ -1,6 +1,6 @@
 /* vecpstr_loadgrusers */
 
-/* find and load UNIX® users who have the given group as their default */
+/* find and load UNIXÂ® users who have the given group as their default */
 
 
 #define	CF_DEBUGS	0		/* compile-time debug print-outs */
@@ -8,12 +8,12 @@
 
 /* revision history:
 
-	= 2004-01-10, David A­D­ Morano
+	= 2004-01-10, David AÂ­DÂ­ Morano
 	This code was originally written.
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -244,8 +244,9 @@ static int pwentparse(cchar lbuf[],int llen,gid_t *gp)
 	                int	v ;
 	                if (cfdeci(lp,(tp-lp),&v) >= 0) {
 	                    *gp = (gid_t) v ;
-	                } else
+	                } else {
 	                    ul = 0 ;
+			}
 	            } /* end block */
 	            break ;
 	        } /* end switch */
@@ -257,5 +258,4 @@ static int pwentparse(cchar lbuf[],int llen,gid_t *gp)
 	return (rs >= 0) ? ul : rs ;
 }
 /* end subroutine (pwentparse) */
-
 
