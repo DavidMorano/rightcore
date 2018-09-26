@@ -13,17 +13,13 @@
 	= 1998-03-85, David A­D­ Morano
 	This subroutine was originally written.
 
-	= 2001-02-01, David A­D­ Morano
-        I expanded the storage table size somewhat for larger programs. We are
-        handling larger amounts of data now-a-days!
-
 	= 2018-09-26, David A.D. Morano
 	I brought |uc_libcalloc(3uc)| in line w/ the standard for |calloc(3c)|.
 	I never used this myself in 40 years, so I never missed it!
 
 */
 
-/* Copyright © 1998,2001 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2018 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
