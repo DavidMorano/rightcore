@@ -10,7 +10,7 @@
 
 /* revision history:
 
-	= 2015-04-06, David A­D­ Morano
+	= 2015-04-06, David AÂ­DÂ­ Morano
 	These subroutines were originally written to get around the lack of a
 	mutex lock around the KSH (AST) memory allocation subroutines.  I have
 	put this off for a long time now.  I had tried to avoid this little
@@ -19,7 +19,7 @@
 
 */
 
-/* Copyright © 2015 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2015 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -71,7 +71,7 @@
 	= How to use:
 
 	Put this module somewhere so that it interposes itself upon the "real"
-	subroutines with these same names in the lower-level UNIX® library
+	subroutines with these same names in the lower-level UNIXÂ® library
 	adaptation layer |libuc(3uc)|.
 
 	= Compilation options:
@@ -79,7 +79,7 @@
         + CF_MALLOCSTRW - This switch requests that the subroutine
         |uc_libmallocstrw()| be compiled into this module. This might be wanted
         if the module which otherwise contains the subroutine |uc_libmalloc()|
-        is linked with the Solaris® "symbolic" mode. That mode ("symbolic")
+        is linked with the SolarisÂ® "symbolic" mode. That mode ("symbolic")
         makes references from a given module be linked to the symbols in that
         same module if those sumbols are present. Since the subroutine
         |uc_libmallocstrw()| calls |uc_libmalloc()|, this compile-time switch
@@ -287,7 +287,11 @@ int uc_libmalloc(int size,void *vp)
 int uc_libcalloc(int nelem,int esize,void *vp)
 {
 	const int	size = (nelem*esize) ;
-	return uc_libmalloc(size,vp) ;
+	int		rs ;
+	if ((rs = uc_libmalloc(size,vp)) >= 0) {
+	    memset(vp,0,size) ;
+	}
+	return rs ;
 }
 /* end subroutine (uc_libcalloc) */
 
@@ -493,10 +497,12 @@ static int lockmemalloc_basefree(const void *vp)
 	    if ((v & 3) == 0) {
 	        void	*fvp = (void *) vp ;
 	        free(fvp) ;
-	    } else
+	    } else {
 	        rs = SR_BADFMT ;
-	} else
+	    }
+	} else {
 	    rs = SR_FAULT ;
+	}
 
 #if	CF_DEBUGN
 	nprintf(NDF,"lockmemalloc_basefree: ret a=%p rs=%d\n",vp,rs) ;
@@ -605,5 +611,4 @@ static void lockmemalloc_atforkafter()
 	ptm_unlock(&uip->m) ;
 }
 /* end subroutine (lockmemalloc_atforkafter) */
-
 
