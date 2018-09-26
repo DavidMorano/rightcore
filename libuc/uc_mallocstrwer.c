@@ -20,7 +20,7 @@
 	
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2005 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -70,8 +70,6 @@
 
 
 /* external subroutines */
-
-extern char	*strwcpy(char *,const char *,int) ;
 
 
 /* local variables */
