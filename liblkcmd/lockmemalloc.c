@@ -16,6 +16,10 @@
 	put this off for a long time now.  I had tried to avoid this little
 	scheme for some time.  And, YES, I am pissed off that KSH sucks cock
 	meat by not locking its memory allocation subroutines!
+	
+	= 2018-09-26, David A.D. Morano
+	I brought |uc_libcalloc(3uc)| in line w/ the standard for |calloc(3c)|.
+	I never used this myself in 40 years, so I never missed it!
 
 */
 
