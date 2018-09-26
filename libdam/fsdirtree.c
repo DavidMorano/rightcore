@@ -9,12 +9,12 @@
 
 /* revision history:
 
-	= 2000-04-27, David A­D­ Morano
+	= 2000-04-27, David AÂ­DÂ­ Morano
 	I wanted an interative enumeration.
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2000 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -352,13 +352,10 @@ int fsdirtree_read(FSDIRTREE *op,FSDIRTREE_STAT *sbp,char *rbuf,int rlen)
 	            if (S_ISDIR(sbp->st_mode) && (op->opts & m)) {
 	                dev_t	dev = sbp->st_dev ;
 	                uino_t	ino = sbp->st_ino ;
-	                int	rs1 = fsdirtree_dirhave(op,dev,ino,NULL) ;
-	                if (rs1 >= 0) {
+	                if ((rs = fsdirtree_dirhave(op,dev,ino,NULL)) >= 0) {
 	                    f_proc = FALSE ;
-	                } else if (rs1 == SR_NOTFOUND) {
+	                } else if (rs == SR_NOTFOUND) {
 	                    rs = fsdirtree_diradd(op,dev,ino) ;
-	                } else {
-	                    rs = rs1 ;
 	                }
 	            } /* end if (directory-uniqueness check) */
 	        } /* end if (directory-uniqueness check) */
@@ -558,7 +555,7 @@ static int fsdirtree_dirend(FSDIRTREE *pip)
 	    if ((rs1 = hdb_curbegin(dbp,&cur)) >= 0) {
 	        DIRID	*dip ;
 
-	        while (hdb_enum(dbp,&cur,&key,&val) >= 0) {
+	        while ((rs1 = hdb_enum(dbp,&cur,&key,&val)) >= 0) {
 	            dip = (DIRID *) val.buf ;
 
 	            if (dip != NULL) {
@@ -569,9 +566,10 @@ static int fsdirtree_dirend(FSDIRTREE *pip)
 	            }
 
 	        } /* end while */
+		if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
 
 	        hdb_curend(dbp,&cur) ;
-	    } /* end if */
+	    } /* end if (hdb-cur) */
 	    if (rs >= 0) rs = rs1 ;
 
 	    rs1 = hdb_finish(&pip->dirids) ;
@@ -594,7 +592,7 @@ static int fsdirtree_diradd(FSDIRTREE *pip,dev_t dev,uino_t ino)
 	    HDB_DATUM	key, val ;
 	    if ((rs = dirid_start(dip,dev,ino)) >= 0) {
 	        key.buf = dip ;
-	        key.len = sizeof(uino_t) + sizeof(dev_t) ;
+	        key.len = size ;
 	        val.buf = dip ;
 	        val.len = size ;
 	        rs = hdb_store(dbp,key,val) ;
@@ -621,7 +619,7 @@ static int fsdirtree_dirhave(FSDIRTREE *pip,dev_t d,uino_t ino,DIRID **rpp)
 	did.dev = d ;
 
 	key.buf = &did ;
-	key.len = sizeof(uino_t) + sizeof(dev_t) ;
+	key.len = sizeof(DIRID) ;
 	if ((rs = hdb_fetch(dbp,key,NULL,&val)) >= 0) {
 	    if (rpp != NULL) *rpp = (DIRID *) val.buf ;
 	}
@@ -633,12 +631,9 @@ static int fsdirtree_dirhave(FSDIRTREE *pip,dev_t d,uino_t ino,DIRID **rpp)
 
 static int dirid_start(DIRID *dip,dev_t dev,uino_t ino)
 {
-	int		rs = SR_OK ;
-
 	dip->dev = dev ;
 	dip->ino = ino ;
-
-	return rs ;
+	return SR_OK ;
 }
 /* end subroutine (dirid_start) */
 
@@ -651,26 +646,17 @@ static int dirid_finish(DIRID *dip)
 /* end subroutine (dirid_finish) */
 
 
+/* ARGSUSED */
 static uint diridhash(const void *vp,int vl)
 {
+	DIRID		*ep = (DIRID *) vp ;
 	uint		h = 0 ;
-	ushort		*sa = (ushort *) vp ;
-
-	h = h ^ ((sa[1] << 16) | sa[0]) ;
-	h = h ^ ((sa[0] << 16) | sa[1]) ;
-	if (vl > sizeof(uint)) {
-	    h = h ^ ((sa[3] << 16) | sa[2]) ;
-	    h = h ^ ((sa[2] << 16) | sa[3]) ;
-	    if (vl > sizeof(ULONG)) {
-	        h = h ^ ((sa[5] << 16) | sa[4]) ;
-	        h = h ^ ((sa[4] << 16) | sa[5]) ;
-	        if (vl > (4*3)) {
-	            h = h ^ ((sa[7] << 16) | sa[6]) ;
-	            h = h ^ ((sa[6] << 16) | sa[7]) ;
-	        }
-	    }
-	}
-
+	uint		v ;
+	v = (ep->ino >> 32) ;
+	h = h ^ v ;
+	v = (ep->ino >> 00) ;
+	h = h ^ v ;
+	h = h ^ ep->dev ;
 	return h ;
 }
 /* end subroutine (diridhash) */
@@ -709,5 +695,4 @@ static int interested(int opts,mode_t mode)
 	return f ;
 }
 /* end subroutine (interested) */
-
 
