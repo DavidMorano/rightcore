@@ -1,7 +1,7 @@
 /* uc_libmemalloc (3uc) */
 /* lang=C89 */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 /* memory allocation facility (for library use) */
 
 
@@ -10,16 +10,20 @@
 
 /* revision history:
 
-	= 1998-03-85, David A­D­ Morano
+	= 1998-03-85, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
-	= 2001-02-01, David A­D­ Morano
+	= 2001-02-01, David AÂ­DÂ­ Morano
         I expanded the storage table size somewhat for larger programs. We are
         handling larger amounts of data now-a-days!
 
+	= 2018-09-26, David A.D. Morano
+	I brought |uc_libcalloc(3uc)| in line w/ the standard for |calloc(3c)|.
+	I never used this myself in 40 years, so I never missed it!
+
 */
 
-/* Copyright © 1998,2001 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998,2001 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -150,7 +154,11 @@ int uc_libmalloc(int size,void *vp)
 int uc_libcalloc(int nelem,int esize,void *vp)
 {
 	const int	size = (nelem*esize) ;
-	return uc_libmalloc(size,vp) ;
+	int		rs ;
+	if (rs = uc_libmalloc(size,vp)) >= 0) {
+	    memset(vp,0,size) ;
+	}
+	return rs ;
 }
 /* end subroutine (uc_libcalloc) */
 
