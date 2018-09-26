@@ -9,16 +9,28 @@
 
 /* revision history:
 
-	= 2004-01-10, David A­D­ Morano
+	= 2004-01-10, David AÂ­DÂ­ Morano
 	This code was originally written.
 
+	= 2018-09-26, David A.D. Morano
+	Fixed up string-copy to caller destination to avoid any garbage in the
+	TMPX username field if it is smaller than USERNAMELEN in length. Also
+	refactored for some pretty-up.
+	
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
 	This object is used to find a username by a given UID.
+
+	Algorithm: This is not as smart as we would like, as we pretty much only
+	have the system UTMPX database to look into. We try to find a user in
+	there with the same UID as the one we are given by our caller and we
+	take the latest UTMPX entry as being most authuritative. This is not
+	always correct, but it is really the best we can do with what we are
+	given (only a UID).
 
 
 *******************************************************************************/
@@ -52,6 +64,7 @@ extern int	mkpath2(char *,const char *,const char *) ;
 extern int	getpwd(char *,int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
+extern char	*strdcpy1w(char *,int,cchar *,int) ;
 
 
 /* local structures */
@@ -61,6 +74,7 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 static int	finduid_tmpxopen(FINDUID *) ;
 static int	finduid_tmpxclose(FINDUID *) ;
+static int	finduid_lookuper(FINDUID *,char *,uid_t) ;
 
 
 /* local variables */
@@ -163,7 +177,7 @@ int finduid_finish(FINDUID *op)
 
 int finduid_lookup(FINDUID *op,char *ubuf,uid_t uid)
 {
-	time_t		ti_create = 0 ;
+
 	int		rs ;
 	int		rs1 = SR_OK ;
 	int		ul = 0 ;
@@ -173,56 +187,14 @@ int finduid_lookup(FINDUID *op,char *ubuf,uid_t uid)
 
 	if (op->magic != FINDUID_MAGIC) return SR_NOTOPEN ;
 
-	op->s.total += 1 ;
-
 	ubuf[0] = '\0' ;
 	if ((rs = ptm_lock(&op->m)) >= 0) {
-
 	    if (! op->open.ut) rs = finduid_tmpxopen(op) ;
-
 	    if (rs >= 0) {
-	        struct passwd	pw ;
-	        TMPX_CUR	uc ;
-	        TMPX_ENT	ue ;
-	        const int	pwlen = getbufsize(getbufsize_pw) ;
-	        char		*pwbuf ;
-		if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	            const int	utype = TMPX_TUSERPROC ;
-	            if ((rs = tmpx_curbegin(&op->ut,&uc)) >= 0) {
-		        PWCACHE		*pwc = &op->uc ;
-	                time_t		ut ;
-	                const int	ulen = USERNAMELEN ;
-	                char		tubuf[USERNAMELEN+1] ;
-
-	                while (rs >= 0) { /* loop finding latest */
-		            rs1 = tmpx_enum(&op->ut,&uc,&ue) ;
-		            if (rs1 == SR_NOTFOUND) break ;
-
-		            ut = ue.ut_tv.tv_sec ;
-	                    if ((ue.ut_type == utype) && (ut > ti_create)) {
-		                strwcpy(tubuf,ue.ut_user,USERNAMELEN) ;
-		                rs = pwcache_lookup(pwc,&pw,pwbuf,pwlen,tubuf) ;
-		                if (rs >= 0) {
-				    if (pw.pw_uid == uid) {
-				        ti_create = ut ;
-			                ul = strwcpy(ubuf,tubuf,ulen) - ubuf ;
-			            }
-		                } else if (rs == SR_NOTFOUND) {
-				    rs = SR_OK ;
-			        }
-		            } /* end if (got a user process) */
-
-	                } /* end while (finding latest entry) */
-	                if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
-
-		        rs1 = tmpx_curend(&op->ut,&uc) ;
-			if (rs >= 0) rs = rs1 ;
-	            } /* end if (TMPX cursor) */
-		    rs1 = uc_free(pwbuf) ;
-		    if (rs >= 0) rs = rs1 ;
-		} /* end if (m-a) */
+		op->s.total += 1 ;
+		rs = finduid_lookuper(op,ubuf,uid) ;
+		ul = rs ;
 	    } /* end if (ok) */
-
 	    rs1 = ptm_unlock(&op->m) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (lock) */
@@ -322,4 +294,57 @@ static int finduid_tmpxclose(FINDUID *op)
 }
 /* end subroutine (finduid_tmpxclose) */
 
+
+/* this is called w/ the object already locked */
+static int finduid_lookuper(FINDUID *op,char *ubuf,uid_t uid)
+{
+	int		rs ;
+	int		rs1 ;
+	int		ul = 0 ;
+	
+	    if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	        struct passwd	pw ;
+	        TMPX_CUR	uc ;
+	        TMPX_ENT	ue ;
+	        const int	pwlen = rs ;
+	        char		*pwbuf ;
+		if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	            const int	utype = TMPX_TUSERPROC ;
+	            if ((rs = tmpx_curbegin(&op->ut,&uc)) >= 0) {
+		        PWCACHE		*pwc = &op->uc ;
+			time_t		ti_create = 0 ;
+	                time_t		ut ;
+	                const int	tulen = USERNAMELEN ;
+	                char		tubuf[USERNAMELEN+1] ;
+
+	                while ((rs1 = tmpx_enum(&op->ut,&uc,&ue)) >= 0) {
+		            ut = ue.ut_tv.tv_sec ;
+	                    if ((ue.ut_type == utype) && (ut > ti_create)) {
+				const int	tl = TMPX_LUSER ;
+		                strdcpy1w(tubuf,tulen,ue.ut_user,tl) ;
+		                rs = pwcache_lookup(pwc,&pw,pwbuf,pwlen,tubuf) ;
+		                if (rs >= 0) {
+				    if (pw.pw_uid == uid) {
+				        ti_create = ut ;
+			                ul = strwcpy(ubuf,tubuf,tulen) - ubuf ;
+			            }
+		                } else if (rs == SR_NOTFOUND) {
+				    rs = SR_OK ;
+			        }
+		            } /* end if (got a user process) */
+			    if (rs < 0) break ;
+	                } /* end while (finding latest entry) */
+	                if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
+
+		        rs1 = tmpx_curend(&op->ut,&uc) ;
+			if (rs >= 0) rs = rs1 ;
+	            } /* end if (TMPX cursor) */
+		    rs1 = uc_free(pwbuf) ;
+		    if (rs >= 0) rs = rs1 ;
+		} /* end if (m-a-f) */
+	    } /* end if (getbufsize) */
+	
+	return (rs >= 0) ? ul : rs ;
+}
+/* end subroutine (finduid_lookuper) */
 
