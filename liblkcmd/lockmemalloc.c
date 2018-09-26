@@ -23,7 +23,7 @@
 
 */
 
-/* Copyright © 2015 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2015,2018 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
