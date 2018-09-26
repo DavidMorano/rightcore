@@ -1,6 +1,6 @@
 /* uc_mallocstrw */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -9,12 +9,18 @@
 
 /* revision history:
 
-	= 1998-03-15, David A­D­ Morano
+	= 1998-03-15, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
+	= 2005-07-16, David A.D. Morano
+	This was enhanced to reduce the size of the allocation in those cases
+	when the string passed in is actually much smaller than its declared
+	length. So far, this version of this subroutine is not being used (as
+	far as I know), so it is sort of just a proof of concept at the moment.
+	
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -39,6 +45,12 @@
 	>=0		nominally -> (strlen(string) + 1)
 	<0		error
 
+	Notes:
+	
+	+ This is a version that reduced the actual memory allocation if the
+	actual length of the passed string is somewhat substantially smaller
+	than its declared length.
+
 
 *******************************************************************************/
 
@@ -53,6 +65,8 @@
 
 
 /* local defines */
+
+#define	MALLOCSTRW_OVERLEN	10	/* over-length amount before acting */
 
 
 /* external subroutines */
@@ -69,9 +83,8 @@ extern char	*strwcpy(char *,const char *,int) ;
 int uc_mallocstrw(cchar *sp,int sl,cchar **rpp)
 {
 	int		rs ;
-	int		cl ;
 	int		size ;
-	char		*cp ;
+	char		*bp ;
 
 	if (rpp == NULL) return SR_FAULT ;
 	if (sp == NULL) return SR_FAULT ;
@@ -82,31 +95,29 @@ int uc_mallocstrw(cchar *sp,int sl,cchar **rpp)
 	size = (sl + 1) ;
 
 #if	CF_STRLEN
-	if ((rs = uc_malloc(size,&cp)) >= 0) {
-	    int	cl ;
-	    cl = strwcpy(cp,sp,sl) - cp ;
-	    *rpp = cp ;
-	    if ((sl-cl) > 10) {
-		char	*ncp ;
-		size = (cl+1) ;
-		if ((rs = uc_malloc(size,&ncp)) >= 0) {
-	    	    strncpy(ncp,cp,cl) ;
-	    	    ncp[cl] = '\0' ;
-	    	    *rpp = ncp ;
-		}
-		uc_free(cp) ;
-	    }
-	}
+	if ((rs = uc_malloc(size,&bp)) >= 0) {
+	    int		bl = (strwcpy(bp,sp,sl) - bp) ;
+	    *rpp = bp ;
+	    if ((sl-bl) > MALLOCSTRW_OVERLEN) {
+		char	*nbp ;
+		size = (bl+1) ;
+		if ((rs = uc_malloc(size,&nbp)) >= 0) {
+	    	    strncpy(nbp,bp,bl) ;
+	    	    nbp[bl] = '\0' ;
+	    	    *rpp = nbp ;
+		} /* end if (uc_malloc) */
+		uc_free(bp) ;
+	    } /* end if (handle over-length) */
+	} /* end if (m-a-f) */
 #else /* CF_STRLEN */
-	if ((rs = uc_malloc(size,&cp)) >= 0) {
-	    strncpy(cp,sp,sl) ;
-	    cp[sl] = '\0' ;
-	    *rpp = cp ;
+	if ((rs = uc_malloc(size,&bp)) >= 0) {
+	    strncpy(bp,sp,sl) ;
+	    bp[sl] = '\0' ;
+	    *rpp = bp ;
 	}
 #endif /* CF_STRLEN */
 
 	return (rs >= 0) ? size : rs ;
 }
 /* end subroutine (uc_mallocstrw) */
-
 
