@@ -16,7 +16,10 @@
 	Fixed up string-copy to caller destination to avoid any garbage in the
 	TMPX username field if it is smaller than USERNAMELEN in length. Also
 	refactored for some pretty-up.
-	
+
+	= 2018-09-27, David A.D. Morano
+	Moved two variable declarations closer to their uses.
+
 */
 
 /* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
@@ -31,6 +34,10 @@
 	take the latest UTMPX entry as being most authuritative. This is not
 	always correct, but it is really the best we can do with what we are
 	given (only a UID).
+
+	Notes:
+	
+	+ Yes. of course, we are thread-safe.
 
 
 *******************************************************************************/
@@ -99,10 +106,9 @@ int finduid_start(FINDUID *op,cchar *dbfname,int max,int ttl)
 
 	if (dbfname != NULL) {
 	    int		pl = -1 ;
-	    const char	*cp ;
-	    char	pwd[MAXPATHLEN+1] ;
 	    char	tmpfname[MAXPATHLEN+1] ;
 	    if ((dbfname[0] != '\0') && (dbfname[0] != '/')) {
+		char	pwd[MAXPATHLEN+1] ;
 		if ((rs = getpwd(pwd,MAXPATHLEN)) >= 0) {
 		    rs = mkpath2(tmpfname,pwd,dbfname) ;
 		    pl = rs ;
@@ -110,6 +116,7 @@ int finduid_start(FINDUID *op,cchar *dbfname,int max,int ttl)
 		}
 	    }
 	    if (rs >= 0) {
+		const char	*cp ;
 	        if ((rs = uc_mallocstrw(dbfname,pl,&cp)) >= 0) {
 	            op->dbfname = cp ;
 		} /* end if (memory-allocation) */
