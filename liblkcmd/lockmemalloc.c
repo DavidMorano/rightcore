@@ -30,14 +30,30 @@
 	This is a hack to get around the fact that the KSH program does not
 	have a mutex around its memory allocation subroutines.
 
-	Although the KSH program wants to be sigle-threaded, the problem comes
-	when complicated built-in commands are dynamically loaded.  These
-	built-ins can call subroutines that are multi-threaded.  This usually
-	leads to a program crash due to no mutex lock being around the memory
-	allocation facility (using the familiar subroutine names that we all
-	know and love: |malloc(3c)| and friends) used by KSH.
+	Although the KSH program wants to be single-threaded, the problem comes
+	when complicated built-in commands (which might be multi-threaded) are 
+	dynamically loaded.  These built-ins can also call subroutines that are 
+	multi-threaded.  This usually leads to a program crash due to no mutex 
+	lock being around the memory allocation facility (using the familiar 
+	subroutine names that we all know and love: |malloc(3c)| and friends) 
+	used by KSH. This module acts as an interposer for the regular 
+	|uc_libmalloc(3uc)| subroutines. We do that function, except that we 
+	also have a mutex lock around them. This *should* allow for 
+	multi-threaded use of these subroutines while within the builtin. 
+	
+	But there are still important caveats to a full multi-threaded run-time.
+	Any parallel access of these subroutines with any KSH usage will still 
+	fail. So these subroutine still cannot be called from a background 
+	thread of KSH running in the foreground. Also, the SFIO facility cannot 
+	be used in parallel with other threads calling these subroutines. The 
+	reason is becuase neither KSH not SFIO is running with mutex locks 
+	around their calls to the underlying |malloc(3c)| knock-off provided by 
+	KSH.  The real and only final solution is to replace the KSH 
+	|malloc(3c)| knock-off facility with one that is mutex protected. The OS 
+	system version of |malloc(3c)| is a suitable replacement since it is 
+	mutex protected for multi-threaded operation.
 
-	The only real (semi-user visible) subroutine of this module is
+	The only real (semi-user visible) extra subroutine of this module is
 	|lockmemalloc_set(3uc)|.
 
 	Synopsis:
