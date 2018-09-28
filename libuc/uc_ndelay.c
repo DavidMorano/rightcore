@@ -1,6 +1,6 @@
 /* uc_ndelay */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 /* set the NDELAY file descriptor open-flag */
 
 
@@ -9,12 +9,12 @@
 
 /* revision history:
 
-	= 1998-04-13, David A­D­ Morano
+	= 1998-04-13, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -41,24 +41,19 @@ int uc_ndelay(int fd,int f)
 	int		f_previous = FALSE ;
 
 	if ((rs = u_fcntl(fd,F_GETFL,0)) >= 0) {
-	    int	flflags = rs ;
-
+	    int		flflags = rs ;
 	    f_previous = (flflags & O_NDELAY) ? 1 : 0 ;
 	    if (! LEQUIV(f_previous,f)) {
-    
 	        if (f) {
 	            flflags |= O_NDELAY ;
-	        } else
+	        } else {
 	            flflags &= (~ O_NDELAY) ;
-    
+		}
 	        rs = u_fcntl(fd,F_SETFL,flflags) ;
-    
 	    } /* end if (needed a change) */
-
-	} /* end if */
+	} /* end if (u_fcntl) */
 
 	return (rs >= 0) ? f_previous : rs ;
 }
 /* end subroutine (uc_ndelay) */
-
 
