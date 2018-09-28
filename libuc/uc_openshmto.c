@@ -1,6 +1,6 @@
 /* uc_openshmto */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 /* open POSIX share-memory (w/ time-out) */
 
 
@@ -9,16 +9,16 @@
 
 /* revision history:
 
-	= 1998-07-10, David A­D­ Morano
+	= 1998-07-10, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-        This subroutine opens a POSIX® shared-memory ('sem(3rt)') object but
+        This subroutine opens a POSIXÂ® shared-memory ('sem(3rt)') object but
         with a time-out. What does this mean to have a time-out while trying to
         open a shared memory segment? It means that if the segment is access
         protected, we continue to try until the time-out value has expired.
@@ -81,14 +81,14 @@ int uc_openshmto(const char *shmname,int of,mode_t om,int to)
 
 	if (to < 0) to = INT_MAX ;
 
-	for (i = 0 ; to-- > 0 ; i += 1) {
+	for (i = 0 ; to-- >= 0 ; i += 1) {
 	    if (i > 0) msleep(1000) ;
 	    rs = uc_openshm(shmname,of,om) ;
 	    fd = rs ;
-	    if ((rs >= 0) || (rs != SR_ACCESS)) break ;
+	    if (rs != SR_ACCESS) break ;
 	} /* end while */
 
-	if ((rs < 0) && (to == 0)) rs = SR_TIMEDOUT ;
+	if (rs == SR_ACCESS) rs = SR_TIMEDOUT ;
 
 	return (rs >= 0) ? fd : rs ;
 }
@@ -104,5 +104,4 @@ int uc_openshmto(const char *fname,int of,mode_t om,int to)
 /* end subroutine (uc_openshm) */
 
 #endif /* defined(SYSHAS_PSHM) && (SYSHAS_PSHM > 0) */
-
 
