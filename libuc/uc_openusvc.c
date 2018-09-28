@@ -1,6 +1,6 @@
 /* uc_openusvc (open-facility-service) */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 /* open a facility-service */
 
 
@@ -10,12 +10,12 @@
 
 /* revision history:
 
-	= 1998-07-10, David A­D­ Morano
+	= 1998-07-10, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -46,7 +46,7 @@
 	Facility services are represented in the filesystem as files with names
 	of the form:
 
-	<user>~<svc>[­<arg(s)>
+	<user>~<svc>[Â­<arg(s)>
 
 	These sorts of file names are often actually stored in the filesystem
 	as symbolic links.
@@ -269,14 +269,11 @@ int		to ;
 #endif
 
 	if ((rs = subinfo_start(&si,pr,prn,svc,of,om,argv,envv,to)) >= 0) {
-
-	    rs = subinfo_search(&si) ;
-
-	    if (rs > 0) {
+	    id ((rs = subinfo_search(&si)) > 0) {
 		fd = sip->fd ;
-	    } else if (rs == 0)
+	    } else if (rs == 0) {
 		rs = SR_NOENT ;
-
+	    }
 	    rs1 = subinfo_finish(&si) ;
 	    if (rs >= 0) rs = rs1 ;
 	    if ((rs < 0) && (fd >= 0)) u_close(fd) ;
@@ -332,10 +329,10 @@ int		to ;
 		if (S_ISDIR(sb.st_mode)) {
 		    const char	*ccp ;
 		    if ((rs = uc_libmallocstrw(svcdname,pl,&ccp)) >= 0) {
-	    		char		dialsym[MAXNAMELEN+1] ;
 	    		const int	symlen = MAXNAMELEN ;
 	    		const char	*prefix = SVCSYMPREFIX ;
 			const char	*svc = sip->svc ;
+			char		dialsym[MAXNAMELEN+1] ;
 			sip->svcdname = ccp ;
 	    		if ((rs = sncpy2(dialsym,symlen,prefix,svc)) >= 0) {
 	        	    if ((rs = uc_libmallocstrw(dialsym,rs,&ccp)) >= 0) {
@@ -347,8 +344,9 @@ int		to ;
 			    sip->svcdname = NULL ;
 	    		}
 		    } /* end if (memory-allocation) */
-		} else
+		} else {
 	    	    rs = SR_NOTDIR ;
+		}
 	    } /* end if (stat) */
 	} /* end if (mkpath) */
 
@@ -402,8 +400,9 @@ static int subinfo_search(SUBINFO *sip)
 			    rs = subinfo_exts(sip,sdn,sfn) ;
 			    f = rs ;
 			} /* end if */
-		    } else if (isNoAcc(rs))
+		    } else if (isNoAcc(rs)) {
 			rs = SR_OK ;
+		    }
 		} /* end if (mkpath) */
 
 	        rs1 = uc_libfree(abuf) ;
@@ -444,11 +443,13 @@ static int subinfo_exts(SUBINFO *sip,cchar *sdn,char *sfn)
 	                if ((rs = sperm(&sip->id,&sb,am)) >= 0) {
 			    rs = subinfo_searchlib(sip,sfn) ;
 			    f = rs ;
-			} else if (isNoAcc(rs))
+			} else if (isNoAcc(rs)) {
 			    rs = SR_OK ;
+			}
 		    } /* end if (regular file) */
-		} else if (isNotPresent(rs))
+		} else if (isNotPresent(rs)) {
 		    rs = SR_OK ;
+		}
 	    } /* end if (mksofname) */
 	    if (f) break ;
 	    if (rs < 0) break ;
@@ -529,5 +530,4 @@ static int isNoAcc(int rs)
 	return isOneOf(rsnoacc,rs) ;
 }
 /* end subroutine (isNoAcc) */
-
 
