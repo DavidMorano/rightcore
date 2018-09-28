@@ -1,6 +1,6 @@
 /* uc_procpid */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 /* get a process ID by searching for its command string */
 
 
@@ -9,12 +9,12 @@
 
 /* revision history:
 
-	= 1998-04-13, David A­D­ Morano
+	= 1998-04-13, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -54,6 +54,8 @@
 #define	DIGBUFLEN	40		/* can hold int128_t in decimal */
 #endif
 
+#define	READBUFLEN	(MAXPATHLEN+DIGBUFLEN+2)
+
 
 /* external subroutines */
 
@@ -87,11 +89,11 @@ int uc_procpid(cchar *name,uid_t uid)
 	    argv[i++] = name ;
 	    argv[i] = NULL ;
 	    if ((rs = uc_openprog(pfname,of,argv,NULL)) >= 0) {
-	        const int	llen = (MAXPATHLEN+DIGBUFLEN+2) ;
 	        const int	fd = rs ;
-	        char		lbuf[MAXPATHLEN+DIGBUFLEN+2] ;
+	        const int	llen = READBUFLEN ;
+	        char		lbuf[READBUFLEN+1] ;
 	        if ((rs = u_read(fd,lbuf,llen)) > 0) {
-	            int		sl = rs ;
+	            const int	sl = rs ;
 	            int		cl ;
 	            cchar	*sp = lbuf ;
 	            cchar	*cp ;
@@ -106,5 +108,4 @@ int uc_procpid(cchar *name,uid_t uid)
 	return (rs >= 0) ? pid : rs ;
 }
 /* end subroutine (uc_procpid) */
-
 
