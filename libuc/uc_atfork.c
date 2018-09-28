@@ -16,9 +16,12 @@
 	But more recently we have started to dabble with hidden locks.  The
 	problem is that there is no way to put these hidden locks into a
 	library that also gets unloaded (unmapped) after it is done being used.
-	The standard 'pthread_atfork(3pthread)' does not have an "unregister"
+	The standard |pthread_atfork(3pthread)| does not have an "unregister"
 	feature associated with it.  This is what we are creating here.
 
+	= 2018-09-28, David A.D. Morano
+	Small refactor (mostly pretty-up).
+	
 */
 
 /* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
@@ -26,17 +29,22 @@
 /*******************************************************************************
 
         We are attempting to add an "unregister" feature to the
-        'pthread_atfork(3pthread)' facility. We need to create a whole new
+        |pthread_atfork(3pthread)| facility. We need to create a whole new
         interface for this. This new interface will consist of:
 
 	+ uc_atfork(3uc)
 	+ uc_atforkrelease(3uc)
 
-        We suffered a lot when first learning that 'pthread_atfork(3pthread)'
-        did not get its registered subroutines removed at load-module removal
-        time (as though using something like 'dlclose(3dl)'). So we attempt here
-        to provide something that does the un-registering at module un-load
-        time.
+        We suffered a lot when first learning that |pthread_atfork(3pthread)|
+        does not get its registered subroutines removed at module unload
+        time (as though using something like |dlclose(3dl)|) on all OSes (even
+	POSIX-compliant OSes). So we attempt here to provide something that 
+	does the un-registering at module unload time. The failure by some
+	OSes to call and remove at-fork handlers on module unload was just a
+	failure by those OSes.  And I will not name names on some of the
+	supposedly more responsible OSes which made this failure (Slowlaris!).
+	This should have been in the original POSIX specification on at-fork
+	handlers, but was somehow not mentioned.
 
 	Enjoy.
 
@@ -121,7 +129,11 @@ static void	ucatfork_atforkbefore() ;
 static void	ucatfork_atforkparent() ;
 static void	ucatfork_atforkchild() ;
 
-static int	entry_match(UCATFORK_ENT *,void (*)(),void (*)(),void (*)()) ;
+static int	list_add(UCATFORK_LIST *,UCATFORK_ENT *) ;
+static int	list_rem(UCATFORK_LIST *,UCATFORK_ENT *) ;
+
+static int	entry_load(UCATFORK_ENT *,atfork_t,atfork_t,atfork_t) ;
+static int	entry_match(UCATFORK_ENT *,atfork_t,atfork_t,atfork_t) ;
 
 
 /* local variables */
@@ -206,24 +218,12 @@ int uc_atfork(atfork_t sb,atfork_t sp,atfork_t sc)
 	            if ((rs = ptm_lock(&udp->m)) >= 0) { /* single */
 
 	                if ((rs = ucatfork_trackbegin(udp)) >= 0) {
-	                    UCATFORK_ENT	*ep, *lep ;
+			    UCATFORK_ENT	*ep ;
 	                    const int		esize = sizeof(UCATFORK_ENT) ;
 	                    if ((rs = uc_libmalloc(esize,&ep)) >= 0) {
-	                        ep->sub_before = sb ;
-	                        ep->sub_parent = sp ;
-	                        ep->sub_child = sc ;
-	                        ep->next = NULL ;
-	                        lep = udp->list.tail ;
-	                        if (lep != NULL) {
-	                            lep->next = ep ;
-	                            ep->prev = lep ;
-	                        } else {
-	                            ep->prev = NULL ;
-				}
-	                        udp->list.tail = ep ;
-	                        if (udp->list.head == NULL) {
-	                            udp->list.head = ep ;
-				}
+				UCATFORK_LIST	*lp = &udp.list ;
+				entry_load(ep,sb,sp,sc) ;
+				list_add(lp,ep) ;
 	                    } /* end if (memory-allocation) */
 	                } /* end if (track-begin) */
 
@@ -268,28 +268,20 @@ int uc_atforkrelease(atfork_t sb,atfork_t sp,atfork_t sc)
 
 	        if ((rs = uc_forklockbegin(-1)) >= 0) { /* multi */
 	            if ((rs = ptm_lock(&udp->m)) >= 0) { /* single */
-
-	                if ((rs = ucatfork_trackbegin(udp)) >= 0) {
-	                    UCATFORK_ENT	*ep = udp->list.head ;
+			UCATFORK_LIST	*lp = &udp->list ;
+			    
+	                if ((rs = ucatfork_trackbegin(udp)) >= 0) {    
+	                    UCATFORK_ENT	*ep = lp->head ;
 	                    UCATFORK_ENT	*nep ;
 	                    while (ep != NULL) {
 	                        nep = ep->next ;
 				if (entry_match(ep,sb,sp,sc)) {
-	                            UCATFORK_ENT	*pep = ep->prev ;
+				    c += 1 ;
 #if	CF_DEBUGN
-	nprintf(NDF,"uc_atforkrelease: ent{%p}\n",ep) ;
+				nprintf(NDF,"uc_atforkrelease: ent{%p}\n",ep) ;
 #endif
-	                            c += 1 ;
-	                            if (nep != NULL) {
-	                                nep->prev = ep->prev ;
-	                            } else {
-	                                udp->list.tail = pep ;
-	                            }
-	                            if (pep != NULL) {
-	                                pep->next = ep->next ;
-	                            } else {
-	                                udp->list.head = nep ;
-	                            }
+				    list_rem(lp,ep) ;
+				    uc_libfree(ep) ;
 	                        } /* end if (match) */
 	                        ep = nep ;
 	                    } /* end while (deleting matches) */
@@ -317,11 +309,8 @@ int uc_atforkrelease(atfork_t sb,atfork_t sp,atfork_t sc)
 
 int ucatfork_trackbegin(UCATFORK *udp)
 {
-	int		rs = SR_OK ;
-	if (! udp->f_track) {
-	    udp->f_track = TRUE ;
-	} /* end if (tracking-needed) */
-	return rs ;
+	udp->f_track = TRUE ;
+	return SR_OK ;
 }
 /* end subroutine (ucatfork_trackbegin) */
 
@@ -394,6 +383,56 @@ static void ucatfork_atforkchild()
 /* end subroutine (ucatfork_atforkchild) */
 
 
+/* unlike normal lists (queues) we add at the HEAD!*/
+static int list_add(UCATFORK_LIST *lp,UCATFORK_ENT *ep)
+{
+	UCATFORK_ENT	*lep = lp->tail ;
+	if (lep != NULL) {
+	    lep->next = ep ;
+	    ep->prev = lep ;
+	} else {
+	    ep->prev = NULL ;
+	}
+	lp->tail = ep ;
+	if (lp->head == NULL) {
+	    lp->head = ep ;
+	}
+	return SR_OK ;
+}
+/* end subroutine (list_add) */
+
+
+/* this is an entry-unlink operation (remove from middle) */
+static int list_rem(UCATFORK_LIST *lp,UCATFORK_ENT *ep)
+{
+	UCATFORK_ENT	*pep = ep->prev ;
+	UCATFORK_ENT	*nep = ep->next ;
+	if (nep != NULL) {
+	    nep->prev = ep->prev ;
+	} else {
+	    lp->tail = pep ;
+	}
+	if (pep != NULL) {
+	    pep->next = ep->next ;
+	} else {
+	    lp->head = nep ;
+	}
+	return SR_OK ;
+}
+/* end subroutine (list_rem) */
+
+
+static int entry_load(UCATFORK_ENT *ep,atfork_t sb,atfork_t sp,atfork_t sc)
+{
+	ep->sub_before = sb ;
+	ep->sub_parent = sp ;
+	ep->sub_child = sc ;
+	ep->next = NULL ;
+	return SR_OK ;
+}
+/* end subroutine (entry_load) */
+
+
 static int entry_match(UCATFORK_ENT *ep,atfork_t sb,atfork_t sp,atfork_t sc)
 {
 	int		f = TRUE ;
@@ -403,5 +442,4 @@ static int entry_match(UCATFORK_ENT *ep,atfork_t sb,atfork_t sp,atfork_t sc)
 	return f ;
 }
 /* end subroutine (entry_match) */
-
 
