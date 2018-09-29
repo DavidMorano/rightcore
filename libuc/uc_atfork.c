@@ -333,6 +333,7 @@ void ucatfork_trackend(UCATFORK *udp)
 /* end subroutine (ucatfork_trackend) */
 
 
+/* traverse the list backwards (tail to head) */
 static void ucatfork_atforkbefore()
 {
 	UCATFORK	*udp = &ucatfork_data ;
@@ -349,6 +350,7 @@ static void ucatfork_atforkbefore()
 /* end subroutine (ucatfork_atforkbefore) */
 
 
+/* traverse the list forwards (head to tail) */
 static void ucatfork_atforkparent()
 {
 	UCATFORK	*udp = &ucatfork_data ;
@@ -366,6 +368,7 @@ static void ucatfork_atforkparent()
 /* end subroutine (ucatfork_atforkparent) */
 
 
+/* traverse the list forwards (head to tail) */
 static void ucatfork_atforkchild()
 {
 	UCATFORK	*udp = &ucatfork_data ;
@@ -383,7 +386,7 @@ static void ucatfork_atforkchild()
 /* end subroutine (ucatfork_atforkchild) */
 
 
-/* unlike normal lists (queues) we add at the HEAD!*/
+/* add at the tail */
 static int list_add(UCATFORK_LIST *lp,UCATFORK_ENT *ep)
 {
 	UCATFORK_ENT	*lep = lp->tail ;
