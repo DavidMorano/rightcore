@@ -8,12 +8,15 @@
 
 /* revision history:
 
-	= 1998-11-01, David A­D­ Morano
+	= 1998-11-01, David AÂ­DÂ­ Morano
 	This subroutine was written for Rightcore Network Services.
+
+	= 2018-10-01, David A. Morano
+	I refactored for some clarity.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /******************************************************************************
 
@@ -59,21 +62,21 @@
 
 /* external subroutines */
 
-extern int	sncpy1(char *,int,const char *) ;
-extern int	snwcpy(char *,int,const char *,int) ;
-
 
 /* local structures */
 
 
 /* forward references */
 
-static int	hasbinary(const char *,int) ;
+static int	hasbinary(cchar *,int) ;
 static int	isbinary(int) ;
-static int	iseol(int) ;
+static int	isc0(int) ;
+static int	isc1(int) ;
 
 
 /* local variables */
+
+static cchar	allowed[] = "\a\b\f\n\r\t\v" ;
 
 
 /* exported subroutines */
@@ -111,7 +114,7 @@ int filebinary(cchar *fname)
 /* local subroutines */
 
 
-static int hasbinary(const char *sp,int sl)
+static int hasbinary(cchar *sp,int sl)
 {
 	int	f = FALSE ;
 	while (sl-- && sp[0]) {
@@ -129,29 +132,28 @@ static int hasbinary(const char *sp,int sl)
 
 static int isbinary(int ch)
 {
-	int	f = FALSE ;
+	int		f = FALSE ;
 	ch &= UCHAR_MAX ;
-	if (! f) {
+	if (isc0(ch)) {
+	    f = (ch != '\n') && (strchr(allowed,ch) == NULL) ;
+	} else if (isc1(ch)) {
 	    f = TRUE ;
-	    f = f && (ch < 0x20) ;
-	    f = f && (ch != CH_TAB) ;
-	    f = f && (ch != CH_BS) ;
-	    f = f && (ch != CH_FF) ;
-	    f = f && (! iseol(ch)) ;
 	}
-	f = f || ((ch > 0x80) && ((ch&0x7F) < 0x20)) ;
 	return f ;
 }
 /* end subroutine (isbinary) */
 
 
-static int iseol(int ch)
+static int isc0(int ch)
 {
-	int	f = FALSE ;
-	f = f || (ch == CH_NL) ;
-	f = f || (ch == CH_CR) ;
-	return f ;
+	return (ch < 0x20) ;
 }
-/* end subroutine (iseol) */
+/* end subroutine (isc0) */
 
+
+static int isc1(int ch)
+{
+	return ((ch >= 0x80) && (ch < 0xA0)) ;
+}
+/* end subroutine (isc1) */
 
