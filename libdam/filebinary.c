@@ -14,18 +14,21 @@
 	= 2018-10-01, David A. Morano
 	I refactored for some clarity.
 
+	= 2018-10-02, David A.D. Morano
+	I changed to use buffered file operation.
+
 */
 
 /* Copyright © 1998,2018 David A­D­ Morano.  All rights reserved. */
 
 /******************************************************************************
 
-	Given a file-name we determine if it is an binary file. In other words,
-	we detemine if the passed file (reference by filename) contains binary
+	Given a file-name we determine if it is a binary file. In other words,
+	we detemine if the passed file (referenced by filename) contains binary
 	data or not. Binary data is any data that is not a normal character in
 	each byte position of the file. Non-normal characters are any
 	characters lying within the control-0 or control-1 range of the
-	ISO-8859-1 (otherwise know as ISO Latin-1) character set. We also
+	ISO-8859-1 (otherwise known as ISO Latin-1) character set. We also
 	recognize as normal characters all of the old C-language escape
 	characters (not escaping an existing normal character). The present
 	C-language escapes which we recognize are:
@@ -69,6 +72,7 @@
 
 #include	<vsystem.h>
 #include	<ascii.h>
+#inlcude	<bfile.h>
 #include	<localmisc.h>
 
 
@@ -103,26 +107,30 @@ static cchar	allowed[] = "\a\b\f\n\r\t\v" ;
 
 int filebinary(cchar *fname)
 {
+	bfile		ifile, *ifp = &ifile ;
 	int		rs ;
+	int		rs1 ;
 	int		f = FALSE ;
 
 	if (fname == NULL) return SR_FAULT ;
 	if (fname[0] == '\0') return SR_INVALID ;
 
-	if ((rs = uc_open(fname,O_RDONLY,0666)) >= 0) {
+	if ((rs = bopen(ifp,fname,"r",0666)) >= 0) {
 	    USTAT	sb ;
-	    const int	fd = rs ;
-
-	    if (((rs = u_fstat(fd,&sb)) >= 0) && S_ISREG(sb.st_mode)) {
-		const int	llen = LINEBUFLEN ;
-		char		lbuf[LINEBUFLEN+1] ;
-		while ((rs = u_read(fd,lbuf,llen)) > 0) {
-		    f = hasbinary(lbuf,rs) ;
-		    if (f) break ;
-		} /* end while */
-	    } /* end if (stat) */
-
-	    u_close(fd) ;
+	    if ((rs = bstat(ifp,&sb)) >= 0) {
+		if (S_ISREG(sb.st_mode)) {
+		    const int	llen = LINEBUFLEN ;
+		    char	lbuf[LINEBUFLEN+1] ;
+		    while ((rs = breadline(ifp,lbuf,llen)) > 0) {
+		        f = hasbinary(lbuf,rs) ;
+		        if (f) break ;
+		    } /* end while */
+		} else {
+		    f = TRUE ; /* whatever! */
+		}
+	    } /* end if (bstat) */
+	    rs1 = bclose(ifp) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (open) */
 
 	return (rs >= 0) ? f : rs ;
