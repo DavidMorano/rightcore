@@ -1,6 +1,6 @@
 /* filebinary */
 
-/* determine if named file is an object file */
+/* determine if named file is an binary file */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -16,12 +16,31 @@
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2018 David A­D­ Morano.  All rights reserved. */
 
 /******************************************************************************
 
-	Given a file-name we determine if it is an object file (or core file).
+	Given a file-name we determine if it is an binary file. In other words,
+	we detemine if the passed file (reference by filename) contains binary
+	data or not. Binary data is any data that is not a normal character in
+	each byte position of the file. Non-normal characters are any
+	characters lying within the control-0 or control-1 range of the
+	ISO-8859-1 (otherwise know as ISO Latin-1) character set. We also
+	recognize as normal characters all of the old C-language escape
+	characters (not escaping an existing normal character). The present
+	C-language escapes which we recognize are:
+	
+	\a
+	\b
+	\f
+	\n
+	\r
+	\t
+	\v
 
+	Enjoy.
+	
+	
 	Synopsis:
 
 	int filebinary(fname)
