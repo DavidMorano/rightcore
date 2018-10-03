@@ -16,12 +16,12 @@
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2000,2018 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
         This is a version of |getrandom(2)| that is preloaded to over-ride the
-        standard UNIX® system version.
+        standard UNIX® system version (if there is one).
 
 	Q. Is this multi-thread safe?
 	A. Since it is a knock-off of an existing UNIX® system LIBC (3c)
