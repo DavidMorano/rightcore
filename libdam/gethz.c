@@ -9,15 +9,25 @@
 
 /* revision history:
 
-	= 2001-04-11, David A­D­ Morano
+	= 2001-04-11, David AÂ­DÂ­ Morano
 	This is a spin off of various programs that needed to get the machine
 	HZ value.
 
+	= 2018-10-03, David A.D. Morano
+	I enhanced this to retain a cached value for each type of HZ request
+	individually. This should have been the semantic from day-one.
+
 */
 
-/* Copyright © 2001 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2001,2018 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
+
+	This subroutine retrieves the system HZ value (by possibly different
+	means, specified by the caller) but caches the retrieved value
+	(individually for each method). We use the system subroutine
+	|uc_gethz(3uc)| to get values we do not already have.
+
 
 	Synopsis:
 
@@ -54,18 +64,17 @@
 /* local defines */
 
 #define	GETHZ		struct gethz
+#define	GETHZ_NUM	4		/* current implimentation */
 
 
 /* local structures */
 
 struct gethz {
-	int		hz ;
+	int		hz[GETHX_NUM] ;
 } ;
 
 
 /* forward references */
-
-static int getval(int) ;
 
 
 /* local variables */
@@ -80,48 +89,18 @@ int gethz(int w)
 {
 	GETHZ		*op = &gethz_data ;
 	int		rs ;
-	if ((op->hz == 0) || (w > 0)) {
-	    if ((rs = getval(w)) >= 0) {
-	        op->hz = rs ;
+	if (w < GETHZ_NUM) {
+	    if (op->hz[w] == 0) {
+	        if ((rs = uc_getval(w)) >= 0) {
+	            op->hz[w] = rs ;
+	        }
+	    } else {
+	        rs = op->hz[w] ;
 	    }
 	} else {
-	    rs = op->hz ;
+	    rs = SR_NOSYS ;
 	}
 	return rs ;
 }
 /* end subroutine (gethz) */
-
-
-/* local subroutines */
-
-
-static int getval(int w)
-{
-	int		rs = SR_INVALID ;
-	long		hz = -1 ;
-
-#if	defined(HZ)
-	if ((hz < 0) && ((w == 0) || (w == 1))) {
-	    rs = SR_OK ;
-	    hz = HZ ;
-	}
-#endif
-#if	defined(CLK_TCK) 
-	if ((hz < 0) && ((w == 0) || (w == 2))) {
-	    rs = SR_OK ;
-	    hz = CLK_TCK ;
-	}
-#endif
-#if	defined(_SC_CLK_TCK) 
-	if ((hz < 0) && ((w == 0) || (w == 3))) {
-	    if ((rs = uc_sysconf(_SC_CLK_TCK,NULL)) >= 0) {
-		hz = rs ;
-	    }
-	}
-#endif
-
-	return (rs >= 0) ? hz : rs ;
-}
-/* end subroutine (getval) */
-
 
