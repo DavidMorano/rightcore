@@ -1,25 +1,31 @@
 /* uc_ptsname */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 /* get the filename (path) of a slave-pseudo terminal device */
 
 
 /* revision history:
 
-	= 1998-03-01, David A­D­ Morano
+	= 1998-03-01, David AÂ­DÂ­ Morano
         This is written to get a portable (reentrant and as not theaded) version
         of PTRNAME as we can get.
 
+	= 2018-10-03, David A.D. Morano
+	I modernized this by replacing custom path creation crap with a call
+	to the |snsd(3uc)| subroutine.
+
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998,2018 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-        This code only has meaning on the newer System V UNIX® releases with the
+        This code only has meaning on the newer System V UNIXÂ® releases with the
         PTS dirver. This is now needed to get the filename of the slave side
         device of the new pseudo-terminal clone multiplexor driver. A new
         slave-side filename looks something like '/dev/pts/26'.
+
+	Unlike other versions of this sort of function, this is thread-safe!
 
 	The algorithm (from SVR3 docs) is:
 
@@ -36,18 +42,16 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/mkdev.h>
-#include <sys/stream.h>
-#include <sys/stropts.h>
-#include <sys/wait.h>
-#include <sys/stat.h>
-#include <sys/ptms.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <string.h>
+#include	<sys/types.h>
+#include	<sys/param.h>
+#include	<sys/mkdev.h>
+#include	<sys/stream.h>
+#include	<sys/stropts.h>
+#include	<sys/stat.h>
+#include	<sys/ptms.h>
+#include	<unistd.h>
+#include	<fcntl.h>
+#include	<string.h>
 
 #include	<vsystem.h>
 
@@ -60,9 +64,12 @@
 #define	PTSMAXDEVS	1000000000	/* rather arbitrary */
 
 
-/* forward references */
+/* external subroutines */
 
-static int	cvtstr(char *,int) ;
+extern int	snsd(char *,int,cchar *,uint) ;
+
+
+/* forward references */
 
 
 /* exported subroutines */
@@ -76,8 +83,6 @@ int uc_ptsname(int fd,char *nbuf,int nlen)
 
 	if (nbuf == NULL) return SR_FAULT ;
 
-	if (nlen < (PTSMAXLEN + 1)) return SR_OVERFLOW ;
-
 	memset(&istr,0,sizeof(struct strioctl)) ;
 	istr.ic_cmd = ISPTM ;
 	istr.ic_len = 0 ;
@@ -89,13 +94,13 @@ int uc_ptsname(int fd,char *nbuf,int nlen)
 	    if ((rs = u_fstat(fd, &sb)) >= 0) {
 		uint	minordev = minor(sb.st_rdev) ;
 /* assume that something is bad if the number is too large */
-		if (minordev <= PTSMAXDEVS) {
+		if (minordev < PTSMAXDEVS) {
 /* put the number together with the prefix */
-		    strcpy(nbuf, PTSPREFIX) ;
-		    len = PTSPREFIXLEN ;
-		    len += cvtstr((nbuf+len),minordev) ;
+		    if ((rs = snsd(nbuf,nlen,PTSPREFIX,minordev)) >= 0) {
+			len = rs ;
 /* is the filename there in the file system? */
-		    rs = u_access(nbuf,0) ;
+		        rs = u_access(nbuf,0) ;
+		    }
 		} else {
 	    	    rs = SR_INVALID ;
 		}
@@ -105,33 +110,4 @@ int uc_ptsname(int fd,char *nbuf,int nlen)
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (uc_ptsname) */
-
-
-/* local subroutines */
-
-
-/* convert an integer to a decimal string */
-static int cvtstr(char *ptr,int i)
-{
-	int		rs ;
-	int		dig = 0 ;
-	int		tempi = i ;
-
-	do {
-	    dig += 1 ;
-	    tempi /= 10 ;
-	} while (tempi) ;
-
-	rs = dig ;
-	ptr += dig ;
-	*ptr = '\0' ;
-	while (--dig >= 0) {
-	    *(--ptr) = i % 10 + '0' ;
-	    i /= 10 ;
-	}
-
-	return rs ;
-}
-/* end subroutine (cvtstr) */
-
 
