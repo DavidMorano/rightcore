@@ -1,21 +1,24 @@
 /* uc_grantpt */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 /* grant a PTS-type pseudo-terminal the required permissions for use */
 
 
 /* revision history:
 
-	= 1998-03-01, David A­D­ Morano
+	= 1998-03-01, David AÂ­DÂ­ Morano
 	This subroutine was adapted from a previously related subroutine.
+
+	= 2018-10-03, David A.D. Morano
+	Small pretty-up.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-        Grant the use of a pseudo-terminal on System V Release 3 (SVR3) UNIX® OS
+        Grant the use of a pseudo-terminal on System V Release 3 (SVR3) UNIXÂ® OS
         systems.
 
 
@@ -24,18 +27,8 @@
 
 #include	<envstandards.h>	/* MUST be first to configure */
 
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/mkdev.h>
-#include <sys/stream.h>
-#include <sys/stropts.h>
-#include <sys/wait.h>
-#include <sys/stat.h>
-#include <sys/ptms.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <string.h>
+#include	<sys/types.h>
+#include	<stdlib.h>
 #include	<errno.h>
 
 #include	<vsystem.h>
@@ -50,18 +43,14 @@
 /* exported subroutines */
 
 
-int uc_grantpt(fd)
-int	fd ;
+int uc_grantpt(int fd)
 {
-	int	rs ;
-
+	int		rs ;
 
 	errno = 0 ;
 	if ((rs = grantpt(fd)) < 0) rs = (- errno) ;
 
-ret0:
 	return rs ;
 }
 /* end subroutine (uc_grantpt) */
-
 
