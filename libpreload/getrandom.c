@@ -11,6 +11,9 @@
 	= 2000-05-14, David A­D­ Morano
 	Originally written for Rightcore Network Services.
 
+	= 2018-10-02, David A.D. Morano
+	I fixed a small off-by-one error w/ |getentropy()|.
+
 */
 
 /* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
@@ -151,7 +154,7 @@ int getrandom(void *arbuf,size_t arlen,uint fl)
 int getentropy(void *rbuf,size_t rlen)
 {
 	int		rc ;
-	if (rlen < 256) {
+	if (rlen <= 256) {
 	    if ((rc = getrandom(rbuf,rlen,0)) >= 0) {
 	        rc = 0 ;
 	    }
@@ -423,5 +426,4 @@ static void getrandom_atforkafter()
 	ptm_unlock(&uip->m) ;
 }
 /* end subroutine (getrandom_atforkafter) */
-
 
