@@ -1,7 +1,7 @@
 /* uc_getdefaultproj */
 
-/* interface component for UNIX® library-3c */
-/* project DB access */
+/* interface component for UNIXÂ® library-3c */
+/* Solaris PROJECT DB access */
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
@@ -9,30 +9,38 @@
 
 /* revision history:
 
-	= 1998-06-16, David A­D­ Morano
+	= 1998-06-16, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
+
+	= 2018-10-03, David A.D. Morano
+	Several typos in the introductory comments below have been fixed. Of
+	course, it should not have taken twenty years to have seen (found)
+	and have fixed these!
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998,2018 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-        Now for some fun facts on the 'user_attr' and the 'project' databases
-        Solaris access software (represented in part by this subroutine here).
+        Now for some fun facts on the (Sun) Solaris USER_ATTR and the PROJECT
+	database access software (represented in part by this subroutine here).
         If the databases have any sort of corruption, there is a danger that the
         Solaris access software will memory-access-fault and cause a core dump
         -- as observed many times now. Care needs to taken that no entries in
-        neither the 'user_attr' nor the 'project' databases are corrupted or
+        either the USER_ATTR or the PROJECT databases are corrupted or
         malformed in any way. Until the crappy access software is fixed, core
-        dumps are possibl if not guaranteed.
+        dumps are possible if not guaranteed.
 
-	Finaly note (if I may):
+	Final note (if I may):
 
         I hate to say it, but debugging operating-system software without full
         ability to build or rebuild the OS itself is often quite difficult. And
         we can seldom actually patch up a binary OS even when we have and can
-        correct the bugger source code involved.
+        correct the buggy source code involved. [update 2018-10-03] Linux now 
+	from Oracle (and maybe others) can live patch a completely running
+	kernel on the fly along w/ its various system (shared-object)
+	libraries.
 
 
 *******************************************************************************/
@@ -55,7 +63,7 @@
 
 /* local defines */
 
-#define	TO_AGAIN	10
+#define	TO_AGAIN	10		/* cummulative seconds for EAGAIN */
 
 
 /* external subroutines */
@@ -81,11 +89,7 @@ extern int	msleep(int) ;
 #if	defined(SYSHAS_PROJECT) && (SYSHAS_PROJECT > 0)
 
 
-int uc_getdefaultproj(name,pjp,rbuf,rlen)
-const char	name[] ;
-struct project	*pjp ;
-char		rbuf[] ;
-int		rlen ;
+int uc_getdefaultproj(cchar *name,struct project *pjp,char *rbuf,int rlen)
 {
 	struct project	*rp ;
 	int		rs ;
@@ -133,13 +137,8 @@ int		rlen ;
 #else /* defined(SYSHAS_PROJECT) && (SYSHAS_PROJECT > 0) */
 
 
-int uc_getdefaultproj(name,pjp,rbuf,rlen)
-const char	name[] ;
-struct project	*pjp ;
-char		rbuf[] ;
-int		rlen ;
+int uc_getdefaultproj(cchar *name,struct project *pjp,char *rbuf,int rlen)
 {
-
 	return SR_NOSYS ;
 }
 /* end subroutine (uc_getdefaultproj) */
@@ -159,5 +158,4 @@ taskid_t settaskid(projid_t pjid,uint_t flags) { return 0 } ;
 
 
 #endif /* defined(SYSHAS_PROJECT) && (SYSHAS_PROJECT > 0) */
-
 
