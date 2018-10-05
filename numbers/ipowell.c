@@ -1,6 +1,6 @@
-/* ipow */
+/* ipowell */
 
-/* return integer-power */
+/* return LONGLONG result from integer-power */
 /* last modified %G% version %I% */
 
 
@@ -10,22 +10,27 @@
 
 /* revision history:
 
-	= 2004-03-01, David A­D­ Morano
+	= 2004-03-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.  
+
+	= 2018-10-05, David A.D. Morano
+	This is the second time I had to create this subroutine |ipwell(3dam)|
+	now. Somehow the first creation of this got lost! Happily the
+	conversion from the old |ipow(3dam)| to |ipowell(3dam)| is not too
+	complicated.
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-        This subroutine calculates and returns an integer power for a given
-        base.
+        This subroutine calculates and returns a LONGLONG result from taking
+	an integer power for a given base.
 
 	Synopsis:
 
-	int ipow(b,p)
-	int	b, p ;
+	longlong_t ipow(int b,int p)
 
 	Arguments:
 
@@ -38,7 +43,12 @@
 
 	Notes: 
 
-	Only defined for positive exponents.
+	+ This function is only defined for positive exponents.
+	+ We provide an optional dynamic-programming version, which uses
+	recursion. Remember that recursion can be bad for stack depth, which we
+	are now always on the lookout for seeing as we are now always on
+	threads. The dynamic-programming version is enabled by a define at the
+	top.
 
 
 *******************************************************************************/
@@ -72,15 +82,15 @@
 
 #if	CF_DYNAMIC
 
-int ipow(int b,int n)
+longlong_t ipowell(int b,int n)
 {
-	int		r = 1 ;
+	longlong_t	r = 1 ;
 	if (n == 1) {
 	    r = b ;
 	} else if (n == 2) { /* common case */
 	    r = b*b ;
 	} else if (n > 2) {
-	    int	t = ipow(b,(n/2)) ;
+	    longlong_t	t = ipowell(b,(n/2)) ;
 	    if ((n&1) == 0) {
 		r = (t*t) ;
 	    } else {
@@ -89,21 +99,20 @@ int ipow(int b,int n)
 	}
 	return r ;
 }
-/* end subroutine (ipow) */
+/* end subroutine (ipowell) */
 
 #else /* CF_DYNAMIC */
 
-int ipow(int b,int n)
+longlong_t ipowell(int b,int n)
 {
-	int		r = 1 ;
+	longlong_t	r = 1 ;
 	int		i ;
 	for (i = 0 ; i < n ; i += 1) {
 	    r *= b ;
 	}
 	return r ;
 }
-/* end subroutine (ipow) */
+/* end subroutine (ipowell) */
 
 #endif /* CF_DYNAMIC */
-
 
