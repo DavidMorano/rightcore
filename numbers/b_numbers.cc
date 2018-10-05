@@ -12,15 +12,29 @@
 
 /* revision history:
 
-	= 2004-03-01, David A­D­ Morano
+	= 2004-03-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.  
+
+	= 2018-10-05, David A.D. Morano
+	I added some description comments here at the top.
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
+	Description:
+
+	This command calculates a variety of functions on the specified
+	arguments to this command. Functions available include:
+	+ exponential(n,k)
+	+ permutations(n,k) - with repitition
+	+ permutations(n,k) - wothout repitition
+	+ multicombinations(n,k)
+	+ combinations(n,k)
+	+ factorial(n)
+	
 	Synopsis:
 
 	$ numbers <num-n>[,<num-k>] ...
@@ -82,7 +96,6 @@ extern "C" LONG	combinations(int,int) ;
 extern "C" LONG	multicombinations(int,int) ;
 extern "C" LONG	ipowell(int,int) ;
 
-extern "C" int	ipow(int,int) ;
 extern "C" int	matostr(cchar **,int,cchar *,int) ;
 extern "C" int	matstr(cchar **,cchar *,int) ;
 extern "C" int	matcasestr(cchar **,cchar *,int) ;
@@ -188,7 +201,7 @@ struct numpair {
 	    if (hasalpha(sp,sl)) {
 		rs = loadkey(sp,sl) ;
 	    } else {
-	        if ((tp = strnpbrk(sp,sl,",:-¦­·¤ \t")) != NULL) {
+	        if ((tp = strnpbrk(sp,sl,",:-Â¦Â­Â·Â¤ \t")) != NULL) {
 		    kp = (tp+1) ;
 		    kl = ((sp+sl)-(tp+1)) ;
 		    nl = (tp-sp) ;
@@ -953,8 +966,8 @@ static int usage(PROGINFO *pip)
 	SHIO		*efp = (SHIO *) pip->efp ;
 	int		rs = SR_OK ;
 	int		wlen = 0 ;
-	cchar	*pn = pip->progname ;
-	cchar	*fmt ;
+	cchar		*pn = pip->progname ;
+	cchar		*fmt ;
 
 	fmt = "%s: USAGE> %s [<spec(s)> ...] [-af <afile>]\n" ;
 	if (rs >= 0) rs = shio_printf(efp,fmt,pn,pn) ;
@@ -1020,8 +1033,9 @@ static int procopts(PROGINFO *pip,KEYOPT *kop)
 	                } /* end switch */
 
 	                c += 1 ;
-	            } else
+	            } else {
 	                rs = SR_INVALID ;
+		    }
 
 	            if (rs < 0) break ;
 	        } /* end while (looping through key options) */
@@ -1186,9 +1200,9 @@ static int procspec(PROGINFO *pip,SHIO *ofp,cchar *np,int nl)
 	if (nl < 0) nl = strlen(np) ;
 
 	if ((rs = query.load(np,nl)) >= 0) {
-	    LONG	v = 0 ;
-	    int		n = query.n ;
-	    int		k = query.k ;
+	    LONG	v = 0 ; /* this will be the (integer) result */
+	    const int	n = query.n ;
+	    const int	k = query.k ;
 	    if (rs > 0) numtype = rs ;
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4)) {
@@ -1220,7 +1234,7 @@ static int procspec(PROGINFO *pip,SHIO *ofp,cchar *np,int nl)
 		break ;
 	    case numtype_factorial:
 	    case numtype_default:
-		v = factorial(query.n) ;
+		v = factorial(n) ;
 		break ;
 	    default:
 		rs = SR_INVALID ;
@@ -1303,5 +1317,4 @@ static int locinfo_setotype(LOCINFO *lip,cchar *vp,int vl)
 	return rs ;
 }
 /* end subroutine (locinfo_setotype) */
-
 
