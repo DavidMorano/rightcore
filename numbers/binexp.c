@@ -1,7 +1,7 @@
 /* binexp */
 /* lang=C99 */
 
-/* binary-exponetial function */
+/* binary-exponential function */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -9,16 +9,16 @@
 
 /* revision history:
 
-	= 2004-10-09, David A­D­ Morano
+	= 2004-10-09, David AÂ­DÂ­ Morano
 	This was originally written.
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	We calculate the binary exponetional of a given integral-valued number.
+	We calculate the binary exponential of a given integral-valued number.
 
 	Synopsis:
 
@@ -26,7 +26,7 @@
 
 	Arguments:
 
-	n	number to calculate the binary-exponetial for
+	n	number to calculate the binary-exponential for
 
 	Returns:
 
@@ -71,5 +71,4 @@ double binexp(double x,int n)
 	return v ;
 }
 /* end subroutine (binexp) */
-
 
