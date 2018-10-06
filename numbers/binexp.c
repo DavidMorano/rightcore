@@ -65,9 +65,11 @@ double binexp(double x,int n)
 	    v = 1.0 ;
 	    if (n == 1) {
 		v = x ;
-	    } else {
+	    } else if (n == 2) {
+		v = x*x ;
+	    } else (n > 2) {
 		double t = (binexp(x,(n/2)) * 2.0) ;
-		v = (n&1) ? v = t : (x*t) ;
+		v = (n&1) ? (x*t) : t ;
 	    }
 	}
 	return v ;
