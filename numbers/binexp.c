@@ -18,14 +18,16 @@
 
 /*******************************************************************************
 
-	We calculate the binary exponential of a given integral-valued number.
+	We calculate the binary exponential of a given a double float and an
+	integral-valued number.
 
 	Synopsis:
 
-	double binexp(int n)
+	double binexp(double x,int n)
 
 	Arguments:
 
+	x	double float
 	n	number to calculate the binary-exponential for
 
 	Returns:
@@ -64,7 +66,7 @@ double binexp(double x,int n)
 	    if (n == 1) {
 		v = x ;
 	    } else {
-		double t = (binexp(x,(n/2))*2.0) ;
+		double t = (binexp(x,(n/2)) * 2.0) ;
 		v = (n&1) ? v = t : (x*t) ;
 	    }
 	}
