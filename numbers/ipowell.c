@@ -14,7 +14,7 @@
 	This subroutine was originally written.  
 
 	= 2018-10-05, David A.D. Morano
-	This is the second time I had to create this subroutine |ipwell(3dam)|
+	This is the second time I had to create this subroutine |ipowell(3dam)|
 	now. Somehow the first creation of this got lost! Happily the
 	conversion from the old |ipow(3dam)| to |ipowell(3dam)| is not too
 	complicated.
