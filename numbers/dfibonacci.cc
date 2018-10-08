@@ -9,7 +9,7 @@
 
 /* revision history:
 
-	= 2018-10-06, David A.D. Morano
+	= 2018-10-08, David A.D. Morano
 	This was rewritten (and in C++11).
 
 */
@@ -43,7 +43,7 @@
 	constexpr double d = sqrt(5.0) ;
 	dfibonacci(n) = floor(n/d) ;
 
-	Notes that the variable 'psi' if the Golden-Number.
+	Notes that the variable 'psi' is the Golden-Number.
 
 
 *******************************************************************************/
