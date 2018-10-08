@@ -40,7 +40,7 @@
 
 	The original factorial function:
 
-	double dfactorial(double n)
+	double dfactorial(int n)
 	{
 	    return (n * dfactorial(n-1)) ;
 	}
@@ -77,7 +77,7 @@ extern "C" int	strlinelen(const char *,int,int) ;
 
 /* foward references */
 
-extern "C" int	dfactorial(double,int) ;
+extern "C" double	dfactorial(int) ;
 
 
 /* exported subroutines */
