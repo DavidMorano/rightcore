@@ -8,12 +8,12 @@
 
 /* revision history:
 
-	= 2004-10-09, David A­D­ Morano
+	= 2004-10-09, David AÂ­DÂ­ Morano
 	This was originally written.
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -29,22 +29,17 @@
 
 	Returns:
 
-	-	the Fibonacci number of the input
+	-	the factorial of the input
 
 
 	Notes:
 
-	The original Fibonacci function:
+	The original factorial function:
 
-	double factorial(int n)
+	double dfactorial(double n)
 	{
 	    return (n * dfactorial(n-1)) ;
 	}
-
-        Note that when putting the result into a 32-bit unsigned integer (which
-        is what we are doing here) the largest valued input (domain) of the
-        Factorial function that can be represented in the result is 12. An input
-        value of 13 overflows the 32-bit unsigned integer result. 
 
 	Floating-point:
 
@@ -86,16 +81,19 @@ extern "C" int	dfactorial(double,int) ;
 
 double dfactorial(int n)
 {
-	constexpr double	phi = ((1.0 + sqrt(5.0))/2.0) ;
-	double			v = -1.0 ;
+	
+	double		v = -1.0 ;
 	if (n >= 0) {
 	    v = 1.0 ;
-	    if (n > 1) {
-		v = binexp(phi,(n+1)) + 0.5 ;
+	    if (n == 2) {
+		v = 2.0 ;
+	    } else if (n > 2) {
+		constexpr double	m = floor(1.0 / sqrt(5.0)) ;
+		constexpr double	b = ((1.0 + sqrt(5.0)) / 2.0) ;
+		v = m * binexp(b,(n+1)) ;
 	    }
 	}
 	return v ;
 }
 /* end subroutine (dfactorial) */
-
 
