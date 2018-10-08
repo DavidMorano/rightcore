@@ -1,4 +1,5 @@
 /* dfactorial */
+/* lang=C++98 */
 
 /* floating-pint factorial function */
 
@@ -11,9 +12,12 @@
 	= 2004-10-09, David A­D­ Morano
 	This was originally written.
 
+	= 2018-10-06, David A.D. Morano
+	Refactor and modified for C++.
+
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2004,2018 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -50,8 +54,8 @@
 
 
 #include	<envstandards.h>
+#include	<climits>
 #include	<cmath>
-#include	<limits.h>
 #include	<localmisc.h>
 
 
@@ -60,11 +64,11 @@
 
 /* external subroutines */
 
-double		binexp(double,int) ;
+extern "C" double	binexp(double,int) ;
 
 #if	CF_DEBUGS
-extern int	debugprintf(const char *,...) ;
-extern int	strlinelen(const char *,int,int) ;
+extern "C" int	debugprintf(const char *,...) ;
+extern "C" int	strlinelen(const char *,int,int) ;
 #endif
 
 
@@ -80,8 +84,7 @@ extern "C" int	dfactorial(double,int) ;
 
 
 double dfactorial(int n)
-{
-	
+{	
 	double		v = -1.0 ;
 	if (n >= 0) {
 	    v = 1.0 ;
