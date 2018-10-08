@@ -5,12 +5,15 @@
 
 /* revision history:
 
-	= 1998-09-10, David A­D­ Morano
+	= 1998-09-10, David AÂ­DÂ­ Morano
 	This was originally written.
+
+	= 2018-10-06, David A.D. Morano
+	Small refactor.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -89,10 +92,9 @@ LONG fibonacci(int n)
 	if (n < ntab) {
 	    v = fibotab[n] & UINT_MAX ;
 	} else {
-	    v = fibonacci(n-1) * fibonacci(n-2) ;
+	    v = fibonacci(n-1) + fibonacci(n-2) ;
 	}
 	return v ;
 }
 /* end subroutine (fibonacci) */
-
 
