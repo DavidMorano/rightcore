@@ -18,8 +18,8 @@
 
 /*******************************************************************************
 
-	We calculate the binary exponential of a given a double float and an
-	integral-valued number.
+	We calculate the binary exponential of a given base (double float) and 
+	an integral-valued exponent.
 
 	Synopsis:
 
@@ -27,8 +27,8 @@
 
 	Arguments:
 
-	x	double float
-	n	number to calculate the binary-exponential for
+	x	base
+	n	exponent
 
 	Returns:
 
