@@ -39,9 +39,9 @@
 
 	Floating-point version:
 	constexpr double	phi = ((1.0 + sqrt(5.0)) / 2.0) ;
-	constexpr double	n = binexp(phi,n) - binexp((1.0 - phi),n) ;
-	constexpr double d = sqrt(5.0) ;
-	dfibonacci(n) = floor(n/d) ;
+	constexpr double	num = binexp(phi,n) - binexp((1.0 - phi),n) ;
+	constexpr double	den = sqrt(5.0) ;
+	dfibonacci(n) = floor(num/den) ;
 
 	Note that the variable 'phi' above is the Golden-Number.
 
