@@ -21,7 +21,7 @@
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2004,2018 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -30,16 +30,16 @@
 
 	Synopsis:
 
-	longlong_t ipow(int b,int p)
+	longlong_t ipowell(int b,int n)
 
 	Arguments:
 
 	b	base
-	p	power
+	n	power
 
 	Returns:
 
-	-	result (b**p)
+	-	result (b**n)
 
 	Notes: 
 
