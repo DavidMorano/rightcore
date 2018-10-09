@@ -13,7 +13,7 @@
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1998,2018 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -38,11 +38,14 @@
 
 	LONG fibonacci(int n)
 	{
-	    int	v = 0 ;
-	    if ((n == 1) || (n == 2)) {
-	        n = 1 ;
-	    } else (n > 2) {
-	        v = fibonacci(n - 1) + fibonacci(n - 2) ;
+	    int v = -1 ;
+	    if (n >= 0) {
+	        v = 0 ;
+	        if ((n == 1) || (n == 2)) {
+	            n = 1 ;
+	        } else if (n > 2) {
+	            v = fibonacci(n - 1) + fibonacci(n - 2) ;
+	        }
 	    }
 	    return v ;
 	}
@@ -87,13 +90,15 @@ static const unsigned int fibotab[] = {
 
 LONG fibonacci(int n)
 {
-	const int	ntab = nelem(fibotab) ;
 	LONG		v = -1 ;
-	if (n < ntab) {
-	    v = fibotab[n] & UINT_MAX ;
-	} else {
-	    v = fibonacci(n-1) + fibonacci(n-2) ;
-	}
+	if (n >= 0) {
+	    const int	ntab = nelem(fibotab) ;
+	    if (n < ntab) {
+	        v = fibotab[n] & UINT_MAX ;
+	    } else {
+	        v = fibonacci(n-1) + fibonacci(n-2) ;
+	    }
+	} /* end if (valid) */
 	return v ;
 }
 /* end subroutine (fibonacci) */
