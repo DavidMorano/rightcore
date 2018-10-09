@@ -90,9 +90,9 @@ double dfibonacci(int n)
 	        v = 2.0 ;
 	    } else if (n > 3) {
 	        constexpr double	phi = ((1.0 + sqrt(5.0)) / 2.0) ;
-	        constexpr double	d = sqrt(5.0) ;
-	        double			n = binexp(phi,n) - binexp((1.0 - phi),n) ;
-	        v = floor(n/d) ;
+	        constexpr double	den = sqrt(5.0) ;
+	        double			num = binexp(phi,n) - binexp((1.0 - phi),n) ;
+	        v = floor(num/den) ;
 	    }
 	}
 	return v ;
