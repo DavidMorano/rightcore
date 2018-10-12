@@ -9,12 +9,12 @@
 
 /* revision history:
 
-	= 2016-06-29, David A­D­ Morano
+	= 2016-06-29, David AÂ­DÂ­ Morano
 	This was really made from scratch.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2016 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -288,5 +288,4 @@ static int b64decoder_cvt(B64DECODER *op,cchar *cp,int cl)
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (b64decoder_cvt) */
-
 
