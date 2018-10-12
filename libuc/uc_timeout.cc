@@ -1,7 +1,7 @@
 /* uc_timeout */
 /* lang=C++11 */
 
-/* UNIX® time-out management */
+/* UNIXÂ® time-out management */
 
 
 #define	CF_DEBUGN	0		/* special debugging */
@@ -10,12 +10,15 @@
 
 /* revision history:
 
-	= 2014-04-04, David A­D­ Morano
+	= 2014-04-04, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
+
+	= 2018-10-12, David A.D. Morano
+	Added some small error resiliency to |uctimeout_enterpri()|.
 
 */
 
-/* Copyright © 2014 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2014 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -431,7 +434,7 @@ static int uctimeout_enterpri(UCTIMEOUT *uip,TIMEOUT *ep)
 	            pi = rs ;
 	        }
 	    } /* end if (vecsorthand_get) */
-	} else {
+	} else if (rs == 0) {
 	    if ((rs = vecsorthand_add(pqp,ep)) >= 0) {
 	        pi = rs ;
 	        rs = uctimeout_timerset(uip,ep->val) ;
