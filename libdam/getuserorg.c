@@ -11,12 +11,17 @@
 
 /* revision history:
 
-	= 1998-07-01, David A­D­ Morano
+	= 1998-07-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
+
+	= 2018-10-19, David A.D. Morano
+	Did some cleanup and error robustness, to bring it up to this century.
+	I do not even know if this subroutine is even used much any more, but
+	whatever. This was not actually as bad as it could have been!
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998,2018 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -57,7 +62,6 @@
 #include	<vsystem.h>
 #include	<getbufsize.h>
 #include	<char.h>
-#include	<filebuf.h>
 #include	<getax.h>
 #include	<ugetpw.h>
 #include	<getxusername.h>
@@ -155,10 +159,7 @@ static const int	rsnoacc[] = {
 /* exported subroutines */
 
 
-int getuserorg(rbuf,rlen,username)
-char		rbuf[] ;
-int		rlen ;
-const char	*username ;
+int getuserorg(char *rbuf,int rlen,cchar *username)
 {
 	SUBINFO		si, *sip = &si ;
 	int		rs ;
@@ -176,7 +177,7 @@ const char	*username ;
 #endif
 
 	if ((rs = subinfo_start(&si,ofp,rbuf,rlen,username)) >= 0) {
-	    int	i ;
+	    int		i ;
 
 	    for (i = 0 ; i < 3 ; i += 1) {
 	        switch (i) {
@@ -212,10 +213,7 @@ const char	*username ;
 /* end subroutine (getuserorg) */
 
 
-int gethomeorg(rbuf,rlen,homedname)
-char		rbuf[] ;
-int		rlen ;
-const char	*homedname ;
+int gethomeorg(char *rbuf,int rlen,cchar *homedname)
 {
 	int		rs ;
 	int		len = 0 ;
@@ -233,8 +231,9 @@ const char	*homedname ;
 	    if ((rs = mkpath2(orgfname,homedname,cname)) >= 0) {
 	        if ((rs = readfileline(rbuf,rlen,orgfname)) >= 0) {
 	            len = rs ;
-		} else if (isNoAcc(rs))
+		} else if (isNoAcc(rs)) {
 		    rs = SR_OK ;
+		}
 	    }
 	}
 
@@ -246,12 +245,7 @@ const char	*homedname ;
 /* local subroutines */
 
 
-static int subinfo_start(sip,ofp,rbuf,rlen,un)
-SUBINFO		*sip ;
-const char	*ofp ;
-char		*rbuf ;
-int		rlen ;
-const char	*un ;
+static int subinfo_start(SUBINFO *sip,cchar *ofp,char *rbuf,int rlen,cchar *un)
 {
 
 	memset(sip,0,sizeof(SUBINFO)) ;
@@ -265,8 +259,7 @@ const char	*un ;
 /* end subroutine (subinfo_start) */
 
 
-static int subinfo_finish(sip)
-SUBINFO		*sip ;
+static int subinfo_finish(SUBINFO *sip)
 {
 
 	if (sip == NULL)
@@ -282,16 +275,17 @@ static int getuserorg_var(SUBINFO *sip)
 	int		rs = SR_OK ;
 	int		f ;
 	int		len = 0 ;
-	const char	*un = sip->un ;
+	cchar		*un = sip->un ;
 
 	f = (un[0] == '-') ;
 	if (! f) {
-	    const char	*vun = getenv(VARUSERNAME) ;
-	    if ((vun != NULL) && (vun[0] != '\0'))
+	    cchar	*vun = getenv(VARUSERNAME) ;
+	    if ((vun != NULL) && (vun[0] != '\0')) {
 	        f = (strcmp(vun,un) == 0) ;
+	    }
 	}
 	if (f) {
-	    const char	*orgp = getenv(VARORGANIZATION) ;
+	    cchar	*orgp = getenv(VARORGANIZATION) ;
 	    if (orgp != NULL) {
 	        rs = sncpy1(sip->rbuf,sip->rlen,orgp) ;
 	        len = rs ;
@@ -310,52 +304,50 @@ static int getuserorg_home(SUBINFO *sip)
 	char		homedname[MAXPATHLEN+1] ;
 
 	if ((rs = getuserhome(homedname,MAXPATHLEN,sip->un)) >= 0) {
-	    char	orgname[MAXNAMELEN+1] ;
-	    if ((rs = sncpy2(orgname,MAXNAMELEN,"/.",sip->ofp)) >= 0) {
-	        char	ofname[MAXPATHLEN+1] ;
-	        if ((rs = mkpath2(ofname,homedname,orgname)) >= 0) {
-	            if ((rs = readfileline(sip->rbuf,sip->rlen,ofname)) >= 0) {
-	                len = rs ;
-		    } else if (isNoAcc(rs))
-			rs = SR_OK ;
-		}
+	    if ((rs = gethomeorg(sip->rbuf,sip->rlen,homedname)) >= 0) {
+		len = rs ;
 	    }
-	} /* end if */
+	} /* end if (getuserhome) */
 
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (getuserorg_home) */
 
 
+/* this tries to retrieve from the PASSWD GECOS field */
 static int getuserorg_passwd(SUBINFO *sip)
 {
-	struct passwd	pw ;
-	const int	pwlen = getbufsize(getbufsize_pw) ;
-	int		rs = SR_OK ;
+	int		rs ;
+	int		rs1 ;
 	int		len = 0 ;
-	char		*pwbuf ;
 
-	if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	    if (sip->un[0] == '-') {
-	        rs = getpwusername(&pw,pwbuf,pwlen,-1) ;
-	    } else {
-	        rs = GETPW_NAME(&pw,pwbuf,pwlen,sip->un) ;
-	    }
-	    if (rs >= 0) {
-	        GECOS	g ;
-	        if ((rs = gecos_start(&g,pw.pw_gecos,-1)) >= 0) {
-	            int		vl ;
-	            const int	gi = gecosval_organization ;
-	            const char	*vp ;
-	            if ((vl = gecos_getval(&g,gi,&vp)) > 0) {
-	                rs = sncpy1w(sip->rbuf,sip->rlen,vp,vl) ;
-	                len = rs ;
-	            }
-	            gecos_finish(&g) ;
-	        } /* end if (GECOS) */
-	    } /* end if (get PW entry) */
-	    uc_free(pwbuf) ;
-	} /* end if (m-a) */
+	if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	    struct passwd	pw ;
+	    const int		pwlen = rs ;
+	    char		*pwbuf ;
+	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	        if (sip->un[0] == '-') {
+	            rs = getpwusername(&pw,pwbuf,pwlen,-1) ;
+	        } else {
+	            rs = GETPW_NAME(&pw,pwbuf,pwlen,sip->un) ;
+	        }
+	        if (rs >= 0) {
+	            GECOS	g ;
+	            if ((rs = gecos_start(&g,pw.pw_gecos,-1)) >= 0) {
+	                const int	gi = gecosval_organization ;
+			int		vl ;
+	                cchar		*vp ;
+	                if ((vl = gecos_getval(&g,gi,&vp)) > 0) {
+	                    rs = sncpy1w(sip->rbuf,sip->rlen,vp,vl) ;
+	                    len = rs ;
+	                }
+	                gecos_finish(&g) ;
+	            } /* end if (GECOS) */
+	        } /* end if (get PW entry) */
+	        rs1 = uc_free(pwbuf) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (m-a) */
+	} /* end if (getbufsize) */
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -366,7 +358,7 @@ static int getuserorg_passwd(SUBINFO *sip)
 
 static int getuserorg_sys(SUBINFO *sip)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 	int		len = 0 ;
 	char		orgfname[MAXPATHLEN+1] ;
 
@@ -387,5 +379,4 @@ static int isNoAcc(int rs)
 	return isOneOf(rsnoacc,rs) ;
 }
 /* end subroutine (isNoAcc) */
-
 
