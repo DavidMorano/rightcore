@@ -1,4 +1,5 @@
 /* pcs-main */
+/* lang=C98 */
 
 /* Personal Communication Services (PCS) server for PCS requests */
 /* last modified %G% version %I% */
@@ -11,51 +12,50 @@
 
 /* revision history:
 
-	= 2004-03-01, David A­D­ Morano
+	= 2004-03-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.  
 
-	= 2005-04-20, David A­D­ Morano
+	= 2005-04-20, David AÂ­DÂ­ Morano
 	I changed the program so that the configuration file is consulted even
 	if the program is not run in daemon-mode.  
 
-	= 2011-01-25, David A­D­ Morano
+	= 2011-01-25, David AÂ­DÂ­ Morano
 	Code was removed and placed in other files (so that they can be
 	compiled differently) due to AST-code conflicts over the system
 	socket-library structure definitions.
 
+	- 2018-10-19, David A.D. Morano
+	I changed the main comments (just below here). Some of them were just
+	completely wrong, or otherwise out-of-date with respect to the 
+	architecture of this program (we follow the newer run-another-copy
+	philosophy rather that forking to become a deamon). It is amazing that
+	these previous stupid comments were here for so many years! It shows
+	(a little sadly I would think) just how much (or extrememly little)
+	these comments are perused or examined.
+
 */
 
-/* Copyright © 2004,2005,2011 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004,2005,2011,2018 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	This is a built-in command to the KSH shell.  It should also be able to
-	be made into a stand-alone program without much (if almost any)
-	difficulty, but I have not done that yet (we already have a PCS program
-	out there).
+	This is the top-level entry point (roughly) for the PCS daemon program.
+	The principal entry point (after various pre-hacking for various
+	invocation modes) is |pcsmain()| below.
+	This is also written to be a built-in command to the KSH shell.  
 
-	Note that special care needed to be taken with the child processes
-	because we cannot let them ever return normally!  They cannot return
-	since they would be returning to a KSH program that thinks it is alive
-	(!) and that geneally causes some sort of problem or another.  That is
-	just some weird thing asking for trouble.  So we have to take care to
-	force child processes to exit explicitly.  Child processes are only
-	created when run in "daemon" mode.
+	As far as I know (now after having written this so many years ago),
+	neither the straight up execution of this program, nor the daemon
+	version of this program ever fork children that might return as if they
+	were from the initial execution. This is done so that any top or
+	initial program executions can actually be KSH shell builtin commands.
+	Builtin commands for KSH (or likely any shell) can never allow children
+	to return from the top or initial execution since they would be
+	returning to whatever, undefined zombie land.
 
 	Synopsis:
 
-	$ pcs [-speed[=<name>]] [-zerospeed] [-db <file>]
-
-
-	Implementation note:
-
-	It is difficult to close files when run as a SHELL builtin!  We want to
-	close files when we run in the background, but when running as a SHELL
-	builtin, we cannot close file descriptors untill after we fork (else we
-	corrupt the enclosing SHELL).  However, we want to keep the files
-	associated with persistent objects open across the fork.  This problem
-	is under review.  Currently, there is not an adequate self-contained
-	solution.
+	$ pcs [-d[=<runtime>]]
 
 
 *******************************************************************************/
@@ -1942,7 +1942,7 @@ static int procuserinfo_logid(PROGINFO *pip)
 	if ((rs = lib_runmode()) >= 0) {
 #if	CF_DEBUG
 	    if (DEBUGLEVEL(4))
-	        debugprintf("procuserinfo_logid: rm=%08ß\n",rs) ;
+	        debugprintf("procuserinfo_logid: rm=%08ÃŸ\n",rs) ;
 #endif
 	    if (rs & KSHLIB_RMKSH) {
 	        if ((rs = lib_serial()) >= 0) {
@@ -2363,8 +2363,9 @@ static int procmntcheck(PROGINFO *pip)
 	    if ((rs = u_stat(lip->mntfname,&usb)) >= 0) {
 	        if (S_ISREG(usb.st_mode)) {
 	            rs = sperm(&pip->id,&usb,W_OK) ;
-	        } else
+	        } else {
 	            rs = SR_BUSY ;
+		}
 	        if (rs < 0) {
 	            if (! pip->f.quiet) {
 	                fmt = "%s: inaccessible mount point (%d)\n" ;
@@ -2424,9 +2425,10 @@ static int procbacks(PROGINFO *pip)
 #endif
 
 	    if (rs >= 0) {
-	        int	i = 0 ;
-	        cchar	*av[5] ;
-	        char	dbuf[10+1] ;
+		const int	dlen = (10+DIGBUFLEN) ;
+	        int		i = 0 ;
+	        cchar		*av[5] ;
+	        char		dbuf[10+DIGBUFLEN+1] ;
 	        if (pip->debuglevel > 0) {
 	            fmt = "%s: pf=%s\n" ;
 	            shio_printf(pip->efp,fmt,pn,pf) ;
@@ -2434,7 +2436,7 @@ static int procbacks(PROGINFO *pip)
 	        av[i++] = pip->progname ;
 	        av[i++] = "-daemon" ;
 	        if (pip->debuglevel > 0) {
-	            bufprintf(dbuf,10,"-D=%u",pip->debuglevel) ;
+	            bufprintf(dbuf,dlen,"-D=%u",pip->debuglevel) ;
 	            av[i++] = dbuf ;
 	        }
 	        av[i++] = NULL ;
@@ -2480,10 +2482,9 @@ static int procbacker(PROGINFO *pip,cchar *pf,cchar **av)
 	            spawner_fdclose(&s,i) ;
 	        }
 	        if ((rs = spawner_run(&s)) >= 0) {
-	            cchar	*fmt ;
 	            pid = rs ;
 	            if (pip->open.logprog) {
-	                fmt = "backgrounded (%u)" ;
+	                cchar	*fmt = "backgrounded (%u)" ;
 	                logprintf(pip,fmt,pid) ;
 	            }
 	        }
@@ -2727,6 +2728,7 @@ static int procregular(PROGINFO *pip)
 /* end subroutine (procregular) */
 
 
+/* this is the daemon service loop */
 static int procservice(PROGINFO *pip)
 {
 	LOCINFO		*lip = pip->lip ;
@@ -2925,5 +2927,4 @@ static int procexecname(PROGINFO *pip,char *rbuf,int rlen)
 	return rs ;
 }
 /* end subroutine (procexecname) */
-
 
