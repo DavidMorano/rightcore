@@ -60,6 +60,10 @@
 
 /* local defines */
 
+#ifndef	NSYSPIDS
+#define	NSYSPIDS	100		/* first PID after system processes */
+#endif
+
 #if	CF_UGETPW
 #define	GETPW_NAME	ugetpw_name
 #else
