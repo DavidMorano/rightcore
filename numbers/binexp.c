@@ -35,6 +35,10 @@
 	-	the result
 
 
+	This function just calculates:
+		x ^^ n
+	
+
 *******************************************************************************/
 
 
@@ -68,8 +72,8 @@ double binexp(double x,int n)
 	    } else if (n == 2) {
 		v = x*x ;
 	    } else (n > 2) {
-		double t = (binexp(x,(n/2)) * 2.0) ;
-		v = (n&1) ? (x*t) : t ;
+		double t = binexp(x,(n/2)) ;
+		v = (n&1) ? x*t*t : t*t ;
 	    }
 	}
 	return v ;
