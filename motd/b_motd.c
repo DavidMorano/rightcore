@@ -18,14 +18,14 @@
 
 /* revision history:
 
-	= 2004-01-10, David A­D­ Morano
+	= 2004-01-10, David AÂ­DÂ­ Morano
 	This code was written as a KSH builtin.  
 
-	= 2011-09-23, David A­D­ Morano
+	= 2011-09-23, David AÂ­DÂ­ Morano
 	I put the "environment" hack into this code.  See the design
 	note in the comments below.
 
-	= 2011-11-08, David A­D­ Morano
+	= 2011-11-08, David AÂ­DÂ­ Morano
         I took the "environment" hack *out* of the code. It was actually not
         correct in a multithreaded environment. Currently (at this present time)
         the KSH Shell is not multithreaded, but other programs (notably servers)
@@ -42,7 +42,7 @@
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -2664,7 +2664,7 @@ static int procregouterfile(PROGINFO *pip,void *ofp,int fd)
 /* end subroutine (procregouterfile) */
 
 
-static int procmotd(PROGINFO *pip,cchar	*groupname,cchar **av,int fd)
+static int procmotd(PROGINFO *pip,cchar *groupname,cchar **av,int fd)
 {
 	LOCINFO		*lip = pip->lip ;
 	MOTD		m ;
@@ -2814,7 +2814,7 @@ static int proclockprint(PROGINFO *pip,LFM_CHECK *lcp)
 
 	    if (lcp->banner != NULL)
 	        shio_printf(pip->efp,
-	            "%s: other_banner=»%s«\n",
+	            "%s: other_banner=Â»%sÂ«\n",
 	            pip->progname,lcp->banner) ;
 
 	} /* end if (standard-error) */
@@ -2904,7 +2904,7 @@ static int procloadadmin(PROGINFO *pip,VECPSTR *nlp,cchar *np,int nl)
 	            rs1 = locinfo_rncurend(lip,&rnc) ;
 	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (srncursor) */
-	    } else if (nch == MKCHAR('¡')) {
+	    } else if (nch == MKCHAR('Â¡')) {
 	        LOCINFO_GMCUR	gc ;
 	        cchar		*gnp = (np+1) ;
 		int		gnl = (nl-1) ;
