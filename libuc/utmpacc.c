@@ -76,7 +76,7 @@
 
 #define	UTMPACC		struct utmpacc_head
 #define	UTMPACC_ITEM	struct utmpacc_i
-#defint	UTMPACC_MTYPES	3
+#define	UTMPACC_MTYPES	3
 
 /* intervals (seconds) */
 #define	UTMPACC_INTBOOT		(5*3600)
