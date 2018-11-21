@@ -43,8 +43,8 @@
 
 	w		which user logins to count:
 				0	normal users only
-				1	normal users + login gettys
-				2	normal users, login gettys, init procs
+				1	login gettys only
+				2	init procs only
 
 	Returns:
 
