@@ -11,9 +11,12 @@
 	= 2000-05-14, David A­D­ Morano
 	Originally written for Rightcore Network Services.
 
+	= 2018-11-21. David A.D. Morano
+	I enhanced the caching of different entry types.
+
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 2000,2018 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -73,7 +76,7 @@
 
 #define	UTMPACC		struct utmpacc_head
 #define	UTMPACC_ITEM	struct utmpacc_i
-#define	UTMPACC_REC	struct utmpacc_r
+#defint	UTMPACC_MTYPES	3
 
 /* intervals (seconds) */
 #define	UTMPACC_INTBOOT		(5*3600)
@@ -97,26 +100,17 @@ extern char	*strwcpy(char *,const char *,int) ;
 
 /* local structures */
 
-struct utmpacc_r {
-	UTMPACC_ENT	e ;
-	time_t		ti_create ;
-	time_t		ti_access ;
-	uint		wcount ;
-} ;
-
 struct utmpacc_i {
-	uint		t ;		/* create-time */
+	time_t		t ;		/* create-time */
 	uint		v ;		/* value */
 } ;
 
 struct utmpacc_head {
 	PTM		m ;		/* data mutex */
 	PTC		c ;		/* condition variable */
-	void		*cache ;	/* cache (allocated) */
 	UTMPACC_ITEM	btime ;
 	UTMPACC_ITEM	runlevel ;
-	UTMPACC_ITEM	nusers ;
-	UTMPACC_ITEM	ent ;
+	UTMPACC_ITEM	nusers[UTMPACC_NTYPES] ;
 	int		max ;
 	int		ttl ;
 	volatile int	waiters ;
@@ -194,16 +188,13 @@ void utmpacc_fini()
 	UTMPACC		*uip = &utmpacc_data ;
 	if (uip->f_initdone) {
 	    uip->f_initdone = FALSE ;
-	    {
-	        if (uip->cache != NULL) {
-	            utmpacc_end(uip) ;
-	        }
-	    }
+	    utmpacc_end(uip) ;
 	    {
 	        void	(*b)() = utmpacc_atforkbefore ;
 	        void	(*a)() = utmpacc_atforkafter ;
 	        uc_atforkrelease(b,a,a) ;
 	    }
+	    ptc_destroy(&uip->c) ;
 	    ptm_destroy(&uip->m) ;
 	    memset(uip,0,sizeof(UTMPACC)) ;
 	} /* end if (was initialized) */
@@ -224,13 +215,13 @@ int utmpacc_boottime(time_t *tp)
 	    if ((rs = utmpacc_init()) >= 0) {
 	        UTMPACC		*uip = &utmpacc_data ;
 	        if ((rs = utmpacc_capbegin(uip,-1)) >= 0) {
-	            time_t	dt = time(NULL) ;
-	            const int	to = UTMPACC_INTBOOT ;
-
-	            if ((dt - uip->btime.t) >= to) {
-	                rs = utmpacc_scan(uip,dt) ;
-	            } /* end if (timed-out) */
-
+		    if ((rs = utmpacc_begin(uip)) >= 0) {
+	                const time_t	dt = time(NULL) ;
+	                const int	to = UTMPACC_INTBOOT ;
+	                if ((dt - uip->btime.t) >= to) {
+	                    rs = utmpacc_scan(uip,dt) ;
+	                } /* end if (timed-out) */
+		    } /* end if */
 	            rs1 = utmpacc_capend(uip) ;
 	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (capture-exclusion) */
@@ -259,14 +250,14 @@ int utmpacc_runlevel()
 	    if ((rs = utmpacc_init()) >= 0) {
 	        UTMPACC		*uip = &utmpacc_data ;
 	        if ((rs = utmpacc_capbegin(uip,-1)) >= 0) {
-	            time_t	dt = time(NULL) ;
-	            const int	to = UTMPACC_INTRUNLEVEL ;
-
-	            if ((dt - uip->runlevel.t) >= to) {
-	                rs = utmpacc_scan(uip,dt) ;
-	            } /* end if */
-	            if (rs >= 0) n = uip->runlevel.v ;
-
+		    if ((rs = utmpacc_begin(uip)) >= 0) {
+	                const time_t	dt = time(NULL) ;
+	                const int	to = UTMPACC_INTRUNLEVEL ;
+	                if ((dt - uip->runlevel.t) >= to) {
+	                    rs = utmpacc_scan(uip,dt) ;
+	                } /* end if */
+	                if (rs >= 0) n = uip->runlevel.v ;
+		    } /* end if */
 	            rs1 = utmpacc_capend(uip) ;
 	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (capture-exclusion) */
@@ -287,20 +278,20 @@ int utmpacc_users(int w)
 	int		rs1 ;
 	int		n = 0 ;
 
-	if (w < 0) return SR_INVALID ;
+	if ((w < 0) || (w >= UTMPACC_NYTYPES)) return SR_INVALID ;
 
 	if ((rs = sigblock_start(&b,NULL)) >= 0) {
 	    if ((rs = utmpacc_init()) >= 0) {
 	        UTMPACC		*uip = &utmpacc_data ;
 	        if ((rs = utmpacc_capbegin(uip,-1)) >= 0) {
-	            time_t	dt = time(NULL) ;
-	            const int	to = UTMPACC_INTUSERS ;
-
-	            if ((dt - uip->nusers.t) >= to) {
-	                rs = utmpacc_getusers(uip,dt,w) ;
-	            } /* end if */
-	            if (rs >= 0) n = uip->nusers.v ;
-
+		    if ((rs = utmpacc_begin(uip)) >= 0) {
+	                const time_t	dt = time(NULL) ;
+	                const int	to = UTMPACC_INTUSERS ;
+	                if ((dt - uip->nusers[w].t) >= to) {
+	                    rs = utmpacc_getusers(uip,dt,w) ;
+	                } /* end if */
+	                if (rs >= 0) n = uip->nusers[w].v ;
+		    } /* end if */
 	            rs1 = utmpacc_capend(uip) ;
 	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (capture-exclusion) */
@@ -332,10 +323,10 @@ int utmpacc_entsid(UTMPACC_ENT *uep,char *uebuf,int uelen,pid_t sid)
 	    if ((rs = utmpacc_init()) >= 0) {
 	        UTMPACC		*uip = &utmpacc_data ;
 	        if ((rs = utmpacc_capbegin(uip,-1)) >= 0) {
-	            {
-	                time_t	dt = time(NULL) ;
+		    if ((rs = utmpacc_begin(uip)) >= 0) {	
+	                const time_t	dt = time(NULL) ;
 	                rs = utmpacc_getentsid(uip,dt,uep,uebuf,uelen,sid) ;
-	            }
+	            } /* end if */
 	            rs1 = utmpacc_capend(uip) ;
 	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (capture-exclusion) */
@@ -366,17 +357,11 @@ int utmpacc_stats(UTMPACC_STATS *usp)
 	    if ((rs = utmpacc_init()) >= 0) {
 	        UTMPACC		*uip = &utmpacc_data ;
 	        if ((rs = utmpacc_capbegin(uip,-1)) >= 0) {
-
-	            if (uip->cache == NULL) {
-			rs = utmpacc_begin(uip) ;
-		    }
-
-	            if (rs >= 0) {
+		    if ((rs = utmpacc_begin(uip)) >= 0) {
 	                usp->max = uip->max ;
 	                usp->ttl = uip->ttl ;
 	                n = uip->max ;
 	            } /* end if */
-
 	            rs1 = utmpacc_capend(uip) ;
 	            if (rs >= 0) rs = rs1 ;
 	        } /* end if (capture-exclusion) */
@@ -396,36 +381,15 @@ int utmpacc_stats(UTMPACC_STATS *usp)
 /* ARGSUSED */
 static int utmpacc_begin(UTMPACC *uip)
 {
-	int		rs = SR_OK ;
-
-#if	CF_DEBUGS
-	debugprintf("utmpacc_begin: ent\n") ;
-#endif
-
-	if (uip == NULL) return SR_FAULT ;
-
-#if	CF_DEBUGS
-	debugprintf("utmpacc_begin: max=%u\n",uip->max) ;
-	debugprintf("utmpacc_begin: ret rs=%d\n",rs) ;
-#endif
-
-	return rs ;
+	return SR_OK ;
 }
 /* end subroutine (utmpacc_begin) */
 
 
+/* ARGSUSED */
 static int utmpacc_end(UTMPACC *uip)
 {
-	int		rs = SR_OK ;
-	int		rs1 ;
-
-	if (uip->cache != NULL) {
-	    rs1 = uc_libfree(uip->cache) ;
-	    if (rs >= 0) rs = rs1 ;
-	    uip->cache = NULL ;
-	} /* end if (initialized) */
-
-	return rs ;
+	return SR_OK ;
 }
 /* end subroutine (utmpacc_end) */
 
@@ -504,9 +468,20 @@ static int utmpacc_getusers(UTMPACC *uip,time_t dt,int w)
 	            uip->btime.v = up->ut_tv.tv_sec ;
 	            uip->btime.t = dt ;
 	        }
-	        if (up->ut_type == UTMPACC_TUSERPROC) c += 1 ;
-		if ((w == 1) && (up->ut_type == UTMPACC_TLOGINPROC)) c += 1 ;
-		if ((w == 2) && (up->ut_type == UTMPACC_TINITPROC)) c += 1 ;
+		switch (w) {
+		case 0:
+	            if (up->ut_type == UTMPACC_TUSERPROC) c += 1 ;
+		    break ;
+		case 1:
+		    if (up->ut_type == UTMPACC_TLOGINPROC) c += 1 ;
+		    break ;
+		case 2:
+		    if (up->ut_type == UTMPACC_TINITPROC) c += 1 ;
+		    break ;
+		default:
+		    rs = SR_INVALID ;
+		    break ;
+		} /* end switch */
 	    } /* end while */
 
 	    rs1 = filemap_close(&f) ;
@@ -514,8 +489,8 @@ static int utmpacc_getusers(UTMPACC *uip,time_t dt,int w)
 	} /* end if (filemap) */
 
 	if (rs >= 0) {
-	    uip->nusers.v = c ;
-	    uip->nusers.t = dt ;
+	    uip->nusers[w].v = c ;
+	    uip->nusers[w].t = dt ;
 	}
 
 #if	CF_DEBUGS
@@ -541,11 +516,13 @@ pid_t		sid ;
 	int		rs ;
 	int		rs1 ;
 	int		c = 0 ;
+	int		f_found = FALSE ;
 	const char	*fn = UTMPACC_DEFUTMP ;
 
 	if ((rs = filemap_open(&f,fn,of,max)) >= 0) {
 	    const futmpx_t	*up ;
 	    const int		usize = sizeof(struct futmpx) ;
+	    const int		w = 0 ; /* regular users */
 
 	    while ((rs = filemap_read(&f,usize,&up)) == usize) {
 #if	CF_DEBUGS
@@ -564,23 +541,23 @@ pid_t		sid ;
 	            if (up->ut_user[0] != '\0') {
 	                c += 1 ;
 	                if (up->ut_pid == sid)  {
-	                    uip->ent.t = dt ;
+			    f_found = TRUE ;
 	                    rs = utmpaccent_load(uep,uebuf,uelen,up) ;
 	                }
 	            } /* end if (non-nul) */
 	        } /* end if (user-process) */
 	    } /* end while (reading UTMPX entries) */
 
-	    {
-	        uip->nusers.v = c ;
-	        uip->nusers.t = dt ;
+	    if (rs >= 0) {
+	        uip->nusers[w].v = c ;
+	        uip->nusers[w].t = dt ;
 	    }
 
 	    rs1 = filemap_close(&f) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (filemap) */
 
-	return (rs >= 0) ? c : rs ;
+	return (rs >= 0) ? f_found : rs ;
 }
 /* end subroutine (utmpacc_getentsid) */
 
@@ -637,5 +614,4 @@ static void utmpacc_atforkafter()
 	ptm_unlock(&uip->m) ;
 }
 /* end subroutine (utmpacc_atforkafter) */
-
 
