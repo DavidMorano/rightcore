@@ -10,12 +10,12 @@
 
 /* revision history:
 
-	= 2004-01-10, David A­D­ Morano
+	= 2004-01-10, David AÂ­DÂ­ Morano
 	This code was originally written.
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -416,7 +416,7 @@ static int grcache_recdel(GRCACHE *op,int ri,GRCACHE_REC *ep)
 
 static int grcache_searchname(GRCACHE *op,GRCACHE_REC **rpp,cchar *gn)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 	int		i ;
 
 	for (i = 0 ; (rs = vechand_get(&op->recs,i,rpp)) >= 0 ; i += 1) {
@@ -434,7 +434,7 @@ static int grcache_searchname(GRCACHE *op,GRCACHE_REC **rpp,cchar *gn)
 #if	CF_SEARCHGID
 static int grcache_searchgid(GRCACHE *op,GRCACHE_REC **rpp,gid_t gid)
 {
-	int		rs = SR_OK ;
+	int		rs ;
 	int		i ;
 
 	for (i = 0 ; (rs = vechand_get(&op->recs,i,rpp)) >= 0 ; i += 1) {
@@ -517,15 +517,15 @@ static int grcache_maintenance(GRCACHE *op,time_t dt)
 /* delete entries (at least one) if we are too big */
 
 	if ((rs >= 0) && (iold >= 0)) {
-	    int	n = vechand_count(&op->recs) ;
-	    if (n > op->max) {
-	        rs = vechand_get(&op->recs,iold,&rp) ;
-	        if ((rs >= 0) && (rp != NULL)) {
-	            grcache_recdel(op,iold,rp) ;
-	            grcache_recfree(op,rp) ;
-	        }
-	    }
-	} /* end if */
+	    if ((rs = vechand_count(&op->recs)) > op->max) {
+	        if ((rs = vechand_get(&op->recs,iold,&rp)) >= 0) {
+	            if (rp != NULL)) {
+	                grcache_recdel(op,iold,rp) ;
+	                grcache_recfree(op,rp) ;
+		    } /* end if (have) */
+	        } /* end if (get) */
+	    } /* enbd if (count) */
+	} /* end if (iold) */
 
 	return rs ;
 }
@@ -585,17 +585,11 @@ static int grcache_record(GRCACHE *op,int ct,int rs)
 /* end subroutine (grcache_record) */
 
 
-static int record_start(rp,dt,wc,gn)
-GRCACHE_REC	*rp ;
-time_t		dt ;
-int		wc ;
-const char	gn[] ;
+static int record_start(GRCACHE_REC *rp,time_t dt,int wc,cchar *gn)
 {
-	const int	grlen = getbufsize(getbufsize_gr) ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		rs1 ;
 	int		grl = 0 ;
-	char		*grbuf ;
 
 	if (rp == NULL) return SR_FAULT ;
 	if (gn == NULL) return SR_FAULT ;
@@ -606,43 +600,46 @@ const char	gn[] ;
 
 	memset(rp,0,sizeof(GRCACHE_REC)) ;
 
-	if ((rs = uc_malloc((grlen+1),&grbuf)) >= 0) {
-	    struct group	gr ;
-	    if ((rs1 = getgr_name(&gr,grbuf,grlen,gn)) >= 0) {
-	        const int	size = (rs1+1) ;
-	        void	*p ;
-	        grl = rs1 ;
-	        if ((rs = uc_malloc(size,&p)) >= 0) {
-		    char	*grbuf = (char *) p ;
-		    if ((rs = group_load(&rp->gr,grbuf,grl,&gr)) >= 0) {
-	                rp->grbuf = grbuf ;
-	    	        rp->grl = grl ;
-		    }
-		    if (rs < 0) uc_free(p) ;
-	        } /* end if (memory-allocation) */
-	    } else if (rs1 == SR_NOTFOUND) {
-	        rp->grl = 0 ; /* optional */
-	        grl = 0 ; /* indicates an empty (not-found) entry */
-	    } else
-	        rs = rs1 ;
-	    uc_free(grbuf) ;
-	} /* end if (memory-allocation) */
-
-	if (rs >= 0) {
-	    strwcpy(rp->gn,gn,GROUPNAMELEN) ;
-	    rp->ti_create = dt ;
-	    rp->ti_access = dt ;
-	    rp->wcount = wc ;
-	    rp->magic = GRCACHE_RECMAGIC ;
-	}
+	if ((rs = getbufsize(getbufsize_gr)) >= 0) {
+	    const int	grlen = rs ;
+	    char	*grbuf ;
+	    if ((rs = uc_malloc((grlen+1),&grbuf)) >= 0) {
+	        struct group	gr ;
+	        if ((rs1 = getgr_name(&gr,grbuf,grlen,gn)) >= 0) {
+	            const int	size = (rs1+1) ;
+	            void	*p ;
+	            grl = rs1 ; /* indicates entry found */
+	            if ((rs = uc_malloc(size,&p)) >= 0) {
+		        char	*grbuf = (char *) p ; /* nested variable */
+		        if ((rs = group_load(&rp->gr,grbuf,grl,&gr)) >= 0) {
+	                    rp->grbuf = grbuf ;
+	    	            rp->grl = grl ;
+		        }
+		        if (rs < 0) uc_free(p) ;
+	            } /* end if (memory-allocation) */
+	        } else if (rs1 == SR_NOTFOUND) {
+	            rp->grl = 0 ; /* optional */
+	            grl = 0 ; /* indicates an empty (not-found) entry */
+	        } else {
+	            rs = rs1 ;
+		}
+	        uc_free(grbuf) ; /* free first one up at top */
+	    } /* end if (memory-allocation) */
+	    if (rs >= 0) {
+	        strwcpy(rp->gn,gn,GROUPNAMELEN) ;
+	        rp->ti_create = dt ;
+	        rp->ti_access = dt ;
+	        rp->wcount = wc ;
+	        rp->magic = GRCACHE_RECMAGIC ;
+	    }
+	} /* end if (getbufsize) */
 
 	return (rs >= 0) ? grl : rs ;
 }
 /* end subroutine (record_start) */
 
 
-static int record_finish(rp)
-GRCACHE_REC	*rp ;
+static int record_finish(GRCACHE_REC *rp)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
@@ -666,9 +663,7 @@ GRCACHE_REC	*rp ;
 /* end subroutine (record_finish) */
 
 
-static int record_access(ep,dt)
-GRCACHE_REC	*ep ;
-time_t		dt ;
+static int record_access(GRCACHE_REC *ep,time_t dt)
 {
 	int		rs = SR_OK ;
 	int		grl ;
@@ -684,54 +679,54 @@ time_t		dt ;
 /* end subroutine (record_access) */
 
 
-static int record_refresh(ep,dt,wc)
-GRCACHE_REC	*ep ;
-time_t		dt ;
-int		wc ;
+static int record_refresh(GRCACHE_REC *ep,time_t dt,int wc)
 {
-	struct group	gr ;
-	const int	grlen = getbufsize(getbufsize_gr) ;
-	int		rs = SR_OK ;
+	int		rs ;
 	int		rs1 ;
 	int		grl = 0 ;
-	char		*grbuf ;
 
 	if (ep == NULL) return SR_FAULT ;
 
 	if (ep->magic != GRCACHE_RECMAGIC) return SR_NOTFOUND ;
 
-	if ((rs = uc_malloc((grlen+1),&grbuf)) >= 0) {
-	    if ((rs1 = getgr_name(&gr,grbuf,grlen,ep->gn)) >= 0) {
-	        void	*p ;
-	        grl = rs1 ;
-	        if (ep->grbuf != NULL) {
-	            rs = uc_realloc(ep->grbuf,(grl+1),&p) ;
-	        } else
-	            rs = uc_malloc((grl+1),&p) ;
-	        if (rs >= 0) {
-		    char	*grbuf = (char *) p ;
-	            ep->grbuf = (char *) p ;
-	            ep->grl = grl ;
-		    rs = group_load(&ep->gr,grbuf,grl,&gr) ;
-		    if (rs < 0) uc_free(p) ;
-	        }
-	    } else if (rs1 == SR_NOTFOUND) {
-	        if (ep->grbuf != NULL) {
-		    uc_free(ep->grbuf) ;
-		    ep->grbuf = NULL ;
-	        }
-	        ep->grl = 0 ; /* signal whatever? */
-	        grl = 0 ; /* indicates an empty (not-found) entry */
-	    } else
-	        rs = rs1 ;
-	    uc_free(grbuf) ;
-	} /* end if (memory-allocation) */
-
-	if (rs >= 0) {
-	    ep->ti_create = dt ;
-	    ep->ti_access = dt ;
-	    ep->wcount = wc ;
-	}
+	if ((rs = getbufsize(getbufsize_gr)) >= 0) {
+	    const int	grlen = rs ;
+	    char	*grbuf ;
+	    if ((rs = uc_malloc((grlen+1),&grbuf)) >= 0) {
+		struct group	gr ;
+	        if ((rs1 = getgr_name(&gr,grbuf,grlen,ep->gn)) >= 0) {
+	            void	*p ;
+	            grl = rs1 ; /* indicates entry found */
+	            if (ep->grbuf != NULL) {
+	                rs = uc_realloc(ep->grbuf,(grl+1),&p) ;
+	            } else {
+	                rs = uc_malloc((grl+1),&p) ;
+		    }
+	            if (rs >= 0) {
+		        char	*grbuf = (char *) p ; /* new nested variable */
+	                ep->grbuf = (char *) p ;
+	                ep->grl = grl ;
+		        rs = group_load(&ep->gr,grbuf,grl,&gr) ;
+		        if (rs < 0) uc_free(p) ;
+	            }
+	        } else if (rs1 == SR_NOTFOUND) {
+	            if (ep->grbuf != NULL) {
+		        uc_free(ep->grbuf) ;
+		        ep->grbuf = NULL ;
+	            }
+	            ep->grl = 0 ; /* signal whatever? */
+	            grl = 0 ; /* indicates an empty (not-found) entry */
+	        } else {
+	            rs = rs1 ;
+		}
+	        uc_free(grbuf) ; /* free first one up top */
+	    } /* end if (memory-allocation) */
+	    if (rs >= 0) {
+	        ep->ti_create = dt ;
+	        ep->ti_access = dt ;
+	        ep->wcount = wc ;
+	    }
+	} /* end if (getbufsize) */
 
 	return (rs >= 0) ? grl : rs ;
 }
@@ -748,5 +743,4 @@ static int record_old(GRCACHE_REC *ep,time_t dt,int ttl)
 	return f_old ;
 }
 /* end subroutine (record_old) */
-
 
