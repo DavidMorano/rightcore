@@ -1,6 +1,6 @@
 /* getseed */
 
-/* get random data from the UNIX® kernel */
+/* get random data from the UNIXÂ® kernel */
 /* last modified %G% version %I% */
 
 
@@ -10,12 +10,12 @@
 
 /* revision history:
 
-	= 2001-04-11, David A­D­ Morano
+	= 2001-04-11, David AÂ­DÂ­ Morano
 	This subroutine was written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2001 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2001 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -75,43 +75,43 @@ extern int	cfdeci(cchar *,int,int *) ;
 int getseed(int seed)
 {
 	struct timeval	tv ;
-	const pid_t	pid = getpid() ;
-	const uid_t	uid = getuid() ;
 	uint		rv = 0 ;
 	int		rs ;
-	int		v1, v2 ;
-	int		v3 = 0 ;
-	cchar		*cp ;
-
-	    gettimeofday(&tv,NULL) ;
-
-	    v1 = getppid() ;
-
-	    v2 = getpgrp() ;
+	
+	if ((rs = uc_gettimeofday(&tv,NULL)) >= 0) {
+	    const int	uid = getuid() ;
+	    const int	pid = getpid() ;
+	    const int	v1 = getppid() ;
+	    const int	v2 = getpgrp() ;
+	    int		v3 = 0 ;
+	    cchar	*cp ;
 
 	    if ((cp = getenv(VARRANDOM)) != NULL) {
 		cfdeci(cp,-1,&v3) ;
 	    }
 
-	rv += randlc(tv.tv_usec) ;
-	rv += randlc((int) pid) ;
-	rv += randlc(v1) ;
-	rv += randlc(v2) ;
-	rv += randlc(v3) ;
-	rv += randlc(tv.tv_sec) ;
-	rv += randlc(uid) ;
-	rv += randlc(seed) ;
+	    rv += randlc(tv.tv_usec) ;
+	    rv += randlc(uid) ;
+	    rv += randlc(pid) ;
+	    rv += randlc(v1) ;
+	    rv += randlc(v2) ;
+	    rv += randlc(v3) ;
+	    rv += randlc(tv.tv_sec) ;
+	    rv += randlc(uid) ;
+	    rv += randlc(seed) ;
 
 #if	CF_GETHRTIME
-	{
-	    hrtime_t	h = gethrtime() ;
-	    rv += (uint) h ;
-	    h >>= sizeof(uint) ;
-	    rv += (uint) h ;
-	}
+	    {
+	        hrtime_t	h = gethrtime() ;
+	        rv += (uint) h ;
+	        h >>= sizeof(uint) ;
+	        rv += (uint) h ;
+	    }
 #endif /* CF_GETHRTIME */
 
-	rs = (rv & INT_MAX) ;
+	    rs = (rv & INT_MAX) ;
+	} /* end if (uc_gettimeofday) */
+	    
 	return rs ;
 }
 /* end subroutine (getseed) */
