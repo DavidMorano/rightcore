@@ -5,19 +5,19 @@
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
 #define	CF_TMPX		1		/* try TMPX (reentrant) */
-#define	CF_UTMPX	0		/* try UTMPX (standard UNIX®) */
+#define	CF_UTMPX	0		/* try UTMPX (standard UNIXÂ®) */
 #define	CF_UTMPACC	1		/* try |utmpacc_runlevel(3uc)| */
 
 
 /* revision history:
 
-	= 1998-11-18, David A­D­ Morano
+	= 1998-11-18, David AÂ­DÂ­ Morano
         This subroutine was written to simplify getting the current "run-level"
         of the system.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -40,7 +40,7 @@
 	<0	one of: SR_NOENT, SR_ACCESS, other means some bad happened
 	>=0	run-level (including '0' meaning no record found)
 
-	Notes: Why some subroutine like this was not provided by the UNIX®
+	Notes: Why some subroutine like this was not provided by the UNIXÂ®
 	developers themselves is a mystery.
 
 
@@ -231,7 +231,7 @@ int getrunlevel(cchar *utmpfname)
 /* local subroutines */
 
 
-#if	CF_UTMPACC || CF_TMPX
+#if	CF_TMPX
 int getrunlevel_tmpx(const char *utmpfname)
 {
 	TMPX		ut ;
