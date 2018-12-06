@@ -97,7 +97,6 @@ int getseed(int seed)
 	    rv += randlc(v2) ;
 	    rv += randlc(v3) ;
 	    rv += randlc(tv.tv_sec) ;
-	    rv += randlc(uid) ;
 	    rv += randlc(seed) ;
 
 #if	CF_GETHRTIME
