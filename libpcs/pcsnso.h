@@ -1,7 +1,7 @@
 /* pcsnso */
 
 
-/* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2008 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 #ifndef	PCSNSO_INCLUDE
 #define	PCSNSO_INCLUDE	1
@@ -43,7 +43,8 @@ struct pcsnso_c {
 
 struct pcsnso_flags {
 	uint		id:1 ;			/* text-index */
-	uint		client:1 ;
+	uint		client:1 ;		/* client */
+	uint		server:1 ;		/* server */
 } ;
 
 struct pcsnso_pwd {
@@ -59,9 +60,8 @@ struct pcsnso_head {
 	PCSNSO_FL	f, open ;
 	PCSNSO_PWD	pwd ;
 	IDS		id ;
-	PCSNSC		client ;
-	time_t		ti_lastcheck ;
-	time_t		ti_tind ;		/* text-index */
+	PCSNSC		client ;		/* the PCS-client object */
+	time_t		ti_lastcheck ;		/* server-open check */
 	int		ncursors ;
 	int		opts ;
 } ;
