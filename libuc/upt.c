@@ -1,6 +1,6 @@
 /* upt */
 
-/* UNIX® POSIX Thread manipulation */
+/* UNIXÂ® POSIX Thread manipulation */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -8,13 +8,13 @@
 
 /* revision history:
 
-	= 1998-08-20, David A­D­ Morano
+	= 1998-08-20, David AÂ­DÂ­ Morano
         This is a complete rewrite of the trash that performed this function
         previously.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -315,14 +315,7 @@ int uptsetconcurrency(int c)
 
 int uptatfork(voidfunc pre,voidfunc par,voidfunc chi)
 {
-	int		rs ;
-
-	repeat {
-	    rs = pthread_atfork(pre,par,chi) ;
-	    if (rs != 0) rs = (- errno) ;
-	} until (rs != SR_INTR) ;
-
-	return rs ;
+	return uc_atfork(pre,par,chi) ;
 }
 /* end subroutine (uptatfork) */
 
