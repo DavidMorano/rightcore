@@ -10,12 +10,12 @@
 
 /* revision history:
 
-	- 2008-10-01, David A­D­ Morano
+	- 2008-10-01, David AÂ­DÂ­ Morano
 	This object module was originally written.
 
 */
 
-/* Copyright © 2008 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2008 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -161,6 +161,7 @@
 #define	INDDNAME	"pcsnso"
 
 #define	TO_FILEMOD	(60 * 24 * 3600)
+#define	TO_LASTCHECK	(4*60)
 
 #define	SUBINFO		struct subinfo
 #define	SUBINFO_FL	struct subinfo_flags
@@ -254,7 +255,7 @@ static int	pcsnso_getpcsname(PCSNSO *,SUBINFO *) ;
 static int	pcsnso_getfullname(PCSNSO *,SUBINFO *) ;
 static int	pcsnso_getprojinfo(PCSNSO *,SUBINFO *) ;
 static int	pcsnso_client(PCSNSO *) ;
-static int	pcsnso_clientbegin(PCSNSO *) ;
+static int	pcsnso_clientbegin(PCSNSO *,time_t) ;
 static int	pcsnso_clientend(PCSNSO *) ;
 
 static int	subinfo_start(SUBINFO *,PCSNSO *,char *,int,cchar *,int) ;
@@ -483,7 +484,6 @@ int pcsnso_enum(PCSNSO *op,PCSNSO_CUR *curp,char *vbuf,int vlen,int w)
 
 	if (op->magic != PCSNSO_MAGIC) return SR_NOTOPEN ;
 
-
 #if	CF_DEBUGS
 	debugprintf("pcsnso_read: ret rs=%d len=%u\n",rs,len) ;
 #endif
@@ -498,22 +498,23 @@ int pcsnso_enum(PCSNSO *op,PCSNSO_CUR *curp,char *vbuf,int vlen,int w)
 
 static int pcsnso_infoloadbegin(PCSNSO *op,cchar *pr)
 {
-	const int	pwlen = getbufsize(getbufsize_pw) ;
 	int		rs ;
-	int		size = 0 ;
-	char		*bp ;
 
-	size += (pwlen+1) ;
-	size += (strlen(pr)+1) ;
-	if ((rs = uc_malloc(size,&bp)) >= 0) {
-	    PCSNSO_PWD	*pdp = &op->pwd ;
-	    op->a = bp ;
-	    pdp->pwbuf = bp ;
-	    pdp->pwlen = pwlen ;
-	    bp += (pwlen+1) ;
-	    op->pr = bp ;
-	    strwcpy(bp,pr,-1) ;
-	}
+	if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	    const int	pwlen = rs ;
+	    int		size = 0 ;
+	    char	*bp ;
+	    size += (pwlen+1) ;
+	    size += (strlen(pr)+1) ;
+	    if ((rs = uc_malloc(size,&bp)) >= 0) {
+	        op->a = bp ;
+	        pdp->pwbuf = bp ;
+	        pdp->pwlen = pwlen ;
+	        bp += (pwlen+1) ;
+	        op->pr = bp ;
+	        strwcpy(bp,pr,-1) ;
+	    } /* end if (m-a) */
+	} /* end if (getbufsize) */
 
 	return rs ;
 }
@@ -532,7 +533,6 @@ static int pcsnso_infoloadend(PCSNSO *op)
 	}
 
 	if (op->a != NULL) {
-	    PCSNSO_PWD	*pdp = &op->pwd ;
 	    rs1 = uc_free(op->a) ;
 	    if (rs >= 0) rs = rs1 ;
 	    op->a = NULL ;
@@ -641,7 +641,13 @@ static int pcsnso_client(PCSNSO *op)
 {
 	int		rs = MKBOOL(op->open.client) ;
 	if (! op->f.client) {
-	    rs = pcsnso_clientbegin(op) ;
+	    op->f.client = TRUE ;
+	    rs = pcsnso_clientbegin(op,0) ;
+	} else if (! op->open.client) {
+	    const time_t	dt = time(NULL) ;
+	    if ((dt - op->ti_lastcheck) >= TO_LASTCHECK) {
+		rs = pcsno_clientbegin(op,dt) ;
+	    }
 	}
 #if	CF_DEBUGS
 	debugprintf("pcsnso_client: ret rs=%d\n",rs) ;
@@ -651,21 +657,23 @@ static int pcsnso_client(PCSNSO *op)
 /* end subroiutine (pcsnso_client) */
 
 
-static int pcsnso_clientbegin(PCSNSO *op)
+static int pcsnso_clientbegin(PCSNSO *op,time_t dt)
 {
 	int		rs = SR_OK ;
 	int		f = FALSE ;
-	if (! op->f.client) {
+	if (! op->open.client) {
 	    PCSNSC	*pcp = &op->client ;
 	    const int	to = PCSNSO_TO ;
-	    op->f.client = TRUE ;
-	    if ((rs = pcsnsc_open(pcp,op->pr,to)) > 0) {
+	    if (dt == 0) dt = time(NULL) ;
+	    op->ti_lastcheck = dt ;
+	    if ((rs = pcsnsc_open(pcp,op->pr,to)) >= 0) {
 		op->open.client = TRUE ;
+		op->open.server = (rs > 0) ;
 		f = TRUE ;
 	    } else if (isBadSend(rs)) {
 		rs = SR_OK ;
 	    }
-	}
+	} /* end if (client was not open) */
 #if	CF_DEBUGS
 	debugprintf("pcsnso_clientbegin: ret rs=%d f=%u\n",rs,f) ;
 #endif
@@ -1060,37 +1068,41 @@ static int getname_pcsdef(SUBINFO *sip)
 static int getprojinfo_sysdb(SUBINFO *sip)
 {
 	PCSNSO		*op = sip->op ;
-	struct project	pj ;
-	const int	pjlen = getbufsize(getbufsize_pj) ;
 	int		rs ;
+	int		rs1 ;
 	int		len = 0 ;
-	char		*pjbuf ;
 
 #if	CF_DEBUGS
 	debugprintf("pcsgetnames/getprojinfo_sysdb: un=%d\n",sip->un) ;
 #endif
 
-	if ((rs = uc_malloc((pjlen+1),&pjbuf)) >= 0) {
-	    cchar	*un = sip->un ;
-	    if ((rs = uc_getdefaultproj(un,&pj,pjbuf,pjlen)) >= 0) {
-	        int	f = (strcmp(pj.pj_name,DEFPROJNAME) != 0) ;
-	        if (f) {
-	            PCSNSO_PWD	*pdp = &op->pwd ;
-	            if ((rs = pcsnso_getpw(op,un)) >= 0) {
-	                const uid_t	uid = pdp->pw.pw_uid ;
-	                f = (uid >= NSYSPIDS) ;
+	if ((rs = getbufsize(getbufsize_pj)) >= 0) {
+	    struct project	pj ;
+	    const int		pjlen = rs ;
+	    char		*pjbuf ;
+	    if ((rs = uc_malloc((pjlen+1),&pjbuf)) >= 0) {
+	        cchar	*un = sip->un ;
+	        if ((rs = uc_getdefaultproj(un,&pj,pjbuf,pjlen)) >= 0) {
+	            int	f = (strcmp(pj.pj_name,DEFPROJNAME) != 0) ;
+	            if (f) {
+	                PCSNSO_PWD	*pdp = &op->pwd ;
+	                if ((rs = pcsnso_getpw(op,un)) >= 0) {
+	                    const uid_t	uid = pdp->pw.pw_uid ;
+	                    f = (uid >= NSYSPIDS) ;
+	                }
 	            }
+	            if ((rs >= 0) && f) {
+	                cchar	*comment = pj.pj_comment ;
+	                rs = sncpy1(sip->rbuf,sip->rlen,comment) ;
+	                len = rs ;
+	            }
+	        } else if (isNotPresent(rs)) {
+	            rs = SR_OK ;
 	        }
-	        if ((rs >= 0) && f) {
-	            cchar	*comment = pj.pj_comment ;
-	            rs = sncpy1(sip->rbuf,sip->rlen,comment) ;
-	            len = rs ;
-	        }
-	    } else if (isNotPresent(rs)) {
-	        rs = SR_OK ;
-	    }
-	    uc_free(pjbuf) ;
-	} /* end if (memory-allocation) */
+	        rs1 = uc_free(pjbuf) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (memory-allocation) */
+	} /* end if (getbufsize) */
 
 #if	CF_DEBUGS
 	debugprintf("pcsgetnames/getprojinfo_sysdb: rs=%d len=%u\n",rs,len) ;
