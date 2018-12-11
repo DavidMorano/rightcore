@@ -10,12 +10,15 @@ vecitem		variable sized items, stores the data for you
 vecobj		fixed sized objects, stores the data for you
 vechand		you have to store the data yourself 
 vecint		integers, stores data
-recarr		record-aarry (variable vector) of pointer handles
+veclong		long integers
+vecelem		vector of structures
+recarr		record-arry (variable vector) of pointer handles
 
 hdb		you have to store the data yourself
 hdbstr		key-value strings, stores data for you
 mapstrint	map of strings to integers, stores data
 mapstrs		map of a string key with a string value
+setint		set of integers
 setstr		set (unique) of strings
 osetstr		ordered set (unique) of string
 vsetstr		another ordered set (unique) of strings
@@ -31,10 +34,11 @@ wdt		UNIX FS directory walk function similar to 'ftw'
 buffer		variable length object continuous buffer management
 bufstr		variable length object continuous buffer management (cheapy?)
 sbuf		fixed length object continuous buffer management
+sbuf_xxx	specialty variants
 strmgr		like SBUF but simpler (generally used internally)
 storeitem	fixed length object buffer management of separate items
-serialbuf	fixed length object buffer management of separate items
-outbuf		some whacky thing!
+serialbuf	fixed length object buffer management of joined items
+outbuf		some whacky buffer-storage thing!
 outstore	this is similar (or essentially exactly the same as) BUFSTR
 storebuf	fixed length non-object continuous buffer management
 
@@ -71,6 +75,7 @@ ucsem		UNIX Counting-Semaphore
 
 getenv2
 getenv3
+getourenv	get environment variable from local string-pointer array
 getpwd
 getpwusername	replacement for 'getpwnam'
 getpwlogname	replacement for 'getpwnam'
@@ -86,14 +91,18 @@ getclustername	get the cluster for the current node
 getserial	get a serial number from a file-db
 nisdomainname	get the NIS domain name
 
-getax		access the standard UNIX account databases
+getax		access UNIX system account (PW, SH, GR, PJ) databases
+gethe		access UNIX system HE (host-entry) database
+getne		access UNIX system NE (network-entry) database
+getpe		access UNIX system PE (protocol-entry) database
+getse		access UNIX system SE (service-entry) database
 
-getcanonical
+getcanonical	get host canonical name
 getchost
 getchostname
 getcname
-getehostname
-gethe
+getehostname	get externded host name
+
 gethe1
 getheaddr
 gethostaddr
@@ -103,7 +112,7 @@ findfile	find file
 findfilepath	find file
 findxfile	find eXexecuable file
 
-mailmsgatt
+mailmsgatt	mail message attachments
 mailmsg		an object of the general message headers
 mailmsgattent	mail-message attachment handing
 mailmsgenv	mail-message environment handling
@@ -140,7 +149,7 @@ strwcpyuc	to upper case
 strwcpyfc	to foled case
 strwcpyrev	to reversed sequence of source
 
-strljoin	join two strings to a destination (w/ destination length)
+strljoin	join strings to a destination (w/ destination length)
 
 strnchr		same as 'strchr()' but string has specified length
 strnrchr	same as 'strrchr()' but string has specified length
@@ -149,6 +158,8 @@ strwhite	same as 'strpbrk(s," \v\t\r\n")
 strnncpy	special copy of strings with length and maxium
 strsub		find a substring in a string
 strtoken	reentrant version of 'strtok()' (UNIX has something now)
+
+strnlen		get the length of a string w/ a specified maximum
 
 sifield		string-index to field-separator or end
 sichr		string-index to character
@@ -165,7 +176,39 @@ sidquote	string-index to the end of double-quote string
 sicite		string-index to a "citation" escape
 silbrace	string-index to a left-brace character after white-space
 
-strnlen		get the length of a string w/ a specified maximum
+wsichr		wide-string find character index
+wsirchr		wide-string find reverse character index
+wsinul		wide-string find NUL character index
+wsnlen		wide-string length (bounded)
+wslen		wide-string length
+wscpynarrow	wide-string copy narrow string into it
+wsncols		wide-string find columns in bounded string
+
+sfnext		string-find next
+sfword		string-find word
+sfwhitedot	string-find white-space and dot
+sfthing		string-find special token
+strsubstance	string-find substantive core character sub-string
+sfsub		string-find sub-string
+sfstr		string-find ?
+sfskipwhite	string-find skip white-space
+sfshrink	string-find shrunken core sub-string
+sfrootname	string-find root name
+sfprogroot	string-find program root
+sfnamecomp	string-find ?
+sflast		string-find last
+sfkey		string-find key
+sfbasename	string-find base-name
+sfdirname	string-find dir-name
+sfbaselib	string-find base library name
+sfdequote	string-find de-quoted sub-string
+sfcookkey	string-find cook-key
+sfcenter	string-find center ?
+sfcasesub	string-find case-insensitive sub-string
+sfbreak		string-find break character
+sfbracketval	string-find backet value
+
+wsfnext		wide-string find next field
 
 strjoin		join two strings, returns pointer to next character position
 strjoin2	join two strings
@@ -231,7 +274,7 @@ mkjobfile	make a temporary file (suitable as a job-name)
 mkdatefile	make a temporary file (suitable for a date thing of some sort)
 
 randlc		Linear Congruent Random Nmmber Generator
-random		UNIX® System |random(3c)| but made into an object
+random		UNIXÂ® System |random(3c)| but made into an object
 randomvar	a new high-randomness random number generator
 randmwc		random number generator (Multiply W/ Carry)
 
@@ -244,13 +287,20 @@ strlist		manage a STRLIST database file
 svcfile		service-table file
 kvsfile		key-value file
 sysvar		constant database file
+searchkey	object of search keys
+schedvar	schedule variables
 
-pcsconf		constant database file
-pcspoll		user-mode PCS polling manager
+sesnotes	UNIX session notes
+sesmsg		UNIX session messages
+
+pcsconf		PCS constant database file
+pcspoll		PCS user-mode polling manager
+pcspolls	PCS poll loadable modules
+
+sfisterm	safe-fast is-a-terminal
 
 
 = C++ language (up to C++11) subroutines or objects
-
 
 bellmanford1	Bellman-Ford algorithm-1
 bellmanford2	Bellman-Ford algorithm-2
@@ -264,7 +314,7 @@ dijkstra2.hh	Dijkstra shorted-path-in-graph, algorithm-2
 graph.hh	some graph thing?
 minmaxelem.hh	find maximum and minimum in a range over a list-like object
 obuf.hh		ourput-buffer (used interanlly in some point solution things)
-returnstatus.hh	manage return status (I guess for some point soluations0
+returnstatus.hh	manage return status (I guess for some point soluations
 singlist.hh	a single-link list (not brain-damaged and better than STL)
 sort_insertion.hh	an insertion sort (for C++)
 sort_merge.hh		a merge sort (for C++)
