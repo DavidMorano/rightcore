@@ -12,18 +12,18 @@
 
 /* revision history:
 
-	= 2004-03-01, David A­D­ Morano
+	= 2004-03-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.  It was inspired by many
 	programs that performs various subset functions of this program.  This
 	can be either a KSH builtin or a stand-alone program.
 
-	= 2010-02-03, David A­D­ Morano
+	= 2010-02-03, David AÂ­DÂ­ Morano
 	This subroutine was changed to acess information from the system-group
 	database.
 
 */
 
-/* Copyright © 2004,2010 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004,2010 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -1299,20 +1299,24 @@ static int proclistgroups(PROGINFO *pip,vecpstr *plp)
 {
 	LOCINFO		*lip = pip->lip ;
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		c = 0 ;
 	cchar		**groups ;
 	groups = (cchar **) lip->pj.pj_groups ;
 	if (groups != NULL) {
-	    const int	grlen = getbufsize(getbufsize_gr) ;
-	    char	*grbuf ;
-	    if ((rs = uc_malloc((grlen+1),&grbuf)) >= 0) {
-	        int	i ;
-	        for (i = 0 ; (rs >= 0) && (groups[i] != NULL) ; i += 1) {
-	            rs = proclistgroup(pip,plp,grbuf,grlen,groups[i]) ;
-	            c += rs ;
-	        } /* end for */
-	        uc_free(grbuf) ;
-	    } /* end if (m-a) */
+	    if ((rs = getbufsize(getbufsize_gr)) >= 0) {
+	        const int	grlen = rs ;
+	        char		*grbuf ;
+	        if ((rs = uc_malloc((grlen+1),&grbuf)) >= 0) {
+	            int		i ;
+	            for (i = 0 ; (rs >= 0) && (groups[i] != NULL) ; i += 1) {
+	                rs = proclistgroup(pip,plp,grbuf,grlen,groups[i]) ;
+	                c += rs ;
+	            } /* end for */
+	            rs1 = uc_free(grbuf) ;
+		    if (rs >= 0) rs = rs1 ;
+	        } /* end if (m-a) */
+	    } /* end if (getbufsize) */
 	} /* end if (non-NULL) */
 	return (rs >= 0) ? c : rs ;
 }
