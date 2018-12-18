@@ -13,9 +13,12 @@
 	= 1983-03-07, David A­D­ Morano
 	This subroutine was written for PPI development.
 
+	= 1998-12-07, David A.D. Morano
+	Better handling for multithreading.
+
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright © 1983,1998 David A­D­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
