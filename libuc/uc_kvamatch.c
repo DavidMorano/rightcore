@@ -1,6 +1,6 @@
 /* uc_kvamatch */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -8,16 +8,30 @@
 
 /* revision history:
 
-	= 1998-04-13, David A­D­ Morano
+	= 1998-04-13, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
         This subroutine finds a keyname (if it exists) in a KVA-type of object.
+
+	Synopsis:
+	int uc_kvamatch(kva_t *kva,cchar *keyname,cchar **rpp)
+
+	Arguments:
+	kva		key-value handle
+	keyname		key-name to lookup
+	rpp		pointer to pointer to results
+
+	Returns:
+	>=0		key-name found and this is the length (including zero)
+	SR_NOTFOUND	key-name not found
+	SR_NOSYS	function not implemented on this system
+	<0		other error
 
 
 *******************************************************************************/
@@ -39,10 +53,7 @@
 /* exported subroutines */
 
 
-int uc_kvamatch(kva,keyname,rpp)
-kva_t		*kva ;
-const char	keyname[] ;
-const char	**rpp ;
+int uc_kvamatch(kva_t *kva,cchar *keyname,cchar **rpp)
 {
 	int		rs ;
 	const char	*cp ;
@@ -60,8 +71,9 @@ const char	**rpp ;
 
 	if ((cp = kva_match(kva,(char *) keyname)) != NULL) {
 	    rs = strlen(cp) ;
-	} else
+	} else {
 	    rs = SR_NOTFOUND ;
+	}
 
 #if	CF_DEBUGS
 	debugprintf("uc_kvamatch: kva_match() cp=%s\n",cp) ;
