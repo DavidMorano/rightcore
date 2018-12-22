@@ -1505,18 +1505,16 @@ static int mklist(char *rbuf,int rlen,char **names)
 {
 	SBUF		b ;
 	int		rs ;
+	int		rs1 ;
 
 	if ((rs = sbuf_start(&b,rbuf,rlen)) >= 0) {
-	    int		len ;
 	    int		i ;
-
 	    for (i = 0 ; (rs >= 0) && (names[i] != NULL) ; i += 1) {
 	        if (i > 0) rs = sbuf_char(&b,' ') ;
 	        if (rs >= 0) rs = sbuf_strw(&b,names[i],-1) ;
 	    } /* end for */
-
-	    len = sbuf_finish(&b) ;
-	    if (rs >= 0) rs = len ;
+	    rs1 = sbuf_finish(&b) ;
+	    if (rs >= 0) rs = rs1 ;
 	} /* end if (sbuf) */
 
 	return rs ;
