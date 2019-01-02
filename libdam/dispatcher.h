@@ -42,18 +42,10 @@
 
 
 #define	DISPATCHER	struct dispatcher_head
-#define	DISPATCHER_THR	struct dispatcher_thr
 
-struct dispatcher_thr {
-	pthread_t	tid ;
-	uint		f_active ;
-	volatile int	f_exiting ;
-} ;
 
 struct dispatcher_head {
 	uint		magic ;
-	PTM		m ;		/* object mutex */
-	PTC		cond ;		/* condition variable */
 	CIQ		wq ;		/* work Q */
 	PSEM		ws ;		/* work semaphore */
 	vecobj		tids ;
@@ -62,8 +54,6 @@ struct dispatcher_head {
 	DISPATCHER_THR	*threads ;
 	volatile int	f_exit ;	/* CMD to exit immediately */
 	volatile int	f_done ;	/* CMD to exit after work completed */
-	volatile int	f_wakeup ;	/* wait flag */
-	volatile int	f_ready ;
 	int		nthr ;		/* concurrency */
 } ;
 
