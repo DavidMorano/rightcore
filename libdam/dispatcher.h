@@ -6,12 +6,12 @@
 
 /* revision history:
 
-	= 2004-03-01, David A­D­ Morano
+	= 2004-03-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -60,7 +60,7 @@ struct dispatcher_head {
 	void		*callsub ;	/* called subroutine entry-address */
 	void		*callarg ;	/* called subroutine argument */
 	DISPATCHER_THR	*threads ;
-	volatile int	f_exit ;	/* CMD to exit immiedately */
+	volatile int	f_exit ;	/* CMD to exit immediately */
 	volatile int	f_done ;	/* CMD to exit after work completed */
 	volatile int	f_wakeup ;	/* wait flag */
 	volatile int	f_ready ;
