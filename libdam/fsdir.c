@@ -51,6 +51,7 @@
 #include	<unistd.h>
 #include	<fcntl.h>
 #include	<stdlib.h>
+#include	<stddef.h>		/* should have |offsetof(3ext)| */
 #include	<string.h>
 
 #include	<vsystem.h>
