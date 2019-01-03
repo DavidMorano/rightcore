@@ -1,6 +1,6 @@
 /* fsdir */
 
-/* object to read directory entries in the UNIX® file system */
+/* object to read directory entries in the UNIXÂ® file system */
 
 
 #define	CF_DEBUGS	0		/* non-switchable debug print-outs */
@@ -8,23 +8,25 @@
 
 /* revision history:
 
-	= 1998-06-16, David A­D­ Morano
+	= 1998-06-16, David AÂ­DÂ­ Morano
         This subroutine was written so that we could use a single file-system
         directory interface due to all of the changes in the POSIX standard and
-        previous UNIX® standards.
+        previous UNIXÂ® standards.
 
+	= 2019-01-02, David A.D. Morano
+	I make it a bit more portable.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998,2018 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-        This code module provides a platform independent implementation of UNIX®
+        This code module provides a platform independent implementation of UNIXÂ®
         file system directory access.
 
-        This module uses the system call 'getdent(2)' to read the directories
-        and to format them into entries. This is on Solaris® and perhaps some
+        This module uses the system call 'getdents(2)' to read the directories
+        and to format them into entries. This is on SolarisÂ® and perhaps some
         others (even some more but in slightly different forms), but it is not
         generally portable. A portable version of this object is located in
         'fsdirport(3dam)'. It would have been colocated in this file (with
@@ -52,31 +54,28 @@
 #include	<string.h>
 
 #include	<vsystem.h>
-#include	<localmisc.h>
+#include	<localmisc.h>		/* also for type 'uint' */
 
 #include	"fsdir.h"
 
 
 /* local defines */
 
-#define	FSDIR_BMODULUS	512		/* seems to be what OS uses */
-#define	FSDIR_MINBUFLEN	512		/* minimum buffer length */
+#ifndef	offsetof
+#define offsetof(st,m)	((size_t) &(((st *) 0)->m))
+#endif
 
-#define	TO_AGAIN	10
-#define	TO_NOLCK	20
+#define	FSDIR_MINBUFLEN	512		/* minimum buffer length */
 
 
 /* external subroutines */
 
 extern int	snwcpy(char *,int,const char *,int) ;
 extern int	sncpy1(char *,int,const char *) ;
-extern int	cfdeci(const char *,int,int *) ;
-extern int	iceil(int,int) ;
-extern int	ifloor(int,int) ;
+extern int	cfdecui(const char *,int,uint *) ;
 
 #if	CF_DEBUGS
 extern int	debugprintf(const char *,...) ;
-extern int	debugprinthexblock(const char *,int,const void *,int) ;
 extern int	strlinelen(const char *,int,int) ;
 #endif
 
@@ -131,8 +130,9 @@ int fsdir_open(fsdir *op,cchar *dname)
 			    op->bsize = size ;
 	                    op->magic = FSDIR_MAGIC ;
 	                }
-		    } else
+		    } else {
 		        rs = SR_NOTDIR ;
+		    }
 	        } /* end if (stat) */
 #if	CF_DEBUGS
 	debugprintf("fsdir_open: close-on-exec rs=%d\n",rs) ;
@@ -163,6 +163,7 @@ int fsdir_close(fsdir *op)
 	    rs1 = uc_free(op->bdata) ;
 	    if (rs >= 0) rs = rs1 ;
 	    op->bdata = NULL ;
+	    op->bsize = 0 ;
 	}
 
 	rs1 = fsdir_end(op) ;
@@ -205,12 +206,13 @@ int fsdir_read(fsdir *op,fsdir_ent *dirslotp)
 	if ((rs >= 0) && (op->blen > 0)) { /* greater-than-zero */
 	    dirent_t	*dp = (dirent_t *) (op->bdata + op->ei) ;
 	    const int	nlen = MAXNAMELEN ;
-	    int		ml ;
-	    ml = (dp->d_reclen-18) ;
+	    const int	noff = offsetof(dirent_t,d_name) ;
+	    int		nl ;
+	    nl = (dp->d_reclen-noff) ;
 	    dirslotp->ino = (uino_t) dp->d_ino ;
 	    dirslotp->off = (offset_t) dp->d_off ;
 	    dirslotp->reclen = (ushort) dp->d_reclen ;
-	    if ((rs = snwcpy(dirslotp->name,nlen,dp->d_name,ml)) >= 0) {
+	    if ((rs = snwcpy(dirslotp->name,nlen,dp->d_name,nl)) >= 0) {
 	        op->eoff = dp->d_off ;
 		op->ei += dp->d_reclen ;
 	    }
@@ -301,19 +303,20 @@ int fsdir_audit(fsdir *op)
 static int fsdir_begin(FSDIR *op,const char *dname)
 {
 	int		rs ;
-
+	op->dfd = -1 ;
 	if (dname[0] == '*') {
-	    int	v ;
-	    if ((rs = cfdeci((dname+1),-1,&v)) >= 0) {
+	    uint	v ;
+	    if ((rs = cfdecui((dname+1),-1,&v)) >= 0) {
 		if ((rs = u_dup(v)) >= 0) {
+		    op->dfd = rs ; /* capture the new FD */
 		    op->f.descname = TRUE ;
 		}
 	    }
 	} else {
 	    rs = uc_open(dname,O_RDONLY,0666) ;
+	    op->dfd = rs ; /* capture the new FD */
 	}
 	if (rs >= 0) {
-	    op->dfd = rs ;
 	    rs = uc_closeonexec(op->dfd,TRUE) ;
 	    if (rs < 0) {
 		u_close(op->dfd) ;
@@ -329,13 +332,11 @@ static int fsdir_end(FSDIR *op)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
-
 	if (op->dfd >= 0) {
 	    rs1 = u_close(op->dfd) ;
 	    if (rs >= 0) rs = rs1 ;
 	    op->dfd = -1 ;
 	}
-
 	return rs ;
 }
 /* end subroutine (fsdir_end) */
