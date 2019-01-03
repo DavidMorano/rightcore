@@ -10,18 +10,18 @@
 
 /* revision history:
 
-	= 1992-03-10, David A­D­ Morano
+	= 1992-03-10, David AÂ­DÂ­ Morano
 	This module was originally written.
 
-	= 1998-04-03, David A­D­ Morano
+	= 1998-04-03, David AÂ­DÂ­ Morano
 	This was modified for more general use.
 
-	= 2008-10-07, David A­D­ Morano
+	= 2008-10-07, David AÂ­DÂ­ Morano
 	This was modified to allow for the main part to be a loadable module.
 
 */
 
-/* Copyright © 1992,1998,2008 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1992,1998,2008 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -702,16 +702,17 @@ static int pcsconf_modloadopen(PCSCONF *op,cchar *pr,cchar *objname)
 	opts = VECSTR_OCOMPACT ;
 	if ((rs = vecstr_start(&syms,n,opts)) >= 0) {
 	    MODLOAD	*lp = &op->loader ;
+	    const int	slen = SYMNAMELEN ;
 	    int		i ;
 	    int		f_modload = FALSE ;
 	    cchar	*modbname ;
-	    char	symname[SYMNAMELEN + 1] ;
+	    char	sbuf[SYMNAMELEN + 1] ;
 
 	    for (i = 0 ; (i < n) && (subs[i] != NULL) ; i += 1) {
 	        if (isrequired(i)) {
-	            rs = sncpy3(symname,SYMNAMELEN,objname,"_",subs[i]) ;
-	            if (rs >= 0)
-	                rs = vecstr_add(&syms,symname,rs) ;
+	            if ((rs = sncpy3(sbuf,slen,objname,"_",subs[i])) >= 0) {
+	                rs = vecstr_add(&syms,sbuf,rs) ;
+		    }
 	        }
 	        if (rs < 0) break ;
 	    } /* end for */
@@ -728,8 +729,9 @@ static int pcsconf_modloadopen(PCSCONF *op,cchar *pr,cchar *objname)
 
 	    rs1 = vecstr_finish(&syms) ;
 	    if (rs >= 0) rs = rs1 ;
-	    if ((rs < 0) && f_modload)
+	    if ((rs < 0) && f_modload) {
 		modload_close(lp) ;
+	    }
 	} /* end if (allocation) */
 
 	return rs ;
@@ -839,30 +841,32 @@ static int pcsconf_getpcspw(PCSCONF *op)
 	    const uid_t	uid_pcs = op->uid_pcs ;
 	    cchar	*un = PCSCONF_USER ;
 	    if ((rs = pcsconf_getpcsids(op)) >= 0) {
-	        struct passwd	pw ;
-		const int	pwlen = getbufsize(getbufsize_pw) ;
-	        char		*pwbuf ;
-		if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	            if ((rs1 = GETPW_NAME(&pw,pwbuf,pwlen,un)) >= 0) {
-		        if (pw.pw_uid != uid_pcs) rs1 = SR_NOTFOUND ;
-	            } else if (rs1 != SR_NOTFOUND) {
-		        rs = rs1 ;
-		    }
-		    if ((rs >= 0) && (rs1 == SR_NOTFOUND)) {
-			const uid_t	u = uid_pcs ;
-		        un = NULL ;
-		        if ((rs = getpwusername(&pw,pwbuf,pwlen,u)) >= 0) {
-			    un = pw.pw_name ;
-		        } /* end if (getxusername) */
-		    } /* end if */
-		    if ((rs >= 0) && (un != NULL)) {
-		        cchar	*cp ;
-		        if ((rs = uc_mallocstrw(un,-1,&cp)) >= 0) {
-			    op->pcsusername = cp ;
-		        } /* end if (memory-allocation) */
-		    } /* end if (store pcs-username) */
-		    uc_free(pwbuf) ;
-		} /* end if (m-a) */
+		if ((rs = getbufsize(getbufsize_pw)) >= 0) {
+	            struct passwd	pw ;
+		    const int		pwlen = rs ;
+	            char		*pwbuf ;
+		    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+	                if ((rs1 = GETPW_NAME(&pw,pwbuf,pwlen,un)) >= 0) {
+		            if (pw.pw_uid != uid_pcs) rs1 = SR_NOTFOUND ;
+	                } else if (rs1 != SR_NOTFOUND) {
+		            rs = rs1 ;
+		        }
+		        if ((rs >= 0) && (rs1 == SR_NOTFOUND)) {
+			    const uid_t	u = uid_pcs ;
+		            un = NULL ;
+		            if ((rs = getpwusername(&pw,pwbuf,pwlen,u)) >= 0) {
+			        un = pw.pw_name ;
+		            } /* end if (getxusername) */
+		        } /* end if */
+		        if ((rs >= 0) && (un != NULL)) {
+		            cchar	*cp ;
+		            if ((rs = uc_mallocstrw(un,-1,&cp)) >= 0) {
+			        op->pcsusername = cp ;
+		            } /* end if (memory-allocation) */
+		        } /* end if (store pcs-username) */
+		        uc_free(pwbuf) ;
+		    } /* end if (m-a) */
+		} /* end if (getbufsize) */
 	    } /* end if (pcsconf-getpcsids) */
 	} else {
 	    rs = strlen(op->pcsusername) ;
@@ -1089,7 +1093,7 @@ static int cookmgr_load(COOKMGR *cmp,cchar *kp,int kl)
 static int cookmgr_expand(COOKMGR *cmp,char ebuf[],int elen,cchar vbuf[],int vl)
 {
 	EXPCOOK		*ecp = (EXPCOOK *) &cmp->cooks ;
-	const int	wch = MKCHAR('¿') ;
+	const int	wch = MKCHAR('Â¿') ;
 	int		rs ;
 
 	rs = expcook_exp(ecp,wch,ebuf,elen,vbuf,vl) ;
