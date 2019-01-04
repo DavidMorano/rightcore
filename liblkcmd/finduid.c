@@ -311,11 +311,11 @@ static int finduid_lookuper(FINDUID *op,char *ubuf,uid_t uid)
 	
 	    if ((rs = getbufsize(getbufsize_pw)) >= 0) {
 	        struct passwd	pw ;
-	        TMPX_CUR	uc ;
-	        TMPX_ENT	ue ;
 	        const int	pwlen = rs ;
 	        char		*pwbuf ;
 		if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+		    TMPX_CUR	uc ;
+	            TMPX_ENT	ue ;
 	            const int	utype = TMPX_TUSERPROC ;
 	            if ((rs = tmpx_curbegin(&op->ut,&uc)) >= 0) {
 		        PWCACHE		*pwc = &op->uc ;
