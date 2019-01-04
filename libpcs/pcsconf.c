@@ -1,4 +1,5 @@
 /* pcsconf */
+/* lang=C99 */
 
 /* load management and interface for the PCSCONFS object */
 
@@ -28,6 +29,9 @@
 	This module implements an interface (a trivial one) that provides
 	access to the PCSCONFS object (which is dynamically loaded).
 
+	We (this module) also provides some services (about the PCS facility)
+	on its own, without calling into the loadable module.
+
 
 *******************************************************************************/
 
@@ -56,6 +60,8 @@
 #include	<nulstr.h>
 #include	<uinfo.h>
 #include	<expcook.h>
+#include	<mkpath.h>
+#include	<sncpy.h>
 #include	<localmisc.h>
 
 #include	"pcsconf.h"
@@ -94,20 +100,12 @@
 #define	MKCHAR(ch)	((ch) & UCHAR_MAX)
 #endif
 
+#define	COOKMGR_FL	struct cookmgr_flags
+#define	COOKMGR_ND	struct cookmgr_nodedomain
+
 
 /* external subroutines */
 
-extern int	snsds(char *,int,cchar *,cchar *) ;
-extern int	sncpy1(char *,int,cchar *) ;
-extern int	sncpy2(char *,int,cchar *,cchar *) ;
-extern int	sncpy3(char *,int,cchar *,cchar *,cchar *) ;
-extern int	snwcpy(char *,int,cchar *,int) ;
-extern int	mkpath1(char *,cchar *) ;
-extern int	mkpath1w(char *,cchar *,int) ;
-extern int	mkpath2(char *,cchar *,cchar *) ;
-extern int	mkpath3(char *,cchar *,cchar *,cchar *) ;
-extern int	mkpath4(char *,cchar *,cchar *,cchar *,cchar *) ;
-extern int	mkfnamesuf1(char *,cchar *,cchar *) ;
 extern int	sfbasename(cchar *,int,cchar **) ;
 extern int	sfcookkey(cchar *,int,cchar **) ;
 extern int	nleadstr(cchar *,cchar *,int) ;
@@ -133,18 +131,18 @@ struct cookmgr_flags {
 } ;
 
 struct cookmgr_nodedomain {
-	cchar	*nodename ;
-	cchar	*domainname ;
-	cchar	*a ;		/* allocation */
+	cchar		*nodename ;
+	cchar		*domainname ;
+	cchar		*a ;		/* allocation */
 } ;
 
 struct cookmgr {
-	struct cookmgr_flags	f ;
-	struct cookmgr_nodedomain	nd ;
-	EXPCOOK	cooks ;
+	COOKMGR_FL	f ;
+	COOKMGR_MD	nd ;
+	EXPCOOK		cooks ;
 	UINFO_NAME	uname ;
 	UINFO_AUX	uaux ;
-	cchar	*pr ;
+	cchar		*pr ;
 } ;
 
 
@@ -575,13 +573,8 @@ int pcsconf_fetch(PCSCONF *op,cchar *kp,int kl,PCSCONF_CUR *curp,
 /* end subroutine (pcsconf_fetch) */
 
 
-int pcsconf_enum(op,curp,kbuf,klen,vbuf,vlen)
-PCSCONF		*op ;
-PCSCONF_CUR	*curp ;
-char		kbuf[] ;
-int		klen ;
-char		vbuf[] ;
-int		vlen ;
+int pcsconf_enum(PCSCONF *op,PCSCONF_CUR *curp,char *kbuf,int klen,
+		 	char *vbuf,int vlen)
 {
 	int		rs = SR_NOSYS ;
 	int		rs1 ;
@@ -660,7 +653,7 @@ static int pcsconf_objloadbegin(PCSCONF *op,cchar *pr,cchar *objname)
 	    		    uc_free(op->obj) ;
 	    		    op->obj = NULL ;
 			}
-		    } /* end if (memory-allocations) */
+		    } /* end if (memory-allocation) */
 		} /* end if (getmv) */
 	    } /* end if (getmv) */
 	    if (rs < 0)
@@ -702,11 +695,11 @@ static int pcsconf_modloadopen(PCSCONF *op,cchar *pr,cchar *objname)
 	opts = VECSTR_OCOMPACT ;
 	if ((rs = vecstr_start(&syms,n,opts)) >= 0) {
 	    MODLOAD	*lp = &op->loader ;
-	    const int	slen = SYMNAMELEN ;
+	    const int	slen = SYMNAMELEN ; /* symbol buffer length */
 	    int		i ;
 	    int		f_modload = FALSE ;
 	    cchar	*modbname ;
-	    char	sbuf[SYMNAMELEN + 1] ;
+	    char	sbuf[SYMNAMELEN + 1] ; /* symbol buffer */
 
 	    for (i = 0 ; (i < n) && (subs[i] != NULL) ; i += 1) {
 	        if (isrequired(i)) {
@@ -742,72 +735,58 @@ static int pcsconf_modloadopen(PCSCONF *op,cchar *pr,cchar *objname)
 static int pcsconf_loadcalls(PCSCONF *op,cchar objname[])
 {
 	MODLOAD		*lp = &op->loader ;
+	const int	rsn = SR_NOTFOUND ;
+	const int	slen = SYMNAMELEN ; /* symbol buffer length */
 	int		rs = SR_OK ;
-	int		rs1 ;
 	int		i ;
 	int		c = 0 ;
-	char		symname[SYMNAMELEN + 1] ;
+	char		sbuf[SYMNAMELEN + 1] ; /* symbol buffer */
 	const void	*snp ;
 
 	for (i = 0 ; subs[i] != NULL ; i += 1) {
 
-	    rs = sncpy3(symname,SYMNAMELEN,objname,"_",subs[i]) ;
-	    if (rs < 0) break ;
+	    if ((rs = sncpy3(sbuf,slen,objname,"_",subs[i])) >= 0) {
+	        if ((rs = modload_getsym(lp,sbuf,&snp)) == rsn) {
+	            snp = NULL ;
+	            if (isrequired(i)) break ;
+		    rs = SR_OK ;
+	        }
+	    }
 
-	    rs1 = modload_getsym(lp,symname,&snp) ;
-
-	    if (rs1 == SR_NOTFOUND) {
-	        snp = NULL ;
-	        if (isrequired(i))
-	            break ;
-	    } else
-	        rs = rs1 ;
-
-	    if (rs < 0) break ;
-
-	    if (snp != NULL) {
-
+	    if ((rs >= 0) && (snp != NULL)) {
 	        c += 1 ;
 	        switch (i) {
-
 	        case sub_start:
 	            op->call.start = (int (*)(void *,cchar *,cchar **,
 	                cchar *)) snp ;
 	            break ;
-
 	        case sub_curbegin:
 	            op->call.curbegin = 
 	                (int (*)(void *,void *)) snp ;
 	            break ;
-
 	        case sub_fetch:
 	            op->call.fetch = 
 	                (int (*)(void *,cchar *,int,void *,char *,int))
 	                snp ;
 	            break ;
-
 	        case sub_enum:
 	            op->call.enumerate = 
 	                (int (*)(void *,void *,char *,int,char *,int)) snp ;
 	            break ;
-
 	        case sub_curend:
 	            op->call.curend = 
 	                (int (*)(void *,void *)) snp ;
 	            break ;
-
 	        case sub_audit:
 	            op->call.audit = (int (*)(void *)) snp ;
 	            break ;
-
 	        case sub_finish:
 	            op->call.finish = (int (*)(void *)) snp ;
 	            break ;
-
 	        } /* end switch */
-
 	    } /* end if (it had the call) */
 
+	    if (rs < 0) break ;
 	} /* end for (subs) */
 
 	return (rs >= 0) ? c : rs ;
@@ -838,14 +817,14 @@ static int pcsconf_getpcspw(PCSCONF *op)
 	int		rs1 ;
 
 	if (op->pcsusername == NULL) {
-	    const uid_t	uid_pcs = op->uid_pcs ;
-	    cchar	*un = PCSCONF_USER ;
 	    if ((rs = pcsconf_getpcsids(op)) >= 0) {
+		const uid_t	uid_pcs = op->uid_pcs ;
 		if ((rs = getbufsize(getbufsize_pw)) >= 0) {
 	            struct passwd	pw ;
 		    const int		pwlen = rs ;
 	            char		*pwbuf ;
 		    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
+			cchar	*un = PCSCONF_USER ;
 	                if ((rs1 = GETPW_NAME(&pw,pwbuf,pwlen,un)) >= 0) {
 		            if (pw.pw_uid != uid_pcs) rs1 = SR_NOTFOUND ;
 	                } else if (rs1 != SR_NOTFOUND) {
@@ -853,7 +832,7 @@ static int pcsconf_getpcspw(PCSCONF *op)
 		        }
 		        if ((rs >= 0) && (rs1 == SR_NOTFOUND)) {
 			    const uid_t	u = uid_pcs ;
-		            un = NULL ;
+		            un = NULL ; /* start over */
 		            if ((rs = getpwusername(&pw,pwbuf,pwlen,u)) >= 0) {
 			        un = pw.pw_name ;
 		            } /* end if (getxusername) */
@@ -864,8 +843,9 @@ static int pcsconf_getpcspw(PCSCONF *op)
 			        op->pcsusername = cp ;
 		            } /* end if (memory-allocation) */
 		        } /* end if (store pcs-username) */
-		        uc_free(pwbuf) ;
-		    } /* end if (m-a) */
+		        rs1 = uc_free(pwbuf) ;
+			if (rs >= 0) rs = rs1 ;
+		    } /* end if (m-a-f) */
 		} /* end if (getbufsize) */
 	    } /* end if (pcsconf-getpcsids) */
 	} else {
@@ -880,6 +860,7 @@ static int pcsconf_getpcspw(PCSCONF *op)
 static int pcsconf_expand(PCSCONF *op,char *vbuf,int vlen,int vl)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
 	int		kl ;
 	int		sl = vl ;
 	int		f_havekeys = FALSE ;
@@ -900,10 +881,8 @@ static int pcsconf_expand(PCSCONF *op,char *vbuf,int vlen,int vl)
 
 	if ((rs >= 0) && f_havekeys) {
 	    const int	elen = vlen ;
-	    int		size ;
 	    char	*ebuf ;
-	    size = (elen+1) ;
-	    if ((rs = uc_malloc(size,&ebuf)) >= 0) {
+	    if ((rs = uc_malloc((elen+1),&ebuf)) >= 0) {
 	        if ((rs = pcsonf_cookmgr(op)) >= 0) {
 	            COOKMGR	*cmp = (COOKMGR *) op->cookmgr ;
 	            if ((rs = cookmgr_expand(cmp,ebuf,elen,vbuf,vl)) >= 0) {
@@ -911,8 +890,9 @@ static int pcsconf_expand(PCSCONF *op,char *vbuf,int vlen,int vl)
 	                vl = rs ;
 	            }
 	        } /* end if (cookmgr) */
-	        uc_free(ebuf) ;
-	    } /* end if (memory_allocation) */
+	        rs1 = uc_free(ebuf) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (m-a-f) */
 	} /* end if (had keys) */
 
 	return (rs >= 0) ? vl : rs ;
@@ -928,7 +908,7 @@ static int pcsonf_cookmgr(PCSCONF *op)
 	    const int	osize = sizeof(COOKMGR) ;
 	    void	*p ;
 	    if ((rs = uc_malloc(osize,&p)) >= 0) {
-	        COOKMGR	*cmp = (COOKMGR *) p ;
+	        COOKMGR		*cmp = (COOKMGR *) p ;
 	        if ((rs = cookmgr_start(cmp,op->pr)) >= 0) {
 	            op->cookmgr = cmp ;
 	        }
@@ -974,6 +954,7 @@ static int cookmgr_start(COOKMGR *cmp,cchar *pr)
 static int cookmgr_load(COOKMGR *cmp,cchar *kp,int kl)
 {
 	int		rs = SR_OK ;
+	int		rs1 ;
 
 	if (expcook_findkey(&cmp->cooks,kp,kl,NULL) == SR_NOTFOUND) {
 	    NULSTR	ns ;
@@ -981,9 +962,9 @@ static int cookmgr_load(COOKMGR *cmp,cchar *kp,int kl)
 	    if ((rs = nulstr_start(&ns,kp,kl,&kname)) >= 0) {
 	        const int	ci = matstr(cooks,kp,kl) ;
 	        int		vl = -1 ;
-	        cchar	*vp = NULL ;
-	        char	ubuf[USERNAMELEN+1] ;
-	        char	*tbuf = NULL ;
+	        cchar		*vp = NULL ;
+	        char		ubuf[USERNAMELEN+1] ;
+	        char		*tbuf = NULL ;
 	        switch (ci) {
 	        case cook_sysname:
 	        case cook_nodename:
@@ -1050,12 +1031,10 @@ static int cookmgr_load(COOKMGR *cmp,cchar *kp,int kl)
 	                    {
 	                        cchar	*nn = cmp->nd.nodename ;
 	                        cchar	*dn = cmp->nd.domainname ;
-	                        int size = 1 ;
-	                        int	tlen = 0 ;
-	                        tlen += (strlen(nn)+1) ;
-	                        tlen += (strlen(dn)+1) ;
-	                        size += tlen ;
-	                        if ((rs = uc_malloc(size,&tbuf)) >= 0) {
+	                        int	tlen = 1 ; /* space for the dot */
+	                        tlen += strlen(nn) ;
+	                        tlen += strlen(dn) ;
+	                        if ((rs = uc_malloc((tlen+1),&tbuf)) >= 0) {
 	                            vp = tbuf ;
 	                            rs = snsds(tbuf,tlen,nn,dn) ;
 	                            vl = rs ;
@@ -1078,10 +1057,12 @@ static int cookmgr_load(COOKMGR *cmp,cchar *kp,int kl)
 	            vl = sfbasename(cmp->pr,-1,&vp) ;
 	            break ;
 	        } /* end switch */
-	        if ((rs >= 0) && (vp != NULL))
+	        if ((rs >= 0) && (vp != NULL)) {
 	            rs = expcook_add(&cmp->cooks,kname,vp,vl) ;
+		}
 	        if (tbuf != NULL) uc_free(tbuf) ;
-	        nulstr_finish(&ns) ;
+	        rs1 = nulstr_finish(&ns) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (nulstr) */
 	} /* end if (key not already found) */
 
@@ -1150,7 +1131,7 @@ static int cookmgr_nodedomain(COOKMGR *cmp)
 	            bp = (strwcpy(bp,dn,-1)+1) ;
 	        } /* end if (memory-allocation) */
 	    } /* end if (get node-domain) */
-	} /* end if */
+	} /* end if (initialization needed) */
 
 	return rs ;
 }
