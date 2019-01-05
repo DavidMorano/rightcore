@@ -5,13 +5,16 @@
 
 /* revision history:
 
-	= 1998-03-01, David A­D­ Morano
+	= 1998-03-01, David AÂ­DÂ­ Morano
         This subroutine is being written for use by PCS programs, but it
         obviously has wider applications. It is simple, but effective!
 
+	= 2019-01-05, David A.D. Morano
+	Enhanced error checking for |getbufsize(3uc|.
+	
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998,2019 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -101,9 +104,8 @@ const int	rsnotours[] = {
 int getgroupname(char gbuf[],int glen,gid_t gid)
 {
 	const gid_t	gid_our = getgid() ;
-	const int	grlen = getbufsize(getbufsize_gr) ;
 	int		rs ;
-	char		*grbuf ;
+	int		rs1 ;
 
 	if (gbuf == NULL) return SR_FAULT ;
 
@@ -111,30 +113,35 @@ int getgroupname(char gbuf[],int glen,gid_t gid)
 
 	if (gid < 0) gid = gid_our ;
 
-	if ((rs = uc_malloc((grlen+1),&grbuf)) >= 0) {
+	if ((rs = getbufsize(getbufsize_gr)) >= 0) {
 	    struct group	gr ;
-	    const char		*vn = VARGROUPNAME ;
-	    const char		*gn = NULL ;
-	    if ((gid == gid_our) && ((gn = getenv(vn)) != NULL)) {
-	        if ((rs = getgr_name(&gr,grbuf,grlen,gn)) >= 0) {
-	            if (gr.gr_gid != gid) {
-			rs = SR_SEARCH ;
+	    const int		grlrn = rs ;
+	    char		*grbuf ;
+	    if ((rs = uc_malloc((grlen+1),&grbuf)) >= 0) {
+	        const char	*vn = VARGROUPNAME ;
+	        const char	*gn = NULL ;
+	        if ((gid == gid_our) && ((gn = getenv(vn)) != NULL)) {
+	            if ((rs = getgr_name(&gr,grbuf,grlen,gn)) >= 0) {
+	                if (gr.gr_gid != gid) {
+			    rs = SR_SEARCH ;
+		        }
 		    }
-		}
-	    } else {
-	        rs = SR_NOTFOUND ;
-	    }
-	    if (isNotOurs(rs)) {
-	        rs = getgr_gid(&gr,grbuf,grlen,gid) ;
-		gn = gr.gr_name ;
-	    }
-	    if (rs >= 0) {
-	        rs = sncpy1(gbuf,glen,gn) ;
-	    } else if (isNotOurs(rs)) {
-	        rs = snsd(gbuf,glen,"G",(uint) gid) ;
-	    }
-	    uc_free(grbuf) ;
-	} /* end if (memory-allocation) */
+	        } else {
+	            rs = SR_NOTFOUND ;
+	        }
+	        if (isNotOurs(rs)) {
+	            rs = getgr_gid(&gr,grbuf,grlen,gid) ;
+		    gn = gr.gr_name ;
+	        }
+	        if (rs >= 0) {
+	            rs = sncpy1(gbuf,glen,gn) ;
+	        } else if (isNotOurs(rs)) {
+	            rs = snsd(gbuf,glen,"G",(uint) gid) ;
+	        }
+	        rs1 = uc_free(grbuf) ;
+		if (rs >= 0) rs = rs1 ;
+	    } /* end if (m-a-f) */
+	} /* end if (getbufsize) */
 
 	return rs ;
 }
