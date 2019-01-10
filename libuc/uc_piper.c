@@ -1,6 +1,6 @@
 /* uc_piper */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 /* create pipes but moved up to a minimum FD number */
 
 
@@ -9,17 +9,17 @@
 
 /* revision history:
 
-	= 1998-03-11, David A­D­ Morano
+	= 1998-03-11, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	This subroutine creates pipes but at or above a minimum FD
-	number.
+	This subroutine creates pipes, like |u_pipe(3u)| does, but with 
+	resulting FDs that are at or above a minimum FD value.
 
 	Synopsis:
 
@@ -40,7 +40,7 @@
 
 	Notes:
 
-	In the old days (or on many BSD type UNIX® systems) the
+	In the old days (or on many BSD type UNIXÂ® systems) the
 	two resulting pipe ends were unidirectional as follows:
 
 	end	access
@@ -48,7 +48,7 @@
 	0	open for reading
 	1	open for writing
 
-	With the advent of SYSV UNIX® pipes are completely
+	With the advent of SYSV UNIXÂ®, pipes are completely
 	bidirectional with both ends suitable for reading and writing.
 	Data written to either end is available for reading from
 	the opposite end.
@@ -94,13 +94,12 @@ int uc_piper(int *pipes,int minfd)
 	if (pipes == NULL) return SR_FAULT ;
 
 	if (((rs = u_pipe(pipes)) >= 0) && (minfd >= 1)) {
-	    int	nfd ;
-	    int	i ;
+	    int		i ;
 	    for (i = 0 ; (rs >= 0) && (i < 2) ; i += 1) {
 	        if (pipes[i] < minfd) {
-	            rs = uc_moveup(pipes[i],minfd) ;
-	            nfd = rs ;
-	            if (rs >= 0) pipes[i] = nfd ;
+	            if ((rs = uc_moveup(pipes[i],minfd)) >= 0) {
+	                pipes[i] = rs ;
+		    }
 	        }
 	    } /* end for */
 	    if (rs < 0) {
