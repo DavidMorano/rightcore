@@ -1,6 +1,6 @@
 /* uc_openinfo */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 /* higher-level "open" /w timeout */
 
 
@@ -10,24 +10,24 @@
 
 /* revision history:
 
-	= 1998-04-01, David A­D­ Morano
+	= 1998-04-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
 	Filename formats:
 
-	UNIX® domain sockets have the format:
+	UNIXÂ® domain sockets have the format:
 		filepath
 
 	where:
 		filepath
 
-	is just a regular UNIX® file path to the socket file.
+	is just a regular UNIXÂ® file path to the socket file.
 
 	File-systems that are supported internally (no external shared-memory
 	object needed) are:
@@ -184,6 +184,7 @@ static int	open_nonpather(UCOPENINFO *,int,cchar *,cchar *) ;
 static int	openproger(cchar *,int,cchar **) ;
 static int	accmode(int) ;
 static int	waitready(int,int,int) ;
+static int	pollok(int) ;
 static int	getprefixfs(cchar *,cchar **) ;
 static int	getnormalfs(cchar *,cchar **) ;
 static int	noexist(cchar *,int) ;
@@ -238,7 +239,7 @@ enum accmodes {
 	accmode_overlast
 } ;
 
-static cchar	*nonpaths = "/¥§~" ;
+static cchar	*nonpaths = "/Â¥Â§~" ;
 
 enum nonpaths {
 	nonpath_not,
@@ -761,8 +762,8 @@ static int open_nonpath(UCOPENINFO *oip,int npi)
 	const int	nch = MKCHAR(nonpaths[npi]) ;
 	int		rs = SR_OK ;
 	int		fd = -1 ;
-	cchar	*fname = oip->fname ;
-	cchar	*tp ;
+	cchar		*fname = oip->fname ;
+	cchar		*tp ;
 	char		brkbuf[4] ;
 
 #if	CF_DEBUGS
@@ -861,7 +862,7 @@ static int open_nonpather(UCOPENINFO *oip,int npi,cchar *prn,cchar *sp)
 
 	            cl = (tp-cp) ;
 	            if (sl < 0) {
-	                sl = cl ; /* or » if (ch != ':') sl = cl « */
+	                sl = cl ; /* or Â» if (ch != ':') sl = cl Â« */
 	            }
 	            if ((rs = vecstr_add(&args,cp,cl)) >= 0) {
 	                cp = (tp+1) ;
@@ -1062,19 +1063,18 @@ static int accmode(int oflags)
 
 static int waitready(int fd,int oflags,int timeout)
 {
+	const int	f_rdonly = (oflags & O_RDONLY) ;
 	int		rs = SR_OK ;
 	int		f_wait ;
-	int		f_rdonly ;
 	int		f = FALSE ;
 
-	f_rdonly = (oflags & O_RDONLY) ;
 	f_wait = f_rdonly || (oflags & O_WRONLY) ;
 	if ((timeout >= 0) && f_wait) {
 	    struct pollfd	polls[NPOLLS] ;
 	    time_t		ti_timeout ;
 	    time_t		daytime = time(NULL) ;
 	    int			size ;
-	    int			pollto ;
+	    int			pollto = ((timeout > 0) ? POLLMULT : 0) ;
 
 	    size = NPOLLS * sizeof(struct pollfd) ;
 	    memset(polls,0,size) ;
@@ -1085,44 +1085,47 @@ static int waitready(int fd,int oflags,int timeout)
 
 	    ti_timeout = daytime + timeout ;
 	    while (rs >= 0) {
-
-	        pollto = MIN(timeout,POLLMULT) ;
 	        if ((rs = u_poll(polls,1,pollto)) > 0) {
 	            const int	re = polls[0].revents ;
-
-	            if (re & POLLHUP) {
-	                rs = SR_HANGUP ;
-	            } else if (re & POLLERR) {
-	                rs = SR_POLLERR ;
-	            } else if (re & POLLNVAL) {
-	                rs = SR_NOTOPEN ;
-	            }
-
-	            if (rs >= 0) {
+	            if ((rs = pollok(re)) >= 0) {
 	                if (f_rdonly) {
-	                    f = (re & POLLIN) ? 1 : 0 ;
+	                    f = !!(re & POLLIN) ;
 	                } else {
-	                    f = (re & POLLOUT) ? 1 : 0 ;
+	                    f = !!(re & POLLOUT) ;
 	                }
-	            } /* end if */
-
-	        } else if (rs == SR_INTR) {
-	            rs = SR_OK ;
-	        } /* end if (poll had something) */
-
-	        if ((rs >= 0) && (daytime >= ti_timeout)) {
-	            daytime = time(NULL) ;
-	            rs = SR_TIMEDOUT ;
-	        }
-
-	        if ((rs >= 0) && f) break ;
+	            } /* end if (pollok) */
+		} else {
+	            if (rs == SR_INTR) rs = SR_OK ;
+		    if (rs >= 0) {
+			daytime = time(NULL) ;
+	                if (daytime >= ti_timeout) {
+	                    rs = SR_TIMEDOUT ;
+			}
+		    }
+	        } /* end if (poll) */
+	        if (f) break ;
 	    } /* end while */
 
 	} /* end if (waiting) */
 
-	return rs ;
+	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (waitready) */
+
+
+static int pollok(int re)
+{
+	int		rs = SR_OK ;
+	if (re & POLLHUP) {
+	    rs = SR_HANGUP ;
+	} else if (re & POLLERR) {
+	    rs = SR_POLLERR ;
+	} else if (re & POLLNVAL) {
+	    rs = SR_NOTOPEN ;
+	}
+	return rs ;
+}
+/* end subroutine (pollok) */
 
 
 static int getnormalfs(cchar *fname,cchar **rpp)
@@ -1230,26 +1233,28 @@ static int loadargs(vecstr *alp,cchar *sp)
 {
 	int		rs = SR_OK ;
 	int		c = 0 ;
-	cchar		*tp ;
+	if (sp[0] != '\0') {
+	    cchar		*tp ;
 
-	while ((tp = strchr(sp,0xAD)) != NULL) {
+	    while ((tp = strchr(sp,0xAD)) != NULL) {
 #if	CF_DEBUGS
-	    debugprintf("uc_open/loadargs: a%u=>%t<\n",c,sp,(tp-sp)) ;
+	        debugprintf("uc_open/loadargs: a%u=>%t<\n",c,sp,(tp-sp)) ;
 #endif
-	    c += 1 ;
-	    rs = vecstr_add(alp,sp,(tp - sp)) ;
-	    sp = (tp+1) ;
-	    if (rs < 0) break ;
-	} /* end while */
+	        c += 1 ;
+	        rs = vecstr_add(alp,sp,(tp - sp)) ;
+	        sp = (tp+1) ;
+	        if (rs < 0) break ;
+	    } /* end while */
 
-	if (rs >= 0) {
+	    if (rs >= 0) { /* do this unconditionally */
 #if	CF_DEBUGS
-	    debugprintf("uc_open/loadargs: a%u=>%s<\n",c,sp) ;
+	        debugprintf("uc_open/loadargs: a%u=>%s<\n",c,sp) ;
 #endif
-	    c += 1 ;
-	    rs = vecstr_add(alp,sp,-1) ;
-	}
+	        c += 1 ;
+	        rs = vecstr_add(alp,sp,-1) ;
+	    } /* end if (last component) */
 
+	} /* end if (non-empty string) */
 	return (rs >= 0) ? c : rs ;
 }
 /* end subroutine (loadargs) */
@@ -1257,11 +1262,7 @@ static int loadargs(vecstr *alp,cchar *sp)
 
 static int hasnonpath(cchar *fp,int fl)
 {
-	int		f ;
-
-	if (fl < 0) fl = strlen(fp) ;
-
-	f = (fp[0] != '/') ;
+	int		f = (fp[0] != '/') ;
 	if (f) {
 	    cchar	*tp = strnpbrk(fp,fl,nonpaths) ;
 	    f = FALSE ;
@@ -1269,7 +1270,6 @@ static int hasnonpath(cchar *fp,int fl)
 	        f = sichr(nonpaths,-1,*tp) ;
 	    }
 	}
-
 	return f ;
 }
 /* end subroutine (hasnonpath) */
