@@ -4,12 +4,12 @@
 
 /* revision history:
 
-	= 1998-07-01, David A­D­ Morano
+	= 1998-07-01, David AÂ­DÂ­ Morano
 	This file was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 #ifndef	BFILE_INCLUDE
 #define	BFILE_INCLUDE	1
@@ -138,12 +138,15 @@ typedef BFILE_STAT		bfile_stat ;
 
 #define	BC_NOOP		0
 #define	BC_TELL		1
-#define	BC_BUF		2		/* perform buffering */
-#define	BC_FULLBUF	BC_BUF
-#define	BC_LINEBUF	3		/* do line buffering on output */
-#define	BC_UNBUF	4		/* do no buffering */
-#define	BC_NOBUF	BC_UNBUF
-#define	BC_FD		5		/* get the file description */
+#define	BC_BUFALL	2		/* full buffering */
+#define	BC_BUFLINE	3		/* line buffering */
+#define	BC_BUFNONE	4		/* none buffering */
+#define	BC_BUF		BC_BUFALL	/* perform buffering */
+#define	BC_FULLBUF	BC_BUFALL
+#define	BC_LINEBUF	BC_BUFLINE	/* do line buffering */
+#define	BC_UNBUF	BC_BUFNONE	/* do no buffering */
+#define	BC_NOBUF	BC_BUFNONE
+#define	BC_FD		5		/* get the file descriptor */
 #define	BC_STAT		6
 #define	BC_TRUNCATE	7
 #define	BC_CHMOD	8
@@ -175,18 +178,18 @@ typedef BFILE_STAT		bfile_stat ;
 #define	BC_SETBUFDEF	31		/* output buffering */
 #define	BC_GETBUFFLAGS	32		/* output buffering */
 #define	BC_SETBUFFLAGS	33		/* output buffering */
-#define	BC_NONBLOCK	34
+#define	BC_NONBLOCK	34		/* set non-blocking */
 
 
 /* flags */
 
 #define	BFILE_FINPARTLINE	(1<<0)
-#define	BFILE_FTERMINAL 	(1<<1)
-#define	BFILE_FBUFWHOLE		(1<<2)
-#define	BFILE_FBUFLINE		(1<<3)
-#define	BFILE_FBUFNONE		(1<<4)
-#define	BFILE_FBUFDEF		(1<<5)
-
+#define	BFILE_FTERMINAL 	(1<<1)	/* designate a terminal */
+#define	BFILE_FBUFALL		(1<<2)	/* designate full buffering */
+#define	BFILE_FBUFLINE		(1<<3)	/* designate line buffering */
+#define	BFILE_FBUFNONE		(1<<4)	/* designate none buffering */
+#define	BFILE_FBUFDEF		(1<<5)	/* designate default buffering */
+#define	BFILE_FBUFWHOLE		BFILE_FBUFALL
 
 #if	(! defined(BFILE_MASTER)) || (BFILE_MASTER == 0)
 
