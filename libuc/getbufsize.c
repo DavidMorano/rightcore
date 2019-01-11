@@ -10,12 +10,12 @@
 
 /* revision history:
 
-	= 2001-04-11, David A­D­ Morano
+	= 2001-04-11, David AÂ­DÂ­ Morano
 	This subroutine was written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2001 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2001 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -58,6 +58,7 @@
 #include	<string.h>
 
 #include	<vsystem.h>
+#include	<limits.h>		/* for ARG_MAX */
 #include	<vecstr.h>
 #include	<localmisc.h>
 
@@ -70,9 +71,18 @@
 
 #define	NDF		"getbufsize.deb"
 
+/* arguments (and environment) */
+#ifndef	ARBUFLEN
+#ifdef	ARG_MAX
+#define	ARBUFLEN	ARG_MAX
+#else
+#define	ARBUFLEN	(2*1024*1024)	/* default for many systems */
+#endif
+#endif
+
 /* password entry */
 #ifndef	PWBUFLEN
-#define	PWBUFLEN	1024		/* Solaris® _SC_GETPW_R_SIZE_MAX */
+#define	PWBUFLEN	1024		/* SolarisÂ® _SC_GETPW_R_SIZE_MAX */
 #endif
 
 /* shadow-password entry */
@@ -87,12 +97,12 @@
 
 /* group entry */
 #ifndef	GRBUFLEN
-#define	GRBUFLEN	7296		/* Solaris® _SC_GETGR_R_SIZE_MAX */
+#define	GRBUFLEN	7296		/* SolarisÂ® _SC_GETGR_R_SIZE_MAX */
 #endif
 
 /* project entry */
 #ifndef	PJBUFLEN
-#define	PJBUFLEN	(4 * 1024)	/* Solaris® recommends (4*1024) */
+#define	PJBUFLEN	(4 * 1024)	/* SolarisÂ® recommends (4*1024) */
 #endif
 
 /* protocol entry */
@@ -139,7 +149,7 @@ struct getbufsize {
 	volatile int	f_initdone ;
 	volatile int	f_begin ;
 	volatile int	f_loaded ;
-	int		bs[getbufsize_overlast] ;
+	int		bs[getbufsize_overlast] ; /* Buffer Size */
 } ;
 
 
@@ -311,12 +321,15 @@ static int getbufsize_def(GETBUFSIZE *uip,int w)
 #endif
 	if ((rs = uip->bs[w]) == 0) {
 	    int		name = -1 ;
+	    int		altval = -1 ; /* used when "unsupported" */
 	    switch (w) {
 	    case getbufsize_args:
 	        name = _SC_ARG_MAX ;
+		altval = ARBUFLEN ;
 	        break ;
 	    case getbufsize_pw:
 	        name = _SC_GETPW_R_SIZE_MAX ;
+		altval = PWBUFLEN ;
 	        break ;
 	    case getbufsize_sp:
 	        rs = SPBUFLEN ;
@@ -326,6 +339,7 @@ static int getbufsize_def(GETBUFSIZE *uip,int w)
 	        break ;
 	    case getbufsize_gr:
 	        name = _SC_GETGR_R_SIZE_MAX ;
+		altval = GRBUFLEN ;
 	        break ;
 	    case getbufsize_pj:
 	        rs = PJBUFLEN ;
@@ -350,7 +364,12 @@ static int getbufsize_def(GETBUFSIZE *uip,int w)
 	        uip->bs[w] = rs ;
 	    } else if (rs == 0) {
 	        if (name >= 0) {
-	            rs = getbufsize_sysbs(uip,w,name) ;
+	            if ((rs = getbufsize_sysbs(uip,w,name)) == SR_NOSUP) {
+			if (altval >= 0) {
+			    rs = altval ; /* hack */
+	        	    uip->bs[w] = rs ;
+			}
+		    } /* enbd if (getbufsize_sysbs) */
 	        } else {
 	            rs = SR_BUGCHECK ;
 	        }
@@ -364,6 +383,7 @@ static int getbufsize_def(GETBUFSIZE *uip,int w)
 /* end subroutine (getbufsize_def) */
 
 
+/* get system bufer size */
 static int getbufsize_sysbs(GETBUFSIZE *gbp,int w,int name)
 {
 	int		rs ;
