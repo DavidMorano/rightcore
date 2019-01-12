@@ -364,7 +364,7 @@ static int getbufsize_def(GETBUFSIZE *uip,int w)
 	        uip->bs[w] = rs ;
 	    } else if (rs == 0) {
 	        if (name >= 0) {
-	            if ((rs = getbufsize_sysbs(uip,w,name)) == SR_NOSUP) {
+	            if ((rs = getbufsize_sysbs(uip,w,name)) == SR_NOTSUP) {
 			if (altval >= 0) {
 			    rs = altval ; /* hack */
 	        	    uip->bs[w] = rs ;
