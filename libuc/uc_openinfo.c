@@ -617,7 +617,7 @@ static int open_otherlink(UCOPENINFO *oip,int *fdp,char *ofname)
 #endif
 
 	if ((rs = u_readlink(fn,rbuf,rlen)) >= 0) {
-	    int	npi ;
+	    int		npi ;
 	    rbuf[rs] = '\0' ;
 
 #if	CF_DEBUGS
@@ -672,9 +672,8 @@ static int open_otherlink(UCOPENINFO *oip,int *fdp,char *ofname)
 	        }
 	    }
 
+	    if ((rs >= 0) && (fd >= 0)) *fdp = fd ;
 	} /* end if (reading symbolic link) */
-
-	if ((rs >= 0) && (fd >= 0)) *fdp = fd ;
 
 #if	CF_DEBUGS
 	debugprintf("uc_openinfo/open_otherlink: ret rs=%d fd=%d\n",rs,fd) ;
@@ -794,8 +793,10 @@ static int open_nonpath(UCOPENINFO *oip,int npi)
 	                rs = SR_PROTO ;		/* no SVC -> protocol error */
 		    }
 	        } /* end if (sncpy1w) */
-	    } else
+	    } else {
 	        rs = SR_NOANODE ;		/* bug-check exception */
+	    }
+
 	} /* end if (non-null) */
 
 #if	CF_DEBUGS
@@ -1020,8 +1021,8 @@ static int openproger(cchar *fname,int oflags,cchar **ev)
 
 	        rs1 = vecstr_finish(&args) ;
 	        if (rs >= 0) rs = rs1 ;
+		if ((rs < 0) && (fd >= 0)) u_close(fd) ;
 	    } /* end if (args) */
-	    if ((rs < 0) && (fd >= 0)) u_close(fd) ;
 
 	} /* end if (mkuserpath) */
 
@@ -1208,12 +1209,12 @@ static int noexist(cchar *pp,int pl)
 {
 	const int	nlen = MAXNAMELEN ;
 	int		rs ;
-	char		pfname[MAXNAMELEN + 1] ;
+	char		nbuf[MAXNAMELEN + 1] ;
 
-	pfname[0] = '/' ;
-	if ((rs = snwcpy((pfname+1),(nlen-1),pp,pl)) >= 0) {
+	nbuf[0] = '/' ;
+	if ((rs = snwcpy((nbuf+1),(nlen-1),pp,pl)) >= 0) {
 	    OURSTAT	sb ;
-	    if ((rs = FUNCSTAT(pfname,&sb)) >= 0) {
+	    if ((rs = FUNCSTAT(nbuf,&sb)) >= 0) {
 	        if (! S_ISDIR(sb.st_mode)) {
 	            rs = SR_EXIST ;
 	        }
