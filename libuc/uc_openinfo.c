@@ -788,11 +788,8 @@ static int open_nonpath(UCOPENINFO *oip,int npi)
 	        if ((rs = sncpy1w(prn,nlen,fname,(tp - fname))) >= 0) {
 	            cchar	*sp = (tp+1) ;
 	            if (sp[0] != '\0') {
-
 	                rs = open_nonpather(oip,npi,prn,sp) ;
 	                fd = rs ;
-
-	                if ((rs < 0) && (fd >= 0)) u_close(fd) ;
 	            } else {
 	                rs = SR_PROTO ;		/* no SVC -> protocol error */
 		    }
@@ -945,6 +942,7 @@ static int open_nonpather(UCOPENINFO *oip,int npi,cchar *prn,cchar *sp)
 
 	    rs1 = vecstr_finish(&args) ;
 	    if (rs >= 0) rs = rs1 ;
+	    if ((rs < 0) && (fd >= 0)) u_close(fd) ;
 	} /* end if (vecstr-args) */
 
 #if	CF_DEBUGS
