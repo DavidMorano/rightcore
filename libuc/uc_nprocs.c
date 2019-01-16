@@ -50,8 +50,8 @@
 	Amazingly, the '/proc' file-system with file entries in it that look
 	like process IDs is probably the most portable way invented so far to
 	enumerate process IDs on the system. I think we can all thank AT&T for 
-	this, but inventing the PROC FS back in the mid-1980s or so. It is 
-	amazing how much stuff that AT&T invented in the 1980s for UNIX has 
+	this, for inventing the PROC FS back in the mid-1980s or so. It is 
+	amazing how much stuff that AT&T invented in the 1980s for UNIX that has 
 	passed the test of time. The only real problem with the PROC FS is that
 	it is possible that it can be unmounted (not mounted), in which case
 	everyone has nothing!
