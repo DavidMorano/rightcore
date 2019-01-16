@@ -18,7 +18,7 @@
 
 /*******************************************************************************
 
-	We search for a process with a given command string and UID.
+	We search for a process (first one) with a given command string and UID.
 
 	Synopsis:
 
@@ -72,6 +72,7 @@ int uc_procpid(cchar *name,uid_t uid)
 	const int	dlen = DIGBUFLEN ;
 	int		v = uid ;
 	int		rs ;
+	int		rs1 ;
 	int		pid = 0 ;
 	char		dbuf[DIGBUFLEN+1] ;
 	if (name == NULL) return SR_FAULT ;
@@ -102,7 +103,8 @@ int uc_procpid(cchar *name,uid_t uid)
 	                pid = v ;
 	            }
 	        } /* end if (u_read) */
-	        uc_close(fd) ;
+	        rs1 = uc_close(fd) ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (open) */
 	} /* end if (ctdeci) */
 	return (rs >= 0) ? pid : rs ;
