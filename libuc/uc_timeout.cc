@@ -1181,7 +1181,7 @@ static int uctimeout_dispjobdel(UCTIMEOUT *uip,TIMEOUT *tep)
 static void uctimeout_atforkbefore()
 {
 	UCTIMEOUT	*uip = &uctimeout_data ;
-	uctimeout_capbegin(uip) ;
+	uctimeout_capbegin(uip,-1) ;
 }
 /* end subroutine (uctimeout_atforkbefore) */
 
