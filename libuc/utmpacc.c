@@ -603,7 +603,7 @@ static int utmpacc_capend(UTMPACC *uip)
 static void utmpacc_atforkbefore()
 {
 	UTMPACC		*uip = &utmpacc_data ;
-	ptm_lock(&uip->m) ;
+	utmpacc_capbegin(uip,-1) ;
 }
 /* end subroutine (utmpacc_atforkbefore) */
 
@@ -611,7 +611,7 @@ static void utmpacc_atforkbefore()
 static void utmpacc_atforkafter()
 {
 	UTMPACC		*uip = &utmpacc_data ;
-	ptm_unlock(&uip->m) ;
+	utmpacc_capend(uip) ;
 }
 /* end subroutine (utmpacc_atforkafter) */
 
