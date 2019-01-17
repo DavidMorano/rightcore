@@ -473,7 +473,7 @@ static int uprogdata_geter(UPROGDATA *uip,int di,char rbuf[],int rlen)
 static void uprogdata_atforkbefore()
 {
 	UPROGDATA	*uip = &uprogdata_data ;
-	ptm_lock(&uip->m) ;
+	uprogdata_capbegin(uip,-1) ;
 }
 /* end subroutine (uprogdata_atforkbefore) */
 
@@ -481,7 +481,7 @@ static void uprogdata_atforkbefore()
 static void uprogdata_atforkafter()
 {
 	UPROGDATA	*uip = &uprogdata_data ;
-	ptm_unlock(&uip->m) ;
+	uprogdata_capend(uip) ;
 }
 /* end subroutine (uprogdata_atforkafter) */
 
