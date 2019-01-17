@@ -1,6 +1,6 @@
 /* uc_timer */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 
 
 #define	CF_DEBUGS	0		/* compile-time debug print-outs */
@@ -8,16 +8,24 @@
 
 /* revision history:
 
-	= 1998-04-13, David A­D­ Morano
+	= 1998-04-13, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	POSIX® timer (|timer(3rt|) operations.
+	POSIXÂ® timer (|timer(3rt)|) operations.
+
+	System subroutines provided:
+	
+	uc_timercreate(3rt)
+	uc_timerdestroy(3rt)
+	uc_timerset(3rt)
+	uc_timerget(3rt)
+	uc_timerover(3rt)
 
 
 *******************************************************************************/
@@ -27,7 +35,6 @@
 
 #include	<sys/types.h>
 #include	<unistd.h>
-#include	<fcntl.h>
 #include	<stdlib.h>
 #include	<string.h>
 #include	<time.h>
@@ -48,17 +55,7 @@
 
 /* external subroutines */
 
-extern int	snwcpy(char *,int,const char *,int) ;
-extern int	mkpath1(char *,const char *) ;
-extern int	mkpath2(char *,const char *,const char *) ;
-extern int	mkpath1w(char *,const char *,int) ;
-extern int	matstr(const char **,const char *,int) ;
 extern int	msleep(int) ;
-extern int	haslc(const char *,int) ;
-
-extern char	*strwcpy(char *,const char *,int) ;
-extern char	*strwcpylc(char *,const char *,int) ;
-extern char	*strwcpyuc(char *,const char *,int) ;
 
 
 /* external variables */
