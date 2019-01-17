@@ -392,7 +392,7 @@ static int pcsnsmgr_capend(PCSNSMGR *uip)
 static void pcsnsmgr_atforkbefore()
 {
 	PCSNSMGR		*uip = &pcsnsmgr_data ;
-	ptm_lock(&uip->m) ;
+	pcsnsmgr_capbegin(uip,-1) ;
 }
 /* end subroutine (pcsnsmgr_atforkbefore) */
 
@@ -400,7 +400,7 @@ static void pcsnsmgr_atforkbefore()
 static void pcsnsmgr_atforkafter()
 {
 	PCSNSMGR		*uip = &pcsnsmgr_data ;
-	ptm_unlock(&uip->m) ;
+	pcsnsmgr_capend(uip) ;
 }
 /* end subroutine (pcsnsmgr_atforkafter) */
 
