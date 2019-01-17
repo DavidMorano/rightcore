@@ -424,7 +424,7 @@ static int preload_geter(PRELOAD *uip,int di,char *rbuf,int rlen)
 static void preload_atforkbefore()
 {
 	PRELOAD		*uip = &preload_data ;
-	ptm_lock(&uip->m) ;
+	preload_capbegin(uip,-1) ;
 }
 /* end subroutine (preload_atforkbefore) */
 
@@ -432,7 +432,7 @@ static void preload_atforkbefore()
 static void preload_atforkafter()
 {
 	PRELOAD		*uip = &preload_data ;
-	ptm_unlock(&uip->m) ;
+	preload_capend(uip) ;
 }
 /* end subroutine (preload_atforkafter) */
 
