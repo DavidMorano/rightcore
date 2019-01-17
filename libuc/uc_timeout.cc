@@ -177,9 +177,11 @@ static int	uctimeout_workready(UCTIMEOUT *) ;
 static int	uctimeout_workbegin(UCTIMEOUT *) ;
 static int	uctimeout_workend(UCTIMEOUT *) ;
 static int	uctimeout_workfins(UCTIMEOUT *) ;
+static int	uctimeout_workdump(UCTIMEOUT *) ;
 
 static int	uctimeout_priqbegin(UCTIMEOUT *) ;
 static int	uctimeout_priqend(UCTIMEOUT *) ;
+static int	uctimeout_pridump(UCTIMEOUT *) ;
 
 static int	uctimeout_sigbegin(UCTIMEOUT *) ;
 static int	uctimeout_sigend(UCTIMEOUT *) ;
@@ -193,6 +195,9 @@ static int	uctimeout_thrsend(UCTIMEOUT *) ;
 static int	uctimeout_sigerbegin(UCTIMEOUT *) ;
 static int	uctimeout_sigerend(UCTIMEOUT *) ;
 static int	uctimeout_sigerworker(UCTIMEOUT *) ;
+static int	uctimeout_sigerwait(UCTIMEOUT *) ;
+static int	uctimeout_sigerserve(UCTIMEOUT *) ;
+static int	uctimeout_sigerdump(UCTIMEOUT *) ;
 
 static int	uctimeout_dispbegin(UCTIMEOUT *) ;
 static int	uctimeout_dispend(UCTIMEOUT *) ;
@@ -200,9 +205,6 @@ static int	uctimeout_dispworker(UCTIMEOUT *) ;
 static int	uctimeout_disprecv(UCTIMEOUT *) ;
 static int	uctimeout_disphandle(UCTIMEOUT *) ;
 static int	uctimeout_dispjobdel(UCTIMEOUT *,TIMEOUT *) ;
-
-static int	uctimeout_sigerwait(UCTIMEOUT *) ;
-static int	uctimeout_sigerserve(UCTIMEOUT *) ;
 
 static void	uctimeout_atforkbefore() ;
 static void	uctimeout_atforkparent() ;
@@ -537,7 +539,7 @@ static int uctimeout_workbegin(UCTIMEOUT *uip)
 	                        if (rs < 0) {
 	                            ciq_finish(&uip->pass) ;
 	                        }
-	                    }
+	                    } /* end if (ciq_start) */
 	                    if (rs < 0) {
 	                        uctimeout_timerend(uip) ;
 	                    }
@@ -626,6 +628,23 @@ static int uctimeout_workfins(UCTIMEOUT *uip)
 /* end subroutine (uctimeout_workfins) */
 
 
+static int uctimeout_workdump(UCTIMEOUT *uip)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if (uip->f.workready) {
+	    rs1 = uctimeout_pridump(uip) ;
+	    if (rs >= 0) rs = rs1 ;
+	    rs1 = uctimeout_sigerdump(uip) ;
+	    if (rs >= 0) rs = rs1 ;
+	    rs1 = uctimeout_workfins(uip) ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (work-ready) */
+	return rs ;
+}
+/* end subroutine (uctimeout_workdump) */
+
+
 static int uctimeout_priqbegin(UCTIMEOUT *uip)
 {
 	const int	osize = sizeof(vecsorthand) ;
@@ -661,6 +680,25 @@ static int uctimeout_priqend(UCTIMEOUT *uip)
 	return rs ;
 }
 /* end subroutine (uctimeout_priqend) */
+
+
+static int uctimeout_pridump(UCTIMEOUT *uip)
+{
+	vecsorthand	*pqp = uip->pqp ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	int		i ;
+	void		*tep ;
+	for (i = 0 ; (rs1 = vecsorthand_get(pqp,i,&tep)) >= 0 ; i += 1) {
+	    if (tep != NULL) {
+		rs1 = vecsorthand_del(pqp,i--) ;
+		if (rs >= 0) rs = rs1 ;
+	    }
+	} /* end for */
+	if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
+	return rs ;
+}
+/* end subroutine (uctimeout_pridump) */
 
 
 static int uctimeout_sigbegin(UCTIMEOUT *uip)
@@ -939,6 +977,19 @@ static int uctimeout_sigerserve(UCTIMEOUT *uip)
 /* end subroutine (uctimeout_sigerserve) */
 
 
+static int uctimeout_sigerdump(UCTIMEOUT *uip)
+{
+	ciq		*cqp = &uip->pass ;
+	int		rs = SR_OK ;
+	int		rs1 ;
+	void		*tep ;
+	while ((rs1 = ciq_rem(cqp,&tep)) >= 0) ; /* loop */
+	if ((rs >= 0) && (rs1 != SR_NOTFOUND)) rs = rs1 ;
+	return rs ;
+}
+/* end subroutine (uctimeout_sigerdump) */
+
+
 static int uctimeout_dispbegin(UCTIMEOUT *uip)
 {
 	PTA		ta ;
@@ -1146,14 +1197,19 @@ static void uctimeout_atforkparent()
 static void uctimeout_atforkchild()
 {
 	UCTIMEOUT	*uip = &uctimeout_data ;
-	uip->f.running_siger = FALSE ;
-	uip->f.running_disper = FALSE ;
-	uip->f.thrs = FALSE ;
 	uip->pid = getpid() ;
+	uip->f_capture = FALSE ;
 	ptm_unlock(&uip->m) ;
 #if	CF_CHILDTHRS /* optional? */
 	if (uip->f.workready) {
 	    uctimeout_thrsbegin(uip) ;
+	}
+#else
+	if (uip->f.workready) {
+	    uctimeout_workdump(uip) ;
+	    uip->f.running_siger = FALSE ;
+	    uip->f.running_disper = FALSE ;
+	    uip->f.thrs = FALSE ;
 	}
 #endif /* CF_CHILDTHRS */
 }
