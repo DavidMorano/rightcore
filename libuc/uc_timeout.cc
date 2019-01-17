@@ -1,7 +1,7 @@
 /* uc_timeout */
 /* lang=C++11 */
 
-/* UNIX® time-out management */
+/* UNIX® time-out (call-back) management */
 
 
 #define	CF_DEBUGN	0		/* special debugging */
@@ -1181,7 +1181,7 @@ static int uctimeout_dispjobdel(UCTIMEOUT *uip,TIMEOUT *tep)
 static void uctimeout_atforkbefore()
 {
 	UCTIMEOUT	*uip = &uctimeout_data ;
-	ptm_lock(&uip->m) ;
+	uctimeout_capbegin(uip) ;
 }
 /* end subroutine (uctimeout_atforkbefore) */
 
@@ -1189,7 +1189,7 @@ static void uctimeout_atforkbefore()
 static void uctimeout_atforkparent()
 {
 	UCTIMEOUT	*uip = &uctimeout_data ;
-	ptm_unlock(&uip->m) ;
+	uctimeout_capend(uip) ;
 }
 /* end subroutine (uctimeout_atforkparent) */
 
@@ -1198,20 +1198,20 @@ static void uctimeout_atforkchild()
 {
 	UCTIMEOUT	*uip = &uctimeout_data ;
 	uip->pid = getpid() ;
-	uip->f_capture = FALSE ;
-	ptm_unlock(&uip->m) ;
-#if	CF_CHILDTHRS /* optional? */
 	if (uip->f.workready) {
-	    uctimeout_thrsbegin(uip) ;
-	}
-#else
-	if (uip->f.workready) {
-	    uctimeout_workdump(uip) ;
 	    uip->f.running_siger = FALSE ;
 	    uip->f.running_disper = FALSE ;
+#if	CF_CHILDTHRS /* optional? */
+	    if (uip->f.thrs) {
+		uip->f.thrs = FALSE ;
+		uctimeout_thrsbegin(uip) ;
+	    }
+#else
 	    uip->f.thrs = FALSE ;
-	}
+	    uctimeout_workdump(uip) ;
 #endif /* CF_CHILDTHRS */
+	} /* end if (was "working") */
+	uctimeout_capend(uip) ;
 }
 /* end subroutine (uctimeout_atforkchild) */
 
