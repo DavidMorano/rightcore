@@ -415,7 +415,7 @@ static int getrandom_capend(GETRANDOM *uip)
 static void getrandom_atforkbefore()
 {
 	GETRANDOM	*uip = &getrandom_data ;
-	ptm_lock(&uip->m) ;
+	getrandom_capbegin(uip,-1) ;
 }
 /* end subroutine (getrandom_atforkbefore) */
 
@@ -423,7 +423,7 @@ static void getrandom_atforkbefore()
 static void getrandom_atforkafter()
 {
 	GETRANDOM	*uip = &getrandom_data ;
-	ptm_unlock(&uip->m) ;
+	getrandom_capend(uip) ;
 }
 /* end subroutine (getrandom_atforkafter) */
 
