@@ -218,8 +218,8 @@ int ugetpw_name(struct passwd *pwp,char *pwbuf,int pwlen,const char *un)
 
 	        rs1 = ugetpw_capend(uip) ;
 	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (capture-exclusion) */
-	} /* end if (init) */
+	    } /* end if (ugetpw-cap) */
+	} /* end if (ugetpw_init) */
 
 #if	CF_DEBUGS
 	debugprintf("ugetpw_name: ret rs=%d len=%u\n",rs,len) ;
@@ -255,8 +255,8 @@ int ugetpw_uid(struct passwd *pwp,char *pwbuf,int pwlen,uid_t uid)
 
 	        rs1 = ugetpw_capend(uip) ;
 	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (capture-exclusion) */
-	} /* end if (init) */
+	    } /* end if (ugetpw-cap) */
+	} /* end if (ugetpw_init) */
 
 	return (rs >= 0) ? len : rs ;
 }
@@ -292,13 +292,13 @@ int ugetpw_stats(UGETPW_STATS *usp)
 	                usp->pmis = s.pmisses ;
 	                usp->nmis = s.nmisses ;
 	                n = s.nentries ;
-	            } /* end if (upwcache-stats) */
+	            } /* end if (upwcache_stats) */
 	        } /* end if */
 
 	        rs1 = ugetpw_capend(uip) ;
 	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (capture-exclusion) */
-	} /* end if (init) */
+	    } /* end if (ugetpw-cap) */
+	} /* end if (ugetpw_init) */
 
 	return (rs >= 0) ? n : rs ;
 }
@@ -412,7 +412,7 @@ static int ugetpw_end(UGETPW *uip)
 static void ugetpw_atforkbefore()
 {
 	UGETPW		*uip = &ugetpw_data ;
-	ptm_lock(&uip->m) ;
+	ugetpw_capbegin(uip,-1) ;
 }
 /* end subroutine (ugetpw_atforkbefore) */
 
@@ -420,7 +420,7 @@ static void ugetpw_atforkbefore()
 static void ugetpw_atforkafter()
 {
 	UGETPW		*uip = &ugetpw_data ;
-	ptm_unlock(&uip->m) ;
+	ugetpw_capend(uip) ;
 }
 /* end subroutine (ugetpw_atforkafter) */
 
