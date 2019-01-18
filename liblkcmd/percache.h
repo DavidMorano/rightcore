@@ -3,12 +3,12 @@
 
 /* revision history:
 
-	= 1998-01-22, David A­D­ Morano
+	= 1998-01-22, David AÂ­DÂ­ Morano
 	This subroutine was written for Rightcore Network Services.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 
 #ifndef	PERCACHE_INCLUDE
@@ -46,9 +46,7 @@ struct percache_h {
 	volatile uint	f_initdone ;
 	volatile uint	f_finireg ;
 	PERCACHE_ITEM	items[pertype_overlast] ;
-	const char	*sysdomain ;
-	const char	*netload ;
-	const char	*systat ;
+	char		*a[pertype_overlast] ;
 } ;
 
 
