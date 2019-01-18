@@ -9,12 +9,16 @@
 
 /* revision history:
 
-	= 2004-03-01, David A­D­ Morano
+	= 2004-03-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.  
+
+	= 2019-01-18, David A.D. Morano
+	I refactored and reduced the code size a good bit (did not
+	really need to, but it just happened).
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004,2019 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -25,6 +29,7 @@
 	where:
 
 	op		pointer to particular data instance (many are possible)
+	...		argument(s) specific to the 'xxx' function
 
 	Returns:
 
@@ -124,7 +129,6 @@
 
 /* external subroutines */
 
-extern int	snfsflags(char *,int,ulong) ;
 extern int	snwcpy(char *,int,const char *,int) ;
 extern int	sncpy1(char *,int,const char *) ;
 extern int	sncpy3(char *,int,const char *,const char *,const char *) ;
@@ -135,7 +139,6 @@ extern int	matstr(const char **,const char *,int) ;
 extern int	matostr(const char **,int,const char *,int) ;
 extern int	cfdeci(const char *,int,int *) ;
 extern int	cfdecti(const char *,int,int *) ;
-extern int	statvfsdir(const char *,struct statvfs *) ;
 extern int	getsysdomain(char *,int) ;
 extern int	localgetnetload(const char *,char *,int) ;
 extern int	localgetsystat(const char *,char *,int) ;
@@ -154,10 +157,18 @@ extern char	*strwcpy(char *,const char *,int) ;
 /* external variables */
 
 
+/* typedefs */
+
+typedef int	(*func)(cchar *,char *,int) ;
+
+
 /* local structures */
 
 
 /* forward references */
+
+static int	percache_item(PERCACHE *,int,func,time_t,cchar *,cchar **) ;
+static int	percache_load(PERCACHE *,int,time_t,cchar *,int) ;
 
 static int	isNoProcs(int rs) ;
 
@@ -183,12 +194,10 @@ static const int	timeouts[] = {
 int percache_init(PERCACHE *pcp)
 {
 	int		rs = SR_OK ;
-
 	if (! pcp->f_init) {
 	    pcp->f_init = TRUE ;
 	    pcp->f_initdone = TRUE ;
 	} /* end if (needed initialization) */
-
 	return rs ;
 }
 /* end subroutine (percache_init) */
@@ -197,17 +206,17 @@ int percache_init(PERCACHE *pcp)
 int percache_fini(PERCACHE *pcp)
 {
 	int		rs = SR_OK ;
-
+	int		rs1 ;
 	if (pcp->f_initdone) {
-	    int	rs1 ;
-	    if (pcp->sysdomain != NULL) {
-		rs1 = uc_libfree(pcp->sysdomain) ;
-		if (rs >= 0) rs = rs1 ;
-		pcp->sysdomain = NULL ;
-	    }
+	    int		i ;
+	    for (i = 0 ; i < percache_overlast ; i += 1) {
+		if (pcp->a[i] != NULL) {
+		    rs1 = uc_libfree(pcp->a[i]) ;
+		    if (rs >= 0) rs = rs1 ;
+		}
+	    } /* end for */
 	    memset(pcp,0,sizeof(PERCACHE)) ;
 	} /* end if (was inited) */
-
 	return rs ;
 }
 /* end subroutine (percache_fini) */
@@ -217,9 +226,13 @@ int percache_fini(PERCACHE *pcp)
 int percache_finireg(PERCACHE *pcp)
 {
 	int		f = FALSE ;
-	if (pcp->f_init) {
-	    f = ((! pcp->f_finireg) && (pcp->sysdomain != NULL)) ;
-	    if (f) pcp->f_finireg = TRUE ;
+	if (pcp->f_initdone && (! pcp->f_finireg)) {
+	    int		i ;
+	    for (i = 0 ; i < percache_overlast ; i += 1) {
+		f = f || (pcp->a[i] != NULL) ;
+		if (f) break ;
+	    } /* end for */
+	    pcp->f_finireg = f ;
 	}
 	return f ;
 }
@@ -230,17 +243,18 @@ int percache_invalidate(PERCACHE *pcp)
 {
 	int		rs = SR_OK ;
 	int		rs1 ;
-
 	if (pcp->f_init) {
 	    const int	size = (sizeof(PERCACHE_ITEM) * pertype_overlast) ;
+	    int		i ;
 	    memset(pcp->items,0,size) ;
-	    if (pcp->sysdomain != NULL) {
-	        rs1 = uc_libfree(pcp->sysdomain) ;
-	        if (rs >= 0) rs = rs1 ;
-	        pcp->sysdomain = NULL ;
-	    }
+	    for (i = 0 ; i < percache_overlast ; i += 1) {
+		if (pcp->a[i] != NULL) {
+		    rs1 = uc_libfree(pcp->a[i]) ;
+		    if (rs >= 0) rs = rs1 ;
+		    pcp->a[i] = NULL ;
+		}
+	    } /* end for */
 	} /* end if (initialized) */
-
 	return rs ;
 }
 /* end subroutine (percache_invalidate) */
@@ -254,17 +268,15 @@ int percache_gethostid(PERCACHE *pcp,time_t dt,uint *hip)
 	if (pcp == NULL) return SR_FAULT ;
 
 	if ((rs = percache_init(pcp)) >= 0) {
-	    time_t	vt ;
-	    int		to ;
-	    vt = pcp->items[pt].t ;
-	    to = timeouts[pt] ;
+	    const time_t	vt = pcp->items[pt].t
+	    const int		to = timeouts[pt] ;
 	    if ((dt - vt) > to) {
 	        uint	uv = gethostid() ;
 	        pcp->items[pt].t = dt ;
 	        pcp->items[pt].v = uv ;
 	    } /* end if */
 	    *hip = pcp->items[pt].v ;
-	} /* end if (init) */
+	} /* end if (percache_init) */
 
 	return rs ;
 }
@@ -280,11 +292,9 @@ int percache_getnprocs(PERCACHE *pcp,time_t dt)
 	if (pcp == NULL) return SR_FAULT ;
 
 	if ((rs = percache_init(pcp)) >= 0) {
-	    time_t	vt ;
-	    int		to ;
-	    vt = pcp->items[pt].t ;
+	    const time_t	vt = pcp->items[pt].t
+	    const int		to = timeouts[pt] ;
 	    n = pcp->items[pt].v ;
-	    to = timeouts[pt] ;
 	    if ((dt - vt) > to) {
 	        if ((rs = uc_nprocs(0)) >= 0) {
 	            n = rs ;
@@ -294,7 +304,7 @@ int percache_getnprocs(PERCACHE *pcp,time_t dt)
 	        pcp->items[pt].t = dt ;
 	        pcp->items[pt].v = n ;
 	    } /* end if */
-	} /* end if (init) */
+	} /* end if (percache_init) */
 
 	return (rs >= 0) ? n : rs ;
 }
@@ -309,10 +319,8 @@ int percache_getbtime(PERCACHE *pcp,time_t dt,time_t *btp)
 	if (pcp == NULL) return SR_FAULT ;
 
 	if ((rs = percache_init(pcp)) >= 0) {
-	    time_t	vt ;
-	    int		to ;
-	    vt = pcp->items[pt].t ;
-	    to = timeouts[pt] ;
+	    const time_t	vt = pcp->items[pt].t
+	    const int		to = timeouts[pt] ;
 	    if ((dt - vt) > to) {
 	        time_t	bt ;
 	        if ((rs = utmpacc_boottime(&bt)) >= 0) {
@@ -321,7 +329,7 @@ int percache_getbtime(PERCACHE *pcp,time_t dt,time_t *btp)
 	        }
 	    } /* end if */
 	    *btp = pcp->items[pt].v ;
-	} /* end if (init) */
+	} /* end if (percache_init) */
 
 	return rs ;
 }
@@ -337,11 +345,9 @@ int percache_getrunlevel(PERCACHE *pcp,time_t dt)
 	if (pcp == NULL) return SR_FAULT ;
 
 	if ((rs = percache_init(pcp)) >= 0) {
-	    time_t	vt ;
-	    int		to ;
-	    vt = pcp->items[pt].t ;
+	    const time_t	vt = pcp->items[pt].t
+	    const int		to = timeouts[pt] ;
 	    n = pcp->items[pt].v ;
-	    to = timeouts[pt] ;
 	    if ((dt - vt) > to) {
 	        if ((rs = utmpacc_runlevel()) >= 0) {
 	            n = rs ;
@@ -349,7 +355,7 @@ int percache_getrunlevel(PERCACHE *pcp,time_t dt)
 	            pcp->items[pt].v = n ;
 	        }
 	    } /* end if */
-	} /* end if (init) */
+	} /* end if (percache_init) */
 
 	return (rs >= 0) ? n : rs ;
 }
@@ -365,11 +371,9 @@ int percache_getnusers(PERCACHE *pcp,time_t dt)
 	if (pcp == NULL) return SR_FAULT ;
 
 	if ((rs = percache_init(pcp)) >= 0) {
-	    time_t	vt ;
-	    int		to ;
-	    vt = pcp->items[pt].t ;
+	    const time_t	vt = pcp->items[pt].t ;
+	    const int		to = timeouts[pt] ;
 	    n = pcp->items[pt].v ;
-	    to = timeouts[pt] ;
 	    if ((dt - vt) > to) {
 	        if ((rs = utmpacc_users(0)) >= 0) {
 	            n = rs ;
@@ -377,93 +381,55 @@ int percache_getnusers(PERCACHE *pcp,time_t dt)
 	            pcp->items[pt].v = n ;
 	        }
 	    } /* end if */
-	} /* end if (init) */
+	} /* end if (percache_init) */
 
 	return (rs >= 0) ? n : rs ;
 }
 /* end subroutine (percache_getnusers) */
 
 
-int percache_getsysdomain(PERCACHE *pcp,time_t dt,const char **rpp)
+int percache_getsysdomain(PERCACHE *pcp,time_t dt,cchar **rpp)
 {
-	const int	pt = pertype_sysdomain ;
+	const int	ei = percache_sysdomain ;
 	int		rs ;
 	int		len = 0 ;
-
 	if (pcp == NULL) return SR_FAULT ;
-
 	if ((rs = percache_init(pcp)) >= 0) {
-	    time_t	vt ;
-	    int		to ;
-	    vt = pcp->items[pt].t ;
-	    len = pcp->items[pt].v ;
-	    to = timeouts[pt] ;
-	    if (((dt - vt) > to) || (pcp->sysdomain == NULL)) {
+	    const time_t	vt = pcp->items[ei].v ;
+	    const int		to = timeouts[ei] ;
+	    len = pcp->items[ei].v ;
+	    if (((dt - vt) > to) || (pcp->a[ei] == NULL)) {
 	        const int	dlen = MAXHOSTNAMELEN ;
 	        char		dbuf[MAXHOSTNAMELEN+1] ;
-		if (pcp->sysdomain != NULL) {
-		    uc_libfree(pcp->sysdomain) ;
-		    pcp->sysdomain = NULL ;
+		if (pcp->a[ei] != NULL) {
+		    uc_libfree(pcp->a[ei]) ;
+		    pcp->a[ei] = NULL ;
 		}
 	        if ((rs = getsysdomain(dbuf,dlen)) >= 0) {
-		    char	*bp ;
-		    if ((rs = uc_libmalloc((rs+1),&bp)) >= 0) {
-		        len = (rs-1) ;
-			strwcpy(bp,dbuf,len) ;
-		        pcp->sysdomain = bp ;
-	                pcp->items[pt].t = dt ;
-	    	        pcp->items[pt].v = len ;
-	            } /* end if (memory-allocation) */
+		    len = rs ;
+		    rs = percache_load(pcp,ei,dt,dbuf,len) ;
 		} /* end if (getsysdomain) */
-	    } else {
-		len = pcp->items[pt].v ;
-	    }
+	    } /* end if (needed) */
 	    if (rpp != NULL) {
-		*rpp = (rs >= 0) ? pcp->sysdomain : NULL ;
+		*rpp = (rs >= 0) ? pcp->a[ei] : NULL ;
 	    }
-	} /* end if (init) */
-
+	} /* end if (percache_init) */
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (percache_getsysdomain) */
 
 
-int percache_netload(PERCACHE *pcp,time_t dt,const char *pr,const char **rpp)
+int percache_netload(PERCACHE *pcp,time_t dt,const char *pr,cchar **rpp)
 {
-	const int	pt = pertype_netload ;
+	const int	ei = pertype_netload ;
 	int		rs ;
 	int		len = 0 ;
 	if (pcp == NULL) return SR_FAULT ;
 	if ((rs = percache_init(pcp)) >= 0) {
-	    time_t	vt ;
-	    int		to ;
-	    vt = pcp->items[pt].t ;
-	    len = pcp->items[pt].v ;
-	    to = timeouts[pt] ;
-	    if (((dt - vt) > to) || (pcp->netload == NULL)) {
-	        const int	dlen = MAXHOSTNAMELEN ;
-	        char		dbuf[MAXHOSTNAMELEN+1] ;
-		if (pcp->netload != NULL) {
-		    uc_libfree(pcp->netload) ;
-		    pcp->netload = NULL ;
-		}
-	        if ((rs = localgetnetload(pr,dbuf,dlen)) >= 0) {
-		    char	*bp ;
-		    if ((rs = uc_libmalloc((rs+1),&bp)) >= 0) {
-		        len = (rs-1) ;
-			strwcpy(bp,dbuf,len) ;
-		        pcp->netload = bp ;
-	                pcp->items[pt].t = dt ;
-	    	        pcp->items[pt].v = len ;
-	            } /* end if (memory-allocation) */
-		} /* end if (localgetnetload) */
-	    } else {
-		len = pcp->items[pt].v ;
-	    }
-	    if (rpp != NULL) {
-		*rpp = (rs >= 0) ? pcp->netload : NULL ;
-	    }
-	} /* end if (init) */
+	    func	af = localgetnetload ;
+	    rs = percache_item(pcp,ei,af,dt,pr,rpp) ;
+	    len = rs ;
+	} /* end if (percache_init) */
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (percache_netload) */
@@ -471,43 +437,63 @@ int percache_netload(PERCACHE *pcp,time_t dt,const char *pr,const char **rpp)
 
 int percache_systat(PERCACHE *pcp,time_t dt,cchar *pr,cchar **rpp)
 {
-	const int	pt = pertype_systat ;
+	const int	ei = pertype_systat ;
 	int		rs ;
 	int		len = 0 ;
 	if (pcp == NULL) return SR_FAULT ;
 	if ((rs = percache_init(pcp)) >= 0) {
-	    time_t	vt ;
-	    int		to ;
-	    vt = pcp->items[pt].t ;
-	    len = pcp->items[pt].v ;
-	    to = timeouts[pt] ;
-	    if (((dt - vt) > to) || (pcp->systat == NULL)) {
-	        const int	dlen = MAXHOSTNAMELEN ;
-	        char		dbuf[MAXHOSTNAMELEN+1] ;
-		if (pcp->systat != NULL) {
-		    uc_libfree(pcp->systat) ;
-		    pcp->systat = NULL ;
-		}
-	        if ((rs = localgetsystat(pr,dbuf,dlen)) >= 0) {
-		    char	*bp ;
-		    if ((rs = uc_libmalloc((rs+1),&bp)) >= 0) {
-		        len = (rs-1) ;
-			strwcpy(bp,dbuf,len) ;
-		        pcp->systat = bp ;
-	                pcp->items[pt].t = dt ;
-	    	        pcp->items[pt].v = len ;
-	            } /* end if (memory-allocation) */
-		} /* end if (localgetsystat) */
-	    } else {
-		len = pcp->items[pt].v ;
-	    }
-	    if (rpp != NULL) {
-		*rpp = (rs >= 0) ? pcp->systat : NULL ;
-	    }
-	} /* end if (init) */
+	    func	af = localgetsystat ;
+	    rs = percache_item(pcp,ei,af,dt,pr,rpp) ;
+	    len = rs ;
+	} /* end if (percache_init) */
 	return (rs >= 0) ? len : rs ;
 }
 /* end subroutine (percache_systat) */
+
+
+/* local subroutines */
+
+
+static int percache_item(PERCACHE *pcp,int ei,func af,time_t dt,cchar *pr,
+	cchar **rpp)
+{
+	    const time_t	vt = pcp->items[ei].t ;
+	    const int		to = timeouts[ei] ;
+	    int			len = pcp->items[ei].v ;
+	    int			rs = SR_OK ;
+	    if (((dt - vt) > to) || (pcp->a[ei] == NULL)) {
+	        const int	dlen = MAXHOSTNAMELEN ;
+	        char		dbuf[MAXHOSTNAMELEN+1] ;
+		if (pcp->a[ei] != NULL) {
+		    uc_libfree(pcp->a[ei]) ;
+		    pcp->a[ei] = NULL ;
+		}
+	        if ((rs = (*af)(pr,dbuf,dlen)) >= 0) {
+		    len = rs ;
+		    rs = percache_load(pcp,ei,dt,dbuf,len) ;
+		} /* end if (func) */
+	    } /* end if (needed) */
+	    if (rpp != NULL) {
+		*rpp = (rs >= 0) ? pcp->a[ei] : NULL ;
+	    }
+	return (rs >= 0) ? len : rs ;
+}
+/* end subroutine (percache_item) */
+	
+
+static int percache_load(PERCACHE *pcp,int ei,time_t dt,cchar *sp,int sl)
+{
+	int		rs ;
+	char		*bp ;
+	if ((rs = uc_libmalloc((sl+1),&bp)) >= 0) {
+	    pcp->a[ei] = bp ;
+	    strwcpy(bp,sp,sl) ;
+	    pcp->items[ei].t = dt ;
+	    pcp->items[ei].v = sl ;
+	} /* end if (memory-allocation) */
+	return (rs >= 0) ? sl : rs ;
+}
+/* end subroutine (percache_load) */
 
 
 static int isNoProcs(int rs)
