@@ -6,31 +6,17 @@
 
 /* revision history:
 
-	= 2014-04-04, David A­D­ Morano
+	= 2014-04-04, David AÂ­DÂ­ Morano
 	This subroutine was written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2014 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2014 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	These subroutines and other definitions form the interface to the
-	process-wide time manager.
-
-	Synopsis:
-
-	int uc_timeout(const cmd,TIMEOUT *entp)
-
-	Arguments:
-
-	cmd		command
-	entp		pointer to TIMEOUT object
-
-	Returns:
-
-	<0		error
-	>=0		OK
+	This file provides the definition of the TIMEOUT object, and its
+	method declarations.
 
 
 *******************************************************************************/
