@@ -1,7 +1,7 @@
 /* timeout */
 /* lang=C99 */
 
-/* UNIX® signal event initialization */
+/* UNIXÂ® signal event initialization */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -9,20 +9,20 @@
 
 /* revision history:
 
-	= 2014-04-04, David A­D­ Morano
+	= 2014-04-04, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2014 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2014 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
-	These subroutines manipulate TIMEOUT objects.
+	This subroutine loads (initializes) a TIMEOUT object.
 
 	Synopsis:
 
-	int timeout_init(TIMEOUT *top,time_t sec,long nsec)
+	int timeout_load(TIMEOUT *top,time_t sec,long nsec)
 
 	Arguments:
 
