@@ -1,6 +1,6 @@
 /* uc_sigset */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -8,12 +8,12 @@
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
+	= 2000-05-14, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2000 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
@@ -36,7 +36,7 @@
 
 int uc_sigsetempty(sigset_t *sp)
 {
-	int	rs ;
+	int		rs ;
 	if ((rs = sigemptyset(sp)) < 0) rs = (- errno) ;
 	return rs ;
 }
@@ -45,7 +45,7 @@ int uc_sigsetempty(sigset_t *sp)
 
 int uc_sigsetfill(sigset_t *sp)
 {
-	int	rs ;
+	int		rs ;
 	if ((rs = sigfillset(sp)) < 0) rs = (- errno) ;
 	return rs ;
 }
@@ -54,7 +54,7 @@ int uc_sigsetfill(sigset_t *sp)
 
 int uc_sigsetadd(sigset_t *sp,int sn)
 {
-	int	rs ;
+	int		rs ;
 	if ((rs = sigaddset(sp,sn)) < 0) rs = (- errno) ;
 	return rs ;
 }
@@ -63,7 +63,7 @@ int uc_sigsetadd(sigset_t *sp,int sn)
 
 int uc_sigsetdel(sigset_t *sp,int sn)
 {
-	int	rs ;
+	int		rs ;
 	if ((rs = sigdelset(sp,sn)) < 0) rs = (- errno) ;
 	return rs ;
 }
@@ -72,11 +72,10 @@ int uc_sigsetdel(sigset_t *sp,int sn)
 
 int uc_sigsetismem(sigset_t *sp,int sn)
 {
-	int	rs = SR_OK ;
-	if (sn > 0) {
+	int		rs = SR_INVALID ;
+	if (sn >= 0) {
 	    if ((rs = sigismember(sp,sn)) < 0) rs = (- errno) ;
-	} else if (sn < 0)
-	    rs = SR_INVALID ;
+	}
 	return rs ;
 }
 /* end subroutine (uc_sigsetismem) */
