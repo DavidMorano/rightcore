@@ -1,6 +1,6 @@
 /* uc_openshm */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 /* open POSIX share-memory */
 
 
@@ -9,12 +9,12 @@
 
 /* revision history:
 
-	= 1998-07-10, David A­D­ Morano
+	= 1998-07-10, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -105,10 +105,8 @@ int uc_openshm(cchar *shmname,int of,mode_t om)
 
 #else /* defined(SYSHAS_PSHM) && (SYSHAS_PSHM > 0) */
 
-int uc_openshm(fname,oflags,operm)
-const char	fname[] ;
-int		oflags ;
-mode_t		operm ;
+/* ARGSUSED */
+int uc_openshm(cchar *shmname,int of,mode_t om)
 {
 	return SR_NOSYS ;
 }
