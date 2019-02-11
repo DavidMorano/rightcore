@@ -5,14 +5,14 @@
 
 /* revistion history:
 
-	= 04/12/15, David A­D­ Morano
-
+	= 2015-04-12, David AÂ­DÂ­ Morano
 	We needed this stuff so that user's had something to include
 	in order to use the 'u_poll(3dam)' subroutine!
 
 
 */
 
+/* Copyright (c) 2015 David A.D. Morano. All rights reserved. */
 
 /******************************************************************************
 
@@ -38,9 +38,9 @@ extern "C" {
 #endif
 
 typedef struct pollfd {
-	int fd;				/* file desc to poll */
-	short events;			/* events of interest on fd */
-	short revents;			/* events that occurred on fd */
+	int		fd;		/* file desc to poll */
+	short		events;		/* events of interest on fd */
+	short		revents;	/* events that occurred on fd */
 } pollfd_t;
 
 typedef unsigned long	nfds_t;
@@ -73,6 +73,7 @@ typedef unsigned long	nfds_t;
 }
 #endif
 
+extern int	poll(pollfd_t *,nfds_t,int) ;
 
 #endif /* (! defined(SYSHAS_POLL)) || (SYSHAS_POLL == 0) */
 
