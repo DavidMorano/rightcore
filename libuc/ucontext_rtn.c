@@ -1,17 +1,19 @@
 /* ucontext_rtn */
 
+/* retrieve return address from UCONTEXT */
+
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
 
 
 /* revision history:
 
-	= 2000-05-14, David A­D­ Morano
+	= 2000-05-14, David AÂ­DÂ­ Morano
 	Originally written for Rightcore Network Services.
 
 */
 
-/* Copyright © 2000 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2000 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -32,7 +34,6 @@
 
 #include	<vsystem.h>
 #include	<localmisc.h>
-#include	<exitcodes.h>
 
 
 /* local defines */
@@ -47,15 +48,8 @@ extern int	debugclose() ;
 extern int	strlinelen(const char *,int,int) ;
 #endif /* CF_DEBUGS */
 
-extern const char	*strsigabbr(int) ;
-
 
 /* local structures */
-
-#ifndef	TYPEDEF_CCHAR
-#define	TYPEDEF_CCHAR	1
-typedef const char	cchar ;
-#endif
 
 
 /* forward references */
@@ -70,9 +64,10 @@ typedef const char	cchar ;
 int ucontext_rtn(ucontext_t *ucp,long *rpp)
 {
 	mcontext_t	*mcp = &ucp->uc_mcontext ;
-	greg_t		*rp ;
-	rp = mcp->gregs ;
-	if (rpp != NULL) *rpp = rp[(_NGREG-1)] ;
+	if (rpp != NULL) {
+	    greg_t	*rp = mcp->gregs ;
+	    *rpp = rp[(_NGREG-1)] ;
+	}
 	return SR_OK ;
 }
 /* end subroutine (ucontext_rtn) */
