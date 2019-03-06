@@ -5,12 +5,12 @@
 
 /* revision history:
 
-	= 1998-11-01, David A­D­ Morano
+	= 1998-11-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -62,20 +62,20 @@ long lrem(long v,long m)
 /* end subroutine (lrem) */
 
 
-LONG llrem(LONG v,int m)
+longlong llrem(longlong v,int m)
 {
-	const LONG	q = (v/m) ;
+	const longlong	q = (v/m) ;
 	return (v-(q*m)) ;
 }
 /* end subroutine (llrem) */
 
 
-uint iurem(uint v,int m)
+uint uirem(uint v,int m)
 {
-	const int	q = (v/m) ;
+	const uint	q = (v/m) ;
 	return (v-(q*m)) ;
 }
-/* end subroutine (iurem) */
+/* end subroutine (uirem) */
 
 
 ulong ulrem(ulong v,int m)
@@ -86,9 +86,9 @@ ulong ulrem(ulong v,int m)
 /* end subroutine (ulrem) */
 
 
-ULONG ullrem(ULONG v,int m)
+ulonglong ullrem(ulonglong v,int m)
 {
-	const ULONG	q = (v/m) ;
+	const ulonglong	q = (v/m) ;
 	return (v-(q*m)) ;
 }
 /* end subroutine (ullrem) */
