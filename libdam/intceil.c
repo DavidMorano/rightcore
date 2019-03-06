@@ -5,12 +5,12 @@
 
 /* revision history:
 
-	= 1998-11-01, David A­D­ Morano
+	= 1998-11-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -67,9 +67,9 @@ long lceil(long v,int m)
 /* end subroutine (lceil) */
 
 
-LONG llceil(LONG v,int m)
+longlong llceil(longlong v,int m)
 {
-	const LONG	n = (v + (m - 1)) / m ;
+	const longlong	n = (v + (m - 1)) / m ;
 	return (n * m) ;
 }
 /* end subroutine (llceil) */
@@ -91,9 +91,9 @@ ulong ulceil(ulong v,int m)
 /* end subroutine (ulceil) */
 
 
-ULONG ullceil(ULONG v,int m)
+ulonglong ullceil(ulonglong v,int m)
 {
-	const ULONG	n = (v + (m - 1)) / m ;
+	const ulonglong	n = (v + (m - 1)) / m ;
 	return (n * m) ;
 }
 /* end subroutine (ullceil) */
