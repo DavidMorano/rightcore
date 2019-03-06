@@ -8,13 +8,13 @@
 
 /* revision history:
 
-	= 1998-03-01, David A­D­ Morano
+	= 1998-03-01, David AÂ­DÂ­ Morano
         The subroutine set was written from scratch to do what the previous
         program by the same name did.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -29,15 +29,10 @@
 
 #include	<sys/types.h>
 #include	<limits.h>
-#include	<stdlib.h>
-#include	<string.h>
 
-#include	<vsystem.h>
 #include	<char.h>
 #include	<ascii.h>
 #include	<localmisc.h>
-
-#include	"contentencodings.h"
 
 
 /* local defines */
@@ -91,7 +86,7 @@ int ismmclass_8bit(int ch)
 
 
 /* does it *require* binary */
-int ismmclass_binary(uint ch)
+int ismmclass_binary(int ch)
 {
 	int		f = FALSE ;
 	ch &= UCHAR_MAX ;
