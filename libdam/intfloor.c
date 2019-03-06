@@ -5,12 +5,12 @@
 
 /* revision history:
 
-	= 1998-11-01, David A­D­ Morano
+	= 1998-11-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -52,9 +52,9 @@ long lfloor(long v,int m)
 /* end subroutine (lfloor) */
 
 
-LONG llfloor(LONG v,int m)
+longlong llfloor(longlong v,int m)
 {
-	const LONG	n = v / m ;
+	const longlong	n = v / m ;
 	return (n * m) ;
 }
 /* end subroutine (llfloor) */
@@ -76,9 +76,9 @@ ulong ulfloor(ulong v,int m)
 /* end subroutine (ulfloor) */
 
 
-ULONG ullfloor(ULONG v,int m)
+ulonglong ullfloor(ulonglong v,int m)
 {
-	const ulong	n = v / m ;
+	const ulonglong	n = v / m ;
 	return (n * m) ;
 }
 /* end subroutine (ullfloor) */
