@@ -1,6 +1,6 @@
 /* upwcache */
 
-/* low-level UNIX® PASSWD cache */
+/* low-level UNIXÂ® PASSWD cache */
 
 
 #define	CF_DEBUGS	0		/* compile-time debug print-outs */
@@ -8,12 +8,12 @@
 
 /* revision history:
 
-	= 2004-01-10, David A­D­ Morano
+	= 2004-01-10, David AÂ­DÂ­ Morano
 	This code was originally written.
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -57,6 +57,8 @@
 
 
 /* external subroutines */
+
+extern int	isNotPresent(int) ;
 
 extern char	*strwcpy(char *,const char *,int) ;
 
@@ -515,10 +517,10 @@ static int upwcache_recaccess(UPWCACHE *op,time_t dt,UPWCACHE_REC *ep)
 	        int	wc = op->wcount++ ;
 	        op->s.refreshes += 1 ;
 	        rs = record_refresh(ep,dt,wc) ;
-	    } else {
+	    } else if (rs == 0) {
 	        rs = record_access(ep,dt) ;
 	    }
-	} /* end if */
+	} /* end if (upwcache_recrear) */
 
 	return rs ;
 }
@@ -590,11 +592,11 @@ static int upwcache_recfins(UPWCACHE *op)
 /* end subroutine (upwcache_recfins) */
 
 
-static int upwcache_upstats(UPWCACHE *op,int ct,int rs)
+static int upwcache_upstats(UPWCACHE *op,int ct,int srs)
 {
-	int		f_got = (rs > 0) ;
+	int		f_got = (srs > 0) ;
 #if	CF_DEBUGS
-	debugprintf("upwcache_upstats: ct=%u rs=%d\n",ct,rs) ;
+	debugprintf("upwcache_upstats: ct=%u rs=%d\n",ct,srs) ;
 #endif
 	switch (ct) {
 	case ct_hit:
@@ -634,9 +636,9 @@ static int record_start(UPWCACHE_REC *ep,time_t dt,int wc,cchar *un)
 	    const int		pwlen = rs ;
 	    char		*pwbuf ;
 	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	        if ((rs1 = uc_getpwnam(un,&pw,pwbuf,pwlen)) >= 0) {
+	        if ((rs = uc_getpwnam(un,&pw,pwbuf,pwlen)) >= 0) {
 	            char	*pwb ;
-	            pwl = rs1 ;
+	            pwl = rs ;
 	            if ((rs = uc_libmalloc((pwl+1),&pwb)) >= 0) {
 	                if ((rs = passwdent_load(&ep->pw,pwb,pwl,&pw)) >= 0) {
 	                    ep->pwbuf = pwb ;
@@ -646,14 +648,13 @@ static int record_start(UPWCACHE_REC *ep,time_t dt,int wc,cchar *un)
 	                if (rs < 0)
 	                    uc_libfree(pwb) ;
 	            } /* end if (memory-allocation) */
-	        } else if (rs1 == SR_NOTFOUND) {
+	        } else if (isNotPresent(rs)) {
+		    rs = SR_OK ;
 	            ep->pwl = 0 ; /* optional */
 	            pwl = 0 ; /* indicates an empty (not-found) entry */
-	        } else {
-	            rs = rs1 ;
 	        }
 	        rs1 = uc_free(pwbuf) ;
-		if (rs >= 0) rs = rs ;
+		if (rs >= 0) rs = rs1 ;
 	    } /* end if (m-a) */
 	} /* end if (getbufsize) */
 
@@ -716,8 +717,8 @@ static int record_refresh(UPWCACHE_REC *ep,time_t dt,int wc)
 	    const int		pwlen = rs ;
 	    char		*pwbuf ;
 	    if ((rs = uc_malloc((pwlen+1),&pwbuf)) >= 0) {
-	        if ((rs1 = uc_getpwnam(ep->un,&pw,pwbuf,pwlen)) >= 0) {
-	            pwl = rs1 ;
+	        if ((rs = uc_getpwnam(ep->un,&pw,pwbuf,pwlen)) >= 0) {
+	            pwl = rs ;
 
 	            ep->pwl = pwl ;
 	            if ((ep->pwbuf == NULL) || (ep->pwlen < pwl)) {
@@ -740,7 +741,8 @@ static int record_refresh(UPWCACHE_REC *ep,time_t dt,int wc)
 	                rs = passwdent_load(&ep->pw,ep->pwbuf,ep->pwlen,&pw) ;
 		    }
 
-	        } else if (rs1 == SR_NOTFOUND) {
+	        } else if (isNotPresent(rs)) {
+		    rs = SR_OK ;
 	            if (ep->pwbuf != NULL) {
 	                uc_libfree(ep->pwbuf) ;
 	                ep->pwbuf = NULL ;
@@ -748,8 +750,6 @@ static int record_refresh(UPWCACHE_REC *ep,time_t dt,int wc)
 	            }
 	            ep->pwl = 0 ;
 	            pwl = 0 ; /* indicates an empty (not-found) entry */
-	        } else {
-	            rs = rs1 ;
 	        }
 	        rs1 = uc_free(pwbuf) ;
 		if (rs >= 0) rs = rs1 ;
