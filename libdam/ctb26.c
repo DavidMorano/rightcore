@@ -10,12 +10,12 @@
 
 /* revision history:
 
-	= 1998-03-01, David A­D­ Morano
+	= 1998-03-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -97,6 +97,7 @@ int ctb26(char *rbuf,int rlen,int type,int prec,int v)
 /* end subroutine (ctb26) */
 
 
+/* convert-to an integer */
 int ctb26i(char *rbuf,int rlen,int type,int prec,int v)
 {
 	ULONG		ulv = (ULONG) v ;
@@ -124,7 +125,7 @@ int ctb26i(char *rbuf,int rlen,int type,int prec,int v)
 /* end subroutine (ctb26i) */
 
 
-/* convert to an unsigned integer */
+/* convert-to an unsigned integer */
 int ctb26ui(char *rbuf,int rlen,int type,int prec,uint v)
 {
 	const int	diglen = DIGBUFLEN ;
@@ -150,7 +151,7 @@ int ctb26ui(char *rbuf,int rlen,int type,int prec,uint v)
 /* end subroutine (ctb26ui) */
 
 
-/* convert to a signed long integer */
+/* convert-to a signed long integer */
 int ctb26l(char *rbuf,int rlen,int type,int prec,long v)
 {
 	ULONG		ulv = (ULONG) v ;
@@ -174,7 +175,7 @@ int ctb26l(char *rbuf,int rlen,int type,int prec,long v)
 /* end subroutine (ctb26l) */
 
 
-/* convert to an unsigned long integer */
+/* convert-to an unsigned long integer */
 int ctb26ul(char *rbuf,int rlen,int type,int prec,ulong v)
 {
 	const int	diglen = DIGBUFLEN ;
@@ -200,7 +201,7 @@ int ctb26ul(char *rbuf,int rlen,int type,int prec,ulong v)
 /* end subroutine (ctb26ul) */
 
 
-/* convert to a signed long-long integer */
+/* convert-to a signed long-long integer */
 int ctb26ll(char *rbuf,int rlen,int type,int prec,LONG v)
 {
 	ULONG		ulv = (ULONG) v ;
@@ -224,7 +225,7 @@ int ctb26ll(char *rbuf,int rlen,int type,int prec,LONG v)
 /* end subroutine (ctb26ll) */
 
 
-/* convert to an unsigned long-long integer */
+/* convert-to an unsigned long-long integer */
 int ctb26ull(char *rbuf,int rlen,int type,int prec,ULONG v)
 {
 	const int	diglen = DIGBUFLEN ;
