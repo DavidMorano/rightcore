@@ -350,30 +350,30 @@ static int uctimeout_cmdset(UCTIMEOUT *uip,TIMEOUT *valp)
 	TIMEOUT		*ep ;
 	const int	esize = sizeof(TIMEOUT) ;
 	int		rs ;
-	int		rs1 ;
+	int		ei = 0 ;
 #if	CF_DEBUGN
 	nprintf(NDF,"uctimeout_cmdset: ent val=%u\n",valp->val) ;
 #endif
 	if (valp->metp == NULL) return SR_FAULT ;
 	if ((rs = uc_libmalloc(esize,&ep)) >= 0) {
-	        vechand		*elp = &uip->ents ;
-	        if ((rs = vechand_add(elp,ep)) >= 0) {
-	            const int	ei = rs ;
-	            *ep = *valp ;
-	            {
-	                ep->id = ei ;
-	                rs = uctimeout_enterpri(uip,ep) ;
-	            }
-	            if (rs < 0)
-	                vechand_del(elp,ei) ;
-	        } /* end if (vechand_add) */
+	    vechand	*elp = &uip->ents ;
+	    if ((rs = vechand_add(elp,ep)) >= 0) {
+		ei = rs ;
+		*ep = *valp ;
+		{
+		    ep->id = ei ;
+		    rs = uctimeout_enterpri(uip,ep) ;
+		}
+		if (rs < 0)
+		    vechand_del(elp,ei) ;
+	    } /* end if (vechand_add) */
 	    if (rs < 0)
 	        uc_libfree(ep) ;
 	} /* end if (m-a) */
 #if	CF_DEBUGN
-	nprintf(NDF,"uctimeout_cmdset: ret rs=%d\n",rs) ;
+	nprintf(NDF,"uctimeout_cmdset: ret rs=%d ei=%u\n",rs,ei) ;
 #endif
-	return rs ;
+	return (rs >= 0) ? ei : rs ;
 }
 /* end subroutine (uctimeout_cmdset) */
 
@@ -381,32 +381,30 @@ static int uctimeout_cmdset(UCTIMEOUT *uip,TIMEOUT *valp)
 static int uctimeout_cmdcancel(UCTIMEOUT *uip,TIMEOUT *valp)
 {
 	int		rs ;
-	int		rs1 ;
-	    TIMEOUT	*ep ;
-	    const int	id = valp->id ;
-	    vechand	*elp = &uip->ents ;
-	    if ((rs = vechand_get(elp,id,&ep)) >= 0) {
-	        const int	ei = rs ;
-	        if ((rs = vechand_del(elp,ei)) >= 0) {
-	        	prique 		*pqp = uip->pqp ;
-	                const int	nrs = SR_NOTFOUND ;
-			int		f_free = FALSE ;
-	                if ((rs = vecsorthand_delhand(pqp,ep)) >= 0) {
-			    f_free = TRUE ;
-			} else if (rs == nrs) {
-	                    CIQ		*cqp = &uip->pass ;
-	                    if ((rs = ciq_remhand(cqp,ep)) >= 0) {
-				f_free = TRUE ;
-			    } else if (rs == nrs) {
-	                        rs = SR_OK ;
-	                    }
-			}
-			if ((rs >= 0) && f_free) {
-	            	    rs = uc_libfree(ep) ;
-			}
-	        } /* end if (vechand_del) */
-	    } /* end if (vechand_get) */
-	return rs ;
+	TIMEOUT		*ep ;
+	const int	ei = valp->id ;
+	vechand		*elp = &uip->ents ;
+	if ((rs = vechand_get(elp,ei,&ep)) >= 0) {
+	    if ((rs = vechand_del(elp,ei)) >= 0) {
+		prique 		*pqp = uip->pqp ;
+		const int	nrs = SR_NOTFOUND ;
+		int		f_free = FALSE ;
+		if ((rs = vecsorthand_delhand(pqp,ep)) >= 0) {
+		    f_free = TRUE ;
+		} else if (rs == nrs) {
+		    CIQ		*cqp = &uip->pass ;
+		    if ((rs = ciq_remhand(cqp,ep)) >= 0) {
+			f_free = TRUE ;
+		    } else if (rs == nrs) {
+			rs = SR_OK ;
+		    }
+		}
+		if ((rs >= 0) && f_free) {
+		    rs = uc_libfree(ep) ;
+		}
+	    } /* end if (vechand_del) */
+	} /* end if (vechand_get) */
+	return (rs ?= 0) ? ei : rs ;
 }
 /* end subroutine (uctimeout_cmdcancel) */
 
