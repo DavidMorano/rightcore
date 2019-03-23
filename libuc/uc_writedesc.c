@@ -1,6 +1,6 @@
 /* uc_writedesc */
 
-/* interface component for UNIX® library-3c */
+/* interface component for UNIXÂ® library-3c */
 /* copy from one file descriptor to another */
 
 
@@ -10,12 +10,12 @@
 
 /* revision history:
 
-	= 1998-01-10, David A­D­ Morano
+	= 1998-01-10, David AÂ­DÂ­ Morano
 	The subroutine was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -28,10 +28,7 @@
 
 	Synopsis:
 
-	int uc_copy(sfd,dfd,len)
-	int	sfd ;
-	int	dfd ;
-	int	len ;
+	int uc_writedesc(int dfd,int sfd,int len)
 
 	Arguments:
 
@@ -90,7 +87,7 @@ static int	deubgprintstat(cchar *,int) ;
 /* exported subroutines */
 
 
-int uc_copy(int sfd,int dfd,int ulen)
+int uc_writedesc(int dfd,int sfd,int ulen)
 {
 	int		rs = SR_OK ;
 	int		tlen = 0 ;
@@ -155,7 +152,7 @@ int uc_copy(int sfd,int dfd,int ulen)
 	        rs = uc_libvalloc(readlen,&mdata) ;
 #else
 	        if (readlen <= ps) {
-	            rs = uc_libvalloc(readlen,&mdata) ;
+	            rs = uc_libmalloc(readlen,&mdata) ;
 	        } else {
 	            const int	mprot = (PROT_READ|PROT_WRITE) ;
 	            const int	mflag = (MAP_PRIVATE|MAP_ANON) ;
@@ -218,17 +215,17 @@ int uc_copy(int sfd,int dfd,int ulen)
 
 	return (rs >= 0) ? tlen : rs ;
 }
-/* end subroutine (uc_copy) */
+/* end subroutine (uc_writedesc) */
 
 
-int uc_writedesc(int ofd,int ifd,int wlen)
+int uc_copy(int ifd,int ofd,int wlen)
 {
 #if	CF_DEBUGS
-	debugprintf("uc_writedesc: ent ulen=%d\n",wlen) ;
+	debugprintf("uc_copy: ent ulen=%d\n",wlen) ;
 	deubgprintstat("ifd",ifd) ;
 	deubgprintstat("ofd",ofd) ;
 #endif
-	return uc_copy(ifd,ofd,wlen) ;
+	return uc_writedesc(ofd,ifd,wlen) ;
 }
 /* end subroutine (uc_writedesc) */
 
