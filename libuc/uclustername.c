@@ -53,13 +53,13 @@
 	A. Looking at it now ... maybe not.
 
 	Q. Were there any alternatives?
-	A. Yes; the predicessor to this present implementation was an 
+	A. Yes; the predecessor to this present implementation was an 
 	   implementation that was quite simple, but it had a lot of static
 	   memory storage.  It was the desire to eliminate the static memory
 	   storage that led to this present implementation.
 
 	Q. Are there ways to clean this up further?
-	A. Probably, but it looks I have already done more to this simple
+	A. Probably, but it looks like I have already done more to this simple
 	   function than may have been ever warranted to begin with!
 
 	Q. Did these subroutines have to be Async-Signal-Safe?
@@ -316,6 +316,57 @@ static int uclustername_end(UCLUSTERNAME *uip)
 /* end subroutine (uclustername_end) */
 
 
+static int uclustername_allocbegin(UCLUSTERNAME *uip,time_t dt,int ttl)
+{
+	int		rs ;
+	int		rs1 ;
+	int		f = FALSE ;
+	if ((rs = uc_forklockbegin(-1)) >= 0) {
+	    if ((rs = ptm_lock(&uip->m)) >= 0) {
+	        if ((uip->a == NULL) || ((dt-uip->et) >= ttl)) {
+	            if (! uip->f_allocget) {
+	                uip->f_allocget = TRUE ;
+	                f = TRUE ; /* indicate "got" */
+	            }
+	        } /* end if (need) */
+	        rs1 = ptm_unlock(&uip->m) ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (mutex) */
+	    rs1 = uc_forklockend() ;
+	    if (rs >= 0) rs = rs1 ;
+	} /* end if (forklock) */
+	return (rs >= 0) ? f : rs ;
+}
+/* end subroutine (uclustername_allocbegin) */
+
+
+static int uclustername_allocend(UCLUSTERNAME *uip,UCLUSTERNAME_A *ap)
+{
+	int		rs = SR_OK ;
+	int		rs1 ;
+	if ((ap != NULL) && (ap->a != NULL)) {
+	    if ((rs = uc_forklockbegin(-1)) >= 0) {
+	        if ((rs = ptm_lock(&uip->m)) >= 0) {
+	            {
+	                uip->f_allocget = FALSE ;
+	                uip->a = ap->a ;
+	                uip->nn = ap->nn ;
+	                uip->cn = ap->cn ;
+	                uip->et = ap->et ;
+	                uip->ttl = ap->ttl ;
+	            }
+	            rs1 = ptm_unlock(&uip->m) ;
+	            if (rs >= 0) rs = rs1 ;
+	        } /* end if (mutex) */
+	        rs1 = uc_forklockend() ;
+	        if (rs >= 0) rs = rs1 ;
+	    } /* end if (forklock) */
+	} /* end if (non-null) */
+	return rs ;
+}
+/* end subroutine (uclustername_allocend) */
+
+
 static void uclustername_atforkbefore()
 {
 	UCLUSTERNAME	*uip = &uclustername_data ;
@@ -414,60 +465,11 @@ static int subinfo_cacheset(SUBINFO *sip,UCLUSTERNAME *uip,int ttl)
 	    rs1 = uclustername_allocend(uip,&uca) ;
 	    if (rs >= 0) rs = rs1 ;
 	} /* end if (alloc) */
-	if ((rs >= 0) && (aprev != NULL)) uc_libfree(aprev) ;
+	if ((rs >= 0) && (aprev != NULL)) {
+	    uc_libfree(aprev) ;
+	}
 	return (rs >= 0) ? f : rs ;
 }
 /* end subroutine (subinfo_cacheset) */
-
-
-static int uclustername_allocbegin(UCLUSTERNAME *uip,time_t dt,int ttl)
-{
-	int		rs ;
-	int		rs1 ;
-	int		f = FALSE ;
-	if ((rs = uc_forklockbegin(-1)) >= 0) {
-	    if ((rs = ptm_lock(&uip->m)) >= 0) {
-	        if ((uip->a == NULL) || ((dt-uip->et) >= ttl)) {
-	            if (! uip->f_allocget) {
-	                uip->f_allocget = TRUE ;
-	                f = TRUE ; /* indicate "got" */
-	            }
-	        } /* end if (need) */
-	        rs1 = ptm_unlock(&uip->m) ;
-	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (mutex) */
-	    rs1 = uc_forklockend() ;
-	    if (rs >= 0) rs = rs1 ;
-	} /* end if (forklock) */
-	return (rs >= 0) ? f : rs ;
-}
-/* end subroutine (subinfo_allocbegin) */
-
-
-static int uclustername_allocend(UCLUSTERNAME *uip,UCLUSTERNAME_A *ap)
-{
-	int		rs = SR_OK ;
-	int		rs1 ;
-	if ((ap != NULL) && (ap->a != NULL)) {
-	    if ((rs = uc_forklockbegin(-1)) >= 0) {
-	        if ((rs = ptm_lock(&uip->m)) >= 0) {
-	            {
-	                uip->f_allocget = FALSE ;
-	                uip->a = ap->a ;
-	                uip->nn = ap->nn ;
-	                uip->cn = ap->cn ;
-	                uip->et = ap->et ;
-	                uip->ttl = ap->ttl ;
-	            }
-	            rs1 = ptm_unlock(&uip->m) ;
-	            if (rs >= 0) rs = rs1 ;
-	        } /* end if (mutex) */
-	        rs1 = uc_forklockend() ;
-	        if (rs >= 0) rs = rs1 ;
-	    } /* end if (forklock) */
-	} /* end if (non-null) */
-	return rs ;
-}
-/* end subroutine (subinfo_allocend) */
 
 
