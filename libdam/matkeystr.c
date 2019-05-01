@@ -8,12 +8,12 @@
 
 /* revision history:
 
-	= 1998-12-01, David A­D­ Morano
+	= 1998-12-01, David AÂ­DÂ­ Morano
 	Module was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -79,28 +79,26 @@ int matkeystr(cchar **a,cchar *sp,int sl)
 	int		sch = sp[0] ; /* ok: everything promotes the same */
 	int		i ;
 	int		f = FALSE ;
-
+	cchar		*ap ;
 	if (sl >= 0) {
 	    int		m ;
 	    for (i = 0 ; a[i] != NULL ; i += 1) {
-		m = (sch == a[i][0]) ;
-		if (m > 0) {
-		    m = nleadkeystr(a[i],sp,sl) ;
+		ap = a[i] ;
+		if (m = (sch == ap[0])) m = nleadkeystr(ap,sp,sl) ;
+		if (KEYEND(ap[m])) {
+		    f = ((m == sl) || KEYEND(sp[m])) ;
 		}
-		f = (((m == sl) || KEYEND(sp[m])) && KEYEND(a[i][m])) ;
 		if (f) break ;
 	    } /* end for */
 	} else {
 	    for (i = 0 ; a[i] != NULL ; i += 1) {
-	        if (sch == a[i][0]) {
-		    f = (strkeycmp(a[i],sp) == 0) ;
-		} else {
-		    f = (KEYEND(sp[0]) && KEYEND(a[i][0])) ;
+		ap = a[i] ;
+	        if (sch == ap[0]) {
+		    f = (strkeycmp(ap,sp) == 0) ;
 		}
 		if (f) break ;
 	    } /* end for */
 	} /* end if */
-
 	return (f) ? i : -1 ;
 }
 /* end subroutine (matkeystr) */
