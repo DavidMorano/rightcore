@@ -8,12 +8,12 @@
 
 /* revision history:
 
-	= 1998-12-01, David A­D­ Morano
+	= 1998-12-01, David AÂ­DÂ­ Morano
 	Module was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -79,21 +79,16 @@ extern int	strlinelen(const char *,int,int) ;
 
 int matostr(cchar **a,int n,cchar *sp,int sl)
 {
-	const int	lc = sp[0] ; /* ok: everything promotes similarly */
+	const int	lch = sp[0] ; /* ok: everything promotes similarly */
 	int		i ;
 	int		m ;
-
+	cchar		*ap ;
 	if (sl < 0) sl = strlen(sp) ;
-
 	for (i = 0 ; a[i] != NULL ; i += 1) {
-	    if ((m = (lc == a[i][0])) > 0) {
-	        m = nleadstr(a[i],sp,sl) ;
-	    }
-	    if ((m == sl) && ((m >= n) || (a[i][m] == '\0'))) {
-		break ;
-	    }
+	    ap = a[i] ;
+	    if (m = (lch == ap[0])) m = nleadstr(ap,sp,sl) ;
+	    if ((m == sl) && ((m >= n) || (ap[m] == '\0'))) break ;
 	} /* end for */
-
 	return (a[i] != NULL) ? i : -1 ;
 }
 /* end subroutine (matostr) */
