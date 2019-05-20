@@ -3,23 +3,19 @@
 
 /* revision history:
 
-	= 1998-02-01, David A­D­ Morano
+	= 1998-02-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 #ifndef	DUPSTR_INCLUDE
 #define	DUPSTR_INCLUDE	1
 
 
 #include	<envstandards.h>	/* MUST be first to configure */
-
 #include	<sys/types.h>
-#include	<sys/param.h>
-#include	<limits.h>
-
 #include	<localmisc.h>
 
 
