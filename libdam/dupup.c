@@ -3,17 +3,14 @@
 /* duplicate a file descriptor to be at some minimum number */
 
 
-#define	CF_DEBUGS	0		/* compile-time debugging */
-
-
 /* revision history:
 
-	= 1998-07-10, David A­D­ Morano
+	= 1998-07-10, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /******************************************************************************
 
@@ -23,19 +20,15 @@
         descriptors need to be juggled around (like around when programs do
         forks!).
 
-	Synopsis:
 
-	int dupup(fd,min)
-	int	fd ;
-	int	min ;
+	Synopsis:
+	int dupup(int fd,int min)
 
 	Arguments:
-
 	fd	file desciptor to duplicate
 	min	minimum level to get the duplicate at
 
 	Returns:
-
 	<0	error
 	>=0	the new file descriptor
 
@@ -44,15 +37,7 @@
 
 
 #include	<envstandards.h>
-
 #include	<sys/types.h>
-#include	<sys/param.h>
-#include	<limits.h>
-#include	<unistd.h>
-#include	<fcntl.h>
-#include	<stdlib.h>
-#include	<string.h>
-
 #include	<vsystem.h>
 #include	<localmisc.h>
 
@@ -66,7 +51,13 @@
 /* external variables */
 
 
+/* local structures/
+
+
 /* forward references */
+
+
+/* local variables */
 
 
 /* exported subroutines */
@@ -76,21 +67,17 @@ int dupup(int fd,int min)
 {
 	int		rs ;
 	int		ufd = -1 ;
-
 	if (fd < 0) return SR_INVALID ;
-
 	if ((rs = u_dup(fd)) >= 0) {
 	    ufd = rs ;
 	    if (ufd < min) {
 	        rs = uc_moveup(ufd,min) ;
-	        ufd = rs ;
 	        if (rs < 0) u_close(ufd) ;
+	        ufd = rs ;
 	    } /* end if (move needed) */
 	} /* end if (dup) */
-
 	return (rs >= 0) ? ufd : rs ;
 }
 /* end subroutine (dupup) */
-
 
 
