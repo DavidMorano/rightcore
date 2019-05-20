@@ -1,6 +1,6 @@
 /* u_dup2 */
 
-/* translation layer interface for UNIX® equivalents */
+/* translation layer interface for UNIXÂ® equivalents */
 
 
 #define	CF_DEBUGS	0		/* compile-time debugging */
@@ -8,12 +8,12 @@
 
 /* revision history:
 
-	= 1998-11-01, David A­D­ Morano
+	= 1998-11-01, David AÂ­DÂ­ Morano
 	This subroutine was written for Rightcore Network Services (RNS).
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 
 #include	<envstandards.h>
@@ -30,7 +30,8 @@
 
 /* local defines */
 
-#define	TO_NOMEM	60
+#define	TO_MFILE	60
+#define	TO_NFILE	60
 #define	TO_NOSR		(5 * 60)
 
 
@@ -45,7 +46,8 @@ extern int	msleep(int) ;
 int u_dup2(int fd1,int fd2)
 {
 	int		rs ;
-	int		to_nomem = TO_NOMEM ;
+	int		to_mfile = TO_MFILE ;
+	int		to_nfile = TO_NFILE ;
 	int		to_nosr = TO_NOSR ;
 	int		f_exit = FALSE ;
 
@@ -53,8 +55,15 @@ int u_dup2(int fd1,int fd2)
 	    if ((rs = dup2(fd1,fd2)) < 0) rs = (- errno) ;
 	    if (rs < 0) {
 	        switch (rs) {
-	        case SR_NOMEM:
-	            if (to_nomem-- > 0) {
+	        case SR_MFILE:
+	            if (to_mfile-- > 0) {
+			msleep(1000) ;
+		    } else {
+			f_exit = TRUE ;
+		    }
+	            break ;
+		case SR_NFILE:
+	            if (to_nfile-- > 0) {
 			msleep(1000) ;
 		    } else {
 			f_exit = TRUE ;
