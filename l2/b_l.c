@@ -12,12 +12,12 @@
 
 /* revision history:
 
-	= 2004-03-01, David A­D­ Morano
+	= 2004-03-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.  
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -260,10 +260,10 @@ static const char	*suffixes[] = {
 	"=",
 	"|",
 	"^",
-	"®",
+	"Â®",
 	">",
 	"+",
-	"¿",
+	"Â¿",
 	NULL
 } ;
 
@@ -1327,7 +1327,7 @@ static int filesuf(cchar fname[],int fl)
 	    if (rs >= 0) {
 	        if ((rs = uc_lstat(fname,&sb)) >= 0) {
 	            if (S_ISREG(sb.st_mode)) {
-	                const int	xmask = (S_IEXEC | S_IXGRP | S_IXGRP) ;
+	                const int	xmask = (S_IEXEC | S_IXGRP | S_IXOTH) ;
 	                si = suffix_reg ;
 	                if (sb.st_mode & xmask) si = suffix_exec ;
 	            } else if (S_ISDIR(sb.st_mode)) {
