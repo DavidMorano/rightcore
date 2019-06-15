@@ -1,9 +1,9 @@
 /* fsdir */
 
-/* UNIX® file system dirextory operations */
+/* UNIXÂ® file system dirextory operations */
 
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 #ifndef	FSDIR_INCLUDE
 #define	FSDIR_INCLUDE	1
@@ -27,12 +27,12 @@
 #define	FSDIR_FL	struct fsdir_flags
 
 #ifndef	MAXNAMELEN
-#define	MAXNAMELEN	256
+#define	MAXNAMELEN	255
 #endif
 
 
 struct fsdir_e {
-	uino_t		ino ;		/* UNIX® "inode number" of entry */
+	uino_t		ino ;		/* UNIXÂ® "inode number" of entry */
 	offset_t	off ;		/* offset of disk directory entry */
 	ushort		reclen ;	/* length of this record */
 	char		name[MAXNAMELEN+1] ;	/* name of file */
