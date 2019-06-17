@@ -1204,7 +1204,6 @@ static int procprint(PROGINFO *pip,void *ofp,VECSTR *dlp)
 	        cchar	*pn = pip->progname ;
 	        cchar	*fmt = "%s: inacessible file=%s (%d)\n" ;
 	        rs = shio_printf(pip->efp,fmt,pn,fnp,si) ;
-	        wlen += rs ;
 	    } /* end if */
 
 	    if (rs < 0) break ;
