@@ -8,12 +8,12 @@
 
 /* revision history:
 
-	= 2017-09-01, David A­D­ Morano
+	= 2017-09-01, David AÂ­DÂ­ Morano
 	Written for fun!
 
 */
 
-/* Copyright © 2017 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2017 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -21,7 +21,7 @@
         traversing through the array by taking the value of an element as a
         relative addition to the current index in the array to advance to the
         next element, if the total of advancements return to the original
-	or beghinning element.  We start off considering the first element.
+	or beginning element.  We start off considering the first element.
 
 	Example arrays:
 	true	{ 2, 2, 2 },
