@@ -35,7 +35,6 @@
 	lib_init
 
 	Description:
-
         This subroutine is called by KSH when it loads this shared library. We
         use this call to initialize some things that are partuclar to when
         executing from within KSH. One of these is to set the underlying memory
@@ -45,16 +44,13 @@
         rather than the standard default UNIX® system subroutines.
 
 	Synopsis:
-
 	void lib_init(int flags,void *cxp)
 
 	Arguments:
-
 	flags		flags set by KSH
 	contexto	KSH context
 
 	Returns:
-
 	-
 
 
@@ -64,7 +60,6 @@
 	lib_initenviron
 
 	Description:
-
         This subroutine is used to set the environment inside the
         builtin-command (CMD) link-group to the same environment of our caller
         (usually the SHELL itself). Depending on how this module is loaded, it
@@ -81,29 +76,23 @@
         the CMD subroutine itself calls 'lib_initenviron()' in order to set the
         CMD link-group copy of the 'environ' variable to the same as what exists
         wihtin the SHELL itself.
-
         When CMDs are not called by the SHELL, but rather by some other means,
         some other way to set the 'environ' variable has to be established.
         Possible other ways are:
-
         1. this subroutine is not linked in, so there is *no* separate copy of
         'environ' in the first place (completely typical in regular programs)
-
         2. by the caller instead calling the CMD subroutine though an
         intermediate subroutine (like named 'lib_caller()') and which gets its
         internal 'environ' copy set with that subroutine before the CMD
         subroutine is called in turn.
 
 	Synopsis:
-
 	int lib_initenviron(void *cxp)
 
 	Arguments:
-
 	cxp		context pointer
 
 	Returns:
-
 	<0		error
 	>=0		OK
 
@@ -114,9 +103,7 @@
 	lib_caller
 
 	Description:
-
 	What in the world does this subroutine do?
-
         This subroutine lets us call a command (CMD) function, otherwise known
         as a command "builtin" (from the SHELL language on the subject) while
         giving it an arbitrary environment determined by the caller. In the
@@ -129,7 +116,6 @@
         it is forced to simply inherit the environment of the caller.
 
 	Synopsis:
-
 	int lib_caller(func,argc,argv,envv,cxp)
 	int		(*func)(int,cchar **,void *) ;
 	int		argc ;
@@ -138,7 +124,6 @@
 	void		*cxp ;
 
 	Arguments:
-
 	func		function to call
 	argc		ARGC
 	argv		ARGV
@@ -146,7 +131,6 @@
 	cxp		KSH context
 
 	Returns:
-
 	ex		exit status (like a process exit status)
 
 
@@ -156,7 +140,6 @@
 	lib_initmemalloc
 
 	Description:
-
         When CF_LOCKMEMALLOC is set (non-zero) above, the LOCKMEMALLOC facility
         is (possibly) made available for use. Actual use depends on whether the
         module (LOCKMEMALLOC) is available somewhere in the current link-map. If
@@ -176,23 +159,18 @@
         allocation subroutines. This can help but also might still not be enough
         (since some shell code can still be used even within multi-threaded
         code). But every little bit helps.
-
         One would think that everything today is multi-thread safe, but NO.
         There are still some hold-outs, and these hold-outs make it bad for
         everybody!
-
 	Well, there it is.
 
 	Synospsis:
-
 	int lib_initmemalloc(int f)
 
 	Arguments:
-
 	f		switch (0=OFF, 1=ON)
 
 	Returns:
-
 	<0		error
 	>=0		OK
 
@@ -206,7 +184,6 @@
         threads are still valid.  This whole business is a real fork turner!
 
 	= Aligned integer types?
-
 	"aligned |int|s are already atomic"
         Well, yes, on almost every platform except for the old (original) DEC
         Alpha architecture.
