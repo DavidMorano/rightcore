@@ -9,12 +9,12 @@
 
 /* revision history:
 
-	= 1998-03-01, David A­D­ Morano
+	= 1998-03-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -48,7 +48,7 @@
         trying to make this process faster! These subroutines are, therefore,
         probably the slowest such conversions routinely available. To really
         move (execute) quickly through the division-related aspects of the
-        require algorithm, one would have to use assembly language where both
+        required algorithm, one would have to use assembly language where both
         the quotient and the reminder of a division are produced simultaneously
         (since each are needed to continue). This, of course, assumes that the
         underlying machine architecture has such instructions. But short of
