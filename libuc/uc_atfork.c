@@ -164,6 +164,9 @@ int ucatfork_init()
 	        	f = TRUE ;
 	            } /* end if (uc_atexit) */
 	        } /* end if (pt_atfork) */
+		if (rs < 0) {
+		    ptm_destroy(&udp->m) ;
+		}
 #if	CF_DEBUGINIT
 		nprintf(NDF,"ucatfork_init: done\n") ;
 #endif
