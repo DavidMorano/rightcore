@@ -23,14 +23,14 @@
 
 /* revision history:
 
-	= 1998-03-01, David A­D­ Morano
-        Of course, this subroutine was inspired by the UNIX® equivalent, but
-        this is my own version for a. when I don't have the UNIX® libraries
+	= 1998-03-01, David AÂ­DÂ­ Morano
+        Of course, this subroutine was inspired by the UNIXÂ® equivalent, but
+        this is my own version for a. when I don't have the UNIXÂ® libraries
         around, and b. to customize it to what I want!
 
 */
 
-/* Copyright © 1998 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 1998 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
@@ -80,7 +80,7 @@
 
 	%t		counted byte string output like 'u_write(2)'
 
-	Not ethat all of the following format-code additions have been
+	Note that all of the following format-code additions have been
 	removed since the C-89 standard (adding the 'C' format-code):
 
 	%x.yH		terminal cursor positioning, 2 integer arguments (r.c)
@@ -144,7 +144,7 @@
 #define	FD_WRITE	4
 
 #undef	CH_BADSUB
-#define	CH_BADSUB	'¿'
+#define	CH_BADSUB	'Â¿'
 
 #ifndef	SWUCHAR
 #define	SWUCHAR(ch)	((ch) & 0xff)
@@ -205,7 +205,7 @@
 #define	DEBUGBUFLEN	1024
 
 #ifndef	NULLPOINTER
-#define	NULLPOINTER	"¯NP¯"
+#define	NULLPOINTER	"Â¯NPÂ¯"
 #endif
 
 #ifndef	NULL
@@ -547,7 +547,7 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 
 #if	CF_DEBUGZ
 	        {
-	            int	fc = (isprintlatin(fcode) ? fcode : '¿') ;
+	            int	fc = (isprintlatin(fcode) ? fcode : 'Â¿') ;
 	            zprintf(NDF,"format: switch fcode=%c (\\x%04X)\n",
 	                fc,fcode) ;
 	        }
@@ -863,7 +863,7 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 	            break ;
 
 /* handle binary numbers */
-	        case SWUCHAR('ß'):
+	        case SWUCHAR('ÃŸ'):
 	            {
 	                ULONG	unum ;
 	                int		ndigits = 0 ;
@@ -1093,7 +1093,7 @@ int format(char *ubuf,int ulen,int mode,cchar *fmt,va_list ap)
 
 #if	CF_DEBUGZ
 	        zprintf(NDF,"format: switch-out rs=%d fcode=%c (\\x%04X)\n",
-	            rs,(isprintlatin(fcode) ? fcode : '°'),fcode) ;
+	            rs,(isprintlatin(fcode) ? fcode : 'Â°'),fcode) ;
 #endif
 
 	        if ((rs >= 0) && (fcode != '\0') && (bp != NULL)) {
@@ -1364,7 +1364,7 @@ static int subinfo_fmtstr(SUBINFO *sip,FMTSPEC *fsp,STRDATA *sdp)
 	                    if ((ch = (int) lsp[j]) <= UCHAR_MAX) {
 	                        p[j] = (char) ch ;
 	                    } else {
-	                        p[j] = '¿' ;
+	                        p[j] = 'Â¿' ;
 	                    }
 	                } /* end for */
 	            } else {
@@ -1372,7 +1372,7 @@ static int subinfo_fmtstr(SUBINFO *sip,FMTSPEC *fsp,STRDATA *sdp)
 	                    if ((ch = (int) wsp[j]) <= UCHAR_MAX) {
 	                        p[j] = (char) ch ;
 	                    } else {
-	                        p[j] = '¿' ;
+	                        p[j] = 'Â¿' ;
 	                    }
 	                } /* end for */
 	            } /* end if */
@@ -1484,7 +1484,7 @@ static int subinfo_emit(SUBINFO *sip,FMTSPEC *fsp,cchar *sp,int sl)
 	case 'i':
 	case 'd':
 	case 'u':
-	case SWUCHAR('ß'):
+	case SWUCHAR('ÃŸ'):
 	case 'o':
 	case 'X':
 	case 'x':
@@ -1497,7 +1497,7 @@ static int subinfo_emit(SUBINFO *sip,FMTSPEC *fsp,cchar *sp,int sl)
 	case 'i':
 	case 'd':
 	case 'u':
-	case SWUCHAR('ß'):
+	case SWUCHAR('ÃŸ'):
 	case 'o':
 	case 'e':
 	case 'g':
@@ -1508,7 +1508,7 @@ static int subinfo_emit(SUBINFO *sip,FMTSPEC *fsp,cchar *sp,int sl)
 	} /* end switch */
 
 	switch (fcode) {
-	case SWUCHAR('ß'):
+	case SWUCHAR('ÃŸ'):
 	case 'X':
 	case 'x':
 	case 'P':
