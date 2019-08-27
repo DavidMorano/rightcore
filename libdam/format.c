@@ -287,7 +287,6 @@ enum lenmods {
 	lenmod_longdouble,
 	lenmod_wide,
 	lenmod_overlast
-
 } ;
 
 
