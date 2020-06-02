@@ -1,6 +1,6 @@
 /* igcd */
 
-/* integer Greastest Common Divisor (GCD) */
+/* integer Greatest Common Divisor (GCD) */
 /* last modified %G% version %I% */
 
 
@@ -9,12 +9,12 @@
 
 /* revision history:
 
-	= 2004-03-01, David A­D­ Morano
+	= 2004-03-01, David AÂ­DÂ­ Morano
 	This subroutine was originally written.  
 
 */
 
-/* Copyright © 2004 David A­D­ Morano.  All rights reserved. */
+/* Copyright Â© 2004 David AÂ­DÂ­ Morano.  All rights reserved. */
 
 /*******************************************************************************
 
