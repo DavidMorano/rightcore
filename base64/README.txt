@@ -16,5 +16,5 @@ Arguments:
 -d		decode mode
 -t		specify text encoding
 -<cols>		?
--V		prince program version to standard-error and then exit
+-V		print program version to standard-error and then exit
 
