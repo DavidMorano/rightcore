@@ -1,14 +1,14 @@
 %{SS}
 
-This command tests if a specified process is running by referencing a standard
-PID file.
+This command tests if a specified process is not running by referencing
+a standard PID file.
 
 Synopsis:
 $ %{S} <pidfile(s)> [-<age>] [-V]
 
 Arguments:
 <pidfile(s)>	PID file(s) to check
--<age>		age of PID file(s) (must be younger than specified)
+-<age>		age of PID file(s) (must be at least as old as specified)
 -V		print command version to standard-error and then exit
 
 Returns:
