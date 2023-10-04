@@ -41,16 +41,16 @@
 .\"_
 .SP 2
 .DS C
-\s-2from\s0
-\(<- Bespoke Bibles \(->
-
 \s-2the\s0
-\fB\s+2 Authorized Version translation of the Bible \s0\fP
 .DE
-.SP 1
+.DS C
+\fB\s+2~ from Bespoke Bibles ~\s0\fP
+
+the Authorized Version translation of the Bible
+.DE
 .\"_
 .\"_
-.SP 1
+.SP 2
 .DS C
 \s-2about\s0
 .DE
@@ -74,7 +74,7 @@ Contact Bespoke Bibles with any request.
 .QE
 .\"_
 .\"_
-.SP 1
+.SP 2
 .DS C
 \s-2usage\s0
 .DE
@@ -94,7 +94,7 @@ key, the viewer program will display the page you specified.
 .QE
 .\"_
 .\"_
-.SP 1
+.SP 2
 .DS C
 \s-2copyright restrictions\s0
 .DE
@@ -113,7 +113,7 @@ restrictions.
 .QE
 .\"_
 .\"_
-.SP 1
+.SP 2
 .DS C
 \s-2acknowledgments\s0
 .DE
@@ -135,7 +135,8 @@ for unrestricted and free use throughout the world.
 .QE
 .\"_
 .\"_
-.SP 1
+.SP 2
+.ne 9
 .DS C
 \s-2publisher\s0
 .DE
